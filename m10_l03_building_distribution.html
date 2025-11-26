@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Package and distribute your Unreal Engine 5 game. Learn build configurations, packaging process, and distribution options for Windows, Mac, and other platforms.">
+    <meta name="author" content="Practical Ace">
+    <title>Building and Distribution - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 10: Packaging</a></li>
+            <li aria-current="page">Lesson 10.3: Building and Distribution</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>📦 Building and Distribution</h1>
+                <p class="lead">This is it—the final step! Packaging transforms your Unreal project into a standalone game that runs without the editor. You'll learn about build configurations, the packaging process, troubleshooting common issues, and distribution options. By the end, you'll have a playable game ready to share with the world.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Understand build configurations and when to use each</li>
+                        <li>Package your game for Windows and other platforms</li>
+                        <li>Troubleshoot common packaging errors</li>
+                        <li>Prepare your game for distribution</li>
+                        <li>Create installers and distribute your game</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lessons 10.1 and 10.2 complete</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#build-configs" class="toc-link">Build Configurations</a></li>
+                        <li><a href="#packaging-process" class="toc-link">The Packaging Process</a></li>
+                        <li><a href="#troubleshooting" class="toc-link">Troubleshooting</a></li>
+                        <li><a href="#distribution" class="toc-link">Distribution Options</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Build Configurations -->
+            <section id="build-configs" class="lesson-section">
+                <h2>Build Configurations</h2>
+
+                <p>Build configurations determine how your game is compiled. Each serves a different purpose—from debugging to final release.</p>
+
+                <h3>Configuration Types</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Configuration</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                            <th style="padding: 10px; text-align: left;">Characteristics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><strong>Debug</strong></td>
+                            <td style="padding: 10px;">Deep debugging</td>
+                            <td style="padding: 10px;">No optimization, full debug symbols, very slow</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>DebugGame</strong></td>
+                            <td style="padding: 10px;">Debug game code only</td>
+                            <td style="padding: 10px;">Engine optimized, game code debuggable</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><strong>Development</strong></td>
+                            <td style="padding: 10px;">Testing and iteration</td>
+                            <td style="padding: 10px;">Optimized, console commands enabled, logging</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>Shipping</strong></td>
+                            <td style="padding: 10px;">Final release</td>
+                            <td style="padding: 10px;">Maximum optimization, no debug code, smallest size</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>When to Use Each</h3>
+
+                <ul>
+                    <li><strong>Development:</strong> Day-to-day testing, QA builds, playtesting
+                        <ul>
+                            <li>Console commands work (~key)</li>
+                            <li>Logging enabled for debugging</li>
+                            <li>Good performance but larger size</li>
+                        </ul>
+                    </li>
+                    <li><strong>Shipping:</strong> Final release, store distribution
+                        <ul>
+                            <li>Console disabled (cheat prevention)</li>
+                            <li>All debug code stripped</li>
+                            <li>Smallest size, best performance</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- SVG: Build Configuration Comparison -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Build Configuration Comparison</text>
+                    
+                    <!-- Headers -->
+                    <text x="180" y="55" text-anchor="middle" fill="#666" font-size="9">Development</text>
+                    <text x="620" y="55" text-anchor="middle" fill="#666" font-size="9">Shipping</text>
+                    
+                    <!-- Development -->
+                    <g transform="translate(50, 70)">
+                        <rect x="0" y="0" width="260" height="110" rx="8" fill="#FF9800"/>
+                        <text x="130" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Development Build</text>
+                        
+                        <text x="20" y="48" fill="#fff3e0" font-size="9">✓ Console commands enabled</text>
+                        <text x="20" y="65" fill="#fff3e0" font-size="9">✓ Logging and stats available</text>
+                        <text x="20" y="82" fill="#fff3e0" font-size="9">✓ Debug drawing works</text>
+                        <text x="20" y="99" fill="#fff3e0" font-size="9">⚠ Larger file size</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <g transform="translate(340, 115)">
+                        <path d="M 0 0 L 100 0" stroke="#333" stroke-width="2" marker-end="url(#buildArrow)"/>
+                        <text x="50" y="-10" text-anchor="middle" fill="#666" font-size="8">Release</text>
+                    </g>
+                    
+                    <!-- Shipping -->
+                    <g transform="translate(490, 70)">
+                        <rect x="0" y="0" width="260" height="110" rx="8" fill="#4CAF50"/>
+                        <text x="130" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Shipping Build</text>
+                        
+                        <text x="20" y="48" fill="#c8e6c9" font-size="9">✓ Maximum performance</text>
+                        <text x="20" y="65" fill="#c8e6c9" font-size="9">✓ Smallest file size</text>
+                        <text x="20" y="82" fill="#c8e6c9" font-size="9">✓ Console disabled (secure)</text>
+                        <text x="20" y="99" fill="#c8e6c9" font-size="9">✓ Ready for distribution</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="buildArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Development for testing, Shipping for release.</em></p>
+
+                <h3>Setting Build Configuration</h3>
+
+                <ol>
+                    <li>Go to <strong>Project Settings → Project → Packaging</strong></li>
+                    <li>Find <strong>Build Configuration</strong></li>
+                    <li>Select <strong>Shipping</strong> for final builds</li>
+                    <li>Or select in the Package menu when packaging</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Test Before Shipping</h4>
+                    <p>Always test a Development build first to catch issues. Once verified, create your Shipping build. Shipping builds can hide problems that appear in Development due to timing differences.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: The Packaging Process -->
+            <section id="packaging-process" class="lesson-section">
+                <h2>The Packaging Process</h2>
+
+                <p>Packaging converts your project into a standalone executable. The process cooks content, compiles code, and creates the final distributable.</p>
+
+                <h3>How to Package</h3>
+
+                <ol>
+                    <li>Go to <strong>Platforms</strong> menu in the toolbar</li>
+                    <li>Select your target platform (e.g., <strong>Windows</strong>)</li>
+                    <li>Click <strong>Package Project</strong></li>
+                    <li>Choose an output folder (outside your project directory)</li>
+                    <li>Wait for the process to complete</li>
+                </ol>
+
+                <h3>What Happens During Packaging</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Stage</th>
+                            <th style="padding: 10px; text-align: left;">What It Does</th>
+                            <th style="padding: 10px; text-align: left;">Common Issues</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Cooking</td>
+                            <td style="padding: 10px;">Converts assets to platform format</td>
+                            <td style="padding: 10px;">Missing references, invalid assets</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Compiling</td>
+                            <td style="padding: 10px;">Builds C++ code (if any)</td>
+                            <td style="padding: 10px;">Compile errors, missing dependencies</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Staging</td>
+                            <td style="padding: 10px;">Copies files to output</td>
+                            <td style="padding: 10px;">Disk space, permissions</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Packaging</td>
+                            <td style="padding: 10px;">Creates .pak files, executable</td>
+                            <td style="padding: 10px;">Compression issues</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Packaging Pipeline -->
+                <svg width="100%" height="160" viewBox="0 0 800 160" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Packaging Pipeline</text>
+                    
+                    <!-- Project -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#667eea"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Project</text>
+                        <text x="50" y="42" text-anchor="middle" fill="#c5cae9" font-size="7">.uproject</text>
+                        <text x="50" y="54" text-anchor="middle" fill="#c5cae9" font-size="7">Content/</text>
+                    </g>
+                    
+                    <path d="M 135 85 L 165 85" stroke="#fff" stroke-width="2" marker-end="url(#pipeArrow)"/>
+                    
+                    <!-- Cook -->
+                    <g transform="translate(170, 55)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#FF9800"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Cook Content</text>
+                        <text x="60" y="42" text-anchor="middle" fill="#fff3e0" font-size="7">Convert assets</text>
+                        <text x="60" y="54" text-anchor="middle" fill="#fff3e0" font-size="7">Platform format</text>
+                    </g>
+                    
+                    <path d="M 295 85 L 325 85" stroke="#fff" stroke-width="2" marker-end="url(#pipeArrow)"/>
+                    
+                    <!-- Compile -->
+                    <g transform="translate(330, 55)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#9C27B0"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Compile Code</text>
+                        <text x="60" y="42" text-anchor="middle" fill="#e1bee7" font-size="7">Build C++</text>
+                        <text x="60" y="54" text-anchor="middle" fill="#e1bee7" font-size="7">Link libraries</text>
+                    </g>
+                    
+                    <path d="M 455 85 L 485 85" stroke="#fff" stroke-width="2" marker-end="url(#pipeArrow)"/>
+                    
+                    <!-- Stage -->
+                    <g transform="translate(490, 55)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#2196F3"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Stage Files</text>
+                        <text x="60" y="42" text-anchor="middle" fill="#bbdefb" font-size="7">Copy to output</text>
+                        <text x="60" y="54" text-anchor="middle" fill="#bbdefb" font-size="7">Create .pak</text>
+                    </g>
+                    
+                    <path d="M 615 85 L 645 85" stroke="#fff" stroke-width="2" marker-end="url(#pipeArrow)"/>
+                    
+                    <!-- Output -->
+                    <g transform="translate(650, 55)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Package</text>
+                        <text x="60" y="42" text-anchor="middle" fill="#c8e6c9" font-size="7">Game.exe</text>
+                        <text x="60" y="54" text-anchor="middle" fill="#c8e6c9" font-size="7">Content.pak</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="pipeArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#fff"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The packaging pipeline transforms your project into a distributable game.</em></p>
+
+                <h3>Output Structure</h3>
+
+                <p>After packaging, your output folder contains:</p>
+
+                <pre style="background: #2d2d2d; color: #fff; padding: 1rem; border-radius: 5px; overflow-x: auto;">
+WindowsNoEditor/
+├── Engine/
+│   └── ... (engine content)
+├── YourGame/
+│   ├── Binaries/
+│   │   └── Win64/
+│   │       └── YourGame.exe
+│   ├── Content/
+│   │   └── Paks/
+│   │       └── YourGame-WindowsNoEditor.pak
+│   └── ... (config, etc.)
+└── YourGame.exe (shortcut/launcher)
+</pre>
+
+                <h3>Platform Requirements</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Platform</th>
+                            <th style="padding: 10px; text-align: left;">Requirements</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Windows</td>
+                            <td style="padding: 10px;">Visual Studio, Windows SDK</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Mac</td>
+                            <td style="padding: 10px;">Xcode, macOS SDK (build on Mac)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Linux</td>
+                            <td style="padding: 10px;">Cross-compile toolchain or native build</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Android</td>
+                            <td style="padding: 10px;">Android Studio, NDK, SDK</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">iOS</td>
+                            <td style="padding: 10px;">Mac with Xcode, Apple Developer account</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Consoles</td>
+                            <td style="padding: 10px;">Developer program membership, devkits</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Packaging Time</h4>
+                    <p>First-time packaging takes longer as it compiles shaders and cooks all content. Subsequent packages are faster if only some content changed. For large projects, expect 15-60+ minutes for a full package.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Troubleshooting -->
+            <section id="troubleshooting" class="lesson-section">
+                <h2>Troubleshooting</h2>
+
+                <p>Packaging can fail for various reasons. Here's how to diagnose and fix common issues.</p>
+
+                <h3>Reading the Output Log</h3>
+
+                <p>When packaging fails:</p>
+                <ol>
+                    <li>Check <strong>Window → Developer Tools → Output Log</strong></li>
+                    <li>Scroll to find <strong>Error:</strong> lines (in red)</li>
+                    <li>Note the first error—later errors may be cascading</li>
+                    <li>Search the error message online for solutions</li>
+                </ol>
+
+                <h3>Common Errors and Solutions</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #f44336; color: white;">
+                            <th style="padding: 10px; text-align: left;">Error</th>
+                            <th style="padding: 10px; text-align: left;">Cause</th>
+                            <th style="padding: 10px; text-align: left;">Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Missing default map</td>
+                            <td style="padding: 10px;">Game Default Map not set</td>
+                            <td style="padding: 10px;">Set in Project Settings → Maps & Modes</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Cook failed - asset error</td>
+                            <td style="padding: 10px;">Corrupted or invalid asset</td>
+                            <td style="padding: 10px;">Fix or remove the asset, check references</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Shader compile error</td>
+                            <td style="padding: 10px;">Invalid material node setup</td>
+                            <td style="padding: 10px;">Fix the material, check for disconnected nodes</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Blueprint compile error</td>
+                            <td style="padding: 10px;">Blueprint has errors</td>
+                            <td style="padding: 10px;">Open Blueprint, fix compile errors</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Out of disk space</td>
+                            <td style="padding: 10px;">Not enough room for output</td>
+                            <td style="padding: 10px;">Free up space, use different drive</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Missing plugin</td>
+                            <td style="padding: 10px;">Required plugin not enabled</td>
+                            <td style="padding: 10px;">Enable plugin or remove dependency</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">C++ compile error</td>
+                            <td style="padding: 10px;">Code error in C++ project</td>
+                            <td style="padding: 10px;">Fix code in IDE, rebuild</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Pre-Packaging Checklist</h3>
+
+                <p>Before packaging, verify:</p>
+
+                <ul>
+                    <li>☑ Game Default Map is set</li>
+                    <li>☑ All Blueprints compile without errors</li>
+                    <li>☑ No missing asset references (check Message Log)</li>
+                    <li>☑ Game plays correctly in Standalone mode</li>
+                    <li>☑ Sufficient disk space (2-3x project size)</li>
+                    <li>☑ All required plugins are enabled</li>
+                    <li>☑ Project Settings configured (Lesson 10.1)</li>
+                </ul>
+
+                <!-- SVG: Troubleshooting Flow -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Packaging Error Troubleshooting</text>
+                    
+                    <!-- Start -->
+                    <g transform="translate(280, 45)">
+                        <rect x="0" y="0" width="140" height="35" rx="17" fill="#f44336"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Packaging Failed!</text>
+                    </g>
+                    
+                    <path d="M 350 85 L 350 105" stroke="#333" stroke-width="2" marker-end="url(#troubleArrow)"/>
+                    
+                    <!-- Check Log -->
+                    <g transform="translate(250, 110)">
+                        <rect x="0" y="0" width="200" height="40" rx="5" fill="#2196F3"/>
+                        <text x="100" y="17" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Check Output Log</text>
+                        <text x="100" y="32" text-anchor="middle" fill="#bbdefb" font-size="7">Find first Error: line</text>
+                    </g>
+                    
+                    <!-- Branches -->
+                    <path d="M 250 130 L 100 130 L 100 165" stroke="#333" stroke-width="1.5"/>
+                    <path d="M 450 130 L 600 130 L 600 165" stroke="#333" stroke-width="1.5"/>
+                    
+                    <!-- Asset Error -->
+                    <g transform="translate(20, 160)">
+                        <rect x="0" y="0" width="160" height="35" rx="5" fill="#FF9800"/>
+                        <text x="80" y="14" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Asset/Cook Error</text>
+                        <text x="80" y="28" text-anchor="middle" fill="#fff3e0" font-size="7">Fix or remove asset</text>
+                    </g>
+                    
+                    <!-- Code Error -->
+                    <g transform="translate(520, 160)">
+                        <rect x="0" y="0" width="160" height="35" rx="5" fill="#9C27B0"/>
+                        <text x="80" y="14" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Compile Error</text>
+                        <text x="80" y="28" text-anchor="middle" fill="#e1bee7" font-size="7">Fix Blueprint/C++</text>
+                    </g>
+                    
+                    <!-- Config Error -->
+                    <g transform="translate(270, 160)">
+                        <rect x="0" y="0" width="160" height="35" rx="5" fill="#4CAF50"/>
+                        <text x="80" y="14" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Config Error</text>
+                        <text x="80" y="28" text-anchor="middle" fill="#c8e6c9" font-size="7">Check Project Settings</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="troubleArrow" markerWidth="8" markerHeight="6" refX="4" refY="6" orient="auto">
+                            <polygon points="0 0, 8 0, 4 6" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Start with the Output Log to diagnose packaging failures.</em></p>
+
+                <h3>Testing the Packaged Game</h3>
+
+                <p>After packaging succeeds:</p>
+                <ol>
+                    <li>Navigate to your output folder</li>
+                    <li>Find and run the .exe file</li>
+                    <li>Test all major features:
+                        <ul>
+                            <li>Game starts and loads correctly</li>
+                            <li>All levels accessible</li>
+                            <li>Gameplay functions work</li>
+                            <li>Audio plays correctly</li>
+                            <li>UI displays properly</li>
+                            <li>Save/load works (if implemented)</li>
+                        </ul>
+                    </li>
+                    <li>Test on a different computer if possible</li>
+                </ol>
+            </section>
+
+            <!-- Section 4: Distribution -->
+            <section id="distribution" class="lesson-section">
+                <h2>Distribution Options</h2>
+
+                <p>Once packaged, you have several options for distributing your game to players.</p>
+
+                <h3>Distribution Methods</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Method</th>
+                            <th style="padding: 10px; text-align: left;">Best For</th>
+                            <th style="padding: 10px; text-align: left;">Considerations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Direct Download (ZIP)</td>
+                            <td style="padding: 10px;">Simple sharing, itch.io</td>
+                            <td style="padding: 10px;">No installer, manual extraction</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Installer (NSIS, Inno)</td>
+                            <td style="padding: 10px;">Professional distribution</td>
+                            <td style="padding: 10px;">Install/uninstall, shortcuts</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Steam</td>
+                            <td style="padding: 10px;">Wide reach, features</td>
+                            <td style="padding: 10px;">$100 fee, approval process</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Epic Games Store</td>
+                            <td style="padding: 10px;">UE integration</td>
+                            <td style="padding: 10px;">Application required</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">itch.io</td>
+                            <td style="padding: 10px;">Indie games, free hosting</td>
+                            <td style="padding: 10px;">Optional revenue share</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">GOG</td>
+                            <td style="padding: 10px;">DRM-free audience</td>
+                            <td style="padding: 10px;">Curation process</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Creating a ZIP Distribution</h3>
+
+                <p>Simplest method for sharing:</p>
+                <ol>
+                    <li>Navigate to your packaged game folder</li>
+                    <li>Select all contents</li>
+                    <li>Right-click → <strong>Send to → Compressed (zipped) folder</strong></li>
+                    <li>Rename to YourGame_v1.0_Windows.zip</li>
+                    <li>Upload to hosting service</li>
+                </ol>
+
+                <h3>Creating an Installer</h3>
+
+                <p>For professional distribution, use installer tools:</p>
+
+                <ul>
+                    <li><strong>Inno Setup:</strong> Free, powerful, scripted installer</li>
+                    <li><strong>NSIS:</strong> Free, highly customizable</li>
+                    <li><strong>InstallShield:</strong> Commercial, feature-rich</li>
+                </ul>
+
+                <p>Installers provide:</p>
+                <ul>
+                    <li>Desktop and Start Menu shortcuts</li>
+                    <li>Uninstaller entry in Add/Remove Programs</li>
+                    <li>File association (optional)</li>
+                    <li>Prerequisite installation (DirectX, VC++ runtime)</li>
+                </ul>
+
+                <h3>Prerequisites</h3>
+
+                <p>Your game may require players to have:</p>
+                <ul>
+                    <li><strong>Visual C++ Redistributable:</strong> Usually required
+                        <ul>
+                            <li>Include in installer or provide download link</li>
+                            <li>Found in Engine/Extras/Redist folder</li>
+                        </ul>
+                    </li>
+                    <li><strong>DirectX:</strong> Usually already installed on Windows</li>
+                    <li><strong>.NET Framework:</strong> If using certain plugins</li>
+                </ul>
+
+                <!-- SVG: Distribution Flow -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Distribution Options</text>
+                    
+                    <!-- Packaged Game -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="150" height="70" rx="8" fill="#667eea"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Packaged Game</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#c5cae9" font-size="8">Game.exe</text>
+                        <text x="75" y="60" text-anchor="middle" fill="#c5cae9" font-size="8">Content.pak</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 205 90 L 270 60" stroke="#333" stroke-width="1.5" marker-end="url(#distArrow)"/>
+                    <path d="M 205 90 L 270 90" stroke="#333" stroke-width="1.5" marker-end="url(#distArrow)"/>
+                    <path d="M 205 90 L 270 120" stroke="#333" stroke-width="1.5" marker-end="url(#distArrow)"/>
+                    
+                    <!-- ZIP -->
+                    <g transform="translate(275, 40)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#4CAF50"/>
+                        <text x="60" y="17" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">ZIP File</text>
+                        <text x="60" y="32" text-anchor="middle" fill="#c8e6c9" font-size="7">Direct download</text>
+                    </g>
+                    
+                    <!-- Installer -->
+                    <g transform="translate(275, 70)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#FF9800"/>
+                        <text x="60" y="17" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Installer</text>
+                        <text x="60" y="32" text-anchor="middle" fill="#fff3e0" font-size="7">Professional</text>
+                    </g>
+                    
+                    <!-- Store -->
+                    <g transform="translate(275, 100)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#2196F3"/>
+                        <text x="60" y="17" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Store Upload</text>
+                        <text x="60" y="32" text-anchor="middle" fill="#bbdefb" font-size="7">Steam, Epic, itch</text>
+                    </g>
+                    
+                    <!-- Destinations -->
+                    <path d="M 400 60 L 470 60" stroke="#333" stroke-width="1.5" marker-end="url(#distArrow)"/>
+                    <path d="M 400 90 L 470 90" stroke="#333" stroke-width="1.5" marker-end="url(#distArrow)"/>
+                    <path d="M 400 120 L 470 120" stroke="#333" stroke-width="1.5" marker-end="url(#distArrow)"/>
+                    
+                    <g transform="translate(475, 45)">
+                        <rect x="0" y="0" width="140" height="30" rx="5" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="70" y="19" text-anchor="middle" fill="#2E7D32" font-size="8">itch.io, Website</text>
+                    </g>
+                    
+                    <g transform="translate(475, 75)">
+                        <rect x="0" y="0" width="140" height="30" rx="5" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="70" y="19" text-anchor="middle" fill="#E65100" font-size="8">Own website/store</text>
+                    </g>
+                    
+                    <g transform="translate(475, 105)">
+                        <rect x="0" y="0" width="140" height="30" rx="5" fill="#e3f2fd" stroke="#2196F3"/>
+                        <text x="70" y="19" text-anchor="middle" fill="#1565C0" font-size="8">Steam, Epic, GOG</text>
+                    </g>
+                    
+                    <!-- Players -->
+                    <path d="M 620 75 L 680 75 L 680 90 L 720 90" stroke="#333" stroke-width="1.5" marker-end="url(#distArrow)"/>
+                    <path d="M 620 90 L 720 90" stroke="#333" stroke-width="1.5"/>
+                    <path d="M 620 120 L 680 120 L 680 90" stroke="#333" stroke-width="1.5"/>
+                    
+                    <g transform="translate(725, 70)">
+                        <rect x="0" y="0" width="60" height="40" rx="20" fill="#9C27B0"/>
+                        <text x="30" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Players!</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="distArrow" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0 0, 6 2.5, 0 5" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Multiple paths from packaged game to players.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ itch.io Quick Start</h4>
+                    <p>For beginners, itch.io is the easiest way to share your game:</p>
+                    <ol>
+                        <li>Create account at itch.io</li>
+                        <li>Click "Upload new project"</li>
+                        <li>Upload your ZIP file</li>
+                        <li>Set pricing (free, paid, or pay-what-you-want)</li>
+                        <li>Publish and share!</li>
+                    </ol>
+                </div>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Packaging Your Game</h2>
+
+                <p>Let's package your game for Windows. You'll verify settings, run the packaging process, troubleshoot any issues, and test the final build.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a working packaged game that launches and plays correctly outside the editor. This is the culmination of everything you've learned—from project setup through optimization to final distribution.</p>
+                </div>
+
+                <h3>Part 1: Pre-Packaging Verification</h3>
+
+                <h4>Step 1: Verify Project Settings</h4>
+                <ol>
+                    <li>Open <strong>Edit → Project Settings</strong></li>
+                    <li>Go to <strong>Project → Maps & Modes</strong></li>
+                    <li>Confirm <strong>Game Default Map</strong> is set to your main level</li>
+                    <li>Confirm <strong>Default GameMode</strong> is correct (or set per-level)</li>
+                </ol>
+
+                <h4>Step 2: Check for Errors</h4>
+                <ol>
+                    <li>Open <strong>Window → Developer Tools → Message Log</strong></li>
+                    <li>Look for warnings or errors</li>
+                    <li>Fix any Blueprint compile errors</li>
+                    <li>Address any missing asset warnings</li>
+                </ol>
+
+                <h4>Step 3: Test in Standalone</h4>
+                <ol>
+                    <li>Click dropdown next to <strong>Play</strong> button</li>
+                    <li>Select <strong>Standalone Game</strong></li>
+                    <li>Verify:
+                        <ul>
+                            <li>Game starts correctly</li>
+                            <li>Correct level loads</li>
+                            <li>Player spawns properly</li>
+                            <li>Basic gameplay works</li>
+                        </ul>
+                    </li>
+                    <li>Close the standalone game</li>
+                </ol>
+
+                <!-- SVG: Pre-Package Checklist -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Pre-Packaging Verification</text>
+                    
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="180" height="90" rx="5" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Project Settings</text>
+                        <text x="15" y="42" fill="#c8e6c9" font-size="8">☑ Default Map set</text>
+                        <text x="15" y="58" fill="#c8e6c9" font-size="8">☑ GameMode configured</text>
+                        <text x="15" y="74" fill="#c8e6c9" font-size="8">☑ Build config: Shipping</text>
+                    </g>
+                    
+                    <g transform="translate(260, 50)">
+                        <rect x="0" y="0" width="180" height="90" rx="5" fill="#3d3d3d" stroke="#FF9800"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">Content Check</text>
+                        <text x="15" y="42" fill="#fff3e0" font-size="8">☑ No compile errors</text>
+                        <text x="15" y="58" fill="#fff3e0" font-size="8">☑ No missing assets</text>
+                        <text x="15" y="74" fill="#fff3e0" font-size="8">☑ All levels saved</text>
+                    </g>
+                    
+                    <g transform="translate(470, 50)">
+                        <rect x="0" y="0" width="180" height="90" rx="5" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#2196F3" font-size="9" font-weight="bold">Standalone Test</text>
+                        <text x="15" y="42" fill="#bbdefb" font-size="8">☑ Game launches</text>
+                        <text x="15" y="58" fill="#bbdefb" font-size="8">☑ Correct level loads</text>
+                        <text x="15" y="74" fill="#bbdefb" font-size="8">☑ Gameplay works</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Complete this checklist before packaging.</em></p>
+
+                <h3>Part 2: Configure Packaging Settings</h3>
+
+                <h4>Step 4: Set Build Configuration</h4>
+                <ol>
+                    <li>Go to <strong>Project Settings → Project → Packaging</strong></li>
+                    <li>Set <strong>Build Configuration</strong> to <strong>Shipping</strong></li>
+                    <li>Enable <strong>Full Rebuild</strong> (for first/final build)</li>
+                </ol>
+
+                <h4>Step 5: Configure Compression</h4>
+                <ol>
+                    <li>Still in Packaging settings</li>
+                    <li>Ensure <strong>Create compressed cooked packages</strong> is enabled</li>
+                    <li>This reduces final package size</li>
+                </ol>
+
+                <h4>Step 6: Verify Maps to Include</h4>
+                <ol>
+                    <li>Check <strong>List of maps to include in a packaged build</strong></li>
+                    <li>Add any maps loaded dynamically by string name</li>
+                    <li>Referenced maps are usually included automatically</li>
+                </ol>
+
+                <h3>Part 3: Package the Game</h3>
+
+                <h4>Step 7: Save Everything</h4>
+                <ol>
+                    <li>Press <strong>Ctrl+Shift+S</strong> to Save All</li>
+                    <li>Ensure all levels and assets are saved</li>
+                    <li>Close any open asset editors</li>
+                </ol>
+
+                <h4>Step 8: Start Packaging</h4>
+                <ol>
+                    <li>Go to <strong>Platforms → Windows → Package Project</strong></li>
+                    <li>Choose an output folder:
+                        <ul>
+                            <li>Outside your project folder</li>
+                            <li>On a drive with plenty of space</li>
+                            <li>Example: D:\Builds\MyGame</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Select Folder</strong></li>
+                    <li>Packaging begins</li>
+                </ol>
+
+                <h4>Step 9: Monitor Progress</h4>
+                <ol>
+                    <li>Watch the progress in the bottom-right corner</li>
+                    <li>Or open <strong>Window → Developer Tools → Output Log</strong></li>
+                    <li>Look for any red error messages</li>
+                    <li>Wait for "Packaging Successful" message</li>
+                    <li>This may take 15-60+ minutes for first build</li>
+                </ol>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⏳ Be Patient</h4>
+                    <p>First-time packaging compiles shaders and cooks all content. Don't interrupt the process! Subsequent packages are faster. If you need to cancel, use the X button carefully—corrupted intermediate files may require cleanup.</p>
+                </div>
+
+                <h3>Part 4: Handle Errors (If Any)</h3>
+
+                <h4>If Packaging Fails:</h4>
+                <ol>
+                    <li>Open Output Log and scroll up</li>
+                    <li>Find the first <strong>Error:</strong> line</li>
+                    <li>Common fixes:
+                        <ul>
+                            <li><strong>Missing map:</strong> Set Game Default Map</li>
+                            <li><strong>Blueprint error:</strong> Open and fix the Blueprint</li>
+                            <li><strong>Asset error:</strong> Fix or remove the asset</li>
+                            <li><strong>Disk space:</strong> Free up space or use different drive</li>
+                        </ul>
+                    </li>
+                    <li>Fix the issue and try packaging again</li>
+                </ol>
+
+                <h3>Part 5: Test the Packaged Game</h3>
+
+                <h4>Step 10: Locate the Executable</h4>
+                <ol>
+                    <li>Navigate to your output folder</li>
+                    <li>Find <strong>Windows</strong> or <strong>WindowsNoEditor</strong> folder</li>
+                    <li>Locate <strong>YourGame.exe</strong></li>
+                </ol>
+
+                <h4>Step 11: Run the Game</h4>
+                <ol>
+                    <li>Double-click the .exe to launch</li>
+                    <li>Game should start in fullscreen</li>
+                    <li>Press <strong>Alt+Enter</strong> to toggle windowed if needed</li>
+                </ol>
+
+                <h4>Step 12: Test Thoroughly</h4>
+                <ol>
+                    <li>Test these areas:
+                        <ul>
+                            <li>Main menu (if you have one)</li>
+                            <li>All playable levels</li>
+                            <li>Core gameplay mechanics</li>
+                            <li>Audio (music, sound effects)</li>
+                            <li>UI elements</li>
+                            <li>Save/load functionality</li>
+                            <li>Exit properly</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 13: Test on Another Computer (Recommended)</h4>
+                <ol>
+                    <li>Copy the entire packaged folder to another PC</li>
+                    <li>Or create a ZIP and transfer</li>
+                    <li>Run on a machine without Unreal Engine installed</li>
+                    <li>This catches missing dependencies</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>Congratulations! You've successfully packaged your Unreal Engine 5 game!</p>
+                    <ul>
+                        <li>Verified all project settings</li>
+                        <li>Configured packaging options</li>
+                        <li>Created a Shipping build</li>
+                        <li>Tested the packaged executable</li>
+                    </ul>
+                    <p>Your game is now ready for distribution!</p>
+                </div>
+
+                <h3>Part 6: Prepare for Distribution</h3>
+
+                <h4>Step 14: Create Distribution Package</h4>
+                <ol>
+                    <li>Navigate to your packaged game folder</li>
+                    <li>Select all contents</li>
+                    <li>Right-click → <strong>Send to → Compressed (zipped) folder</strong></li>
+                    <li>Name it descriptively: <code>YourGame_v1.0_Windows.zip</code></li>
+                </ol>
+
+                <h4>Step 15: Include README (Optional but Recommended)</h4>
+                <ol>
+                    <li>Create a README.txt file containing:
+                        <ul>
+                            <li>Game title and version</li>
+                            <li>Brief description</li>
+                            <li>System requirements</li>
+                            <li>How to run the game</li>
+                            <li>Controls</li>
+                            <li>Known issues (if any)</li>
+                            <li>Contact/support info</li>
+                            <li>Credits</li>
+                        </ul>
+                    </li>
+                    <li>Add to package before zipping</li>
+                </ol>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #ffebee; border-left: 4px solid #f44336;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Game shows black screen:</strong></p>
+                    <ul>
+                        <li>Game Default Map not set</li>
+                        <li>Default map has no Player Start</li>
+                        <li>GameMode doesn't spawn player</li>
+                    </ul>
+                    
+                    <p><strong>Game crashes on startup:</strong></p>
+                    <ul>
+                        <li>Missing Visual C++ Redistributable</li>
+                        <li>Incompatible graphics driver</li>
+                        <li>Corrupted package—try full rebuild</li>
+                    </ul>
+                    
+                    <p><strong>Missing textures/assets:</strong></p>
+                    <ul>
+                        <li>Assets loaded by string path not included</li>
+                        <li>Add to "Maps to Include" or "Additional Directories to Cook"</li>
+                    </ul>
+                    
+                    <p><strong>Audio doesn't play:</strong></p>
+                    <ul>
+                        <li>Check audio settings in packaged game</li>
+                        <li>Verify Sound Classes are configured</li>
+                        <li>Test with simple sounds first</li>
+                    </ul>
+                    
+                    <p><strong>Performance worse than editor:</strong></p>
+                    <ul>
+                        <li>First run compiles shaders—wait for completion</li>
+                        <li>Ensure Shipping build (not Development)</li>
+                        <li>Check scalability settings</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus: Command Line Options</h3>
+
+                <p>You can launch your packaged game with options:</p>
+
+                <ul>
+                    <li><code>-windowed</code> — Start in windowed mode</li>
+                    <li><code>-ResX=1920 -ResY=1080</code> — Set resolution</li>
+                    <li><code>-fullscreen</code> — Force fullscreen</li>
+                    <li><code>-log</code> — Enable logging (Development builds only)</li>
+                </ul>
+
+                <p>Create a shortcut and add options to the Target field.</p>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this final lesson, you've learned to package your Unreal Engine 5 project into a standalone game and prepare it for distribution. This completes your journey from project creation to releasing a finished game.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Build Configurations:</strong> Development builds include debugging tools and console access—use for testing. Shipping builds are optimized, secure, and smaller—use for release. Always test a Development build before creating your final Shipping build.</p>
+
+                <p><strong>Packaging Process:</strong> Packaging cooks content (converts assets to platform format), compiles code, and creates the final executable and .pak files. First builds take longer; subsequent builds are faster. Monitor the Output Log for errors.</p>
+
+                <p><strong>Troubleshooting:</strong> Most packaging failures come from missing Game Default Map, Blueprint compile errors, or corrupted assets. Check the Output Log for the first error, fix it, and try again. Test in Standalone mode before packaging.</p>
+
+                <p><strong>Distribution:</strong> Package your game as a ZIP for simple sharing, create an installer for professional distribution, or upload to stores like Steam, Epic, or itch.io. Include prerequisites (VC++ Redistributable) and a README for best user experience.</p>
+
+                <h3>Build Configuration Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Configuration</th>
+                            <th style="padding: 10px; text-align: left;">Use Case</th>
+                            <th style="padding: 10px; text-align: left;">Features</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Development</td>
+                            <td style="padding: 10px;">Testing, QA, Playtesting</td>
+                            <td style="padding: 10px;">Console, logging, debugging</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Shipping</td>
+                            <td style="padding: 10px;">Final release</td>
+                            <td style="padding: 10px;">Optimized, secure, smallest</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Packaging Checklist</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Before</th>
+                            <th style="padding: 10px; text-align: left;">During</th>
+                            <th style="padding: 10px; text-align: left;">After</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">☑ Game Default Map set</td>
+                            <td style="padding: 10px;">☑ Monitor Output Log</td>
+                            <td style="padding: 10px;">☑ Test executable</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">☑ No compile errors</td>
+                            <td style="padding: 10px;">☑ Watch for errors</td>
+                            <td style="padding: 10px;">☑ Test all features</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">☑ Standalone test passes</td>
+                            <td style="padding: 10px;">☑ Don't interrupt</td>
+                            <td style="padding: 10px;">☑ Test on other PC</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">☑ Build config: Shipping</td>
+                            <td style="padding: 10px;">☑ Wait for completion</td>
+                            <td style="padding: 10px;">☑ Create distribution</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Distribution Options</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Method</th>
+                            <th style="padding: 10px; text-align: left;">Pros</th>
+                            <th style="padding: 10px; text-align: left;">Cons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">ZIP Download</td>
+                            <td style="padding: 10px;">Simple, fast, free</td>
+                            <td style="padding: 10px;">Manual extraction, no updates</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Installer</td>
+                            <td style="padding: 10px;">Professional, shortcuts, uninstall</td>
+                            <td style="padding: 10px;">Requires installer tool</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">itch.io</td>
+                            <td style="padding: 10px;">Free hosting, easy setup</td>
+                            <td style="padding: 10px;">Smaller audience</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Steam</td>
+                            <td style="padding: 10px;">Huge audience, features</td>
+                            <td style="padding: 10px;">$100 fee, approval needed</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Test before packaging:</strong> Standalone mode catches most issues</li>
+                    <li><strong>Use Shipping for release:</strong> Development builds expose debug tools</li>
+                    <li><strong>Check Output Log:</strong> First error is usually the root cause</li>
+                    <li><strong>Test on other PCs:</strong> Catches missing dependencies</li>
+                    <li><strong>Include prerequisites:</strong> VC++ Redistributable often needed</li>
+                    <li><strong>Add a README:</strong> Helps users with controls and requirements</li>
+                    <li><strong>Version your builds:</strong> Track what you've released</li>
+                    <li><strong>Keep source project:</strong> Never delete your project after packaging</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Complete Packaging Workflow</text>
+                    
+                    <!-- Row 1 -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="140" height="60" rx="8" fill="#667eea"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">1. Configure</text>
+                        <text x="70" y="42" text-anchor="middle" fill="#c5cae9" font-size="7">Project Settings</text>
+                        <text x="70" y="54" text-anchor="middle" fill="#c5cae9" font-size="7">Lesson 10.1</text>
+                    </g>
+                    
+                    <path d="M 195 80 L 225 80" stroke="#333" stroke-width="2" marker-end="url(#wfArrow)"/>
+                    
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="140" height="60" rx="8" fill="#FF9800"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">2. Optimize</text>
+                        <text x="70" y="42" text-anchor="middle" fill="#fff3e0" font-size="7">Performance & Size</text>
+                        <text x="70" y="54" text-anchor="middle" fill="#fff3e0" font-size="7">Lesson 10.2</text>
+                    </g>
+                    
+                    <path d="M 375 80 L 405 80" stroke="#333" stroke-width="2" marker-end="url(#wfArrow)"/>
+                    
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="140" height="60" rx="8" fill="#9C27B0"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">3. Test</text>
+                        <text x="70" y="42" text-anchor="middle" fill="#e1bee7" font-size="7">Standalone Mode</text>
+                        <text x="70" y="54" text-anchor="middle" fill="#e1bee7" font-size="7">Fix Issues</text>
+                    </g>
+                    
+                    <path d="M 555 80 L 585 80" stroke="#333" stroke-width="2" marker-end="url(#wfArrow)"/>
+                    
+                    <g transform="translate(590, 50)">
+                        <rect x="0" y="0" width="140" height="60" rx="8" fill="#2196F3"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">4. Package</text>
+                        <text x="70" y="42" text-anchor="middle" fill="#bbdefb" font-size="7">Shipping Build</text>
+                        <text x="70" y="54" text-anchor="middle" fill="#bbdefb" font-size="7">Lesson 10.3</text>
+                    </g>
+                    
+                    <!-- Row 2 -->
+                    <path d="M 660 115 L 660 135 L 400 135 L 400 150" stroke="#333" stroke-width="2" marker-end="url(#wfArrow)"/>
+                    
+                    <g transform="translate(280, 155)">
+                        <rect x="0" y="0" width="240" height="50" rx="8" fill="#4CAF50"/>
+                        <text x="120" y="22" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">5. Distribute! 🎮</text>
+                        <text x="120" y="40" text-anchor="middle" fill="#c8e6c9" font-size="8">ZIP, Installer, Steam, itch.io</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="wfArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: From configuration to distribution—your complete packaging workflow.</em></p>
+
+                <h3>🎉 Course Complete!</h3>
+
+                <p>Congratulations on completing <strong>Introduction to Unreal Engine 5</strong>! You've learned:</p>
+
+                <ul>
+                    <li><strong>Modules 1-3:</strong> Editor basics, viewport navigation, content management</li>
+                    <li><strong>Modules 4-5:</strong> Level design, lighting, materials</li>
+                    <li><strong>Module 6:</strong> Blueprint visual scripting</li>
+                    <li><strong>Module 7:</strong> User interfaces with UMG</li>
+                    <li><strong>Module 8:</strong> Audio implementation</li>
+                    <li><strong>Module 9:</strong> Particle effects with Niagara</li>
+                    <li><strong>Module 10:</strong> Packaging and distribution</li>
+                </ul>
+
+                <p>You now have the foundation to create, polish, and share your own games with Unreal Engine 5!</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>🚀 What's Next?</h4>
+                    <p>Keep learning and creating:</p>
+                    <ul>
+                        <li><strong>Practice:</strong> Build small projects to reinforce skills</li>
+                        <li><strong>Explore:</strong> Dive deeper into areas that interest you</li>
+                        <li><strong>Community:</strong> Join Unreal forums and Discord servers</li>
+                        <li><strong>Documentation:</strong> Unreal's official docs are excellent</li>
+                        <li><strong>Tutorials:</strong> YouTube has countless UE5 tutorials</li>
+                        <li><strong>Game jams:</strong> Challenge yourself with timed projects</li>
+                    </ul>
+                    <p style="margin-top: 1rem;"><strong>Most importantly: Make games and have fun! 🎮</strong></p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Which build configuration should you use for releasing your game to players?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Debug</label>
+                            <label><input type="radio" name="q1" value="b"> Development</label>
+                            <label><input type="radio" name="q1" value="c"> Shipping</label>
+                            <label><input type="radio" name="q1" value="d"> DebugGame</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Shipping configuration is optimized for release: maximum performance, smallest size, console disabled, all debug code removed. Development is for testing; Debug configurations are for troubleshooting.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What is "cooking" in the packaging process?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Compiling C++ code</label>
+                            <label><input type="radio" name="q2" value="b"> Converting assets to platform-specific format</label>
+                            <label><input type="radio" name="q2" value="c"> Creating the installer</label>
+                            <label><input type="radio" name="q2" value="d"> Compressing the final package</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Cooking converts your project's assets (textures, meshes, sounds, etc.) into optimized formats specific to the target platform. This is separate from code compilation and happens during the packaging process.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>Where should you look first when packaging fails?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Project Settings</label>
+                            <label><input type="radio" name="q3" value="b"> Content Browser</label>
+                            <label><input type="radio" name="q3" value="c"> Output Log for error messages</label>
+                            <label><input type="radio" name="q3" value="d"> World Settings</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — The Output Log contains detailed information about the packaging process, including error messages. Find the first Error: line to identify the root cause—later errors may be cascading from the first one.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What's the most common cause of a black screen when launching a packaged game?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Missing textures</label>
+                            <label><input type="radio" name="q4" value="b"> Game Default Map not set</label>
+                            <label><input type="radio" name="q4" value="c"> Wrong build configuration</label>
+                            <label><input type="radio" name="q4" value="d"> Corrupted executable</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — If Game Default Map isn't set, the packaged game doesn't know which level to load at startup. Always set this in Project Settings → Maps & Modes before packaging.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What should you test before packaging to catch most issues early?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Play In Editor (PIE)</label>
+                            <label><input type="radio" name="q5" value="b"> Simulate mode</label>
+                            <label><input type="radio" name="q5" value="c"> Standalone Game mode</label>
+                            <label><input type="radio" name="q5" value="d"> Mobile preview</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Standalone Game mode runs your game as a separate process, similar to a packaged build. It uses the Game Default Map and respects Game Mode settings, catching issues that PIE might hide.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What prerequisite might players need to install to run your packaged game?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Unreal Engine 5</label>
+                            <label><input type="radio" name="q6" value="b"> Visual Studio</label>
+                            <label><input type="radio" name="q6" value="c"> Visual C++ Redistributable</label>
+                            <label><input type="radio" name="q6" value="d"> Epic Games Launcher</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — The Visual C++ Redistributable runtime is often required to run packaged Unreal games. It's found in Engine/Extras/Redist and should be included with your distribution or linked for download.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>Which distribution method is best for beginners wanting to share their game quickly?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Steam (requires $100 fee and approval)</label>
+                            <label><input type="radio" name="q7" value="b"> itch.io (free, easy setup)</label>
+                            <label><input type="radio" name="q7" value="c"> Creating a custom installer</label>
+                            <label><input type="radio" name="q7" value="d"> Epic Games Store (application required)</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — itch.io is free, requires no approval process, and lets you upload and share games in minutes. Perfect for beginners, game jams, and indie projects. You can even set pay-what-you-want pricing.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m10_l02_optimization.html" class="btn">← Previous: Optimization</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="index.html" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🎓 Course Complete!</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

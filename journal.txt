@@ -1,0 +1,187 @@
+# Introduction to Unreal Engine 5 Course - Development Journal
+
+## Project Overview
+- **Project:** Introduction to Unreal Engine 5 Course
+- **Location:** \\wsl$\Ubuntu\home\practicalace\projects\unreal\
+- **Curriculum Reference:** intro_to_unreal_curriculum.md
+- **Format:** Multi-part HTML lesson files with SVG diagrams, Mermaid flowcharts, and interactive quizzes
+
+---
+
+## Session Log
+
+### Session: 2025-11-26 - Module 7 Complete
+
+**Focus:** Module 7 - User Interface with UMG
+
+**Duration:** Full module completion (5 lessons, 15 HTML files)
+
+**Files Created:**
+
+| File | Lesson | Content |
+|------|--------|---------|
+| m07_l01_introduction_to_umg_a.html | 7.1 | UMG overview, Widget Blueprints, Designer |
+| m07_l01_introduction_to_umg_b.html | 7.1 | Displaying widgets, Hands-On First Widget |
+| m07_l01_introduction_to_umg_c.html | 7.1 | Summary + 7 Knowledge Check questions |
+| m07_l02_creating_widgets_a.html | 7.2 | Widget styling, common widgets deep dive |
+| m07_l02_creating_widgets_b.html | 7.2 | Widget composition, Hands-On Styled Button |
+| m07_l02_creating_widgets_c.html | 7.2 | Summary + 7 Knowledge Check questions |
+| m07_l03_hud_elements_a.html | 7.3 | Data binding, health bars, ammo counters |
+| m07_l03_hud_elements_b.html | 7.3 | Hands-On: Complete Player HUD |
+| m07_l03_hud_elements_c.html | 7.3 | Summary + 7 Knowledge Check questions |
+| m07_l04_menus_and_navigation_a.html | 7.4 | Menu fundamentals, main menu, pause menu |
+| m07_l04_menus_and_navigation_b.html | 7.4 | Hands-On: Complete Menu System |
+| m07_l04_menus_and_navigation_c.html | 7.4 | Summary + 7 Knowledge Check questions |
+| m07_l05_data_binding_and_events_a.html | 7.5 | Binding vs events, dispatchers, architecture |
+| m07_l05_data_binding_and_events_b.html | 7.5 | Hands-On: Event-Driven Inventory UI |
+| m07_l05_data_binding_and_events_c.html | 7.5 | Summary + 7 Knowledge Check questions |
+
+**Visual Assets Created:**
+
+Lesson 7.1:
+- SVG: UMG Architecture diagram
+- SVG: Widget Blueprint structure
+- SVG: Designer interface layout
+- SVG: Anchor presets visualization
+- SVG: Widget hierarchy example
+- Mermaid: Widget creation workflow
+
+Lesson 7.2:
+- SVG: Button states (Normal/Hovered/Pressed)
+- SVG: 9-slice scaling diagram
+- SVG: Widget styling comparison
+- SVG: User Widget composition
+- SVG: Event Dispatcher pattern
+- Mermaid: Widget communication flow
+
+Lesson 7.3:
+- SVG: Data Binding Approaches comparison
+- SVG: Character Health Setup
+- SVG: Caching Player Reference
+- SVG: Health Bar Color States
+- SVG: Ammo Counter Designs
+- SVG: Health Section Layout
+- SVG: Complete HUD Layout
+- SVG: Health Percent Binding Function
+- SVG: HUD Data Flow summary
+- Mermaid: Binding Flow
+- Mermaid: Event-Driven Updates
+
+Lesson 7.4:
+- SVG: Input Modes Comparison
+- SVG: Focus Navigation
+- SVG: Main Menu Layout
+- SVG: Setting Focus
+- SVG: Pause Menu Flow
+- SVG: Confirmation Dialog
+- SVG: Main Menu Structure
+- SVG: Level Blueprint setup
+- SVG: Player Controller Flow
+- SVG: Menu System Architecture
+- Mermaid: Menu Flow
+
+Lesson 7.5:
+- SVG: Binding vs Event-Driven Performance
+- SVG: Event Dispatcher One-to-Many
+- SVG: Widget Binding to Dispatcher
+- SVG: Screen Stack Navigation
+- SVG: Character Inventory Structure
+- SVG: Inventory Slot Widget
+- SVG: Inventory Panel Binding
+- SVG: Complete Inventory Architecture
+- SVG: Event-Driven Architecture Overview
+- Mermaid: Hybrid Approach
+- Mermaid: Model-View Pattern
+
+**Key Topics Covered:**
+
+1. **Lesson 7.1 - Introduction to UMG**
+   - What is UMG and its architecture
+   - Widget Blueprints and the Designer
+   - Widget hierarchy and anchoring
+   - Displaying widgets from Blueprints
+
+2. **Lesson 7.2 - Creating Widgets**
+   - Widget styling (colors, fonts, images, 9-slice)
+   - Common widgets (Button, Text, Image, Progress Bar, Slider, Check Box, Text Box)
+   - Widget composition with User Widgets
+   - Event Dispatchers for widget communication
+   - Named Slots and Widget Switcher
+
+3. **Lesson 7.3 - HUD Elements**
+   - Data binding fundamentals (function, variable, event-driven)
+   - Creating dynamic health bars with color states
+   - Ammo and resource counters with formatting
+   - Performance optimization (caching references)
+   - Timer display formatting
+
+4. **Lesson 7.4 - Menus and Navigation**
+   - Input modes (Game Only, UI Only, Game and UI)
+   - Widget focus and keyboard/gamepad navigation
+   - Main menu creation and display
+   - Pause menu with game pause functionality
+   - Settings/options screen structure
+   - Confirmation dialogs
+   - Menu animations
+
+5. **Lesson 7.5 - Data Binding and Events**
+   - Binding performance considerations
+   - Event Dispatchers for UI updates
+   - Model-View separation pattern
+   - UI Manager and screen stack patterns
+   - Hybrid binding/event approaches
+   - Event-driven inventory system
+
+**Technical Specifications:**
+- File naming: m07_lXX_lesson_name_[a/b/c].html
+- External CSS: styles/main.css
+- Favicon: /favicon.png
+- Mermaid.js for flowcharts (CDN loaded)
+- Dark mode with localStorage persistence
+- Responsive mobile hamburger menu
+- Scroll-based progress indicator
+- Interactive quiz with answer reveal
+- Accessibility: skip links, ARIA labels, semantic HTML
+
+**Module 7 Status:** ✅ COMPLETE
+
+---
+
+## Transcript Catalog
+
+| Date | Transcript | Description |
+|------|-----------|-------------|
+| 2025-11-26 | 2025-11-26-17-01-28-m07-l03-hud-elements-part-a.txt | Module 7 Lesson 7.3 HUD Elements Part A development |
+
+---
+
+## Course Progress Summary
+
+### Completed Modules:
+- Module 1: Getting Started ✅
+- Module 2: Levels and Actors ✅
+- Module 3: Materials ✅
+- Module 4: Lighting ✅
+- Module 5: Blueprints ✅
+- Module 6: Player Mechanics ✅
+- Module 7: User Interface with UMG ✅
+
+### Pending Modules:
+- Module 8: (per curriculum)
+- Module 9: (per curriculum)
+- Module 10: (per curriculum)
+
+---
+
+## Notes
+
+- All HTML files are in the root project directory
+- CSS stylesheet expected at styles/main.css
+- Lessons follow consistent 3-part structure (A: content, B: hands-on, C: summary/quiz)
+- Each lesson includes 7 knowledge check questions
+- Visual diagrams use inline SVG for portability
+- Mermaid diagrams loaded via CDN for flowcharts
+
+---
+
+*Last Updated: 2025-11-26*

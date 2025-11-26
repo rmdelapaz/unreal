@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master widget creation in Unreal Engine 5 UMG. Learn styling, common widgets in depth, and how to create reusable UI components.">
+    <meta name="author" content="Practical Ace">
+    <title>Creating Widgets - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 7: User Interface with UMG</a></li>
+            <li aria-current="page">Lesson 7.2: Creating Widgets</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎨 Creating Widgets</h1>
+                <p class="lead">A health bar that's just a gray rectangle gets the job done, but players expect more. Polished UI uses styled buttons with hover effects, progress bars with custom colors and backgrounds, and text with carefully chosen fonts. In this lesson, you'll learn how to style widgets, explore common widget types in depth, and create reusable UI components that maintain consistency across your game.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Apply styling to widgets including colors, fonts, and images</li>
+                        <li>Configure common widgets for different use cases</li>
+                        <li>Create buttons with visual states (normal, hovered, pressed)</li>
+                        <li>Use images and materials in UI elements</li>
+                        <li>Build reusable widget components</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 7.1 (Introduction to UMG)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#widget-styling" class="toc-link">Widget Styling and Appearance</a></li>
+                        <li><a href="#common-widgets" class="toc-link">Common Widgets Deep Dive</a></li>
+                        <li><a href="#widget-composition" class="toc-link">Widget Composition and Reusability</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Create a Styled Menu Button</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Widget Styling and Appearance -->
+            <section id="widget-styling" class="lesson-section">
+                <h2>Widget Styling and Appearance</h2>
+
+                <p>Every widget has appearance properties that control how it looks. Understanding these properties lets you transform default widgets into polished, game-ready UI elements that match your art style.</p>
+
+                <h3>Color and Opacity</h3>
+
+                <p>Most widgets have color properties that accept both color and alpha (transparency):</p>
+
+                <p><strong>Color and Opacity:</strong> A single property combining RGB color with alpha. Found on Text, Image, Progress Bar fill, and more. Alpha of 1.0 is fully opaque; 0.0 is fully transparent.</p>
+
+                <p><strong>Tint:</strong> Multiplies the widget's color. Useful for colorizing images or creating hover effects without changing the base asset.</p>
+
+                <p><strong>Background Color:</strong> Available on some widgets like Border. Sets the background behind content.</p>
+
+                <p>Colors in UMG use Linear Color (not sRGB), which means values can exceed 1.0 for HDR/bloom effects.</p>
+
+                <!-- SVG: Color Properties -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Color and Opacity Examples</text>
+                    
+                    <!-- Full opacity -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#667eea"/>
+                        <text x="60" y="35" text-anchor="middle" fill="#fff" font-size="10">Button</text>
+                        <text x="60" y="80" text-anchor="middle" fill="#888" font-size="8">Alpha: 1.0</text>
+                        <text x="60" y="95" text-anchor="middle" fill="#667eea" font-size="8">Fully Opaque</text>
+                    </g>
+                    
+                    <!-- 50% opacity -->
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#667eea" opacity="0.5"/>
+                        <text x="60" y="35" text-anchor="middle" fill="#fff" font-size="10">Button</text>
+                        <text x="60" y="80" text-anchor="middle" fill="#888" font-size="8">Alpha: 0.5</text>
+                        <text x="60" y="95" text-anchor="middle" fill="#667eea" font-size="8">Semi-Transparent</text>
+                    </g>
+                    
+                    <!-- Tinted -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#ff6b6b"/>
+                        <text x="60" y="35" text-anchor="middle" fill="#fff" font-size="10">Button</text>
+                        <text x="60" y="80" text-anchor="middle" fill="#888" font-size="8">Tint: Red</text>
+                        <text x="60" y="95" text-anchor="middle" fill="#ff6b6b" font-size="8">Color Multiplied</text>
+                    </g>
+                    
+                    <!-- HDR -->
+                    <g transform="translate(500, 50)">
+                        <defs>
+                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#4CAF50" filter="url(#glow)"/>
+                        <text x="60" y="35" text-anchor="middle" fill="#fff" font-size="10">Button</text>
+                        <text x="60" y="80" text-anchor="middle" fill="#888" font-size="8">Color > 1.0</text>
+                        <text x="60" y="95" text-anchor="middle" fill="#4CAF50" font-size="8">HDR Bloom</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different color and opacity configurations.</em></p>
+
+                <h3>Fonts and Text Styling</h3>
+
+                <p>Text widgets have extensive styling options:</p>
+
+                <p><strong>Font Family:</strong> The typeface used. UE5 includes Roboto by default. You can import custom fonts (.ttf, .otf) and create Font assets.</p>
+
+                <p><strong>Font Size:</strong> Size in points. Larger sizes are crisper; very small sizes may become unreadable.</p>
+
+                <p><strong>Font Style:</strong> Regular, Bold, Italic, etc. Depends on what styles your font file includes.</p>
+
+                <p><strong>Letter Spacing:</strong> Space between characters. Positive values spread letters apart.</p>
+
+                <p><strong>Line Height:</strong> Space between lines of multi-line text.</p>
+
+                <p><strong>Justification:</strong> Left, Center, Right alignment.</p>
+
+                <p><strong>Text Shadow:</strong> Adds a shadow behind text for better readability against complex backgrounds.</p>
+
+                <h4>Importing Custom Fonts</h4>
+
+                <ol>
+                    <li>Drag a .ttf or .otf file into Content Browser</li>
+                    <li>Unreal creates a Font Face asset</li>
+                    <li>Right-click → Create Font → name it (e.g., "MyGameFont")</li>
+                    <li>In the Font asset, add your Font Face to the Default Font Family</li>
+                    <li>Use this Font asset in Text widget properties</li>
+                </ol>
+
+                <!-- SVG: Text Styling -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Text Styling Options</text>
+                    
+                    <!-- Size comparison -->
+                    <g transform="translate(50, 50)">
+                        <text x="0" y="20" fill="#fff" font-size="10">Size 12</text>
+                        <text x="0" y="45" fill="#fff" font-size="16">Size 16</text>
+                        <text x="0" y="80" fill="#fff" font-size="24">Size 24</text>
+                        <text x="0" y="120" fill="#888" font-size="9">Font Size</text>
+                    </g>
+                    
+                    <!-- Style comparison -->
+                    <g transform="translate(200, 50)">
+                        <text x="0" y="20" fill="#fff" font-size="14">Regular</text>
+                        <text x="0" y="45" fill="#fff" font-size="14" font-weight="bold">Bold</text>
+                        <text x="0" y="70" fill="#fff" font-size="14" font-style="italic">Italic</text>
+                        <text x="0" y="95" fill="#fff" font-size="14" font-weight="bold" font-style="italic">Bold Italic</text>
+                        <text x="0" y="120" fill="#888" font-size="9">Font Style</text>
+                    </g>
+                    
+                    <!-- Letter spacing -->
+                    <g transform="translate(350, 50)">
+                        <text x="0" y="20" fill="#fff" font-size="14">NORMAL</text>
+                        <text x="0" y="45" fill="#fff" font-size="14" letter-spacing="3">SPACED</text>
+                        <text x="0" y="70" fill="#fff" font-size="14" letter-spacing="6">WIDE</text>
+                        <text x="0" y="120" fill="#888" font-size="9">Letter Spacing</text>
+                    </g>
+                    
+                    <!-- Shadow -->
+                    <g transform="translate(520, 50)">
+                        <text x="0" y="20" fill="#fff" font-size="14">No Shadow</text>
+                        <text x="2" y="47" fill="#000" font-size="14">Shadow</text>
+                        <text x="0" y="45" fill="#fff" font-size="14">Shadow</text>
+                        <text x="4" y="74" fill="rgba(0,0,0,0.5)" font-size="14">Soft Shadow</text>
+                        <text x="0" y="70" fill="#4CAF50" font-size="14">Soft Shadow</text>
+                        <text x="0" y="120" fill="#888" font-size="9">Text Shadow</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Text styling variations including size, style, spacing, and shadows.</em></p>
+
+                <h3>Images and Materials</h3>
+
+                <p>Image widgets can display textures, materials, or nothing (for colored rectangles):</p>
+
+                <p><strong>Brush:</strong> The main property that controls what's displayed. Can be set to:</p>
+                <ul>
+                    <li><strong>Image:</strong> A texture asset (PNG, JPG imported into UE)</li>
+                    <li><strong>Material:</strong> A material or material instance for animated/procedural graphics</li>
+                    <li><strong>None:</strong> Displays Tint color only (solid color rectangle)</li>
+                </ul>
+
+                <p><strong>Draw As:</strong> How the image is rendered:</p>
+                <ul>
+                    <li><strong>Box:</strong> Stretches to fill (can distort)</li>
+                    <li><strong>Border:</strong> 9-slice scaling—corners stay fixed, edges stretch</li>
+                    <li><strong>Image:</strong> Displays at original size or specified size</li>
+                    <li><strong>Rounded Box:</strong> Adds rounded corners</li>
+                </ul>
+
+                <p><strong>9-Slice (Border mode):</strong> Essential for scalable UI elements like buttons and panels. Define margins that don't stretch, allowing the middle to scale while corners remain crisp.</p>
+
+                <!-- SVG: Draw As Modes -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Image Draw Modes</text>
+                    
+                    <!-- Box mode -->
+                    <g transform="translate(50, 50)">
+                        <text x="75" y="15" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">Box (Stretch)</text>
+                        <rect x="0" y="25" width="150" height="80" fill="#667eea" rx="0"/>
+                        <text x="75" y="70" text-anchor="middle" fill="#fff" font-size="9">Stretches to fill</text>
+                        <text x="75" y="125" text-anchor="middle" fill="#666" font-size="8">May distort image</text>
+                    </g>
+                    
+                    <!-- Border mode (9-slice) -->
+                    <g transform="translate(230, 50)">
+                        <text x="85" y="15" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">Border (9-Slice)</text>
+                        <rect x="0" y="25" width="170" height="80" fill="#4CAF50" rx="10"/>
+                        <!-- Corner indicators -->
+                        <line x1="20" y1="25" x2="20" y2="105" stroke="#fff" stroke-dasharray="3,2" opacity="0.5"/>
+                        <line x1="150" y1="25" x2="150" y2="105" stroke="#fff" stroke-dasharray="3,2" opacity="0.5"/>
+                        <line x1="0" y1="45" x2="170" y2="45" stroke="#fff" stroke-dasharray="3,2" opacity="0.5"/>
+                        <line x1="0" y1="85" x2="170" y2="85" stroke="#fff" stroke-dasharray="3,2" opacity="0.5"/>
+                        <text x="85" y="70" text-anchor="middle" fill="#fff" font-size="9">Corners fixed</text>
+                        <text x="85" y="125" text-anchor="middle" fill="#666" font-size="8">Edges stretch, corners don't</text>
+                    </g>
+                    
+                    <!-- Image mode -->
+                    <g transform="translate(430, 50)">
+                        <text x="60" y="15" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">Image</text>
+                        <rect x="10" y="30" width="100" height="70" fill="#FF9800" rx="5"/>
+                        <text x="60" y="70" text-anchor="middle" fill="#fff" font-size="9">Original</text>
+                        <text x="60" y="125" text-anchor="middle" fill="#666" font-size="8">Original or specified size</text>
+                    </g>
+                    
+                    <!-- Rounded Box -->
+                    <g transform="translate(570, 50)">
+                        <text x="85" y="15" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">Rounded Box</text>
+                        <rect x="0" y="25" width="170" height="80" fill="#9C27B0" rx="20"/>
+                        <text x="85" y="70" text-anchor="middle" fill="#fff" font-size="9">Procedural corners</text>
+                        <text x="85" y="125" text-anchor="middle" fill="#666" font-size="8">Adjustable corner radius</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different Draw As modes for Image widgets.</em></p>
+
+                <h3>Padding and Margins</h3>
+
+                <p>Spacing is controlled through Slot properties and widget-specific padding:</p>
+
+                <p><strong>Padding:</strong> Space inside a widget, between its edge and its content. Available on panels and some widgets like Button.</p>
+
+                <p><strong>Margin:</strong> Space outside a widget, between it and siblings. Set in the Slot section of Details when a widget is inside a panel.</p>
+
+                <p>Both use four values: Left, Top, Right, Bottom. In many cases you can use "uniform" mode to set all four at once.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Padding vs. Margin</h4>
+                    <p>Think of padding as "breathing room inside" and margin as "personal space outside." A button with padding has space between its border and its text. A button with margin has space between itself and neighboring buttons.</p>
+                </div>
+
+                <h3>Render Transforms</h3>
+
+                <p>Every widget has Render Transform properties for visual adjustments without affecting layout:</p>
+
+                <ul>
+                    <li><strong>Translation:</strong> Move the widget visually (doesn't affect layout/hit detection)</li>
+                    <li><strong>Scale:</strong> Resize the widget visually</li>
+                    <li><strong>Shear:</strong> Skew the widget</li>
+                    <li><strong>Angle:</strong> Rotate the widget</li>
+                    <li><strong>Pivot:</strong> Point around which rotation and scaling occur</li>
+                </ul>
+
+                <p>Render transforms are great for animations and effects but remember: they're visual only. The widget's actual bounds don't change, so hit detection may not match what's displayed.</p>
+            </section>
+
+            <!-- Section 2: Common Widgets Deep Dive -->
+            <section id="common-widgets" class="lesson-section">
+                <h2>Common Widgets Deep Dive</h2>
+
+                <p>Let's explore the most frequently used widgets in detail, including their key properties and common use cases.</p>
+
+                <h3>Button</h3>
+
+                <p>Buttons are the primary interactive element in UI. They respond to clicks/taps and have visual states for feedback.</p>
+
+                <h4>Button Structure</h4>
+
+                <p>A Button widget is actually a container—it can hold child widgets. The typical structure is:</p>
+
+                <pre><code>Button
+└── Text (or Image, or both)</code></pre>
+
+                <p>The button provides the interactivity; the child provides the visual content.</p>
+
+                <h4>Button States</h4>
+
+                <p>Buttons have visual styles for different states:</p>
+
+                <ul>
+                    <li><strong>Normal:</strong> Default appearance</li>
+                    <li><strong>Hovered:</strong> Mouse is over the button</li>
+                    <li><strong>Pressed:</strong> Button is being clicked</li>
+                    <li><strong>Disabled:</strong> Button is not interactive (Is Enabled = false)</li>
+                </ul>
+
+                <p>Each state can have its own image/color in the Style section of Details.</p>
+
+                <!-- SVG: Button States -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Button Visual States</text>
+                    
+                    <!-- Normal -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="120" height="45" rx="5" fill="#667eea"/>
+                        <text x="60" y="28" text-anchor="middle" fill="#fff" font-size="11">Play Game</text>
+                        <text x="60" y="70" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">Normal</text>
+                        <text x="60" y="85" text-anchor="middle" fill="#888" font-size="7">Default state</text>
+                    </g>
+                    
+                    <!-- Hovered -->
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="120" height="45" rx="5" fill="#7c8ff8"/>
+                        <text x="60" y="28" text-anchor="middle" fill="#fff" font-size="11">Play Game</text>
+                        <text x="60" y="70" text-anchor="middle" fill="#7c8ff8" font-size="9" font-weight="bold">Hovered</text>
+                        <text x="60" y="85" text-anchor="middle" fill="#888" font-size="7">Mouse over</text>
+                    </g>
+                    
+                    <!-- Pressed -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="2" width="120" height="45" rx="5" fill="#5560d4"/>
+                        <text x="60" y="30" text-anchor="middle" fill="#fff" font-size="11">Play Game</text>
+                        <text x="60" y="72" text-anchor="middle" fill="#5560d4" font-size="9" font-weight="bold">Pressed</text>
+                        <text x="60" y="87" text-anchor="middle" fill="#888" font-size="7">Being clicked</text>
+                    </g>
+                    
+                    <!-- Disabled -->
+                    <g transform="translate(500, 50)">
+                        <rect x="0" y="0" width="120" height="45" rx="5" fill="#555"/>
+                        <text x="60" y="28" text-anchor="middle" fill="#888" font-size="11">Play Game</text>
+                        <text x="60" y="70" text-anchor="middle" fill="#888" font-size="9" font-weight="bold">Disabled</text>
+                        <text x="60" y="85" text-anchor="middle" fill="#666" font-size="7">Not interactive</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Button states provide visual feedback for interaction.</em></p>
+
+                <h4>Button Events</h4>
+
+                <p>Buttons fire several events you can bind to:</p>
+
+                <ul>
+                    <li><strong>On Clicked:</strong> Fires when button is pressed and released (most common)</li>
+                    <li><strong>On Pressed:</strong> Fires immediately when button is pressed down</li>
+                    <li><strong>On Released:</strong> Fires when button is released</li>
+                    <li><strong>On Hovered:</strong> Fires when mouse enters button area</li>
+                    <li><strong>On Unhovered:</strong> Fires when mouse leaves button area</li>
+                </ul>
+
+                <p>To bind an event, select the button and scroll to the Events section in Details. Click the + next to the event to create a handler in the Graph.</p>
+
+                <h3>Text Block</h3>
+
+                <p>Text Block displays text—static or dynamic. It's the workhorse of UI information display.</p>
+
+                <h4>Key Properties</h4>
+
+                <ul>
+                    <li><strong>Text:</strong> The content to display. Can be set directly or bound to a variable/function</li>
+                    <li><strong>Font:</strong> Family, size, and style settings</li>
+                    <li><strong>Color and Opacity:</strong> Text color with transparency</li>
+                    <li><strong>Justification:</strong> Left, Center, Right alignment</li>
+                    <li><strong>Wrapping Policy:</strong> How text wraps when it exceeds available width</li>
+                    <li><strong>Auto Wrap Text:</strong> Automatically wrap at widget boundaries</li>
+                </ul>
+
+                <h4>Rich Text</h4>
+
+                <p>For text with multiple styles (bold words, colored phrases), use the <strong>Rich Text Block</strong> widget instead. It supports markup like:</p>
+
+                <pre><code>&lt;Bold&gt;Important&lt;/&gt; text with &lt;Red&gt;color&lt;/&gt;</code></pre>
+
+                <p>Rich Text requires a Data Table defining your styles.</p>
+
+                <h3>Image</h3>
+
+                <p>Image widgets display textures or materials. They're used for icons, backgrounds, character portraits, and decorative elements.</p>
+
+                <h4>Key Properties</h4>
+
+                <ul>
+                    <li><strong>Brush → Image:</strong> The texture to display</li>
+                    <li><strong>Brush → Draw As:</strong> Box, Border (9-slice), Image, or Rounded Box</li>
+                    <li><strong>Brush → Tint:</strong> Color multiplied with image</li>
+                    <li><strong>Brush → Image Size:</strong> Override the displayed size</li>
+                    <li><strong>Color and Opacity:</strong> Overall color/transparency of the image</li>
+                </ul>
+
+                <h4>Using Materials</h4>
+
+                <p>For animated or procedural images, use a Material:</p>
+
+                <ol>
+                    <li>Create a Material with <strong>User Interface</strong> material domain</li>
+                    <li>Build your material (animated patterns, effects)</li>
+                    <li>In Image widget, set Brush → Image to your Material</li>
+                </ol>
+
+                <p>This enables animated backgrounds, procedural patterns, and dynamic effects impossible with static textures.</p>
+
+                <h3>Progress Bar</h3>
+
+                <p>Progress bars visualize a value between 0 and 1. Perfect for health, experience, loading, and timers.</p>
+
+                <h4>Key Properties</h4>
+
+                <ul>
+                    <li><strong>Percent:</strong> Fill amount from 0.0 (empty) to 1.0 (full)</li>
+                    <li><strong>Fill Type:</strong> Direction of fill (Left to Right, Right to Left, etc.)</li>
+                    <li><strong>Is Marquee:</strong> Animated "loading" style when true</li>
+                    <li><strong>Style → Background Image:</strong> The unfilled portion appearance</li>
+                    <li><strong>Style → Fill Image:</strong> The filled portion appearance</li>
+                    <li><strong>Fill Color and Opacity:</strong> Color of the fill</li>
+                </ul>
+
+                <!-- SVG: Progress Bar Variations -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Progress Bar Variations</text>
+                    
+                    <!-- Health bar -->
+                    <g transform="translate(50, 50)">
+                        <text x="75" y="15" text-anchor="middle" fill="#f44336" font-size="9" font-weight="bold">Health Bar</text>
+                        <rect x="0" y="25" width="150" height="20" rx="3" fill="#3a1c1c"/>
+                        <rect x="0" y="25" width="100" height="20" rx="3" fill="#f44336"/>
+                        <text x="75" y="60" text-anchor="middle" fill="#888" font-size="8">67% HP</text>
+                    </g>
+                    
+                    <!-- Experience bar -->
+                    <g transform="translate(250, 50)">
+                        <text x="100" y="15" text-anchor="middle" fill="#2196F3" font-size="9" font-weight="bold">Experience Bar</text>
+                        <rect x="0" y="25" width="200" height="15" rx="2" fill="#1a3a52"/>
+                        <rect x="0" y="25" width="140" height="15" rx="2" fill="#2196F3"/>
+                        <text x="100" y="60" text-anchor="middle" fill="#888" font-size="8">Level 5 (70%)</text>
+                    </g>
+                    
+                    <!-- Loading bar -->
+                    <g transform="translate(500, 50)">
+                        <text x="75" y="15" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Loading Bar</text>
+                        <rect x="0" y="25" width="150" height="25" rx="4" fill="#1c3a1c"/>
+                        <rect x="0" y="25" width="60" height="25" rx="4" fill="#4CAF50"/>
+                        <text x="75" y="40" text-anchor="middle" fill="#fff" font-size="8">40%</text>
+                    </g>
+                    
+                    <!-- Timer bar -->
+                    <g transform="translate(50, 120)">
+                        <text x="75" y="15" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">Timer (Countdown)</text>
+                        <rect x="0" y="25" width="150" height="12" rx="6" fill="#3d2a0a"/>
+                        <rect x="0" y="25" width="45" height="12" rx="6" fill="#FF9800"/>
+                        <text x="75" y="55" text-anchor="middle" fill="#888" font-size="8">30% time remaining</text>
+                    </g>
+                    
+                    <!-- Skill cooldown -->
+                    <g transform="translate(250, 120)">
+                        <text x="100" y="15" text-anchor="middle" fill="#9C27B0" font-size="9" font-weight="bold">Radial (Custom)</text>
+                        <circle cx="100" cy="45" r="20" fill="#2a1a3d" stroke="#9C27B0" stroke-width="3"/>
+                        <text x="100" y="50" text-anchor="middle" fill="#9C27B0" font-size="8">75%</text>
+                        <text x="100" y="85" text-anchor="middle" fill="#888" font-size="7">Requires custom material</text>
+                    </g>
+                    
+                    <!-- Segmented -->
+                    <g transform="translate(420, 120)">
+                        <text x="110" y="15" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Segmented (Custom)</text>
+                        <rect x="0" y="30" width="35" height="30" rx="3" fill="#f44336"/>
+                        <rect x="40" y="30" width="35" height="30" rx="3" fill="#f44336"/>
+                        <rect x="80" y="30" width="35" height="30" rx="3" fill="#f44336"/>
+                        <rect x="120" y="30" width="35" height="30" rx="3" fill="#333"/>
+                        <rect x="160" y="30" width="35" height="30" rx="3" fill="#333"/>
+                        <text x="110" y="80" text-anchor="middle" fill="#888" font-size="7">3/5 health segments</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Progress bars for different purposes using various styles.</em></p>
+
+                <h3>Slider</h3>
+
+                <p>Sliders let users select a value within a range—perfect for volume controls, brightness settings, and similar options.</p>
+
+                <h4>Key Properties</h4>
+
+                <ul>
+                    <li><strong>Value:</strong> Current position (0.0 to 1.0 by default)</li>
+                    <li><strong>Min Value / Max Value:</strong> Range endpoints (can be customized)</li>
+                    <li><strong>Step Size:</strong> Increment size (0 for continuous)</li>
+                    <li><strong>Orientation:</strong> Horizontal or Vertical</li>
+                    <li><strong>Style:</strong> Appearance of bar and handle</li>
+                </ul>
+
+                <h4>Slider Events</h4>
+
+                <ul>
+                    <li><strong>On Value Changed:</strong> Fires whenever value changes (continuously while dragging)</li>
+                    <li><strong>On Mouse Capture Begin:</strong> Fires when user starts dragging</li>
+                    <li><strong>On Mouse Capture End:</strong> Fires when user releases</li>
+                </ul>
+
+                <h3>Check Box</h3>
+
+                <p>Check boxes toggle boolean settings—enable/disable features, agree to terms, select options.</p>
+
+                <h4>Key Properties</h4>
+
+                <ul>
+                    <li><strong>Is Checked:</strong> Current checked state</li>
+                    <li><strong>Checked State:</strong> Unchecked, Checked, or Undetermined (for tri-state)</li>
+                    <li><strong>Style:</strong> Appearance for each state</li>
+                </ul>
+
+                <h4>Check Box Events</h4>
+
+                <ul>
+                    <li><strong>On Check State Changed:</strong> Fires when state changes, provides new state as parameter</li>
+                </ul>
+
+                <h3>Editable Text / Text Box</h3>
+
+                <p>For user text input—player names, chat messages, search fields.</p>
+
+                <h4>Key Properties</h4>
+
+                <ul>
+                    <li><strong>Text:</strong> Current content</li>
+                    <li><strong>Hint Text:</strong> Placeholder shown when empty</li>
+                    <li><strong>Is Read Only:</strong> Whether user can edit</li>
+                    <li><strong>Is Password:</strong> Obscure input with dots</li>
+                </ul>
+
+                <h4>Text Input Events</h4>
+
+                <ul>
+                    <li><strong>On Text Changed:</strong> Fires on every keystroke</li>
+                    <li><strong>On Text Committed:</strong> Fires when Enter is pressed or focus is lost</li>
+                </ul>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Mobile Keyboard</h4>
+                    <p>On mobile devices, focusing a text input automatically shows the on-screen keyboard. Consider the layout—your text field shouldn't be hidden behind the keyboard. Also consider what keyboard type you need (default, numeric, email).</p>
+                </div>
+            </section>
+            <!-- Section 3: Widget Composition and Reusability -->
+            <section id="widget-composition" class="lesson-section">
+                <h2>Widget Composition and Reusability</h2>
+
+                <p>Professional UI isn't built by styling every element individually—that leads to inconsistency and maintenance nightmares. Instead, you create reusable widget components that can be combined to build complex interfaces. One styled button definition used everywhere; change it once, it updates everywhere.</p>
+
+                <h3>User Widgets (Custom Widget Components)</h3>
+
+                <p>A <strong>User Widget</strong> is a Widget Blueprint that can be used as a component inside other Widget Blueprints. Create a styled button once, then drop it into any menu or HUD.</p>
+
+                <p><strong>Why User Widgets?</strong></p>
+                <ul>
+                    <li><strong>Consistency:</strong> Same look everywhere without manual copying</li>
+                    <li><strong>Maintainability:</strong> Update one widget, all instances update</li>
+                    <li><strong>Encapsulation:</strong> Internal complexity hidden behind simple interface</li>
+                    <li><strong>Reusability:</strong> Use across multiple screens and even projects</li>
+                </ul>
+
+                <h4>Creating a User Widget</h4>
+
+                <ol>
+                    <li>Create a Widget Blueprint as normal (right-click → User Interface → Widget Blueprint)</li>
+                    <li>Design your component (e.g., a styled button with icon and text)</li>
+                    <li>Add variables that should be configurable (button text, icon, colors)</li>
+                    <li>Mark variables as <strong>Instance Editable</strong> and <strong>Expose on Spawn</strong></li>
+                    <li>Use this widget inside other Widget Blueprints by dragging from Palette → User Created</li>
+                </ol>
+
+                <!-- SVG: User Widget Concept -->
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">User Widget: Define Once, Use Everywhere</text>
+                    
+                    <!-- User Widget Definition -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#667eea" stroke="#5560d4" stroke-width="2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">WBP_StyledButton</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#c5cae9" font-size="8">(User Widget Definition)</text>
+                        
+                        <!-- Internal structure preview -->
+                        <rect x="20" y="60" width="160" height="40" rx="5" fill="#5560d4"/>
+                        <rect x="30" y="70" width="20" height="20" rx="2" fill="#fff" opacity="0.3"/>
+                        <text x="110" y="85" text-anchor="middle" fill="#fff" font-size="9">{ButtonText}</text>
+                        
+                        <text x="100" y="135" text-anchor="middle" fill="#666" font-size="8">Exposed Variables:</text>
+                        <text x="100" y="150" text-anchor="middle" fill="#667eea" font-size="7">ButtonText, IconTexture, OnClick</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 260 110 L 310 70" stroke="#667eea" stroke-width="2" marker-end="url(#uwArrow)"/>
+                    <path d="M 260 110 L 310 110" stroke="#667eea" stroke-width="2" marker-end="url(#uwArrow)"/>
+                    <path d="M 260 110 L 310 150" stroke="#667eea" stroke-width="2" marker-end="url(#uwArrow)"/>
+                    
+                    <!-- Instances -->
+                    <g transform="translate(320, 45)">
+                        <rect x="0" y="0" width="140" height="45" rx="5" fill="#667eea"/>
+                        <rect x="10" y="12" width="18" height="18" rx="2" fill="#fff" opacity="0.3"/>
+                        <text x="85" y="28" text-anchor="middle" fill="#fff" font-size="9">Play Game</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#888" font-size="7">Main Menu</text>
+                    </g>
+                    
+                    <g transform="translate(320, 90)">
+                        <rect x="0" y="0" width="140" height="45" rx="5" fill="#667eea"/>
+                        <rect x="10" y="12" width="18" height="18" rx="2" fill="#fff" opacity="0.3"/>
+                        <text x="85" y="28" text-anchor="middle" fill="#fff" font-size="9">Settings</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#888" font-size="7">Pause Menu</text>
+                    </g>
+                    
+                    <g transform="translate(320, 135)">
+                        <rect x="0" y="0" width="140" height="45" rx="5" fill="#667eea"/>
+                        <rect x="10" y="12" width="18" height="18" rx="2" fill="#fff" opacity="0.3"/>
+                        <text x="85" y="28" text-anchor="middle" fill="#fff" font-size="9">Confirm</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#888" font-size="7">Dialog Popup</text>
+                    </g>
+                    
+                    <!-- Update scenario -->
+                    <g transform="translate(520, 50)">
+                        <rect x="0" y="0" width="230" height="150" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="115" y="25" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Update Definition →</text>
+                        <text x="115" y="42" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">All Instances Update!</text>
+                        
+                        <rect x="20" y="60" width="90" height="35" rx="8" fill="#4CAF50"/>
+                        <text x="65" y="82" text-anchor="middle" fill="#fff" font-size="8">Play Game</text>
+                        
+                        <rect x="120" y="60" width="90" height="35" rx="8" fill="#4CAF50"/>
+                        <text x="165" y="82" text-anchor="middle" fill="#fff" font-size="8">Settings</text>
+                        
+                        <rect x="70" y="105" width="90" height="35" rx="8" fill="#4CAF50"/>
+                        <text x="115" y="127" text-anchor="middle" fill="#fff" font-size="8">Confirm</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="uwArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: A User Widget defined once can be instanced in multiple locations. Updating the definition updates all instances.</em></p>
+
+                <h3>Exposing Variables</h3>
+
+                <p>For a User Widget to be configurable, expose variables that other widgets can set:</p>
+
+                <ol>
+                    <li>Create a variable in your User Widget (e.g., <code>ButtonText</code> of type Text)</li>
+                    <li>Select the variable and in Details:
+                        <ul>
+                            <li>Check <strong>Instance Editable</strong> — allows setting per-instance in parent widget</li>
+                            <li>Check <strong>Expose on Spawn</strong> — allows setting when created dynamically</li>
+                        </ul>
+                    </li>
+                    <li>Use the variable in your widget's design (bind text to it, etc.)</li>
+                </ol>
+
+                <p>When you place this User Widget in another Widget Blueprint, the exposed variables appear in the Details panel, allowing you to configure each instance differently.</p>
+
+                <h3>Event Dispatchers for Communication</h3>
+
+                <p>User Widgets need to communicate events to their parents—"button was clicked," "slider value changed." <strong>Event Dispatchers</strong> enable this.</p>
+
+                <p><strong>Creating an Event Dispatcher:</strong></p>
+                <ol>
+                    <li>In your User Widget, open the My Blueprint panel</li>
+                    <li>Under Event Dispatchers, click <strong>+</strong> to add one</li>
+                    <li>Name it descriptively (e.g., <code>OnButtonClicked</code>)</li>
+                    <li>Optionally add parameters (the data to pass when fired)</li>
+                </ol>
+
+                <p><strong>Calling the Dispatcher:</strong></p>
+                <ol>
+                    <li>When the internal event happens (button clicked), call the dispatcher</li>
+                    <li>Drag the dispatcher into the graph and select "Call"</li>
+                </ol>
+
+                <p><strong>Binding in Parent Widget:</strong></p>
+                <ol>
+                    <li>In the parent widget, get reference to your User Widget instance</li>
+                    <li>Drag from it and search for "Bind Event to [DispatcherName]"</li>
+                    <li>Create a custom event to handle the callback</li>
+                </ol>
+
+                <!-- Mermaid: Event Dispatcher Flow -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph UserWidget["WBP_StyledButton"]
+        B["Button Clicked"] --> C["Call OnButtonClicked"]
+    end
+    
+    subgraph ParentWidget["WBP_MainMenu"]
+        D["Bind to OnButtonClicked"] --> E["Handle Click"]
+        E --> F["Start Game / Open Settings / etc."]
+    end
+    
+    C -.->|"Event Dispatcher"| D
+    
+    style B fill:#c62828,color:#fff
+    style C fill:#667eea,color:#fff
+    style D fill:#667eea,color:#fff
+    style F fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Event Dispatchers let child widgets communicate with parents.</em></p>
+
+                <h3>Named Slots</h3>
+
+                <p>Sometimes you want a User Widget that accepts arbitrary content—like a panel frame that can contain anything. <strong>Named Slots</strong> enable this.</p>
+
+                <ol>
+                    <li>In your User Widget Designer, add a <strong>Named Slot</strong> widget where content should go</li>
+                    <li>Give it a descriptive name (e.g., "ContentSlot")</li>
+                    <li>When using this widget in a parent, drag child widgets into the slot</li>
+                </ol>
+
+                <p>Named Slots are perfect for:</p>
+                <ul>
+                    <li>Styled containers (fancy borders around any content)</li>
+                    <li>Card layouts (title bar + content area)</li>
+                    <li>Scroll views with custom frames</li>
+                </ul>
+
+                <h3>Widget Switching and Visibility</h3>
+
+                <p>Complex UIs often show/hide different panels. Use the <strong>Widget Switcher</strong> panel:</p>
+
+                <ol>
+                    <li>Add a <strong>Widget Switcher</strong> to your layout</li>
+                    <li>Add multiple child widgets (each is a "page")</li>
+                    <li>Only one child is visible at a time</li>
+                    <li>Call <code>Set Active Widget Index</code> or <code>Set Active Widget</code> to switch</li>
+                </ol>
+
+                <p>This is more efficient than showing/hiding multiple overlapping widgets—only the active widget processes input and ticks.</p>
+
+                <!-- SVG: Widget Switcher -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Widget Switcher: Multi-Page UI</text>
+                    
+                    <!-- Tabs -->
+                    <g transform="translate(100, 50)">
+                        <rect x="0" y="0" width="100" height="30" rx="5" fill="#667eea"/>
+                        <text x="50" y="20" text-anchor="middle" fill="#fff" font-size="9">Inventory</text>
+                        
+                        <rect x="110" y="0" width="100" height="30" rx="5" fill="#444"/>
+                        <text x="160" y="20" text-anchor="middle" fill="#888" font-size="9">Skills</text>
+                        
+                        <rect x="220" y="0" width="100" height="30" rx="5" fill="#444"/>
+                        <text x="270" y="20" text-anchor="middle" fill="#888" font-size="9">Map</text>
+                        
+                        <rect x="330" y="0" width="100" height="30" rx="5" fill="#444"/>
+                        <text x="380" y="20" text-anchor="middle" fill="#888" font-size="9">Quests</text>
+                    </g>
+                    
+                    <!-- Widget Switcher container -->
+                    <g transform="translate(100, 90)">
+                        <rect x="0" y="0" width="430" height="90" rx="5" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
+                        
+                        <!-- Active page (Inventory) -->
+                        <text x="215" y="25" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Widget Switcher</text>
+                        
+                        <!-- Grid of items -->
+                        <g transform="translate(20, 40)">
+                            <rect x="0" y="0" width="35" height="35" rx="3" fill="#555"/>
+                            <rect x="40" y="0" width="35" height="35" rx="3" fill="#555"/>
+                            <rect x="80" y="0" width="35" height="35" rx="3" fill="#555"/>
+                            <rect x="120" y="0" width="35" height="35" rx="3" fill="#555"/>
+                            <text x="180" y="22" fill="#888" font-size="8">... Inventory Content ...</text>
+                        </g>
+                        
+                        <!-- Index indicator -->
+                        <text x="400" y="75" text-anchor="end" fill="#4CAF50" font-size="8">Active Index: 0</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <text x="350" y="195" text-anchor="middle" fill="#888" font-size="8">Only active child widget is visible and receives input • Switch with Set Active Widget Index</text>
+                </svg>
+                <p class="caption"><em>Figure: Widget Switcher shows one child at a time, perfect for tabbed interfaces.</em></p>
+
+                <h3>Organizing Your Widgets</h3>
+
+                <p>As your UI grows, organization becomes crucial:</p>
+
+                <p><strong>Folder Structure:</strong></p>
+                <pre><code>Content/
+└── UI/
+    ├── Components/     (Reusable User Widgets)
+    │   ├── WBP_StyledButton
+    │   ├── WBP_HealthBar
+    │   └── WBP_ItemSlot
+    ├── Screens/        (Full-screen widgets)
+    │   ├── WBP_MainMenu
+    │   ├── WBP_PauseMenu
+    │   └── WBP_Inventory
+    ├── HUD/            (In-game overlays)
+    │   ├── WBP_PlayerHUD
+    │   └── WBP_DamageIndicator
+    └── Common/         (Shared assets)
+        ├── Fonts/
+        ├── Icons/
+        └── Materials/</code></pre>
+
+                <p><strong>Naming Conventions:</strong></p>
+                <ul>
+                    <li><code>WBP_</code> prefix for all Widget Blueprints</li>
+                    <li>Descriptive names: <code>WBP_MainMenuButton</code> not <code>WBP_Button1</code></li>
+                    <li>Group related widgets: <code>WBP_Inventory_Slot</code>, <code>WBP_Inventory_Panel</code></li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Component Checklist</h4>
+                    <p>When creating a reusable User Widget:</p>
+                    <ul>
+                        <li>Expose configuration variables (text, colors, icons)</li>
+                        <li>Create Event Dispatchers for important events</li>
+                        <li>Document what the widget does and how to use it</li>
+                        <li>Test with different configurations before using widely</li>
+                        <li>Keep it focused—one component, one purpose</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 4: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Create a Styled Menu Button</h2>
+
+                <p>Let's create a reusable button component with custom styling, hover effects, and an Event Dispatcher. This button can then be used throughout your game's menus.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a styled menu button User Widget with: customizable text, hover color change effect, click sound, and an Event Dispatcher for click handling. Use it in a simple main menu.</p>
+                </div>
+
+                <h3>Step 1: Create the Button Widget</h3>
+
+                <ol>
+                    <li>Right-click in Content Browser → <strong>User Interface → Widget Blueprint</strong></li>
+                    <li>Name it <code>WBP_MenuButton</code></li>
+                    <li>Open it in the Widget Editor</li>
+                </ol>
+
+                <h3>Step 2: Design the Button Layout</h3>
+
+                <ol>
+                    <li>From Palette, drag a <strong>Button</strong> into the canvas</li>
+                    <li>Select the button, in Details:
+                        <ul>
+                            <li>Set <strong>Size X:</strong> 300</li>
+                            <li>Set <strong>Size Y:</strong> 60</li>
+                        </ul>
+                    </li>
+                    <li>Drag a <strong>Text</strong> widget inside the Button (as child)</li>
+                    <li>Rename the Text to <code>ButtonText</code></li>
+                    <li>In Text Details:
+                        <ul>
+                            <li>Set <strong>Text:</strong> "Button" (placeholder)</li>
+                            <li>Set <strong>Font Size:</strong> 24</li>
+                            <li>Set <strong>Justification:</strong> Center</li>
+                            <li>Check <strong>Is Variable</strong> (so we can access it in Graph)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 3: Style the Button</h3>
+
+                <p>Select the Button widget and expand the <strong>Style</strong> section in Details:</p>
+
+                <p><strong>Normal State:</strong></p>
+                <ol>
+                    <li>Under Style → Normal, click the dropdown and select "None" for Image</li>
+                    <li>Set <strong>Tint</strong> to your primary color (e.g., #667EEA - a nice purple-blue)</li>
+                </ol>
+
+                <p><strong>Hovered State:</strong></p>
+                <ol>
+                    <li>Under Style → Hovered, set Image to "None"</li>
+                    <li>Set <strong>Tint</strong> to a lighter version (e.g., #8B9CF9)</li>
+                </ol>
+
+                <p><strong>Pressed State:</strong></p>
+                <ol>
+                    <li>Under Style → Pressed, set Image to "None"</li>
+                    <li>Set <strong>Tint</strong> to a darker version (e.g., #5560D4)</li>
+                </ol>
+
+                <!-- SVG: Button Styling Details -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">WBP_MenuButton Styling</text>
+                    
+                    <!-- Normal -->
+                    <g transform="translate(70, 55)">
+                        <rect x="0" y="0" width="150" height="50" rx="5" fill="#667eea"/>
+                        <text x="75" y="32" text-anchor="middle" fill="#fff" font-size="14">Play Game</text>
+                        <text x="75" y="70" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">Normal</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#888" font-size="7">#667EEA</text>
+                    </g>
+                    
+                    <!-- Hovered -->
+                    <g transform="translate(270, 55)">
+                        <rect x="0" y="0" width="150" height="50" rx="5" fill="#8B9CF9"/>
+                        <text x="75" y="32" text-anchor="middle" fill="#fff" font-size="14">Play Game</text>
+                        <text x="75" y="70" text-anchor="middle" fill="#8B9CF9" font-size="9" font-weight="bold">Hovered</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#888" font-size="7">#8B9CF9 (lighter)</text>
+                    </g>
+                    
+                    <!-- Pressed -->
+                    <g transform="translate(470, 55)">
+                        <rect x="0" y="-3" width="150" height="50" rx="5" fill="#5560D4"/>
+                        <text x="75" y="27" text-anchor="middle" fill="#fff" font-size="14">Play Game</text>
+                        <text x="75" y="67" text-anchor="middle" fill="#5560D4" font-size="9" font-weight="bold">Pressed</text>
+                        <text x="75" y="82" text-anchor="middle" fill="#888" font-size="7">#5560D4 (darker)</text>
+                    </g>
+                    
+                    <!-- Structure -->
+                    <g transform="translate(200, 140)">
+                        <rect x="0" y="0" width="300" height="45" rx="5" fill="rgba(102,126,234,0.15)" stroke="#667eea"/>
+                        <text x="150" y="17" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">Widget Structure</text>
+                        <text x="150" y="35" text-anchor="middle" fill="#888" font-size="8">Button → Text (ButtonText)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Three button states with color variations for visual feedback.</em></p>
+
+                <h3>Step 4: Create Exposed Variables</h3>
+
+                <p>Switch to the Graph view and create variables:</p>
+
+                <ol>
+                    <li>In My Blueprint panel, under Variables, click <strong>+</strong></li>
+                    <li>Create <code>LabelText</code> (Type: Text, Default: "Button")</li>
+                    <li>Select it, in Details:
+                        <ul>
+                            <li>Check <strong>Instance Editable</strong></li>
+                            <li>Check <strong>Expose on Spawn</strong></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 5: Bind Text to Variable</h3>
+
+                <ol>
+                    <li>Switch back to Designer view</li>
+                    <li>Select the ButtonText widget</li>
+                    <li>In Details, find <strong>Text</strong> property</li>
+                    <li>Click the <strong>Bind</strong> dropdown next to it</li>
+                    <li>Select <strong>Create Binding</strong></li>
+                    <li>This creates a function—inside it:
+                        <ul>
+                            <li>Get <code>LabelText</code> variable</li>
+                            <li>Connect to the Return Value</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p>Now the button text will display whatever <code>LabelText</code> is set to!</p>
+
+                <h3>Step 6: Create Event Dispatcher</h3>
+
+                <ol>
+                    <li>In Graph view, find <strong>Event Dispatchers</strong> in My Blueprint panel</li>
+                    <li>Click <strong>+</strong> to add one</li>
+                    <li>Name it <code>OnClicked</code></li>
+                </ol>
+
+                <h3>Step 7: Handle Button Click</h3>
+
+                <ol>
+                    <li>Select the Button widget (in Designer or Hierarchy)</li>
+                    <li>In Details, scroll to <strong>Events</strong> section</li>
+                    <li>Click <strong>+</strong> next to <code>On Clicked</code></li>
+                    <li>This adds an event node to your Graph</li>
+                    <li>From this event:
+                        <ul>
+                            <li>Drag <code>OnClicked</code> (Event Dispatcher) into graph</li>
+                            <li>Select <strong>Call</strong></li>
+                            <li>Connect the execution wire</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Event Dispatcher Setup -->
+                <svg width="100%" height="150" viewBox="0 0 700 150" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Button Click → Event Dispatcher</text>
+                    
+                    <!-- On Clicked Event -->
+                    <g transform="translate(100, 55)">
+                        <rect x="0" y="0" width="140" height="45" rx="5" fill="#c62828"/>
+                        <text x="70" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">On Clicked</text>
+                        <text x="70" y="35" text-anchor="middle" fill="#ffcdd2" font-size="7">(Button Event)</text>
+                    </g>
+                    
+                    <path d="M 245 77 L 300 77" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Call Dispatcher -->
+                    <g transform="translate(305, 55)">
+                        <rect x="0" y="0" width="160" height="45" rx="5" fill="#667eea"/>
+                        <text x="80" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Call OnClicked</text>
+                        <text x="80" y="35" text-anchor="middle" fill="#c5cae9" font-size="7">(Event Dispatcher)</text>
+                    </g>
+                    
+                    <path d="M 470 77 L 520 77" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    
+                    <!-- To Parent -->
+                    <g transform="translate(525, 55)">
+                        <rect x="0" y="0" width="120" height="45" rx="5" fill="rgba(76,175,80,0.3)" stroke="#4CAF50" stroke-dasharray="5,3"/>
+                        <text x="60" y="18" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Parent Widget</text>
+                        <text x="60" y="35" text-anchor="middle" fill="#81C784" font-size="7">Handles Event</text>
+                    </g>
+                    
+                    <text x="350" y="125" text-anchor="middle" fill="#888" font-size="8">Button internal click triggers dispatcher → Parent widget receives and handles</text>
+                </svg>
+                <p class="caption"><em>Figure: Button click calls the Event Dispatcher, which parents can bind to.</em></p>
+
+                <h3>Step 8: Compile and Save</h3>
+
+                <ol>
+                    <li>Click <strong>Compile</strong></li>
+                    <li>Click <strong>Save</strong></li>
+                </ol>
+
+                <h3>Step 9: Create a Main Menu Using the Button</h3>
+
+                <ol>
+                    <li>Create a new Widget Blueprint: <code>WBP_MainMenu</code></li>
+                    <li>Add a <strong>Canvas Panel</strong> as root</li>
+                    <li>Add a <strong>Vertical Box</strong> (centered using anchor)</li>
+                    <li>In Palette, find <strong>User Created → WBP_MenuButton</strong></li>
+                    <li>Drag three instances into the Vertical Box</li>
+                    <li>Select each and set <code>LabelText</code> in Details:
+                        <ul>
+                            <li>First: "Play Game"</li>
+                            <li>Second: "Options"</li>
+                            <li>Third: "Quit"</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 10: Bind Event Dispatchers</h3>
+
+                <ol>
+                    <li>Switch to Graph view in WBP_MainMenu</li>
+                    <li>For each button instance:
+                        <ul>
+                            <li>Drag the button variable into graph</li>
+                            <li>Drag from it and search "Bind Event to On Clicked"</li>
+                            <li>Create custom event (e.g., "OnPlayClicked", "OnOptionsClicked", "OnQuitClicked")</li>
+                        </ul>
+                    </li>
+                    <li>Implement each handler:
+                        <ul>
+                            <li>Play: Open Level or Print String "Starting Game"</li>
+                            <li>Options: Print String "Opening Options"</li>
+                            <li>Quit: Quit Game node</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 11: Test</h3>
+
+                <ol>
+                    <li>Create a test level or use existing</li>
+                    <li>In Level Blueprint or Player Controller, add WBP_MainMenu to viewport on BeginPlay</li>
+                    <li>Set Input Mode UI Only</li>
+                    <li>Set Show Mouse Cursor = True</li>
+                    <li>Play and test your menu!</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've created a reusable styled button with:</p>
+                    <ul>
+                        <li>Custom visual styling with state colors</li>
+                        <li>Exposed variables for configuration</li>
+                        <li>Event Dispatcher for parent communication</li>
+                        <li>Text binding to display different labels</li>
+                    </ul>
+                    <p>This same pattern works for any reusable UI component—inventory slots, stat displays, notification toasts, and more!</p>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Add Icon:</strong> Add an optional Image widget next to text, expose Icon texture variable</li>
+                    <li><strong>Hover Sound:</strong> Play a sound on the On Hovered event</li>
+                    <li><strong>Click Sound:</strong> Play a click sound before calling the dispatcher</li>
+                    <li><strong>Scale Animation:</strong> Use Render Transform to slightly scale up on hover</li>
+                    <li><strong>Disabled State:</strong> Add logic to show disabled appearance when Is Enabled is false</li>
+                </ol>
+            </section>
+            <!-- Section 5: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned how to move beyond default widget appearances to create polished, professional UI. From styling individual elements to building reusable components, you now have the skills to create consistent, maintainable user interfaces.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Widget Styling:</strong> Every widget has appearance properties—colors with alpha, fonts with size and style, images with draw modes. Use these to match your game's visual identity. 9-slice (Border mode) is essential for scalable UI elements.</p>
+
+                <p><strong>Text Styling:</strong> Font family, size, style, spacing, shadows, and justification all contribute to readable, attractive text. Import custom fonts to maintain brand consistency.</p>
+
+                <p><strong>Button States:</strong> Buttons have Normal, Hovered, Pressed, and Disabled states. Each can have unique styling to provide clear visual feedback during interaction.</p>
+
+                <p><strong>Common Widgets:</strong> Text Block for displaying information, Image for graphics, Progress Bar for values, Slider for user input ranges, Check Box for toggles, and Text Box for text input. Each has specific properties and events.</p>
+
+                <p><strong>User Widgets:</strong> Reusable components created as Widget Blueprints. Define once, use everywhere. Update the definition and all instances update automatically.</p>
+
+                <p><strong>Exposed Variables:</strong> Mark variables as Instance Editable and Expose on Spawn to allow configuration per-instance. Bind widget properties to these variables.</p>
+
+                <p><strong>Event Dispatchers:</strong> Enable child widgets to communicate events to parents. The child calls the dispatcher; parents bind handlers to respond.</p>
+
+                <p><strong>Widget Switcher:</strong> Efficiently shows one child widget at a time, perfect for tabbed interfaces and multi-page menus.</p>
+
+                <h3>Styling Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Property</th>
+                            <th style="padding: 10px; text-align: left;">Widgets</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Color and Opacity</td>
+                            <td style="padding: 10px;">Most widgets</td>
+                            <td style="padding: 10px;">Base color with transparency</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Tint</td>
+                            <td style="padding: 10px;">Image, Button styles</td>
+                            <td style="padding: 10px;">Color multiplier for variations</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Font</td>
+                            <td style="padding: 10px;">Text Block, Editable Text</td>
+                            <td style="padding: 10px;">Family, size, style</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Draw As</td>
+                            <td style="padding: 10px;">Image</td>
+                            <td style="padding: 10px;">Box, Border (9-slice), Image, Rounded</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Padding</td>
+                            <td style="padding: 10px;">Panels, Button</td>
+                            <td style="padding: 10px;">Space inside widget</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Render Transform</td>
+                            <td style="padding: 10px;">All widgets</td>
+                            <td style="padding: 10px;">Visual-only position/scale/rotation</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Widget Events Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Widget</th>
+                            <th style="padding: 10px; text-align: left;">Key Events</th>
+                            <th style="padding: 10px; text-align: left;">Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Button</td>
+                            <td style="padding: 10px;">On Clicked, On Hovered</td>
+                            <td style="padding: 10px;">Menu actions, confirmations</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Slider</td>
+                            <td style="padding: 10px;">On Value Changed</td>
+                            <td style="padding: 10px;">Volume, brightness settings</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Check Box</td>
+                            <td style="padding: 10px;">On Check State Changed</td>
+                            <td style="padding: 10px;">Toggle options</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Text Box</td>
+                            <td style="padding: 10px;">On Text Committed</td>
+                            <td style="padding: 10px;">Player name, chat input</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Create reusable components:</strong> Any UI element used more than twice should be a User Widget</li>
+                    <li><strong>Use Event Dispatchers:</strong> Keep widget logic encapsulated; communicate through dispatchers</li>
+                    <li><strong>Expose only necessary variables:</strong> Don't expose everything—just what needs configuration</li>
+                    <li><strong>Name widgets descriptively:</strong> ButtonText, HealthBar, not TextBlock_3</li>
+                    <li><strong>Use consistent styling:</strong> Define colors, fonts, and sizes once and reuse</li>
+                    <li><strong>Test button states:</strong> Verify all states look good and provide clear feedback</li>
+                    <li><strong>Use 9-slice for scalable elements:</strong> Buttons, panels, and frames should scale without distortion</li>
+                    <li><strong>Organize your UI folder:</strong> Separate Components, Screens, HUD, and Common assets</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Widget Creation Workflow</text>
+                    
+                    <!-- Step 1: Style -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">1. Style</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#666" font-size="8">Colors, fonts,</text>
+                        <text x="70" y="58" text-anchor="middle" fill="#666" font-size="8">images, states</text>
+                    </g>
+                    
+                    <path d="M 195 90 L 235 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumCreateArrow)"/>
+                    
+                    <!-- Step 2: Expose -->
+                    <g transform="translate(240, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">2. Expose</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#666" font-size="8">Variables for</text>
+                        <text x="70" y="58" text-anchor="middle" fill="#666" font-size="8">configuration</text>
+                    </g>
+                    
+                    <path d="M 385 90 L 425 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumCreateArrow)"/>
+                    
+                    <!-- Step 3: Events -->
+                    <g transform="translate(430, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#f3e5f5" stroke="#9C27B0"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#7B1FA2" font-size="10" font-weight="bold">3. Events</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#666" font-size="8">Dispatchers for</text>
+                        <text x="70" y="58" text-anchor="middle" fill="#666" font-size="8">communication</text>
+                    </g>
+                    
+                    <path d="M 575 90 L 615 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumCreateArrow)"/>
+                    
+                    <!-- Step 4: Reuse -->
+                    <g transform="translate(620, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">4. Reuse</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#666" font-size="8">Use across</text>
+                        <text x="70" y="58" text-anchor="middle" fill="#666" font-size="8">all menus/HUDs</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(200, 150)">
+                        <rect x="0" y="0" width="400" height="50" rx="8" fill="#667eea"/>
+                        <text x="200" y="22" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Consistent, Maintainable UI</text>
+                        <text x="200" y="40" text-anchor="middle" fill="#c5cae9" font-size="9">Change once → Updates everywhere</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="sumCreateArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The workflow for creating professional, reusable UI components.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you can create and style widgets, the next lesson focuses on <strong>HUD Elements</strong>. You'll learn how to create in-game UI that updates in real-time—health bars that reflect actual player health, ammo counters that decrease when shooting, and objective markers that point to goals. This is where UI meets gameplay!</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is the "Draw As: Border" mode used for in Image widgets?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Adding a border line around the image</label>
+                            <label><input type="radio" name="q1" value="b"> 9-slice scaling where corners stay fixed and edges stretch</label>
+                            <label><input type="radio" name="q1" value="c"> Drawing only the border without the center</label>
+                            <label><input type="radio" name="q1" value="d"> Creating a rounded border effect</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Border mode (9-slice) divides the image into 9 sections. The corners remain fixed size, while edges and center stretch. This is essential for scalable UI elements like buttons and panels that need to resize without distorting their borders.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Which button state is active when the mouse is over the button but not clicking?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Normal</label>
+                            <label><input type="radio" name="q2" value="b"> Hovered</label>
+                            <label><input type="radio" name="q2" value="c"> Pressed</label>
+                            <label><input type="radio" name="q2" value="d"> Focused</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Hovered state activates when the mouse cursor is over the button but the user hasn't clicked yet. This provides visual feedback that the button is interactive. Normal is the default state, Pressed is during click.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What must you enable on a variable for it to be configurable per-instance when the User Widget is placed in another widget?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Is Variable</label>
+                            <label><input type="radio" name="q3" value="b"> Blueprint Read Only</label>
+                            <label><input type="radio" name="q3" value="c"> Instance Editable</label>
+                            <label><input type="radio" name="q3" value="d"> Replicated</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Instance Editable allows each instance of a User Widget to have different values for that variable. Combined with "Expose on Spawn," it enables full configuration both in the editor and when creating widgets dynamically.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>How does a User Widget communicate events (like button clicks) to its parent widget?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Direct function calls to parent</label>
+                            <label><input type="radio" name="q4" value="b"> Event Dispatchers that parents bind to</label>
+                            <label><input type="radio" name="q4" value="c"> Global events broadcast to all widgets</label>
+                            <label><input type="radio" name="q4" value="d"> Setting variables on the parent</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Event Dispatchers are the proper way for child widgets to communicate with parents. The child widget calls the dispatcher when an event occurs; parent widgets bind handlers to respond. This maintains proper encapsulation.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What widget is best for showing one of several pages/panels at a time (like tabs)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Canvas Panel</label>
+                            <label><input type="radio" name="q5" value="b"> Overlay</label>
+                            <label><input type="radio" name="q5" value="c"> Widget Switcher</label>
+                            <label><input type="radio" name="q5" value="d"> Scroll Box</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Widget Switcher holds multiple child widgets but only displays one at a time. Use Set Active Widget Index to switch between them. This is more efficient than showing/hiding overlapping widgets.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What is the difference between Padding and Margin?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> There is no difference</label>
+                            <label><input type="radio" name="q6" value="b"> Padding is space inside a widget; Margin is space outside</label>
+                            <label><input type="radio" name="q6" value="c"> Padding is horizontal; Margin is vertical</label>
+                            <label><input type="radio" name="q6" value="d"> Padding is for panels; Margin is for buttons</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Padding is the space inside a widget, between its border and its content. Margin is the space outside a widget, between it and neighboring widgets. Think of padding as "breathing room inside" and margin as "personal space outside."</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>When should you create a User Widget instead of manually styling elements?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Only for very complex widgets</label>
+                            <label><input type="radio" name="q7" value="b"> When a UI element will be used more than once</label>
+                            <label><input type="radio" name="q7" value="c"> Only for buttons</label>
+                            <label><input type="radio" name="q7" value="d"> Never, manual styling is always better</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Any UI element used more than once or twice should be a User Widget. This ensures consistency, makes maintenance easier (update once, changes everywhere), and reduces the chance of styling inconsistencies across your UI.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m07_l01_introduction_to_umg.html" class="btn">← Previous: Introduction to UMG</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m07_l03_hud_elements.html" class="btn">Next: HUD Elements →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

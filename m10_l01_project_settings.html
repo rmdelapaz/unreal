@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Configure Unreal Engine 5 project settings for packaging. Set up project description, maps, rendering features, and platform-specific options.">
+    <meta name="author" content="Practical Ace">
+    <title>Project Settings - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 10: Packaging</a></li>
+            <li aria-current="page">Lesson 10.1: Project Settings</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>⚙️ Project Settings</h1>
+                <p class="lead">Before packaging your game, you need to configure essential project settings. These determine how your game presents itself (name, icon, splash screen), which maps to include, what rendering features to enable, and platform-specific options. Proper configuration ensures your packaged game runs correctly and looks professional.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Navigate and understand Project Settings categories</li>
+                        <li>Configure project description and branding</li>
+                        <li>Set up default maps and game modes</li>
+                        <li>Configure rendering and platform settings</li>
+                        <li>Prepare your project for packaging</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 30-40 minutes</p>
+                    <p><strong>Prerequisites:</strong> A working Unreal Engine 5 project</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#settings-overview" class="toc-link">Project Settings Overview</a></li>
+                        <li><a href="#project-description" class="toc-link">Project Description & Branding</a></li>
+                        <li><a href="#maps-modes" class="toc-link">Maps and Game Modes</a></li>
+                        <li><a href="#rendering-settings" class="toc-link">Rendering Settings</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Project Settings Overview -->
+            <section id="settings-overview" class="lesson-section">
+                <h2>Project Settings Overview</h2>
+
+                <p>Project Settings is the central hub for configuring your entire project. It affects everything from how the game launches to platform-specific behaviors. Understanding its organization helps you find and configure options efficiently.</p>
+
+                <h3>Accessing Project Settings</h3>
+
+                <p>Open Project Settings via:</p>
+                <ul>
+                    <li><strong>Edit → Project Settings</strong> from the menu bar</li>
+                    <li>Or press the <strong>Settings</strong> button in the toolbar → <strong>Project Settings</strong></li>
+                </ul>
+
+                <h3>Settings Categories</h3>
+
+                <p>Project Settings is organized into categories on the left panel:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Category</th>
+                            <th style="padding: 10px; text-align: left;">Contains</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><strong>Project</strong></td>
+                            <td style="padding: 10px;">Description, Maps & Modes, Packaging, Target Hardware</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>Engine</strong></td>
+                            <td style="padding: 10px;">Rendering, Audio, Physics, Input, Collision, AI</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><strong>Platforms</strong></td>
+                            <td style="padding: 10px;">Windows, Mac, Linux, Android, iOS, Consoles</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>Plugins</strong></td>
+                            <td style="padding: 10px;">Settings for enabled plugins</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Project Settings Layout -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Project Settings Interface</text>
+                    
+                    <!-- Left panel - Categories -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="180" height="210" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="90" y="22" text-anchor="middle" fill="#888" font-size="10" font-weight="bold">Categories</text>
+                        
+                        <rect x="10" y="35" width="160" height="25" rx="3" fill="#667eea"/>
+                        <text x="20" y="52" fill="#fff" font-size="9">📁 Project</text>
+                        
+                        <text x="30" y="75" fill="#888" font-size="8">Description</text>
+                        <text x="30" y="90" fill="#888" font-size="8">Maps & Modes</text>
+                        <text x="30" y="105" fill="#888" font-size="8">Packaging</text>
+                        
+                        <rect x="10" y="115" width="160" height="22" rx="3" fill="#333"/>
+                        <text x="20" y="130" fill="#ccc" font-size="9">⚙️ Engine</text>
+                        
+                        <rect x="10" y="142" width="160" height="22" rx="3" fill="#333"/>
+                        <text x="20" y="157" fill="#ccc" font-size="9">💻 Platforms</text>
+                        
+                        <rect x="10" y="169" width="160" height="22" rx="3" fill="#333"/>
+                        <text x="20" y="184" fill="#ccc" font-size="9">🔌 Plugins</text>
+                    </g>
+                    
+                    <!-- Right panel - Settings -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="540" height="210" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="270" y="22" text-anchor="middle" fill="#667eea" font-size="11" font-weight="bold">Project - Description</text>
+                        
+                        <!-- Setting rows -->
+                        <g transform="translate(20, 40)">
+                            <text x="0" y="12" fill="#888" font-size="9">Project Name</text>
+                            <rect x="150" y="0" width="350" height="20" rx="3" fill="#333"/>
+                            <text x="160" y="14" fill="#fff" font-size="9">My Awesome Game</text>
+                        </g>
+                        
+                        <g transform="translate(20, 70)">
+                            <text x="0" y="12" fill="#888" font-size="9">Company Name</text>
+                            <rect x="150" y="0" width="350" height="20" rx="3" fill="#333"/>
+                            <text x="160" y="14" fill="#fff" font-size="9">Indie Studio</text>
+                        </g>
+                        
+                        <g transform="translate(20, 100)">
+                            <text x="0" y="12" fill="#888" font-size="9">Project Version</text>
+                            <rect x="150" y="0" width="350" height="20" rx="3" fill="#333"/>
+                            <text x="160" y="14" fill="#fff" font-size="9">1.0.0</text>
+                        </g>
+                        
+                        <g transform="translate(20, 130)">
+                            <text x="0" y="12" fill="#888" font-size="9">Description</text>
+                            <rect x="150" y="0" width="350" height="40" rx="3" fill="#333"/>
+                            <text x="160" y="14" fill="#fff" font-size="8">An exciting adventure game with</text>
+                            <text x="160" y="28" fill="#fff" font-size="8">stunning visuals and gameplay.</text>
+                        </g>
+                        
+                        <g transform="translate(20, 180)">
+                            <text x="0" y="12" fill="#888" font-size="9">Project Icon</text>
+                            <rect x="150" y="-5" width="30" height="30" rx="3" fill="#4CAF50"/>
+                            <text x="165" y="15" text-anchor="middle" fill="#fff" font-size="14">🎮</text>
+                            <text x="195" y="12" fill="#666" font-size="8">Browse...</text>
+                        </g>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Project Settings interface with categories and configuration panel.</em></p>
+
+                <h3>Important Settings for Packaging</h3>
+
+                <p>Before packaging, you'll configure settings in these key areas:</p>
+
+                <ul>
+                    <li><strong>Project → Description:</strong> Game name, version, icon, splash</li>
+                    <li><strong>Project → Maps & Modes:</strong> Default maps, game mode</li>
+                    <li><strong>Project → Packaging:</strong> Build configuration, included content</li>
+                    <li><strong>Engine → Rendering:</strong> Quality settings, features to include</li>
+                    <li><strong>Platforms → [Target]:</strong> Platform-specific options</li>
+                </ul>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Search Function</h4>
+                    <p>Project Settings has a search bar at the top. If you know the setting name, just type it! For example, search "default map" to jump directly to that setting.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Project Description & Branding -->
+            <section id="project-description" class="lesson-section">
+                <h2>Project Description & Branding</h2>
+
+                <p>The Description settings define your game's identity—what players see before launching and in system dialogs. Professional branding makes your game feel polished.</p>
+
+                <h3>Project → Description</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Setting</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                            <th style="padding: 10px; text-align: left;">Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Project Name</td>
+                            <td style="padding: 10px;">Display name for your game</td>
+                            <td style="padding: 10px;">Epic Adventure</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Company Name</td>
+                            <td style="padding: 10px;">Your studio/developer name</td>
+                            <td style="padding: 10px;">Awesome Games Inc.</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Company Distinguished Name</td>
+                            <td style="padding: 10px;">Legal identifier</td>
+                            <td style="padding: 10px;">com.awesomegames</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Project Version</td>
+                            <td style="padding: 10px;">Version number</td>
+                            <td style="padding: 10px;">1.0.0</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Description</td>
+                            <td style="padding: 10px;">Brief game description</td>
+                            <td style="padding: 10px;">An action RPG...</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Homepage</td>
+                            <td style="padding: 10px;">Your website URL</td>
+                            <td style="padding: 10px;">https://mygame.com</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Support Contact</td>
+                            <td style="padding: 10px;">Support email/URL</td>
+                            <td style="padding: 10px;">support@mygame.com</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Project Icons</h3>
+
+                <p>Icons appear in various places—file explorer, taskbar, launchers:</p>
+
+                <ul>
+                    <li><strong>Project Icon:</strong> Main icon (256×256 PNG recommended)</li>
+                    <li>Platform-specific icons are set in each Platform section</li>
+                    <li>Windows needs .ico format (can set in Windows platform settings)</li>
+                </ul>
+
+                <h3>Splash Screen</h3>
+
+                <p>The splash screen displays while the game loads:</p>
+
+                <p><strong>Project → Movies:</strong></p>
+                <ul>
+                    <li><strong>Startup Movies:</strong> Videos to play on launch (MP4/WMV)</li>
+                    <li>Add your studio logo animation or game intro</li>
+                    <li>Can set multiple movies to play in sequence</li>
+                    <li><strong>Wait for Movies to Complete:</strong> Block until finished</li>
+                </ul>
+
+                <p><strong>Engine → General Settings → Game Default Map:</strong></p>
+                <ul>
+                    <li>A loading screen can be a simple level with UI</li>
+                    <li>Or use a Loading Screen plugin</li>
+                </ul>
+
+                <!-- SVG: Branding Elements -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Game Branding Elements</text>
+                    
+                    <!-- Icon -->
+                    <g transform="translate(80, 55)">
+                        <rect x="0" y="0" width="120" height="100" rx="8" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                        <rect x="30" y="15" width="60" height="60" rx="10" fill="#667eea"/>
+                        <text x="60" y="55" text-anchor="middle" fill="#fff" font-size="24">🎮</text>
+                        <text x="60" y="90" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">Project Icon</text>
+                    </g>
+                    
+                    <!-- Splash -->
+                    <g transform="translate(240, 55)">
+                        <rect x="0" y="0" width="160" height="100" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
+                        <text x="80" y="35" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">STUDIO NAME</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#667eea" font-size="8">presents</text>
+                        <rect x="40" y="65" width="80" height="6" rx="3" fill="#444"/>
+                        <rect x="40" y="65" width="50" height="6" rx="3" fill="#667eea"/>
+                        <text x="80" y="85" text-anchor="middle" fill="#666" font-size="7">Loading...</text>
+                        <text x="80" y="110" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">Splash Screen</text>
+                    </g>
+                    
+                    <!-- Window Title -->
+                    <g transform="translate(440, 55)">
+                        <rect x="0" y="0" width="160" height="100" rx="8" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                        <rect x="0" y="0" width="160" height="25" rx="8" fill="#333"/>
+                        <rect x="0" y="15" width="160" height="10" fill="#333"/>
+                        <rect x="10" y="5" width="12" height="12" rx="2" fill="#667eea"/>
+                        <text x="30" y="15" fill="#fff" font-size="8">Epic Adventure</text>
+                        <rect x="120" y="7" width="8" height="8" rx="1" fill="#666"/>
+                        <rect x="132" y="7" width="8" height="8" rx="1" fill="#666"/>
+                        <rect x="144" y="7" width="8" height="8" rx="1" fill="#c62828"/>
+                        <text x="80" y="110" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">Window Title</text>
+                    </g>
+                    
+                    <!-- Taskbar -->
+                    <g transform="translate(640, 55)">
+                        <rect x="0" y="0" width="120" height="100" rx="8" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                        <rect x="10" y="70" width="100" height="20" rx="3" fill="#333"/>
+                        <rect x="15" y="74" width="12" height="12" rx="2" fill="#667eea"/>
+                        <rect x="35" y="74" width="12" height="12" rx="2" fill="#4CAF50"/>
+                        <rect x="55" y="74" width="12" height="12" rx="2" fill="#2196F3"/>
+                        <text x="60" y="110" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">Taskbar Icon</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Branding appears in icons, splash screens, and window elements.</em></p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Icon Formats</h4>
+                    <p>Different platforms need different icon formats. Windows prefers .ico files (can contain multiple sizes), while other platforms use PNG. Create icons in multiple sizes (16, 32, 48, 64, 128, 256 pixels) for best appearance everywhere.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Maps and Game Modes -->
+            <section id="maps-modes" class="lesson-section">
+                <h2>Maps and Game Modes</h2>
+
+                <p>These settings determine what happens when your game starts—which level loads first and what game logic runs. Getting these right is essential for a working packaged game.</p>
+
+                <h3>Project → Maps & Modes</h3>
+
+                <h4>Default Maps</h4>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Setting</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Editor Startup Map</td>
+                            <td style="padding: 10px;">Level that opens when you launch the editor</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>Game Default Map</strong></td>
+                            <td style="padding: 10px;">Level that loads when packaged game starts (IMPORTANT!)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Server Default Map</td>
+                            <td style="padding: 10px;">For dedicated servers (multiplayer)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Transition Map</td>
+                            <td style="padding: 10px;">Shown during seamless travel (level loading)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #ffebee; border-left: 4px solid #f44336;">
+                    <h4>❌ Common Mistake</h4>
+                    <p><strong>Game Default Map must be set!</strong> If left empty, your packaged game won't know which level to load and may show a black screen or crash. Always set this to your main menu or first gameplay level.</p>
+                </div>
+
+                <h4>Default Game Mode</h4>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Setting</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Default GameMode</td>
+                            <td style="padding: 10px;">Game Mode class used when no override exists</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Global Default Server Game Mode</td>
+                            <td style="padding: 10px;">For multiplayer servers</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>The Game Mode defines:</p>
+                <ul>
+                    <li>Default Pawn Class (player character)</li>
+                    <li>Player Controller Class</li>
+                    <li>HUD Class</li>
+                    <li>Game State Class</li>
+                    <li>Spawn and gameplay rules</li>
+                </ul>
+
+                <h3>Local vs Global Settings</h3>
+
+                <p>Game Mode can be set at multiple levels:</p>
+
+                <ol>
+                    <li><strong>Per-Level:</strong> World Settings in each level</li>
+                    <li><strong>Project Default:</strong> Maps & Modes setting</li>
+                    <li><strong>URL Parameter:</strong> Command line override</li>
+                </ol>
+
+                <p>Priority: Per-Level overrides Project Default.</p>
+
+                <!-- SVG: Maps and Modes Flow -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Game Startup Flow</text>
+                    
+                    <!-- Launch -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="100" height="50" rx="25" fill="#667eea"/>
+                        <text x="50" y="30" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Game Starts</text>
+                    </g>
+                    
+                    <path d="M 155 85 L 195 85" stroke="#fff" stroke-width="2" marker-end="url(#flowArrow)"/>
+                    
+                    <!-- Load Default Map -->
+                    <g transform="translate(200, 55)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="75" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Load Default Map</text>
+                        <text x="75" y="40" text-anchor="middle" fill="#c8e6c9" font-size="7">Game Default Map</text>
+                        <text x="75" y="52" text-anchor="middle" fill="#c8e6c9" font-size="7">setting</text>
+                    </g>
+                    
+                    <path d="M 355 85 L 395 85" stroke="#fff" stroke-width="2" marker-end="url(#flowArrow)"/>
+                    
+                    <!-- Spawn Game Mode -->
+                    <g transform="translate(400, 55)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#FF9800"/>
+                        <text x="75" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Apply Game Mode</text>
+                        <text x="75" y="40" text-anchor="middle" fill="#fff3e0" font-size="7">Level override or</text>
+                        <text x="75" y="52" text-anchor="middle" fill="#fff3e0" font-size="7">Default GameMode</text>
+                    </g>
+                    
+                    <path d="M 555 85 L 595 85" stroke="#fff" stroke-width="2" marker-end="url(#flowArrow)"/>
+                    
+                    <!-- Spawn Player -->
+                    <g transform="translate(600, 55)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#2196F3"/>
+                        <text x="75" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Spawn Player</text>
+                        <text x="75" y="40" text-anchor="middle" fill="#bbdefb" font-size="7">Default Pawn from</text>
+                        <text x="75" y="52" text-anchor="middle" fill="#bbdefb" font-size="7">Game Mode</text>
+                    </g>
+                    
+                    <text x="400" y="160" text-anchor="middle" fill="#888" font-size="9">If Default Map isn't set → Black screen or crash!</text>
+                    
+                    <defs>
+                        <marker id="flowArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#fff"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Game startup requires Default Map and Game Mode to be configured.</em></p>
+
+                <h3>Maps to Include in Build</h3>
+
+                <p>By default, packaging includes only maps referenced by your game. To ensure specific maps are included:</p>
+
+                <p><strong>Project → Packaging → List of maps to include:</strong></p>
+                <ul>
+                    <li>Add maps that might be loaded dynamically</li>
+                    <li>Include all levels your game needs</li>
+                    <li>Maps not referenced and not in this list won't be packaged</li>
+                </ul>
+            </section>
+
+            <!-- Section 4: Rendering Settings -->
+            <section id="rendering-settings" class="lesson-section">
+                <h2>Rendering Settings</h2>
+
+                <p>Rendering settings affect visual quality, performance, and which features are available. Configure these based on your target platform and desired quality level.</p>
+
+                <h3>Engine → Rendering</h3>
+
+                <h4>Key Settings</h4>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Setting</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                            <th style="padding: 10px; text-align: left;">Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Default RHI</td>
+                            <td style="padding: 10px;">Rendering API (DX11, DX12, Vulkan)</td>
+                            <td style="padding: 10px;">Compatibility, features</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Anti-Aliasing Method</td>
+                            <td style="padding: 10px;">TAA, MSAA, FXAA, TSR</td>
+                            <td style="padding: 10px;">Visual quality, performance</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Global Illumination</td>
+                            <td style="padding: 10px;">Lumen, Screen Space, None</td>
+                            <td style="padding: 10px;">Lighting quality, performance</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Reflections</td>
+                            <td style="padding: 10px;">Lumen, Screen Space, None</td>
+                            <td style="padding: 10px;">Reflection quality</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Shadow Map Method</td>
+                            <td style="padding: 10px;">Shadow Maps, Virtual Shadow Maps</td>
+                            <td style="padding: 10px;">Shadow quality, performance</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Support Ray Tracing</td>
+                            <td style="padding: 10px;">Enable hardware ray tracing</td>
+                            <td style="padding: 10px;">Quality, requires RTX GPU</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Mobile-Specific Settings</h4>
+
+                <ul>
+                    <li><strong>Mobile HDR:</strong> Enable for better lighting on mobile</li>
+                    <li><strong>Mobile MSAA:</strong> Anti-aliasing level for mobile</li>
+                    <li><strong>Support Movable Directional Lights:</strong> May need to disable for performance</li>
+                </ul>
+
+                <h3>Project → Target Hardware</h3>
+
+                <p>These presets configure multiple settings at once:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Setting</th>
+                            <th style="padding: 10px; text-align: left;">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Target Hardware</td>
+                            <td style="padding: 10px;">Desktop, Mobile/Tablet</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Scalability Defaults</td>
+                            <td style="padding: 10px;">Maximum Quality, Scalable Quality</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Quick Setup for Different Targets</h4>
+                    <ul>
+                        <li><strong>High-end PC:</strong> Maximum Quality, Lumen GI, Virtual Shadow Maps</li>
+                        <li><strong>Mid-range PC:</strong> Scalable Quality, TSR upscaling</li>
+                        <li><strong>Mobile:</strong> Mobile/Tablet hardware, disable heavy features</li>
+                    </ul>
+                </div>
+
+                <h3>Disabling Unused Features</h3>
+
+                <p>Disable features you don't use to reduce package size and improve performance:</p>
+
+                <ul>
+                    <li><strong>Engine → Rendering → VR:</strong> Disable if not making VR game</li>
+                    <li><strong>Engine → Rendering → Mobile:</strong> Disable if not targeting mobile</li>
+                    <li><strong>Plugins:</strong> Disable unused plugins in Edit → Plugins</li>
+                </ul>
+
+                <!-- SVG: Rendering Pipeline -->
+                <svg width="100%" height="160" viewBox="0 0 800 160" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">UE5 Rendering Feature Tiers</text>
+                    
+                    <!-- High-end -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="80" rx="5" fill="#4CAF50"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🎮 High-End PC</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#c8e6c9" font-size="8">Lumen GI + Reflections</text>
+                        <text x="100" y="52" text-anchor="middle" fill="#c8e6c9" font-size="8">Virtual Shadow Maps</text>
+                        <text x="100" y="66" text-anchor="middle" fill="#c8e6c9" font-size="8">Nanite, Ray Tracing</text>
+                    </g>
+                    
+                    <!-- Mid-range -->
+                    <g transform="translate(300, 50)">
+                        <rect x="0" y="0" width="200" height="80" rx="5" fill="#FF9800"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">💻 Mid-Range</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#fff3e0" font-size="8">Screen Space GI</text>
+                        <text x="100" y="52" text-anchor="middle" fill="#fff3e0" font-size="8">Shadow Maps</text>
+                        <text x="100" y="66" text-anchor="middle" fill="#fff3e0" font-size="8">TSR Upscaling</text>
+                    </g>
+                    
+                    <!-- Mobile -->
+                    <g transform="translate(550, 50)">
+                        <rect x="0" y="0" width="200" height="80" rx="5" fill="#2196F3"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">📱 Mobile</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#bbdefb" font-size="8">Baked Lighting</text>
+                        <text x="100" y="52" text-anchor="middle" fill="#bbdefb" font-size="8">Simple Shadows</text>
+                        <text x="100" y="66" text-anchor="middle" fill="#bbdefb" font-size="8">Mobile Renderer</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different platforms use different rendering feature sets.</em></p>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Configuring Project Settings</h2>
+
+                <p>Let's configure your project settings to prepare for packaging. You'll set up project identity, default maps, and ensure rendering settings are appropriate for your target platform.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Configure all essential project settings for packaging: project description, default maps and game mode, and verify rendering settings. By the end, your project will be ready for the packaging process.</p>
+                </div>
+
+                <h3>Part 1: Project Description</h3>
+
+                <h4>Step 1: Open Project Settings</h4>
+                <ol>
+                    <li>Go to <strong>Edit → Project Settings</strong></li>
+                    <li>Or use the Settings dropdown in toolbar</li>
+                    <li>The Project Settings window opens</li>
+                </ol>
+
+                <h4>Step 2: Configure Description</h4>
+                <ol>
+                    <li>In left panel, click <strong>Project → Description</strong></li>
+                    <li>Fill in the following fields:
+                        <ul>
+                            <li><strong>Project Name:</strong> Your game's display name</li>
+                            <li><strong>Company Name:</strong> Your studio/developer name</li>
+                            <li><strong>Company Distinguished Name:</strong> com.yourcompany (for mobile)</li>
+                            <li><strong>Project Version:</strong> 1.0.0</li>
+                            <li><strong>Description:</strong> Brief description of your game</li>
+                            <li><strong>Homepage:</strong> Your website (optional)</li>
+                            <li><strong>Support Contact:</strong> Support email (optional)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 3: Set Project Icon</h4>
+                <ol>
+                    <li>Scroll to <strong>About</strong> section in Description</li>
+                    <li>Find <strong>Project Displayed Title</strong> and <strong>Project Debug Title Info</strong></li>
+                    <li>For the icon, you'll set platform-specific icons later</li>
+                    <li>For now, note where these settings are located</li>
+                </ol>
+
+                <!-- SVG: Description Settings -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Project Description Checklist</text>
+                    
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="280" height="110" rx="5" fill="#3d3d3d"/>
+                        <text x="140" y="20" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">✓ Required</text>
+                        
+                        <text x="15" y="42" fill="#fff" font-size="9">☑ Project Name</text>
+                        <text x="15" y="60" fill="#fff" font-size="9">☑ Company Name</text>
+                        <text x="15" y="78" fill="#fff" font-size="9">☑ Project Version</text>
+                        <text x="15" y="96" fill="#fff" font-size="9">☑ Company Distinguished Name</text>
+                    </g>
+                    
+                    <g transform="translate(370, 50)">
+                        <rect x="0" y="0" width="280" height="110" rx="5" fill="#3d3d3d"/>
+                        <text x="140" y="20" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">○ Recommended</text>
+                        
+                        <text x="15" y="42" fill="#888" font-size="9">○ Description</text>
+                        <text x="15" y="60" fill="#888" font-size="9">○ Homepage URL</text>
+                        <text x="15" y="78" fill="#888" font-size="9">○ Support Contact</text>
+                        <text x="15" y="96" fill="#888" font-size="9">○ Legal Info</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Required vs recommended description settings.</em></p>
+
+                <h3>Part 2: Maps and Modes</h3>
+
+                <h4>Step 4: Set Default Map</h4>
+                <ol>
+                    <li>In left panel, click <strong>Project → Maps & Modes</strong></li>
+                    <li>Find <strong>Default Maps</strong> section</li>
+                    <li>Set <strong>Game Default Map:</strong>
+                        <ul>
+                            <li>Click the dropdown</li>
+                            <li>Select your main menu level OR first gameplay level</li>
+                            <li>This is the level that loads when the packaged game starts</li>
+                        </ul>
+                    </li>
+                    <li>Optionally set <strong>Editor Startup Map</strong> to your working level</li>
+                </ol>
+
+                <h4>Step 5: Set Default Game Mode</h4>
+                <ol>
+                    <li>In the same <strong>Maps & Modes</strong> section</li>
+                    <li>Find <strong>Default Modes</strong></li>
+                    <li>Set <strong>Default GameMode:</strong>
+                        <ul>
+                            <li>Select your custom Game Mode Blueprint</li>
+                            <li>Or leave as None if using per-level overrides</li>
+                        </ul>
+                    </li>
+                    <li>If using a custom Game Mode, verify it specifies:
+                        <ul>
+                            <li>Default Pawn Class</li>
+                            <li>Player Controller Class</li>
+                            <li>HUD Class (if applicable)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 6: Verify Level Settings</h4>
+                <ol>
+                    <li>Open your main gameplay level</li>
+                    <li>Go to <strong>Window → World Settings</strong></li>
+                    <li>Check <strong>GameMode Override</strong>:
+                        <ul>
+                            <li>If set, this overrides the project default for this level</li>
+                            <li>Clear it if you want to use the project default</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="card" style="background: #ffebee; border-left: 4px solid #f44336;">
+                    <h4>❌ Don't Skip This!</h4>
+                    <p>If <strong>Game Default Map</strong> is empty, your packaged game will fail to start properly. This is the #1 cause of "black screen on launch" issues. Double-check this setting!</p>
+                </div>
+
+                <h3>Part 3: Verify Packaging Settings</h3>
+
+                <h4>Step 7: Check Packaging Options</h4>
+                <ol>
+                    <li>Go to <strong>Project → Packaging</strong></li>
+                    <li>Review these key settings:
+                        <ul>
+                            <li><strong>Build Configuration:</strong> Shipping (for release)</li>
+                            <li><strong>Build Target:</strong> Usually left default</li>
+                            <li><strong>Full Rebuild:</strong> Enable for final builds</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 8: Maps to Include</h4>
+                <ol>
+                    <li>Still in <strong>Packaging</strong> section</li>
+                    <li>Find <strong>List of maps to include in a packaged build</strong></li>
+                    <li>If you load maps dynamically (via Open Level), add them here</li>
+                    <li>Click <strong>+</strong> to add map paths</li>
+                    <li>Maps referenced in Blueprints are usually included automatically</li>
+                </ol>
+
+                <h4>Step 9: Additional Content</h4>
+                <ol>
+                    <li>Find <strong>Additional Asset Directories to Cook</strong></li>
+                    <li>Add paths to any folders with content not directly referenced</li>
+                    <li>Find <strong>Additional Non-Asset Directories to Copy</strong></li>
+                    <li>Add folders with non-asset files (config files, etc.)</li>
+                </ol>
+
+                <h3>Part 4: Platform Settings (Windows)</h3>
+
+                <h4>Step 10: Windows-Specific Settings</h4>
+                <ol>
+                    <li>Go to <strong>Platforms → Windows</strong></li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>Default RHI:</strong> Default (auto-selects best)</li>
+                            <li><strong>Targeted RHIs:</strong> Check DirectX 11 and/or DirectX 12</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 11: Set Windows Icon (Optional)</h4>
+                <ol>
+                    <li>In <strong>Platforms → Windows</strong></li>
+                    <li>Find <strong>Icon</strong> section</li>
+                    <li>Set icon file path (.ico format)</li>
+                    <li>If you don't have an .ico, you can create one online from a PNG</li>
+                </ol>
+
+                <h3>Part 5: Rendering Verification</h3>
+
+                <h4>Step 12: Check Rendering Settings</h4>
+                <ol>
+                    <li>Go to <strong>Engine → Rendering</strong></li>
+                    <li>Verify settings match your needs:
+                        <ul>
+                            <li><strong>Global Illumination:</strong> Lumen (or Screen Space for lower-end)</li>
+                            <li><strong>Reflections:</strong> Lumen (or Screen Space)</li>
+                            <li><strong>Anti-Aliasing:</strong> TSR or TAA</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 13: Disable Unused Features</h4>
+                <ol>
+                    <li>If not making a VR game:
+                        <ul>
+                            <li><strong>Engine → Rendering → VR:</strong> Uncheck all</li>
+                        </ul>
+                    </li>
+                    <li>If not targeting mobile:
+                        <ul>
+                            <li><strong>Project → Target Hardware:</strong> Ensure set to Desktop</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Settings Checklist -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Pre-Packaging Settings Checklist</text>
+                    
+                    <!-- Column 1 -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="230" height="150" rx="5" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Project</text>
+                        
+                        <text x="15" y="45" fill="#333" font-size="8">☑ Project Name set</text>
+                        <text x="15" y="62" fill="#333" font-size="8">☑ Company Name set</text>
+                        <text x="15" y="79" fill="#333" font-size="8">☑ Version number set</text>
+                        <text x="15" y="96" fill="#333" font-size="8">☑ Game Default Map set</text>
+                        <text x="15" y="113" fill="#333" font-size="8">☑ Default GameMode set</text>
+                        <text x="15" y="130" fill="#333" font-size="8">☑ Maps to include added</text>
+                    </g>
+                    
+                    <!-- Column 2 -->
+                    <g transform="translate(285, 50)">
+                        <rect x="0" y="0" width="230" height="150" rx="5" fill="#e3f2fd" stroke="#2196F3"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Rendering</text>
+                        
+                        <text x="15" y="45" fill="#333" font-size="8">☑ GI method chosen</text>
+                        <text x="15" y="62" fill="#333" font-size="8">☑ Reflection method set</text>
+                        <text x="15" y="79" fill="#333" font-size="8">☑ Anti-aliasing configured</text>
+                        <text x="15" y="96" fill="#333" font-size="8">☑ Shadow method selected</text>
+                        <text x="15" y="113" fill="#333" font-size="8">☑ Unused features disabled</text>
+                        <text x="15" y="130" fill="#333" font-size="8">☑ Target hardware set</text>
+                    </g>
+                    
+                    <!-- Column 3 -->
+                    <g transform="translate(540, 50)">
+                        <rect x="0" y="0" width="230" height="150" rx="5" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Platform</text>
+                        
+                        <text x="15" y="45" fill="#333" font-size="8">☑ Target RHI selected</text>
+                        <text x="15" y="62" fill="#333" font-size="8">☑ Icon file set (optional)</text>
+                        <text x="15" y="79" fill="#333" font-size="8">☑ Splash configured</text>
+                        <text x="15" y="96" fill="#333" font-size="8">☑ Build config: Shipping</text>
+                        <text x="15" y="113" fill="#333" font-size="8">☑ Platform features enabled</text>
+                        <text x="15" y="130" fill="#333" font-size="8">☑ Tested in PIE</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Complete this checklist before packaging.</em></p>
+
+                <h3>Part 6: Final Verification</h3>
+
+                <h4>Step 14: Test in Standalone</h4>
+                <ol>
+                    <li>Click the dropdown next to <strong>Play</strong> button</li>
+                    <li>Select <strong>Standalone Game</strong></li>
+                    <li>Play and verify:
+                        <ul>
+                            <li>Correct level loads</li>
+                            <li>Game mode works</li>
+                            <li>Character spawns correctly</li>
+                            <li>All gameplay functions</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 15: Save Everything</h4>
+                <ol>
+                    <li><strong>File → Save All</strong> (Ctrl+Shift+S)</li>
+                    <li>Ensure all levels are saved</li>
+                    <li>Project Settings auto-saves, but verify by reopening</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>Your project settings are now configured for packaging:</p>
+                    <ul>
+                        <li>Project identity is defined</li>
+                        <li>Default map and game mode are set</li>
+                        <li>Rendering settings are appropriate</li>
+                        <li>Platform settings are configured</li>
+                    </ul>
+                    <p>In the next lesson, you'll learn optimization techniques before final packaging.</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Can't find a setting:</strong></p>
+                    <ul>
+                        <li>Use the search bar at the top of Project Settings</li>
+                        <li>Some settings only appear after enabling related features</li>
+                    </ul>
+                    
+                    <p><strong>Game doesn't start correct level:</strong></p>
+                    <ul>
+                        <li>Verify Game Default Map is set (not empty)</li>
+                        <li>Check World Settings in the level for overrides</li>
+                    </ul>
+                    
+                    <p><strong>Player doesn't spawn:</strong></p>
+                    <ul>
+                        <li>Verify Game Mode has Default Pawn Class set</li>
+                        <li>Ensure Player Start actor exists in the level</li>
+                    </ul>
+                    
+                    <p><strong>Settings don't persist:</strong></p>
+                    <ul>
+                        <li>Project Settings auto-saves to DefaultEngine.ini and DefaultGame.ini</li>
+                        <li>Check if files are read-only</li>
+                        <li>Restart editor if issues persist</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus: Config Files</h3>
+
+                <p>Project Settings are stored in .ini files in your project's Config folder:</p>
+
+                <ul>
+                    <li><strong>DefaultGame.ini:</strong> Project description, maps & modes</li>
+                    <li><strong>DefaultEngine.ini:</strong> Engine settings, rendering</li>
+                    <li><strong>DefaultInput.ini:</strong> Input mappings</li>
+                    <li><strong>DefaultEditor.ini:</strong> Editor preferences</li>
+                </ul>
+
+                <p>You can edit these directly, but using the Project Settings UI is safer and easier.</p>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned to navigate and configure Unreal Engine 5's Project Settings. Proper configuration ensures your packaged game launches correctly, looks professional, and runs with appropriate settings for your target platform.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Project Settings Organization:</strong> Settings are grouped into Project (description, maps, packaging), Engine (rendering, audio, physics), Platforms (Windows, mobile, consoles), and Plugins. Use the search bar to find specific settings quickly.</p>
+
+                <p><strong>Project Description:</strong> Defines your game's identity—name, company, version, description. These appear in file properties, about dialogs, and store listings. Set icons and splash screens for professional presentation.</p>
+
+                <p><strong>Maps & Modes:</strong> Game Default Map is critical—it's the level that loads when your packaged game starts. Default GameMode determines player spawning and game rules. Missing these settings causes black screens or crashes.</p>
+
+                <p><strong>Rendering Settings:</strong> Choose features appropriate for your target platform. High-end PCs can use Lumen and Nanite; mid-range systems may need Screen Space alternatives; mobile requires lightweight features. Disable unused features to reduce package size.</p>
+
+                <p><strong>Platform Settings:</strong> Each platform has specific configuration options. For Windows, set target RHIs (DirectX versions) and icons. Other platforms have their own requirements.</p>
+
+                <h3>Essential Settings Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Setting</th>
+                            <th style="padding: 10px; text-align: left;">Location</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Project Name</td>
+                            <td style="padding: 10px;">Project → Description</td>
+                            <td style="padding: 10px;">Display name</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Game Default Map</td>
+                            <td style="padding: 10px;">Project → Maps & Modes</td>
+                            <td style="padding: 10px;">Starting level</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Default GameMode</td>
+                            <td style="padding: 10px;">Project → Maps & Modes</td>
+                            <td style="padding: 10px;">Game rules class</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Build Configuration</td>
+                            <td style="padding: 10px;">Project → Packaging</td>
+                            <td style="padding: 10px;">Debug/Development/Shipping</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Maps to Include</td>
+                            <td style="padding: 10px;">Project → Packaging</td>
+                            <td style="padding: 10px;">Additional levels to cook</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Global Illumination</td>
+                            <td style="padding: 10px;">Engine → Rendering</td>
+                            <td style="padding: 10px;">Lighting quality</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Target Hardware</td>
+                            <td style="padding: 10px;">Project → Target Hardware</td>
+                            <td style="padding: 10px;">Desktop/Mobile presets</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Pre-Packaging Checklist</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Category</th>
+                            <th style="padding: 10px; text-align: left;">Required Settings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Identity</td>
+                            <td style="padding: 10px;">Project Name, Company Name, Version</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Startup</td>
+                            <td style="padding: 10px;">Game Default Map (REQUIRED), Default GameMode</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Content</td>
+                            <td style="padding: 10px;">Maps to Include (if loading dynamically)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Build</td>
+                            <td style="padding: 10px;">Build Configuration = Shipping</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Platform</td>
+                            <td style="padding: 10px;">Target RHI, Icons, Platform-specific options</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Always set Game Default Map:</strong> Empty = broken packaged game</li>
+                    <li><strong>Use Shipping for release:</strong> Development builds include debug code</li>
+                    <li><strong>Test in Standalone:</strong> Verify before packaging</li>
+                    <li><strong>Match features to target:</strong> Don't enable Lumen for low-end targets</li>
+                    <li><strong>Disable unused features:</strong> Reduces package size and improves performance</li>
+                    <li><strong>Set version numbers:</strong> Helps track releases and updates</li>
+                    <li><strong>Create proper icons:</strong> Professional appearance matters</li>
+                    <li><strong>Save all before packaging:</strong> Unsaved changes won't be included</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Project Settings → Packaged Game Flow</text>
+                    
+                    <!-- Configure -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="150" height="80" rx="8" fill="#667eea"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Configure</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#c5cae9" font-size="8">Project Settings</text>
+                        <text x="75" y="60" text-anchor="middle" fill="#c5cae9" font-size="8">Description, Maps</text>
+                        <text x="75" y="75" text-anchor="middle" fill="#c5cae9" font-size="8">Rendering, Platform</text>
+                    </g>
+                    
+                    <path d="M 205 100 L 245 100" stroke="#333" stroke-width="2" marker-end="url(#settArrow)"/>
+                    
+                    <!-- Verify -->
+                    <g transform="translate(250, 60)">
+                        <rect x="0" y="0" width="150" height="80" rx="8" fill="#FF9800"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Verify</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#fff3e0" font-size="8">Test Standalone</text>
+                        <text x="75" y="60" text-anchor="middle" fill="#fff3e0" font-size="8">Check startup</text>
+                        <text x="75" y="75" text-anchor="middle" fill="#fff3e0" font-size="8">Save all</text>
+                    </g>
+                    
+                    <path d="M 405 100 L 445 100" stroke="#333" stroke-width="2" marker-end="url(#settArrow)"/>
+                    
+                    <!-- Optimize -->
+                    <g transform="translate(450, 60)">
+                        <rect x="0" y="0" width="150" height="80" rx="8" fill="#9C27B0"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Optimize</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#e1bee7" font-size="8">Performance tuning</text>
+                        <text x="75" y="60" text-anchor="middle" fill="#e1bee7" font-size="8">(Next lesson)</text>
+                    </g>
+                    
+                    <path d="M 605 100 L 645 100" stroke="#333" stroke-width="2" marker-end="url(#settArrow)"/>
+                    
+                    <!-- Package -->
+                    <g transform="translate(650, 60)">
+                        <rect x="0" y="0" width="100" height="80" rx="8" fill="#4CAF50"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Package</text>
+                        <text x="50" y="50" text-anchor="middle" fill="#c8e6c9" font-size="8">Build game</text>
+                        <text x="50" y="65" text-anchor="middle" fill="#c8e6c9" font-size="8">📦</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="settArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Configure settings, verify in Standalone, optimize, then package.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that your project settings are configured, the next lesson covers <strong>Optimization</strong>. You'll learn techniques to improve performance, reduce package size, and ensure smooth gameplay before final packaging.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What happens if Game Default Map is not set when you package your game?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> The game uses the first level alphabetically</label>
+                            <label><input type="radio" name="q1" value="b"> The game shows a black screen or crashes on startup</label>
+                            <label><input type="radio" name="q1" value="c"> The packaging process fails with an error</label>
+                            <label><input type="radio" name="q1" value="d"> The game opens the editor startup map</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Without a Game Default Map, the packaged game doesn't know which level to load at startup. This typically results in a black screen or crash. Always set this before packaging.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Where do you set the level that loads when your packaged game starts?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Project → Description</label>
+                            <label><input type="radio" name="q2" value="b"> Engine → Rendering</label>
+                            <label><input type="radio" name="q2" value="c"> Project → Maps & Modes → Game Default Map</label>
+                            <label><input type="radio" name="q2" value="d"> Project → Packaging → Start Level</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Game Default Map in Project → Maps & Modes determines which level loads when the standalone/packaged game starts. Editor Startup Map only affects the editor.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What Build Configuration should you use for a game release?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Debug</label>
+                            <label><input type="radio" name="q3" value="b"> Development</label>
+                            <label><input type="radio" name="q3" value="c"> Testing</label>
+                            <label><input type="radio" name="q3" value="d"> Shipping</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="d">
+                            <p><strong>Correct answer: D</strong> — Shipping configuration removes all debug code, enables full optimizations, and is intended for final release builds. Development is for testing; Debug is for deep troubleshooting.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Why might you add maps to "List of maps to include in a packaged build"?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> All maps must be added manually</label>
+                            <label><input type="radio" name="q4" value="b"> To include maps that are loaded dynamically and not directly referenced</label>
+                            <label><input type="radio" name="q4" value="c"> To prevent maps from being included</label>
+                            <label><input type="radio" name="q4" value="d"> The setting has no effect</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Maps loaded via string paths (Open Level with a string name) aren't automatically detected. Adding them to this list ensures they're included in the package. Directly referenced maps are usually included automatically.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What determines which Pawn class spawns for the player?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Project Description settings</label>
+                            <label><input type="radio" name="q5" value="b"> The Default Pawn Class in the Game Mode</label>
+                            <label><input type="radio" name="q5" value="c"> The Rendering settings</label>
+                            <label><input type="radio" name="q5" value="d"> The first Pawn Blueprint found in Content folder</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The Game Mode class specifies Default Pawn Class, Player Controller Class, HUD Class, and other game rules. Setting the correct Game Mode is essential for proper player spawning.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>Which rendering feature set is appropriate for mobile devices?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Lumen GI, Virtual Shadow Maps, Nanite</label>
+                            <label><input type="radio" name="q6" value="b"> Ray Tracing with maximum quality</label>
+                            <label><input type="radio" name="q6" value="c"> Baked lighting, simple shadows, Mobile Renderer</label>
+                            <label><input type="radio" name="q6" value="d"> All features enabled for best quality</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Mobile devices have limited GPU power. Baked lighting, simple shadows, and the Mobile Renderer are appropriate. Lumen, Nanite, and Ray Tracing are too demanding for mobile hardware.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>What should you do before packaging to verify settings are correct?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Just package and hope it works</label>
+                            <label><input type="radio" name="q7" value="b"> Test in Play In Editor (PIE) only</label>
+                            <label><input type="radio" name="q7" value="c"> Test in Standalone Game mode</label>
+                            <label><input type="radio" name="q7" value="d"> Check the config files manually</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Standalone Game mode simulates packaging more closely than PIE. It uses the Game Default Map, respects Game Mode settings, and runs as a separate process—revealing issues that PIE might hide.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m09_l03_triggering_vfx.html" class="btn">← Previous: Triggering VFX</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m10_l02_optimization.html" class="btn">Next: Optimization →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

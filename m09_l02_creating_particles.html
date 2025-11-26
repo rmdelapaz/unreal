@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn to create particle effects in Unreal Engine 5 Niagara. Build fire, smoke, and spark effects from scratch with proper materials and techniques.">
+    <meta name="author" content="Practical Ace">
+    <title>Creating Particle Effects - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 9: Particles and VFX</a></li>
+            <li aria-current="page">Lesson 9.2: Creating Particle Effects</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🔥 Creating Particle Effects</h1>
+                <p class="lead">Now that you understand Niagara's architecture, it's time to build real effects. This lesson teaches you to create fire, smoke, and spark effects from scratch—the building blocks for countless game visuals. You'll learn essential techniques for spawning, movement, appearance, and the materials that make particles look great.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Create particle effects from an empty system</li>
+                        <li>Configure spawn behavior (rate, burst, location)</li>
+                        <li>Set up particle movement (velocity, gravity, drag)</li>
+                        <li>Create and apply particle materials</li>
+                        <li>Build fire, smoke, and spark effects</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-55 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 9.1 (Niagara Overview)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#building-blocks" class="toc-link">Effect Building Blocks</a></li>
+                        <li><a href="#particle-materials" class="toc-link">Particle Materials</a></li>
+                        <li><a href="#fire-effect" class="toc-link">Creating a Fire Effect</a></li>
+                        <li><a href="#smoke-sparks" class="toc-link">Smoke and Sparks</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Effect Building Blocks -->
+            <section id="building-blocks" class="lesson-section">
+                <h2>Effect Building Blocks</h2>
+
+                <p>Every particle effect is built from the same fundamental elements: spawning (how particles are created), movement (how they travel), and appearance (how they look). Mastering these building blocks lets you create any effect.</p>
+
+                <h3>Spawning: Creating Particles</h3>
+
+                <p>Particles need to be born before they can do anything. Niagara offers several spawn modes:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Spawn Type</th>
+                            <th style="padding: 10px; text-align: left;">Module</th>
+                            <th style="padding: 10px; text-align: left;">Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Continuous</td>
+                            <td style="padding: 10px;">Spawn Rate</td>
+                            <td style="padding: 10px;">Fire, smoke, fountain, rain</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Burst</td>
+                            <td style="padding: 10px;">Spawn Burst Instantaneous</td>
+                            <td style="padding: 10px;">Explosion, impact, muzzle flash</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Per Distance</td>
+                            <td style="padding: 10px;">Spawn Per Unit</td>
+                            <td style="padding: 10px;">Footsteps, tire tracks, trails</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Event-Based</td>
+                            <td style="padding: 10px;">Spawn from Event</td>
+                            <td style="padding: 10px;">Secondary effects, chain reactions</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Spawn Location</h3>
+
+                <p>Where particles appear matters as much as how many. Common location modules:</p>
+
+                <ul>
+                    <li><strong>Point:</strong> All particles spawn at emitter origin (default)</li>
+                    <li><strong>Sphere:</strong> Random positions on/within a sphere</li>
+                    <li><strong>Box:</strong> Random positions within a box volume</li>
+                    <li><strong>Cylinder:</strong> Random positions on/within a cylinder</li>
+                    <li><strong>Mesh Surface:</strong> Spawn on the surface of a mesh</li>
+                    <li><strong>Skeletal Mesh:</strong> Spawn on bones of an animated character</li>
+                </ul>
+
+                <h3>Movement: Velocity and Forces</h3>
+
+                <p>Movement makes particles feel alive. Key movement modules:</p>
+
+                <p><strong>Initial Velocity (Particle Spawn):</strong></p>
+                <ul>
+                    <li>Sets starting direction and speed</li>
+                    <li>Can be uniform, random range, or cone-shaped</li>
+                    <li>Common: upward for fire, outward for explosions</li>
+                </ul>
+
+                <p><strong>Forces (Particle Update):</strong></p>
+                <ul>
+                    <li><strong>Gravity Force:</strong> Pulls down (or any direction)</li>
+                    <li><strong>Drag:</strong> Slows particles over time (air resistance)</li>
+                    <li><strong>Curl Noise Force:</strong> Adds organic, swirling motion</li>
+                    <li><strong>Point Attraction:</strong> Pulls toward a location</li>
+                    <li><strong>Vortex:</strong> Spins particles around an axis</li>
+                </ul>
+
+                <!-- SVG: Movement Forces -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Common Particle Forces</text>
+                    
+                    <!-- Gravity -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="160" height="120" rx="8" fill="#2d2d2d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Gravity</text>
+                        
+                        <circle cx="80" cy="50" r="6" fill="#FF6600"/>
+                        <path d="M 80 58 L 80 95" stroke="#4CAF50" stroke-width="2" marker-end="url(#forceArrow)"/>
+                        <text x="80" y="115" text-anchor="middle" fill="#888" font-size="8">Pulls down</text>
+                    </g>
+                    
+                    <!-- Drag -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="160" height="120" rx="8" fill="#2d2d2d" stroke="#2196F3" stroke-width="2"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">Drag</text>
+                        
+                        <circle cx="40" cy="70" r="6" fill="#FF6600"/>
+                        <circle cx="70" cy="70" r="5" fill="#FF6600" opacity="0.7"/>
+                        <circle cx="95" cy="70" r="4" fill="#FF6600" opacity="0.5"/>
+                        <circle cx="115" cy="70" r="3" fill="#FF6600" opacity="0.3"/>
+                        <path d="M 48 70 L 120 70" stroke="#2196F3" stroke-width="1" stroke-dasharray="3,2"/>
+                        <text x="80" y="115" text-anchor="middle" fill="#888" font-size="8">Slows over time</text>
+                    </g>
+                    
+                    <!-- Curl Noise -->
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="160" height="120" rx="8" fill="#2d2d2d" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#9C27B0" font-size="10" font-weight="bold">Curl Noise</text>
+                        
+                        <path d="M 30 80 Q 50 50, 70 70 Q 90 90, 110 60 Q 130 30, 140 70" stroke="#FF6600" stroke-width="2" fill="none"/>
+                        <circle cx="30" cy="80" r="4" fill="#FF6600"/>
+                        <text x="80" y="115" text-anchor="middle" fill="#888" font-size="8">Organic swirl</text>
+                    </g>
+                    
+                    <!-- Vortex -->
+                    <g transform="translate(590, 50)">
+                        <rect x="0" y="0" width="160" height="120" rx="8" fill="#2d2d2d" stroke="#FF9800" stroke-width="2"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Vortex</text>
+                        
+                        <circle cx="80" cy="70" r="30" fill="none" stroke="#FF6600" stroke-width="2" stroke-dasharray="5,3"/>
+                        <circle cx="80" cy="70" r="15" fill="none" stroke="#FF6600" stroke-width="2"/>
+                        <circle cx="110" cy="70" r="4" fill="#FF6600"/>
+                        <path d="M 108 65 L 115 70 L 108 75" fill="none" stroke="#FF9800" stroke-width="2"/>
+                        <text x="80" y="115" text-anchor="middle" fill="#888" font-size="8">Spin around axis</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="forceArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Common forces that affect particle movement.</em></p>
+
+                <h3>Appearance: Visual Properties</h3>
+
+                <p>How particles look depends on several factors:</p>
+
+                <p><strong>Size:</strong></p>
+                <ul>
+                    <li>Initial size in Particle Spawn</li>
+                    <li>Scale over lifetime (grow or shrink)</li>
+                    <li>Random variation for natural look</li>
+                </ul>
+
+                <p><strong>Color:</strong></p>
+                <ul>
+                    <li>Initial color in Particle Spawn</li>
+                    <li>Color over lifetime curves (fade, color shift)</li>
+                    <li>Alpha (transparency) for fading out</li>
+                </ul>
+
+                <p><strong>Rotation:</strong></p>
+                <ul>
+                    <li>Initial rotation (random for variation)</li>
+                    <li>Rotation rate (spinning particles)</li>
+                    <li>Face camera or align to velocity</li>
+                </ul>
+
+                <p><strong>Material:</strong></p>
+                <ul>
+                    <li>Texture and shader that renders the particle</li>
+                    <li>Crucial for final appearance</li>
+                    <li>Covered in detail next section</li>
+                </ul>
+
+                <h3>Lifetime</h3>
+
+                <p>Every particle has a lifetime—how long it exists before dying. This affects:</p>
+
+                <ul>
+                    <li>How far particles travel</li>
+                    <li>How "over lifetime" curves are evaluated</li>
+                    <li>Overall density of the effect</li>
+                </ul>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Lifetime + Spawn Rate = Particle Count</h4>
+                    <p>The number of particles visible at once equals (roughly) Spawn Rate × Lifetime. Spawning 50/sec with 2-second lifetime means ~100 particles. Balance these for performance and visual density.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Particle Materials -->
+            <section id="particle-materials" class="lesson-section">
+                <h2>Particle Materials</h2>
+
+                <p>Materials are what make particles look like fire instead of colored squares. A good particle material handles transparency, texture animation, and responds to particle data like color and alpha.</p>
+
+                <h3>Material Requirements</h3>
+
+                <p>Particle materials need specific settings:</p>
+
+                <ol>
+                    <li><strong>Blend Mode:</strong> Usually Translucent or Additive</li>
+                    <li><strong>Shading Model:</strong> Unlit (particles don't receive lighting)</li>
+                    <li><strong>Two Sided:</strong> Often enabled for billboards</li>
+                    <li><strong>Used with Niagara Sprites:</strong> Check in Usage</li>
+                </ol>
+
+                <h3>Blend Modes</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Blend Mode</th>
+                            <th style="padding: 10px; text-align: left;">Effect</th>
+                            <th style="padding: 10px; text-align: left;">Use For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Translucent</td>
+                            <td style="padding: 10px;">Standard transparency</td>
+                            <td style="padding: 10px;">Smoke, dust, clouds</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Additive</td>
+                            <td style="padding: 10px;">Adds color (brightens)</td>
+                            <td style="padding: 10px;">Fire, sparks, magic, glow</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Modulate</td>
+                            <td style="padding: 10px;">Multiplies (darkens)</td>
+                            <td style="padding: 10px;">Shadows, dark smoke</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Alpha Composite</td>
+                            <td style="padding: 10px;">Pre-multiplied alpha</td>
+                            <td style="padding: 10px;">Complex transparency</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Blend Mode Comparison -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #333;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Blend Mode Visual Comparison</text>
+                    
+                    <!-- Translucent -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="160" height="100" rx="5" fill="#1a1a1a"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#9C27B0" font-size="10" font-weight="bold">Translucent</text>
+                        
+                        <!-- Background checker -->
+                        <rect x="30" y="35" width="100" height="50" fill="#555"/>
+                        
+                        <!-- Overlapping circles -->
+                        <circle cx="60" cy="60" r="25" fill="rgba(100,100,100,0.7)"/>
+                        <circle cx="100" cy="60" r="25" fill="rgba(100,100,100,0.7)"/>
+                        
+                        <text x="80" y="95" text-anchor="middle" fill="#888" font-size="7">Darkens overlap</text>
+                    </g>
+                    
+                    <!-- Additive -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="160" height="100" rx="5" fill="#1a1a1a"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Additive</text>
+                        
+                        <rect x="30" y="35" width="100" height="50" fill="#222"/>
+                        
+                        <!-- Glowing circles -->
+                        <circle cx="60" cy="60" r="25" fill="rgba(255,100,0,0.5)"/>
+                        <circle cx="100" cy="60" r="25" fill="rgba(255,100,0,0.5)"/>
+                        <circle cx="80" cy="60" r="15" fill="rgba(255,200,0,0.8)"/>
+                        
+                        <text x="80" y="95" text-anchor="middle" fill="#888" font-size="7">Brightens overlap</text>
+                    </g>
+                    
+                    <!-- Fire example -->
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="160" height="100" rx="5" fill="#1a1a1a"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Fire (Additive)</text>
+                        
+                        <ellipse cx="80" cy="65" rx="40" ry="30" fill="rgba(255,50,0,0.3)"/>
+                        <ellipse cx="80" cy="60" rx="30" ry="25" fill="rgba(255,100,0,0.5)"/>
+                        <ellipse cx="80" cy="55" rx="20" ry="18" fill="rgba(255,200,0,0.7)"/>
+                        <ellipse cx="80" cy="50" rx="10" ry="10" fill="rgba(255,255,200,0.9)"/>
+                        
+                        <text x="80" y="95" text-anchor="middle" fill="#888" font-size="7">Glowing core</text>
+                    </g>
+                    
+                    <!-- Smoke example -->
+                    <g transform="translate(590, 50)">
+                        <rect x="0" y="0" width="160" height="100" rx="5" fill="#4a6ea5"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#607D8B" font-size="10" font-weight="bold">Smoke (Translucent)</text>
+                        
+                        <ellipse cx="60" cy="55" rx="25" ry="20" fill="rgba(50,50,50,0.6)"/>
+                        <ellipse cx="85" cy="60" rx="28" ry="22" fill="rgba(60,60,60,0.5)"/>
+                        <ellipse cx="100" cy="50" rx="22" ry="18" fill="rgba(70,70,70,0.4)"/>
+                        
+                        <text x="80" y="95" text-anchor="middle" fill="#ccc" font-size="7">Blocks background</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Additive brightens (fire), Translucent darkens/blocks (smoke).</em></p>
+
+                <h3>Simple Particle Material Setup</h3>
+
+                <p>Here's how to create a basic particle material:</p>
+
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Material</strong></li>
+                    <li>Name it <code>M_Particle_Fire</code></li>
+                    <li>Open and set these properties in Details:
+                        <ul>
+                            <li><strong>Blend Mode:</strong> Additive</li>
+                            <li><strong>Shading Model:</strong> Unlit</li>
+                        </ul>
+                    </li>
+                    <li>In Usage, check <strong>Used with Niagara Sprites</strong></li>
+                </ol>
+
+                <h3>Material Graph for Particles</h3>
+
+                <p>A typical particle material connects:</p>
+
+                <pre><code>Texture Sample → Multiply → Emissive Color
+                     ↓
+Particle Color → Multiply ↗
+
+Texture Alpha → Opacity (if translucent)</code></pre>
+
+                <p><strong>Key Nodes:</strong></p>
+                <ul>
+                    <li><strong>Texture Sample:</strong> Your particle texture (smoke puff, spark, etc.)</li>
+                    <li><strong>Particle Color:</strong> Receives color from Niagara (essential!)</li>
+                    <li><strong>Multiply:</strong> Combines texture with particle color</li>
+                </ul>
+
+                <!-- SVG: Material Graph -->
+                <svg width="100%" height="200" viewBox="0 0 750 200" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Basic Particle Material Graph</text>
+                    
+                    <!-- Texture Sample -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="5" fill="#1565C0"/>
+                        <text x="70" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Texture Sample</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#90CAF9" font-size="7">T_Smoke_Puff</text>
+                        <circle cx="140" cy="25" r="5" fill="#FFD700"/>
+                        <text x="125" y="55" fill="#64B5F6" font-size="6">RGB</text>
+                        <circle cx="140" cy="50" r="5" fill="#888"/>
+                        <text x="125" y="65" fill="#64B5F6" font-size="6">Alpha</text>
+                    </g>
+                    
+                    <!-- Particle Color -->
+                    <g transform="translate(50, 140)">
+                        <rect x="0" y="0" width="140" height="40" rx="5" fill="#4CAF50"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Particle Color</text>
+                        <circle cx="140" cy="20" r="5" fill="#FFD700"/>
+                    </g>
+                    
+                    <!-- Multiply -->
+                    <g transform="translate(280, 75)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#FF9800"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Multiply</text>
+                        <circle cx="0" cy="20" r="5" fill="#FFD700"/>
+                        <circle cx="0" cy="40" r="5" fill="#FFD700"/>
+                        <circle cx="100" cy="30" r="5" fill="#FFD700"/>
+                        <text x="50" y="50" text-anchor="middle" fill="#fff3e0" font-size="6">A × B</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(470, 55)">
+                        <rect x="0" y="0" width="180" height="100" rx="5" fill="#333" stroke="#667eea" stroke-width="2"/>
+                        <text x="90" y="22" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Material Output</text>
+                        <circle cx="0" cy="45" r="5" fill="#FFD700"/>
+                        <text x="20" y="48" fill="#4CAF50" font-size="8">Emissive Color</text>
+                        <circle cx="0" cy="70" r="5" fill="#888"/>
+                        <text x="20" y="73" fill="#888" font-size="8">Opacity</text>
+                        <text x="90" y="95" text-anchor="middle" fill="#888" font-size="7">(Additive ignores Opacity)</text>
+                    </g>
+                    
+                    <!-- Connections -->
+                    <path d="M 195 80 L 275 95" stroke="#FFD700" stroke-width="2"/>
+                    <path d="M 195 160 L 240 160 L 240 115 L 275 115" stroke="#FFD700" stroke-width="2"/>
+                    <path d="M 385 105 L 465 100" stroke="#FFD700" stroke-width="2"/>
+                    <path d="M 195 105 L 230 105 L 230 125 L 465 125" stroke="#888" stroke-width="2"/>
+                </svg>
+                <p class="caption"><em>Figure: Particle material multiplies texture by Particle Color from Niagara.</em></p>
+
+                <h3>Particle Textures</h3>
+
+                <p>Good particle textures have these qualities:</p>
+
+                <ul>
+                    <li><strong>Soft edges:</strong> Fade to transparent at edges</li>
+                    <li><strong>Centered:</strong> Main shape in the middle</li>
+                    <li><strong>Alpha channel:</strong> Defines shape transparency</li>
+                    <li><strong>Power of 2:</strong> Dimensions like 64, 128, 256, 512</li>
+                </ul>
+
+                <p>Common textures:</p>
+                <ul>
+                    <li><strong>Radial gradient:</strong> Bright center, fades outward (fire core, glow)</li>
+                    <li><strong>Soft circle:</strong> Fuzzy dot (smoke puff, dust)</li>
+                    <li><strong>Star/spark:</strong> Sharp points (sparks, magic)</li>
+                    <li><strong>Noise:</strong> Organic variation (smoke detail)</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Starter Content Has Particles</h4>
+                    <p>If you enabled Starter Content when creating your project, check <code>StarterContent/Particles</code> for ready-to-use textures and materials. These include smoke puffs, sparks, and radial gradients.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Creating a Fire Effect -->
+            <section id="fire-effect" class="lesson-section">
+                <h2>Creating a Fire Effect</h2>
+
+                <p>Fire is one of the most common particle effects. It combines upward movement, color shifting from yellow/white to orange/red, and additive blending for that glowing look. Let's build one step by step.</p>
+
+                <h3>Fire Effect Characteristics</h3>
+
+                <ul>
+                    <li><strong>Movement:</strong> Upward velocity, slight randomness, maybe curl noise</li>
+                    <li><strong>Color:</strong> Hot core (white/yellow), cooler edges (orange/red), fades out</li>
+                    <li><strong>Size:</strong> Starts small, grows slightly, shrinks at end</li>
+                    <li><strong>Material:</strong> Additive blend, radial gradient texture</li>
+                    <li><strong>Spawn:</strong> Continuous rate from a point or small area</li>
+                </ul>
+
+                <h3>Step-by-Step Fire Creation</h3>
+
+                <h4>1. Create the System</h4>
+                <ol>
+                    <li>Right-click → <strong>FX → Niagara System</strong></li>
+                    <li>Select <strong>New system from selected emitter(s)</strong></li>
+                    <li>Choose <strong>Empty</strong> emitter template</li>
+                    <li>Name it <code>NS_Fire</code></li>
+                </ol>
+
+                <h4>2. Add Spawn Rate</h4>
+                <ol>
+                    <li>In the emitter stack, find <strong>Emitter Update</strong></li>
+                    <li>Click <strong>+</strong> → search for <strong>Spawn Rate</strong></li>
+                    <li>Set <strong>Spawn Rate:</strong> 30</li>
+                </ol>
+
+                <h4>3. Initialize Particles</h4>
+                <ol>
+                    <li>In <strong>Particle Spawn</strong>, click <strong>+</strong></li>
+                    <li>Add <strong>Initialize Particle</strong></li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>Lifetime:</strong> Random Range (0.8 - 1.2)</li>
+                            <li><strong>Sprite Size:</strong> Random Range (20 - 40)</li>
+                            <li><strong>Color:</strong> Will set via Scale Color</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>4. Add Velocity</h4>
+                <ol>
+                    <li>In <strong>Particle Spawn</strong>, add <strong>Add Velocity</strong></li>
+                    <li>Set velocity mode to <strong>Add Velocity in Cone</strong> (or manual)</li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>Speed:</strong> Random Range (50 - 100)</li>
+                            <li><strong>Cone Axis:</strong> (0, 0, 1) — upward</li>
+                            <li><strong>Cone Angle:</strong> 15-20 degrees</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>5. Add Update Behaviors</h4>
+                <ol>
+                    <li>In <strong>Particle Update</strong>, add these modules:
+                        <ul>
+                            <li><strong>Gravity Force:</strong> Set to (0, 0, -50) — light upward fight</li>
+                            <li><strong>Drag:</strong> 0.5-1.0 to slow particles</li>
+                            <li><strong>Scale Sprite Size:</strong> Curve that grows then shrinks</li>
+                            <li><strong>Scale Color:</strong> Color gradient over lifetime</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>6. Configure Color Over Lifetime</h4>
+                <p>In <strong>Scale Color</strong> module:</p>
+                <ol>
+                    <li>Click the color bar to open curve editor</li>
+                    <li>Set gradient:
+                        <ul>
+                            <li><strong>0%:</strong> White/light yellow (255, 255, 200), Alpha 1.0</li>
+                            <li><strong>30%:</strong> Bright orange (255, 150, 0), Alpha 1.0</li>
+                            <li><strong>70%:</strong> Red/dark orange (255, 50, 0), Alpha 0.7</li>
+                            <li><strong>100%:</strong> Dark red (100, 0, 0), Alpha 0.0</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Fire Color Gradient -->
+                <svg width="100%" height="120" viewBox="0 0 700 120" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Fire Color Over Lifetime</text>
+                    
+                    <!-- Gradient bar -->
+                    <defs>
+                        <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#FFFFC8"/>
+                            <stop offset="30%" style="stop-color:#FF9600"/>
+                            <stop offset="70%" style="stop-color:#FF3200"/>
+                            <stop offset="100%" style="stop-color:#640000"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <rect x="50" y="50" width="600" height="30" rx="5" fill="url(#fireGrad)"/>
+                    
+                    <!-- Labels -->
+                    <text x="50" y="100" text-anchor="start" fill="#888" font-size="9">0% (Birth)</text>
+                    <text x="230" y="100" text-anchor="middle" fill="#888" font-size="9">30%</text>
+                    <text x="470" y="100" text-anchor="middle" fill="#888" font-size="9">70%</text>
+                    <text x="650" y="100" text-anchor="end" fill="#888" font-size="9">100% (Death)</text>
+                    
+                    <text x="50" y="45" fill="#FFFFC8" font-size="8">Hot core</text>
+                    <text x="350" y="45" fill="#FF9600" font-size="8">Flame body</text>
+                    <text x="650" y="45" text-anchor="end" fill="#640000" font-size="8">Fading</text>
+                </svg>
+                <p class="caption"><em>Figure: Fire particles shift from hot white/yellow to cool red as they age.</em></p>
+
+                <h4>7. Add Renderer</h4>
+                <ol>
+                    <li>In <strong>Render</strong>, ensure <strong>Sprite Renderer</strong> exists</li>
+                    <li>Set <strong>Material:</strong> Your additive fire material</li>
+                    <li>Or use a default radial gradient material temporarily</li>
+                </ol>
+
+                <h4>8. Test and Refine</h4>
+                <ol>
+                    <li>Preview in the Niagara editor</li>
+                    <li>Adjust spawn rate for density</li>
+                    <li>Tweak velocity for height</li>
+                    <li>Modify size curve for shape</li>
+                    <li>Fine-tune colors for desired look</li>
+                </ol>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Fire Needs Additive Material</h4>
+                    <p>Fire looks wrong with translucent blending—it darkens instead of glows. Always use an additive material for fire, sparks, and magical glow effects. If your fire looks like dark circles, check the material blend mode.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Smoke and Sparks -->
+            <section id="smoke-sparks" class="lesson-section">
+                <h2>Smoke and Sparks</h2>
+
+                <p>Fire rarely exists alone. Smoke rises from flames, and sparks fly off. These supporting elements complete the effect and add visual interest.</p>
+
+                <h3>Smoke Effect</h3>
+
+                <p>Smoke differs from fire in several ways:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #607D8B; color: white;">
+                            <th style="padding: 10px; text-align: left;">Property</th>
+                            <th style="padding: 10px; text-align: left;">Fire</th>
+                            <th style="padding: 10px; text-align: left;">Smoke</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Blend Mode</td>
+                            <td style="padding: 10px;">Additive (glows)</td>
+                            <td style="padding: 10px;">Translucent (blocks)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Color</td>
+                            <td style="padding: 10px;">Bright: yellow → red</td>
+                            <td style="padding: 10px;">Dark: gray → transparent</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Size</td>
+                            <td style="padding: 10px;">Small → medium</td>
+                            <td style="padding: 10px;">Medium → large (expands)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Speed</td>
+                            <td style="padding: 10px;">Moderate upward</td>
+                            <td style="padding: 10px;">Slow upward, drifting</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Lifetime</td>
+                            <td style="padding: 10px;">Short (0.5-1.5s)</td>
+                            <td style="padding: 10px;">Longer (2-4s)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Spawn Rate</td>
+                            <td style="padding: 10px;">Higher</td>
+                            <td style="padding: 10px;">Lower</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Smoke Settings</h3>
+
+                <ul>
+                    <li><strong>Spawn Rate:</strong> 5-15 particles/sec</li>
+                    <li><strong>Lifetime:</strong> 2.0 - 4.0 seconds</li>
+                    <li><strong>Initial Size:</strong> 30-50</li>
+                    <li><strong>Size Over Life:</strong> Grow to 2-3× initial size</li>
+                    <li><strong>Velocity:</strong> (0, 0, 30-60) slow upward</li>
+                    <li><strong>Color:</strong> Dark gray (60, 60, 60) → transparent</li>
+                    <li><strong>Add Curl Noise:</strong> For organic movement</li>
+                    <li><strong>Material:</strong> Translucent, soft circle/puff texture</li>
+                </ul>
+
+                <h3>Spark Effect</h3>
+
+                <p>Sparks are small, fast, short-lived particles that add energy:</p>
+
+                <ul>
+                    <li><strong>Spawn Mode:</strong> Burst (20-50 at once) or low continuous rate</li>
+                    <li><strong>Lifetime:</strong> Very short (0.3 - 0.8 seconds)</li>
+                    <li><strong>Initial Size:</strong> Small (2-8)</li>
+                    <li><strong>Velocity:</strong> High speed, random directions, upward bias</li>
+                    <li><strong>Gravity:</strong> Normal gravity (-980) so they arc and fall</li>
+                    <li><strong>Color:</strong> Bright orange/yellow, fades quickly</li>
+                    <li><strong>Material:</strong> Additive, star or bright dot texture</li>
+                </ul>
+
+                <!-- SVG: Complete Fire Effect -->
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1a1a1a;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Complete Fire Effect: Three Emitters</text>
+                    
+                    <!-- Fire base -->
+                    <g transform="translate(350, 220)">
+                        <rect x="-50" y="0" width="100" height="20" rx="3" fill="#5D4037"/>
+                    </g>
+                    
+                    <!-- Fire particles -->
+                    <ellipse cx="400" cy="180" rx="50" ry="35" fill="rgba(255,50,0,0.3)"/>
+                    <ellipse cx="400" cy="165" rx="40" ry="30" fill="rgba(255,100,0,0.5)"/>
+                    <ellipse cx="400" cy="150" rx="30" ry="25" fill="rgba(255,150,0,0.6)"/>
+                    <ellipse cx="400" cy="135" rx="20" ry="18" fill="rgba(255,200,50,0.8)"/>
+                    <ellipse cx="400" cy="125" rx="12" ry="12" fill="rgba(255,255,200,0.9)"/>
+                    
+                    <!-- Smoke particles -->
+                    <ellipse cx="380" cy="80" rx="35" ry="25" fill="rgba(80,80,80,0.4)"/>
+                    <ellipse cx="420" cy="60" rx="40" ry="30" fill="rgba(70,70,70,0.3)"/>
+                    <ellipse cx="390" cy="40" rx="45" ry="32" fill="rgba(60,60,60,0.2)"/>
+                    
+                    <!-- Sparks -->
+                    <circle cx="360" cy="160" r="3" fill="#FFD700"/>
+                    <circle cx="440" cy="145" r="2" fill="#FFD700"/>
+                    <circle cx="350" cy="130" r="2" fill="#FFA500"/>
+                    <circle cx="455" cy="155" r="3" fill="#FFD700"/>
+                    <circle cx="375" cy="115" r="2" fill="#FFA500"/>
+                    <circle cx="430" cy="100" r="2" fill="#FF6600"/>
+                    <circle cx="345" cy="95" r="2" fill="#FF6600"/>
+                    
+                    <!-- Labels -->
+                    <g transform="translate(550, 50)">
+                        <rect x="0" y="0" width="200" height="180" rx="5" fill="#2d2d2d" stroke="#444"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Emitters</text>
+                        
+                        <rect x="15" y="35" width="15" height="15" fill="#FF9800"/>
+                        <text x="40" y="47" fill="#FF9800" font-size="9">Fire (Additive)</text>
+                        <text x="40" y="60" fill="#888" font-size="7">Rate: 30, Life: 1s</text>
+                        
+                        <rect x="15" y="75" width="15" height="15" fill="#666"/>
+                        <text x="40" y="87" fill="#888" font-size="9">Smoke (Translucent)</text>
+                        <text x="40" y="100" fill="#666" font-size="7">Rate: 8, Life: 3s</text>
+                        
+                        <rect x="15" y="115" width="15" height="15" fill="#FFD700"/>
+                        <text x="40" y="127" fill="#FFD700" font-size="9">Sparks (Additive)</text>
+                        <text x="40" y="140" fill="#888" font-size="7">Rate: 5, Life: 0.5s</text>
+                        
+                        <text x="100" y="165" text-anchor="middle" fill="#4CAF50" font-size="8">Combined = realistic fire!</text>
+                    </g>
+                    
+                    <!-- Emitter labels in scene -->
+                    <text x="400" y="200" text-anchor="middle" fill="#FF9800" font-size="8">← Fire</text>
+                    <text x="400" cy="30" text-anchor="middle" fill="#888" font-size="8">Smoke ↑</text>
+                </svg>
+                <p class="caption"><em>Figure: A complete fire effect combines fire, smoke, and spark emitters.</em></p>
+
+                <h3>Combining Emitters</h3>
+
+                <p>To create a complete fire effect:</p>
+
+                <ol>
+                    <li>Create or open your fire Niagara System</li>
+                    <li>In System Overview, click <strong>+ Add Emitter</strong></li>
+                    <li>Add an empty emitter, rename to "Smoke"</li>
+                    <li>Configure smoke settings (translucent, slow, expanding)</li>
+                    <li>Add another emitter, rename to "Sparks"</li>
+                    <li>Configure spark settings (additive, fast, short-lived)</li>
+                    <li>All three emitters play together as one system</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Render Order Matters</h4>
+                    <p>Emitters render in the order they appear in System Overview (top to bottom). For fire, render order should be: Smoke (back) → Fire (middle) → Sparks (front). Drag emitters to reorder them.</p>
+                </div>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Building a Complete Fire Effect</h2>
+
+                <p>Let's build a professional-quality fire effect with three emitters: flames, smoke, and sparks. This exercise reinforces everything covered in this lesson and gives you a reusable fire system.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a complete campfire effect with realistic fire particles, rising smoke, and flying sparks. You'll set up materials, configure three emitters, and combine them into a polished system.</p>
+                </div>
+
+                <h3>Part 1: Create Materials</h3>
+
+                <h4>Step 1: Create Fire Material</h4>
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Material</strong></li>
+                    <li>Name it <code>M_Particle_Fire</code></li>
+                    <li>Open and configure Details panel:
+                        <ul>
+                            <li><strong>Blend Mode:</strong> Additive</li>
+                            <li><strong>Shading Model:</strong> Unlit</li>
+                        </ul>
+                    </li>
+                    <li>In Material Graph:
+                        <ul>
+                            <li>Add <strong>Texture Sample</strong> node (use a radial gradient or soft circle)</li>
+                            <li>Add <strong>Particle Color</strong> node</li>
+                            <li>Add <strong>Multiply</strong> node</li>
+                            <li>Connect: Texture RGB → Multiply A, Particle Color → Multiply B</li>
+                            <li>Connect: Multiply → Emissive Color</li>
+                        </ul>
+                    </li>
+                    <li>In Usage section, check <strong>Used with Niagara Sprites</strong></li>
+                    <li>Apply and Save</li>
+                </ol>
+
+                <h4>Step 2: Create Smoke Material</h4>
+                <ol>
+                    <li>Right-click → <strong>Material</strong>, name it <code>M_Particle_Smoke</code></li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>Blend Mode:</strong> Translucent</li>
+                            <li><strong>Shading Model:</strong> Unlit</li>
+                        </ul>
+                    </li>
+                    <li>In Material Graph:
+                        <ul>
+                            <li>Add <strong>Texture Sample</strong> (soft circle/puff texture)</li>
+                            <li>Add <strong>Particle Color</strong></li>
+                            <li>Add <strong>Multiply</strong> for RGB</li>
+                            <li>Connect: Texture RGB × Particle Color RGB → Emissive Color</li>
+                            <li>Add another <strong>Multiply</strong> for alpha</li>
+                            <li>Connect: Texture Alpha × Particle Color Alpha → Opacity</li>
+                        </ul>
+                    </li>
+                    <li>Check <strong>Used with Niagara Sprites</strong>, Apply and Save</li>
+                </ol>
+
+                <h4>Step 3: Create Spark Material</h4>
+                <ol>
+                    <li>Duplicate <code>M_Particle_Fire</code></li>
+                    <li>Rename to <code>M_Particle_Spark</code></li>
+                    <li>Optionally change texture to a star or bright dot</li>
+                    <li>Keep Additive blend mode</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Texture Tip</h4>
+                    <p>If you don't have particle textures, you can use the default white texture and rely on color alone for testing. Or check Starter Content → Particles for ready-made textures.</p>
+                </div>
+
+                <h3>Part 2: Create the Fire Emitter</h3>
+
+                <h4>Step 4: Create Niagara System</h4>
+                <ol>
+                    <li>Right-click → <strong>FX → Niagara System</strong></li>
+                    <li>Select <strong>New system from selected emitter(s)</strong></li>
+                    <li>Choose <strong>Empty</strong> template</li>
+                    <li>Name it <code>NS_Campfire</code></li>
+                    <li>Open the editor</li>
+                </ol>
+
+                <h4>Step 5: Configure Fire Emitter Spawn</h4>
+                <ol>
+                    <li>Rename the emitter to <code>Fire</code></li>
+                    <li>In <strong>Emitter Update</strong>, add <strong>Spawn Rate</strong></li>
+                    <li>Set Spawn Rate: <code>35</code></li>
+                </ol>
+
+                <h4>Step 6: Configure Fire Particle Spawn</h4>
+                <ol>
+                    <li>In <strong>Particle Spawn</strong>, add <strong>Initialize Particle</strong></li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>Lifetime:</strong> Uniform Random (0.6 - 1.0)</li>
+                            <li><strong>Sprite Size Mode:</strong> Random Uniform</li>
+                            <li><strong>Sprite Size Min:</strong> 15</li>
+                            <li><strong>Sprite Size Max:</strong> 30</li>
+                            <li><strong>Color:</strong> Leave default (will use Scale Color)</li>
+                        </ul>
+                    </li>
+                    <li>Add <strong>Add Velocity</strong> module</li>
+                    <li>Configure velocity:
+                        <ul>
+                            <li><strong>Velocity:</strong> (0, 0, 80) — or use Add Velocity in Cone</li>
+                            <li>If using cone: Speed 60-100, Cone Angle 15°, Axis (0,0,1)</li>
+                        </ul>
+                    </li>
+                    <li>Add <strong>Sphere Location</strong> module (optional, for spawn area)</li>
+                    <li>Set Sphere Radius: 20</li>
+                </ol>
+
+                <h4>Step 7: Configure Fire Particle Update</h4>
+                <ol>
+                    <li>In <strong>Particle Update</strong>, add <strong>Gravity Force</strong></li>
+                    <li>Set Gravity: (0, 0, -100) — light downward pull, fire still rises</li>
+                    <li>Add <strong>Drag</strong> module, set Drag: 1.0</li>
+                    <li>Add <strong>Scale Color</strong> module</li>
+                    <li>Configure color gradient:
+                        <ul>
+                            <li>Click the color bar to open curve editor</li>
+                            <li>Add keys at 0%, 25%, 60%, 100%</li>
+                            <li>0%: RGB (255, 255, 200), Alpha 1.0 — hot white/yellow</li>
+                            <li>25%: RGB (255, 180, 50), Alpha 1.0 — orange</li>
+                            <li>60%: RGB (255, 80, 0), Alpha 0.8 — red-orange</li>
+                            <li>100%: RGB (100, 20, 0), Alpha 0.0 — dark red, faded</li>
+                        </ul>
+                    </li>
+                    <li>Add <strong>Scale Sprite Size</strong> module</li>
+                    <li>Configure size curve: Start at 0.5, peak at 1.2 around 30%, end at 0.3</li>
+                </ol>
+
+                <h4>Step 8: Configure Fire Renderer</h4>
+                <ol>
+                    <li>In <strong>Render</strong>, select <strong>Sprite Renderer</strong></li>
+                    <li>Set <strong>Material:</strong> M_Particle_Fire</li>
+                    <li>Enable <strong>Sort Particles</strong> if available</li>
+                </ol>
+
+                <!-- SVG: Fire Emitter Setup -->
+                <svg width="100%" height="200" viewBox="0 0 750 200" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Fire Emitter Module Stack</text>
+                    
+                    <!-- Emitter Update -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#1565C0"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Emitter Update</text>
+                        <rect x="10" y="28" width="130" height="22" rx="3" fill="#1976D2"/>
+                        <text x="75" y="43" text-anchor="middle" fill="#fff" font-size="8">Spawn Rate: 35</text>
+                    </g>
+                    
+                    <!-- Particle Spawn -->
+                    <g transform="translate(220, 50)">
+                        <rect x="0" y="0" width="150" height="100" rx="5" fill="#4CAF50"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Particle Spawn</text>
+                        <rect x="10" y="28" width="130" height="20" rx="3" fill="#66BB6A"/>
+                        <text x="75" y="42" text-anchor="middle" fill="#fff" font-size="7">Initialize Particle</text>
+                        <rect x="10" y="52" width="130" height="20" rx="3" fill="#66BB6A"/>
+                        <text x="75" y="66" text-anchor="middle" fill="#fff" font-size="7">Add Velocity</text>
+                        <rect x="10" y="76" width="130" height="18" rx="3" fill="#81C784"/>
+                        <text x="75" y="89" text-anchor="middle" fill="#fff" font-size="7">Sphere Location</text>
+                    </g>
+                    
+                    <!-- Particle Update -->
+                    <g transform="translate(390, 50)">
+                        <rect x="0" y="0" width="150" height="120" rx="5" fill="#FF9800"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Particle Update</text>
+                        <rect x="10" y="28" width="130" height="18" rx="3" fill="#FFA726"/>
+                        <text x="75" y="41" text-anchor="middle" fill="#fff" font-size="7">Gravity Force</text>
+                        <rect x="10" y="50" width="130" height="18" rx="3" fill="#FFA726"/>
+                        <text x="75" y="63" text-anchor="middle" fill="#fff" font-size="7">Drag</text>
+                        <rect x="10" y="72" width="130" height="18" rx="3" fill="#FFB74D"/>
+                        <text x="75" y="85" text-anchor="middle" fill="#fff" font-size="7">Scale Color</text>
+                        <rect x="10" y="94" width="130" height="18" rx="3" fill="#FFB74D"/>
+                        <text x="75" y="107" text-anchor="middle" fill="#fff" font-size="7">Scale Sprite Size</text>
+                    </g>
+                    
+                    <!-- Render -->
+                    <g transform="translate(560, 50)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#9C27B0"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Render</text>
+                        <rect x="10" y="28" width="130" height="22" rx="3" fill="#AB47BC"/>
+                        <text x="75" y="43" text-anchor="middle" fill="#fff" font-size="8">Sprite Renderer</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Complete module stack for the Fire emitter.</em></p>
+
+                <h3>Part 3: Create the Smoke Emitter</h3>
+
+                <h4>Step 9: Add Smoke Emitter</h4>
+                <ol>
+                    <li>In System Overview, click <strong>+ Add Emitter</strong></li>
+                    <li>Select <strong>Empty</strong> template</li>
+                    <li>Rename to <code>Smoke</code></li>
+                    <li>Drag it above the Fire emitter (renders behind)</li>
+                </ol>
+
+                <h4>Step 10: Configure Smoke</h4>
+                <ol>
+                    <li><strong>Emitter Update:</strong>
+                        <ul>
+                            <li>Add Spawn Rate: <code>8</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Particle Spawn:</strong>
+                        <ul>
+                            <li>Initialize Particle: Lifetime 2.5-3.5s, Size 30-50</li>
+                            <li>Add Velocity: (0, 0, 40) slow upward</li>
+                            <li>Initial Color: RGB (80, 80, 80), Alpha 0.6</li>
+                        </ul>
+                    </li>
+                    <li><strong>Particle Update:</strong>
+                        <ul>
+                            <li>Gravity Force: (0, 0, 20) — slight upward buoyancy</li>
+                            <li>Drag: 0.5</li>
+                            <li>Curl Noise Force: Strength 30-50 (for organic motion)</li>
+                            <li>Scale Sprite Size: Grow from 1.0 to 2.5 over lifetime</li>
+                            <li>Scale Color: Gray → Transparent (Alpha 0.6 → 0.0)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Render:</strong>
+                        <ul>
+                            <li>Sprite Renderer with M_Particle_Smoke material</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Part 4: Create the Sparks Emitter</h3>
+
+                <h4>Step 11: Add Sparks Emitter</h4>
+                <ol>
+                    <li>Add another <strong>Empty</strong> emitter</li>
+                    <li>Rename to <code>Sparks</code></li>
+                    <li>Position at the bottom (renders on top)</li>
+                </ol>
+
+                <h4>Step 12: Configure Sparks</h4>
+                <ol>
+                    <li><strong>Emitter Update:</strong>
+                        <ul>
+                            <li>Add Spawn Rate: <code>5</code> (continuous trickle)</li>
+                            <li>Or use Spawn Burst with timer for periodic bursts</li>
+                        </ul>
+                    </li>
+                    <li><strong>Particle Spawn:</strong>
+                        <ul>
+                            <li>Initialize Particle: Lifetime 0.4-0.8s, Size 2-5</li>
+                            <li>Add Velocity in Cone: Speed 150-250, Cone Angle 45°, Axis (0,0,1)</li>
+                            <li>Initial Color: RGB (255, 200, 50), Alpha 1.0</li>
+                        </ul>
+                    </li>
+                    <li><strong>Particle Update:</strong>
+                        <ul>
+                            <li>Gravity Force: (0, 0, -980) — normal gravity, sparks fall</li>
+                            <li>Drag: 2.0 — air resistance</li>
+                            <li>Scale Color: Bright yellow → orange → transparent</li>
+                        </ul>
+                    </li>
+                    <li><strong>Render:</strong>
+                        <ul>
+                            <li>Sprite Renderer with M_Particle_Spark material</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Part 5: Test and Refine</h3>
+
+                <h4>Step 13: Preview in Editor</h4>
+                <ol>
+                    <li>Watch all three emitters working together</li>
+                    <li>Use timeline to scrub and see full lifecycle</li>
+                    <li>Rotate view to check from all angles</li>
+                </ol>
+
+                <h4>Step 14: Balance the Effect</h4>
+                <p>Adjust these if needed:</p>
+                <ul>
+                    <li>If fire looks too thin: Increase spawn rate or size</li>
+                    <li>If smoke is too dense: Reduce spawn rate or alpha</li>
+                    <li>If sparks don't fly high enough: Increase initial velocity</li>
+                    <li>If effect is too tall: Reduce velocity or lifetime</li>
+                </ul>
+
+                <h4>Step 15: Place in Level</h4>
+                <ol>
+                    <li>Save the Niagara System</li>
+                    <li>Drag <code>NS_Campfire</code> into your level</li>
+                    <li>Position it where you want fire</li>
+                    <li>Play to test in-game</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've built a complete fire effect with:</p>
+                    <ul>
+                        <li><strong>Fire emitter:</strong> Additive, color-shifting flames</li>
+                        <li><strong>Smoke emitter:</strong> Translucent, rising, expanding smoke</li>
+                        <li><strong>Sparks emitter:</strong> Fast, falling, short-lived particles</li>
+                        <li><strong>Custom materials:</strong> Proper blend modes for each type</li>
+                    </ul>
+                    <p>This system can be duplicated and modified for torches, explosions, and more!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Fire looks like dark circles:</strong></p>
+                    <ul>
+                        <li>Material blend mode is Translucent instead of Additive</li>
+                        <li>Change to Additive in material settings</li>
+                    </ul>
+                    
+                    <p><strong>Particles are invisible:</strong></p>
+                    <ul>
+                        <li>Check that material is assigned in Sprite Renderer</li>
+                        <li>Verify "Used with Niagara Sprites" is checked in material</li>
+                        <li>Check particle size isn't 0</li>
+                    </ul>
+                    
+                    <p><strong>Colors don't change over lifetime:</strong></p>
+                    <ul>
+                        <li>Ensure Scale Color module exists in Particle Update</li>
+                        <li>Check that the color curve has multiple keys</li>
+                        <li>Verify Particle Color node exists in material</li>
+                    </ul>
+                    
+                    <p><strong>Smoke renders in front of fire:</strong></p>
+                    <ul>
+                        <li>Reorder emitters in System Overview</li>
+                        <li>Smoke should be above Fire (renders first/behind)</li>
+                    </ul>
+                    
+                    <p><strong>Sparks go straight up instead of arcing:</strong></p>
+                    <ul>
+                        <li>Add or increase Gravity Force</li>
+                        <li>Use normal gravity (-980) for realistic arcs</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Embers:</strong> Add a fourth emitter with slowly rising, fading orange dots</li>
+                    <li><strong>Light:</strong> Add a Light Renderer to fire for dynamic illumination</li>
+                    <li><strong>Wind:</strong> Add a lateral force to make fire lean in one direction</li>
+                    <li><strong>Size Variation:</strong> Create small, medium, and large fire variants</li>
+                    <li><strong>Looping Sound:</strong> Add an Audio Component with fire crackling</li>
+                    <li><strong>Blueprint Control:</strong> Expose parameters to control fire intensity</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned to create particle effects from scratch. Understanding the building blocks—spawning, movement, appearance, and materials—empowers you to build any effect you can imagine.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Effect Building Blocks:</strong> Every particle effect combines spawning (how particles are created), movement (velocity and forces), and appearance (size, color, material). Master these fundamentals to create any effect.</p>
+
+                <p><strong>Spawning:</strong> Use Spawn Rate for continuous effects (fire, rain), Spawn Burst for instant effects (explosion), or Spawn Per Unit for movement-based spawning (footsteps). Location modules control where particles appear.</p>
+
+                <p><strong>Movement:</strong> Initial velocity sets direction and speed. Forces like Gravity, Drag, and Curl Noise modify movement over time. Balance these for realistic or stylized motion.</p>
+
+                <p><strong>Materials:</strong> Blend mode is crucial—Additive for glowing effects (fire, sparks, magic), Translucent for blocking effects (smoke, dust). Always connect Particle Color node to receive color from Niagara.</p>
+
+                <p><strong>Fire Effect:</strong> Upward velocity, color gradient from white/yellow to red/transparent, additive material. Combined with smoke (translucent, slow, expanding) and sparks (fast, gravity-affected, short-lived) for complete effect.</p>
+
+                <h3>Module Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Module</th>
+                            <th style="padding: 10px; text-align: left;">Stage</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Spawn Rate</td>
+                            <td style="padding: 10px;">Emitter Update</td>
+                            <td style="padding: 10px;">Continuous particle creation</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Spawn Burst</td>
+                            <td style="padding: 10px;">Emitter Update</td>
+                            <td style="padding: 10px;">Instant particle burst</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Initialize Particle</td>
+                            <td style="padding: 10px;">Particle Spawn</td>
+                            <td style="padding: 10px;">Lifetime, size, initial values</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Add Velocity</td>
+                            <td style="padding: 10px;">Particle Spawn</td>
+                            <td style="padding: 10px;">Initial movement direction</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sphere/Box Location</td>
+                            <td style="padding: 10px;">Particle Spawn</td>
+                            <td style="padding: 10px;">Spawn area shape</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Gravity Force</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Downward (or any) pull</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Drag</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Slow particles over time</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Curl Noise Force</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Organic swirling motion</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Scale Color</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Color/alpha over lifetime</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Scale Sprite Size</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Grow/shrink over lifetime</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Effect Recipes</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Effect</th>
+                            <th style="padding: 10px; text-align: left;">Key Settings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Fire</td>
+                            <td style="padding: 10px;">Additive, upward velocity, yellow→red gradient, short lifetime</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Smoke</td>
+                            <td style="padding: 10px;">Translucent, slow upward, gray→transparent, grows over time</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sparks</td>
+                            <td style="padding: 10px;">Additive, high velocity + gravity, very short lifetime, small size</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Explosion</td>
+                            <td style="padding: 10px;">Burst spawn, outward velocity, fire + smoke + debris</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Magic Glow</td>
+                            <td style="padding: 10px;">Additive, curl noise, vibrant colors, soft edges</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Dust</td>
+                            <td style="padding: 10px;">Translucent, slow movement, brown/tan, low alpha</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Match blend mode to effect:</strong> Additive for glowing, Translucent for obscuring</li>
+                    <li><strong>Use Particle Color node:</strong> Required for Niagara to control material color</li>
+                    <li><strong>Balance spawn rate and lifetime:</strong> Together they determine particle count</li>
+                    <li><strong>Layer multiple emitters:</strong> Combine simple emitters for complex effects</li>
+                    <li><strong>Order emitters correctly:</strong> Background renders first (top of list)</li>
+                    <li><strong>Test with and without materials:</strong> Debug behavior before appearance</li>
+                    <li><strong>Use curves for organic feel:</strong> Avoid linear changes for natural motion</li>
+                    <li><strong>Start with templates:</strong> Modify existing effects to learn faster</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Particle Effect Building Process</text>
+                    
+                    <!-- Step 1 -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="160" height="70" rx="8" fill="#667eea"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">1. Plan</text>
+                        <text x="80" y="40" text-anchor="middle" fill="#c5cae9" font-size="8">What effect?</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#c5cae9" font-size="8">Additive or Translucent?</text>
+                    </g>
+                    
+                    <path d="M 215 90 L 245 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Step 2 -->
+                    <g transform="translate(250, 55)">
+                        <rect x="0" y="0" width="160" height="70" rx="8" fill="#4CAF50"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">2. Spawn</text>
+                        <text x="80" y="40" text-anchor="middle" fill="#c8e6c9" font-size="8">Rate or Burst?</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#c8e6c9" font-size="8">Location shape?</text>
+                    </g>
+                    
+                    <path d="M 415 90 L 445 90" stroke="#4CAF50" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Step 3 -->
+                    <g transform="translate(450, 55)">
+                        <rect x="0" y="0" width="160" height="70" rx="8" fill="#FF9800"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">3. Move</text>
+                        <text x="80" y="40" text-anchor="middle" fill="#fff3e0" font-size="8">Velocity + Forces</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#fff3e0" font-size="8">Gravity, Drag, Noise</text>
+                    </g>
+                    
+                    <path d="M 615 90 L 645 90" stroke="#FF9800" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Step 4 -->
+                    <g transform="translate(650, 55)">
+                        <rect x="0" y="0" width="100" height="70" rx="8" fill="#9C27B0"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">4. Look</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#e1bee7" font-size="8">Color, Size</text>
+                        <text x="50" y="55" text-anchor="middle" fill="#e1bee7" font-size="8">Material</text>
+                    </g>
+                    
+                    <!-- Bottom row - materials -->
+                    <g transform="translate(100, 150)">
+                        <rect x="0" y="0" width="250" height="60" rx="5" fill="rgba(255,152,0,0.2)" stroke="#FF9800"/>
+                        <text x="125" y="22" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Additive Material</text>
+                        <text x="125" y="40" text-anchor="middle" fill="#FF9800" font-size="8">Fire, Sparks, Magic, Glow</text>
+                        <text x="125" y="55" text-anchor="middle" fill="#888" font-size="7">Brightens • Hot colors • Transparent black</text>
+                    </g>
+                    
+                    <g transform="translate(450, 150)">
+                        <rect x="0" y="0" width="250" height="60" rx="5" fill="rgba(96,125,139,0.2)" stroke="#607D8B"/>
+                        <text x="125" y="22" text-anchor="middle" fill="#37474F" font-size="10" font-weight="bold">Translucent Material</text>
+                        <text x="125" y="40" text-anchor="middle" fill="#607D8B" font-size="8">Smoke, Dust, Clouds, Fog</text>
+                        <text x="125" y="55" text-anchor="middle" fill="#888" font-size="7">Blocks • Cool colors • Uses alpha</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="sumArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Four-step process for creating any particle effect.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you can create particle effects, the next lesson covers <strong>Triggering VFX</strong>. You'll learn to spawn effects from Blueprints, respond to gameplay events, and control effects at runtime—essential skills for integrating VFX into actual gameplay.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What blend mode should you use for fire particles?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Opaque</label>
+                            <label><input type="radio" name="q1" value="b"> Translucent</label>
+                            <label><input type="radio" name="q1" value="c"> Additive</label>
+                            <label><input type="radio" name="q1" value="d"> Modulate</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Additive blend mode adds color to the scene, creating a glowing effect. Fire, sparks, magic, and other luminous effects need Additive to look right. Translucent would make fire look like dark circles.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why is the "Particle Color" node essential in particle materials?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> It makes particles brighter</label>
+                            <label><input type="radio" name="q2" value="b"> It receives color data from Niagara (Scale Color module)</label>
+                            <label><input type="radio" name="q2" value="c"> It's required for the material to compile</label>
+                            <label><input type="radio" name="q2" value="d"> It enables transparency</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The Particle Color node receives color and alpha values from Niagara's Scale Color module. Without it, your particles won't respond to color changes set in the emitter, and color-over-lifetime effects won't work.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What's the formula for approximate particle count at any moment?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Spawn Rate + Lifetime</label>
+                            <label><input type="radio" name="q3" value="b"> Spawn Rate × Lifetime</label>
+                            <label><input type="radio" name="q3" value="c"> Spawn Rate ÷ Lifetime</label>
+                            <label><input type="radio" name="q3" value="d"> Lifetime × Size</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Particle count ≈ Spawn Rate × Lifetime. If you spawn 50 particles per second and each lives 2 seconds, you'll have roughly 100 particles visible at once. This helps balance visual density and performance.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Which module adds organic, swirling motion to particles?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Gravity Force</label>
+                            <label><input type="radio" name="q4" value="b"> Drag</label>
+                            <label><input type="radio" name="q4" value="c"> Curl Noise Force</label>
+                            <label><input type="radio" name="q4" value="d"> Vortex Velocity</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Curl Noise Force adds organic, turbulent motion that makes effects like smoke look natural rather than mechanical. It uses noise functions to create pseudo-random swirling patterns.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>In a fire effect with multiple emitters, what should the render order be (top to bottom in System Overview)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Fire → Smoke → Sparks</label>
+                            <label><input type="radio" name="q5" value="b"> Sparks → Fire → Smoke</label>
+                            <label><input type="radio" name="q5" value="c"> Smoke → Fire → Sparks</label>
+                            <label><input type="radio" name="q5" value="d"> Order doesn't matter</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Emitters render in order from top to bottom, meaning top renders first (behind). Smoke should be behind fire, and sparks should be in front. So: Smoke (top) → Fire (middle) → Sparks (bottom).</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What makes smoke particles different from fire particles?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Smoke uses Additive, fire uses Translucent</label>
+                            <label><input type="radio" name="q6" value="b"> Smoke uses Translucent, moves slower, and expands over time</label>
+                            <label><input type="radio" name="q6" value="c"> Smoke has higher spawn rate and shorter lifetime</label>
+                            <label><input type="radio" name="q6" value="d"> Smoke uses the same settings but different colors</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Smoke uses Translucent blend mode (blocks/darkens rather than glows), moves slower than fire, has longer lifetime, and typically grows larger over its lifetime. These differences create the characteristic look of rising smoke.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>What should you check in the material's Usage settings for Niagara particles?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Used with Static Meshes</label>
+                            <label><input type="radio" name="q7" value="b"> Used with Skeletal Meshes</label>
+                            <label><input type="radio" name="q7" value="c"> Used with Niagara Sprites</label>
+                            <label><input type="radio" name="q7" value="d"> Used with Instanced Static Meshes</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — "Used with Niagara Sprites" must be checked in the material's Usage settings for the material to work with Niagara particle systems. Without this, the material won't render on sprite particles.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m09_l01_niagara_overview.html" class="btn">← Previous: Niagara Overview</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m09_l03_triggering_vfx.html" class="btn">Next: Triggering VFX →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

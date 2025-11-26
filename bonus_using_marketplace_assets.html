@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn how to find, purchase, and use marketplace assets in Unreal Engine 5. Master asset migration, organization, and integration into your projects.">
+    <meta name="author" content="Practical Ace">
+    <title>Using Marketplace Assets - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Bonus Content</a></li>
+            <li aria-current="page">Using Marketplace Assets</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🛒 Using Marketplace Assets</h1>
+                <p class="lead">One of Unreal Engine's greatest strengths is its vast ecosystem of pre-made assets. From character models and environments to sound effects and complete game systems, marketplace assets can dramatically accelerate your development. This bonus lesson covers finding, purchasing, and effectively integrating third-party assets into your projects.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Navigate the Unreal Marketplace and find quality assets</li>
+                        <li>Add purchased assets to your projects</li>
+                        <li>Migrate assets between projects</li>
+                        <li>Organize and manage large asset packs</li>
+                        <li>Integrate marketplace content into your levels</li>
+                        <li>Troubleshoot common asset issues</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Basic Unreal Engine navigation (Module 1)</p>
+                </div>
+            </header>
+
+            <!-- Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#finding-assets" class="toc-link">Finding Assets</a></li>
+                        <li><a href="#adding-to-project" class="toc-link">Adding Assets to Your Project</a></li>
+                        <li><a href="#migrating-assets" class="toc-link">Migrating Assets Between Projects</a></li>
+                        <li><a href="#organizing-assets" class="toc-link">Organizing Asset Packs</a></li>
+                        <li><a href="#using-assets" class="toc-link">Using Assets in Your Levels</a></li>
+                        <li><a href="#troubleshooting" class="toc-link">Troubleshooting Common Issues</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Finding Assets -->
+            <section id="finding-assets" class="lesson-section">
+                <h2>Finding Assets</h2>
+
+                <p>Before you can use marketplace assets, you need to know where to find them. There are several sources for Unreal Engine assets, each with its own strengths.</p>
+
+                <h3>The Unreal Marketplace</h3>
+
+                <p>The official <strong>Unreal Marketplace</strong> (also called Fab, formerly the Epic Games Marketplace) is your primary source for high-quality, verified assets. Access it through:</p>
+
+                <ul>
+                    <li><strong>Epic Games Launcher:</strong> Click the "Marketplace" tab</li>
+                    <li><strong>Web Browser:</strong> Visit <a href="https://www.fab.com" target="_blank" rel="noopener">fab.com</a></li>
+                    <li><strong>Inside Unreal:</strong> Window → Marketplace (opens launcher)</li>
+                </ul>
+
+                <h3>Asset Categories</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Category</th>
+                            <th style="padding: 10px; text-align: left;">Examples</th>
+                            <th style="padding: 10px; text-align: left;">Use Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Environments</td>
+                            <td style="padding: 10px;">Forests, cities, interiors, landscapes</td>
+                            <td style="padding: 10px;">Level design, backgrounds</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Characters</td>
+                            <td style="padding: 10px;">Humanoids, creatures, NPCs</td>
+                            <td style="padding: 10px;">Players, enemies, crowds</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Props</td>
+                            <td style="padding: 10px;">Furniture, weapons, vehicles</td>
+                            <td style="padding: 10px;">World decoration, gameplay items</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Materials</td>
+                            <td style="padding: 10px;">PBR materials, shaders, textures</td>
+                            <td style="padding: 10px;">Surface appearance</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Blueprints</td>
+                            <td style="padding: 10px;">Systems, tools, gameplay mechanics</td>
+                            <td style="padding: 10px;">Functionality, AI, UI</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Audio</td>
+                            <td style="padding: 10px;">Sound effects, music, ambience</td>
+                            <td style="padding: 10px;">Game audio</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">VFX</td>
+                            <td style="padding: 10px;">Particles, explosions, magic</td>
+                            <td style="padding: 10px;">Visual effects</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Free Assets</h3>
+
+                <p>Epic Games provides many free assets:</p>
+
+                <ul>
+                    <li><strong>Free Monthly Content:</strong> Epic releases free assets each month—claim them to keep forever</li>
+                    <li><strong>Permanently Free Collection:</strong> Search "Free" in the marketplace</li>
+                    <li><strong>Sample Projects:</strong> Lyra, Valley of the Ancient, City Sample contain reusable assets</li>
+                    <li><strong>Megascans:</strong> Thousands of free photogrammetry assets via Quixel Bridge</li>
+                </ul>
+
+                <!-- SVG: Asset Sources -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Asset Sources for Unreal Engine</text>
+                    
+                    <!-- Fab/Marketplace -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="160" height="80" rx="8" fill="#667eea"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Fab Marketplace</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#c5cae9" font-size="8">Official store</text>
+                        <text x="80" y="60" text-anchor="middle" fill="#c5cae9" font-size="8">Verified quality</text>
+                        <text x="80" y="75" text-anchor="middle" fill="#c5cae9" font-size="8">Direct integration</text>
+                    </g>
+                    
+                    <!-- Quixel -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="160" height="80" rx="8" fill="#4CAF50"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Quixel Megascans</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#c8e6c9" font-size="8">Free for UE users</text>
+                        <text x="80" y="60" text-anchor="middle" fill="#c8e6c9" font-size="8">Photogrammetry</text>
+                        <text x="80" y="75" text-anchor="middle" fill="#c8e6c9" font-size="8">Via Quixel Bridge</text>
+                    </g>
+                    
+                    <!-- Sample Projects -->
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="160" height="80" rx="8" fill="#FF9800"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Sample Projects</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#fff3e0" font-size="8">Lyra, City Sample</text>
+                        <text x="80" y="60" text-anchor="middle" fill="#fff3e0" font-size="8">Production quality</text>
+                        <text x="80" y="75" text-anchor="middle" fill="#fff3e0" font-size="8">Learning resource</text>
+                    </g>
+                    
+                    <!-- Third Party -->
+                    <g transform="translate(590, 50)">
+                        <rect x="0" y="0" width="160" height="80" rx="8" fill="#9C27B0"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Third-Party Sites</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#e1bee7" font-size="8">Sketchfab, Turbosquid</text>
+                        <text x="80" y="60" text-anchor="middle" fill="#e1bee7" font-size="8">More variety</text>
+                        <text x="80" y="75" text-anchor="middle" fill="#e1bee7" font-size="8">Check licenses!</text>
+                    </g>
+                    
+                    <!-- Arrow to project -->
+                    <path d="M 400 140 L 400 165" stroke="#333" stroke-width="2" marker-end="url(#sourceArrow)"/>
+                    <rect x="300" y="165" width="200" height="30" rx="5" fill="#2196F3"/>
+                    <text x="400" y="185" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Your Unreal Project</text>
+                    
+                    <defs>
+                        <marker id="sourceArrow" markerWidth="8" markerHeight="6" refX="4" refY="6" orient="auto">
+                            <polygon points="0 0, 8 0, 4 6" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Multiple sources for Unreal Engine assets.</em></p>
+
+                <h3>Evaluating Asset Quality</h3>
+
+                <p>Before purchasing, check these quality indicators:</p>
+
+                <ul>
+                    <li><strong>Reviews and Ratings:</strong> Read user feedback carefully</li>
+                    <li><strong>Screenshots/Videos:</strong> Look for in-engine footage, not just renders</li>
+                    <li><strong>Technical Details:</strong> Polygon counts, texture sizes, LOD support</li>
+                    <li><strong>UE Version:</strong> Ensure compatibility with your engine version</li>
+                    <li><strong>Documentation:</strong> Quality packs include setup guides</li>
+                    <li><strong>Support:</strong> Active seller with update history</li>
+                </ul>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ License Considerations</h4>
+                    <p>Always check the license terms:</p>
+                    <ul>
+                        <li><strong>Marketplace assets:</strong> Generally licensed for use in any UE project</li>
+                        <li><strong>Third-party sites:</strong> Licenses vary—some restrict commercial use</li>
+                        <li><strong>Sample projects:</strong> Usually for learning; check redistribution terms</li>
+                        <li><strong>Megascans:</strong> Free for Unreal Engine projects only</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 2: Adding Assets to Your Project -->
+            <section id="adding-to-project" class="lesson-section">
+                <h2>Adding Assets to Your Project</h2>
+
+                <p>Once you've purchased or claimed assets, you need to add them to your project. The method depends on the asset source.</p>
+
+                <h3>From the Unreal Marketplace (Epic Games Launcher)</h3>
+
+                <ol>
+                    <li>Open the <strong>Epic Games Launcher</strong></li>
+                    <li>Go to <strong>Library</strong> → <strong>Vault</strong></li>
+                    <li>Find your purchased asset</li>
+                    <li>Click <strong>Add to Project</strong></li>
+                    <li>Select your project from the dropdown</li>
+                    <li>Click <strong>Add to Project</strong> again</li>
+                    <li>Wait for download and installation</li>
+                    <li>Open your project—assets appear in Content Browser</li>
+                </ol>
+
+                <!-- SVG: Add to Project Flow -->
+                <svg width="100%" height="140" viewBox="0 0 800 140" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Adding Marketplace Assets</text>
+                    
+                    <g transform="translate(40, 50)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#667eea"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Epic Launcher</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#c5cae9" font-size="7">Library → Vault</text>
+                    </g>
+                    
+                    <path d="M 175 80 L 210 80" stroke="#fff" stroke-width="2" marker-end="url(#addArrow)"/>
+                    
+                    <g transform="translate(215, 50)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#FF9800"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Find Asset</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#fff3e0" font-size="7">In your vault</text>
+                    </g>
+                    
+                    <path d="M 350 80 L 385 80" stroke="#fff" stroke-width="2" marker-end="url(#addArrow)"/>
+                    
+                    <g transform="translate(390, 50)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#9C27B0"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Add to Project</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#e1bee7" font-size="7">Select project</text>
+                    </g>
+                    
+                    <path d="M 525 80 L 560 80" stroke="#fff" stroke-width="2" marker-end="url(#addArrow)"/>
+                    
+                    <g transform="translate(565, 50)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Open Project</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#c8e6c9" font-size="7">Assets in Content</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="addArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#fff"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The workflow for adding marketplace assets to your project.</em></p>
+
+                <h3>Creating a New Project with Assets</h3>
+
+                <p>Alternatively, you can create a new project directly from an asset:</p>
+
+                <ol>
+                    <li>In the Vault, click <strong>Create Project</strong> on the asset</li>
+                    <li>Choose project location and name</li>
+                    <li>This creates a project with the asset pre-installed</li>
+                </ol>
+
+                <h3>Using Quixel Bridge for Megascans</h3>
+
+                <ol>
+                    <li>Download and install <strong>Quixel Bridge</strong></li>
+                    <li>Sign in with your Epic Games account</li>
+                    <li>Browse the Megascans library</li>
+                    <li>Click <strong>Download</strong> on assets you want</li>
+                    <li>Select quality level (affects file size)</li>
+                    <li>Click <strong>Export</strong> → Select your UE project</li>
+                    <li>Assets appear in Content Browser under Megascans folder</li>
+                </ol>
+
+                <h3>Importing Third-Party Assets</h3>
+
+                <p>For assets from external sources (FBX, OBJ files):</p>
+
+                <ol>
+                    <li>In Content Browser, click <strong>Import</strong> or drag files in</li>
+                    <li>Configure import settings (scale, materials, etc.)</li>
+                    <li>Click <strong>Import All</strong></li>
+                    <li>Textures and materials may need manual setup</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Pro Tip: Create to Vault First</h4>
+                    <p>For large asset packs, consider creating a "vault project"—a dedicated project just for storing marketplace assets. Then migrate only what you need to your actual projects. This keeps your working projects lean and organized.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Migrating Assets -->
+            <section id="migrating-assets" class="lesson-section">
+                <h2>Migrating Assets Between Projects</h2>
+
+                <p>Migration lets you copy assets from one project to another while preserving all dependencies (materials, textures, Blueprints, etc.).</p>
+
+                <h3>When to Migrate</h3>
+
+                <ul>
+                    <li>Moving specific assets from a marketplace pack to your project</li>
+                    <li>Copying content from sample projects</li>
+                    <li>Sharing assets between your own projects</li>
+                    <li>Creating a "clean" version with only needed assets</li>
+                </ul>
+
+                <h3>How to Migrate</h3>
+
+                <ol>
+                    <li>Open the <strong>source project</strong> (with the assets)</li>
+                    <li>In Content Browser, select the asset(s) to migrate</li>
+                    <li>Right-click → <strong>Asset Actions → Migrate</strong></li>
+                    <li>Review the dependency list (all connected assets)</li>
+                    <li>Click <strong>OK</strong></li>
+                    <li>Navigate to your <strong>destination project's Content folder</strong></li>
+                    <li>Click <strong>Select Folder</strong></li>
+                    <li>Assets are copied to the destination</li>
+                </ol>
+
+                <!-- SVG: Migration Process -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Asset Migration Process</text>
+                    
+                    <!-- Source Project -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#667eea"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Source Project</text>
+                        
+                        <!-- Assets -->
+                        <rect x="20" y="40" width="70" height="30" rx="3" fill="#fff" opacity="0.9"/>
+                        <text x="55" y="60" text-anchor="middle" fill="#667eea" font-size="7">Chair Mesh</text>
+                        
+                        <rect x="110" y="40" width="70" height="30" rx="3" fill="#fff" opacity="0.9"/>
+                        <text x="145" y="60" text-anchor="middle" fill="#667eea" font-size="7">Wood Mat</text>
+                        
+                        <rect x="20" y="80" width="70" height="30" rx="3" fill="#fff" opacity="0.9"/>
+                        <text x="55" y="100" text-anchor="middle" fill="#667eea" font-size="7">Texture</text>
+                        
+                        <rect x="110" y="80" width="70" height="30" rx="3" fill="#fff" opacity="0.9"/>
+                        <text x="145" y="100" text-anchor="middle" fill="#667eea" font-size="7">Normal</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <g transform="translate(270, 100)">
+                        <path d="M 0 0 L 130 0" stroke="#4CAF50" stroke-width="3" marker-end="url(#migrateArrow)"/>
+                        <text x="65" y="-10" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Migrate</text>
+                        <text x="65" y="20" text-anchor="middle" fill="#666" font-size="7">All dependencies included</text>
+                    </g>
+                    
+                    <!-- Destination Project -->
+                    <g transform="translate(420, 50)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#4CAF50"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Destination Project</text>
+                        
+                        <!-- Assets copied -->
+                        <rect x="20" y="40" width="70" height="30" rx="3" fill="#fff" opacity="0.9"/>
+                        <text x="55" y="60" text-anchor="middle" fill="#4CAF50" font-size="7">Chair Mesh ✓</text>
+                        
+                        <rect x="110" y="40" width="70" height="30" rx="3" fill="#fff" opacity="0.9"/>
+                        <text x="145" y="60" text-anchor="middle" fill="#4CAF50" font-size="7">Wood Mat ✓</text>
+                        
+                        <rect x="20" y="80" width="70" height="30" rx="3" fill="#fff" opacity="0.9"/>
+                        <text x="55" y="100" text-anchor="middle" fill="#4CAF50" font-size="7">Texture ✓</text>
+                        
+                        <rect x="110" y="80" width="70" height="30" rx="3" fill="#fff" opacity="0.9"/>
+                        <text x="145" y="100" text-anchor="middle" fill="#4CAF50" font-size="7">Normal ✓</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="migrateArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                            <polygon points="0 0, 10 4, 0 8" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Migration automatically includes all dependencies.</em></p>
+
+                <h3>Migration Tips</h3>
+
+                <ul>
+                    <li><strong>Select the top-level asset:</strong> Dependencies are found automatically</li>
+                    <li><strong>Review the list:</strong> Make sure you need everything listed</li>
+                    <li><strong>Target the Content folder:</strong> Always migrate to the root Content folder</li>
+                    <li><strong>Close destination project:</strong> For best results, have only source open</li>
+                    <li><strong>Check folder structure:</strong> Assets keep their original folder hierarchy</li>
+                </ul>
+
+                <div class="card" style="background: #ffebee; border-left: 4px solid #f44336;">
+                    <h4>⚠️ Important: Target the Right Folder</h4>
+                    <p>When selecting the destination, navigate to the project's <strong>Content</strong> folder specifically—not the project root. The path should end with <code>/YourProject/Content</code>. Migrating to the wrong folder can cause reference issues.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Organizing Assets -->
+            <section id="organizing-assets" class="lesson-section">
+                <h2>Organizing Asset Packs</h2>
+
+                <p>Large marketplace packs can contain hundreds of files. Good organization is essential for maintaining a usable project.</p>
+
+                <h3>Typical Asset Pack Structure</h3>
+
+                <p>Most marketplace packs follow a structure like this:</p>
+
+                <pre style="background: #2d2d2d; color: #fff; padding: 1rem; border-radius: 5px; overflow-x: auto;">
+Content/
+├── PackName/
+│   ├── Blueprints/
+│   │   └── BP_InteractiveItem.uasset
+│   ├── Maps/
+│   │   ├── DemoMap.umap
+│   │   └── OverviewMap.umap
+│   ├── Materials/
+│   │   ├── M_Wood.uasset
+│   │   └── MI_Wood_Oak.uasset
+│   ├── Meshes/
+│   │   ├── SM_Chair.uasset
+│   │   └── SM_Table.uasset
+│   ├── Textures/
+│   │   ├── T_Wood_D.uasset
+│   │   ├── T_Wood_N.uasset
+│   │   └── T_Wood_ORM.uasset
+│   └── Documentation/
+│       └── ReadMe.pdf
+</pre>
+
+                <h3>Organization Strategies</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Strategy</th>
+                            <th style="padding: 10px; text-align: left;">When to Use</th>
+                            <th style="padding: 10px; text-align: left;">Pros/Cons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Keep Original Structure</td>
+                            <td style="padding: 10px;">Using entire pack as-is</td>
+                            <td style="padding: 10px;">Easy updates, may clutter browser</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Migrate Selected Assets</td>
+                            <td style="padding: 10px;">Using only some assets</td>
+                            <td style="padding: 10px;">Smaller project, more work</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Create MarketplaceAssets Folder</td>
+                            <td style="padding: 10px;">Multiple packs</td>
+                            <td style="padding: 10px;">Clear separation, easy to find</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Reorganize by Usage</td>
+                            <td style="padding: 10px;">Heavy customization</td>
+                            <td style="padding: 10px;">Best workflow, breaks updates</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Using Collections</h3>
+
+                <p>Collections let you organize assets without moving files:</p>
+
+                <ol>
+                    <li>In Content Browser, right-click an asset</li>
+                    <li>Select <strong>Add to Collection</strong></li>
+                    <li>Create a new collection or add to existing</li>
+                    <li>Access collections from the left panel</li>
+                </ol>
+
+                <p>Collections are like playlists—the same asset can be in multiple collections without duplication.</p>
+
+                <h3>Filtering the Content Browser</h3>
+
+                <p>Use filters to find assets quickly:</p>
+
+                <ul>
+                    <li><strong>Type Filter:</strong> Click <strong>Filters</strong> → Select asset types (Static Mesh, Material, etc.)</li>
+                    <li><strong>Search:</strong> Type in the search bar to filter by name</li>
+                    <li><strong>View Options:</strong> Adjust thumbnail size, list view, show/hide folders</li>
+                    <li><strong>Recent:</strong> Content Browser → View → Recent Assets</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Best Practice: Demo Maps</h4>
+                    <p>Most marketplace packs include demo maps showing how assets are intended to be used. Always explore these first! They demonstrate proper material setup, lighting, and placement. You can copy setups directly from demo maps into your own levels.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Using Assets in Levels -->
+            <section id="using-assets" class="lesson-section">
+                <h2>Using Assets in Your Levels</h2>
+
+                <p>Now for the fun part—actually using the assets in your game!</p>
+
+                <h3>Placing Static Meshes</h3>
+
+                <ol>
+                    <li>Find the mesh in Content Browser</li>
+                    <li>Drag it into the viewport</li>
+                    <li>Use transform tools to position (W), rotate (E), scale (R)</li>
+                    <li>Adjust in Details panel for precise values</li>
+                </ol>
+
+                <h3>Applying Materials</h3>
+
+                <p>If a mesh needs a different material:</p>
+
+                <ol>
+                    <li>Select the mesh in the viewport</li>
+                    <li>In Details, find <strong>Materials</strong> section</li>
+                    <li>Click the dropdown for any material slot</li>
+                    <li>Search or browse for the new material</li>
+                    <li>Or drag a material from Content Browser onto the mesh</li>
+                </ol>
+
+                <h3>Using Material Instances</h3>
+
+                <p>Many packs include Material Instances for customization:</p>
+
+                <ol>
+                    <li>Find Material Instances (usually prefixed MI_)</li>
+                    <li>Double-click to open</li>
+                    <li>Adjust exposed parameters (colors, values, textures)</li>
+                    <li>Create your own instances: Right-click base material → <strong>Create Material Instance</strong></li>
+                </ol>
+
+                <h3>Using Blueprint Actors</h3>
+
+                <p>Some packs include interactive Blueprint actors:</p>
+
+                <ol>
+                    <li>Find Blueprints (usually prefixed BP_)</li>
+                    <li>Drag into level like any other asset</li>
+                    <li>Select and check Details panel for configurable options</li>
+                    <li>Read the pack's documentation for setup instructions</li>
+                </ol>
+
+                <h3>Working with Character Assets</h3>
+
+                <p>For character/skeletal mesh assets:</p>
+
+                <ol>
+                    <li>Check if animations are included</li>
+                    <li>Look for Animation Blueprints (ABP_) for animated characters</li>
+                    <li>May need to set up in your Character Blueprint</li>
+                    <li>Retargeting may be needed for custom animations</li>
+                </ol>
+
+                <!-- SVG: Asset Usage Flow -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Using Assets in Your Level</text>
+                    
+                    <!-- Content Browser -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="140" height="100" rx="5" fill="#667eea"/>
+                        <text x="70" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Content Browser</text>
+                        <rect x="15" y="35" width="50" height="25" rx="3" fill="#fff" opacity="0.8"/>
+                        <text x="40" y="52" text-anchor="middle" fill="#667eea" font-size="6">Mesh</text>
+                        <rect x="75" y="35" width="50" height="25" rx="3" fill="#fff" opacity="0.8"/>
+                        <text x="100" y="52" text-anchor="middle" fill="#667eea" font-size="6">Material</text>
+                        <rect x="15" y="68" width="50" height="25" rx="3" fill="#fff" opacity="0.8"/>
+                        <text x="40" y="85" text-anchor="middle" fill="#667eea" font-size="6">Blueprint</text>
+                        <rect x="75" y="68" width="50" height="25" rx="3" fill="#fff" opacity="0.8"/>
+                        <text x="100" y="85" text-anchor="middle" fill="#667eea" font-size="6">Sound</text>
+                    </g>
+                    
+                    <!-- Drag Arrow -->
+                    <g transform="translate(200, 95)">
+                        <path d="M 0 0 L 80 0" stroke="#4CAF50" stroke-width="3" stroke-dasharray="5,5" marker-end="url(#useArrow)"/>
+                        <text x="40" y="-10" text-anchor="middle" fill="#4CAF50" font-size="8" font-weight="bold">Drag</text>
+                    </g>
+                    
+                    <!-- Viewport -->
+                    <g transform="translate(290, 50)">
+                        <rect x="0" y="0" width="200" height="100" rx="5" fill="#4CAF50"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Viewport (Level)</text>
+                        <rect x="20" y="35" width="160" height="55" rx="3" fill="#2E7D32"/>
+                        <text x="100" y="65" text-anchor="middle" fill="#c8e6c9" font-size="8">Assets placed in world</text>
+                        <text x="100" y="80" text-anchor="middle" fill="#c8e6c9" font-size="7">Transform, customize, interact</text>
+                    </g>
+                    
+                    <!-- Details Arrow -->
+                    <g transform="translate(500, 95)">
+                        <path d="M 0 0 L 80 0" stroke="#FF9800" stroke-width="2" marker-end="url(#useArrow2)"/>
+                        <text x="40" y="-10" text-anchor="middle" fill="#FF9800" font-size="8">Customize</text>
+                    </g>
+                    
+                    <!-- Details Panel -->
+                    <g transform="translate(590, 50)">
+                        <rect x="0" y="0" width="150" height="100" rx="5" fill="#FF9800"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Details Panel</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#fff3e0" font-size="7">Transform</text>
+                        <text x="75" y="60" text-anchor="middle" fill="#fff3e0" font-size="7">Materials</text>
+                        <text x="75" y="75" text-anchor="middle" fill="#fff3e0" font-size="7">Properties</text>
+                        <text x="75" y="90" text-anchor="middle" fill="#fff3e0" font-size="7">Components</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="useArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                        <marker id="useArrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#FF9800"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The workflow for placing and customizing assets.</em></p>
+
+                <h3>Combining Assets from Different Packs</h3>
+
+                <p>You can mix assets from multiple sources:</p>
+
+                <ul>
+                    <li><strong>Style Matching:</strong> Choose packs with similar art styles</li>
+                    <li><strong>Scale Consistency:</strong> Check that assets use the same scale</li>
+                    <li><strong>Material Compatibility:</strong> May need to adjust materials for consistency</li>
+                    <li><strong>Lighting:</strong> Unified lighting helps blend different assets</li>
+                </ul>
+            </section>
+
+            <!-- Section 6: Troubleshooting -->
+            <section id="troubleshooting" class="lesson-section">
+                <h2>Troubleshooting Common Issues</h2>
+
+                <p>Marketplace assets don't always work perfectly out of the box. Here are common issues and solutions.</p>
+
+                <h3>Common Problems and Solutions</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #f44336; color: white;">
+                            <th style="padding: 10px; text-align: left;">Problem</th>
+                            <th style="padding: 10px; text-align: left;">Cause</th>
+                            <th style="padding: 10px; text-align: left;">Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Assets show pink/magenta</td>
+                            <td style="padding: 10px;">Missing materials or textures</td>
+                            <td style="padding: 10px;">Reimport, check dependencies migrated</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Wrong scale (too big/small)</td>
+                            <td style="padding: 10px;">Different unit conventions</td>
+                            <td style="padding: 10px;">Scale in Details or reimport with different scale</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Blueprints have errors</td>
+                            <td style="padding: 10px;">Missing plugin or version mismatch</td>
+                            <td style="padding: 10px;">Enable required plugins, check UE version</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Assets not appearing in browser</td>
+                            <td style="padding: 10px;">Wrong folder or filter active</td>
+                            <td style="padding: 10px;">Clear filters, check correct project</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Collision issues</td>
+                            <td style="padding: 10px;">No collision setup or wrong type</td>
+                            <td style="padding: 10px;">Generate collision in Static Mesh editor</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Performance problems</td>
+                            <td style="padding: 10px;">High poly counts, no LODs</td>
+                            <td style="padding: 10px;">Use LODs, enable Nanite if compatible</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Materials look different</td>
+                            <td style="padding: 10px;">Lighting or rendering differences</td>
+                            <td style="padding: 10px;">Check project rendering settings match pack</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Missing Reference Errors</h3>
+
+                <p>If you see "Can't find file" or broken references:</p>
+
+                <ol>
+                    <li>Open <strong>Window → Developer Tools → Asset Audit</strong></li>
+                    <li>Or right-click problematic asset → <strong>Reference Viewer</strong></li>
+                    <li>Identify what's missing</li>
+                    <li>Re-migrate the missing dependencies</li>
+                    <li>Or use <strong>Fix Up Redirectors</strong> if assets were moved</li>
+                </ol>
+
+                <h3>Version Compatibility</h3>
+
+                <p>When assets are made for a different UE version:</p>
+
+                <ul>
+                    <li><strong>Newer to Older:</strong> May not work; features may be missing</li>
+                    <li><strong>Older to Newer:</strong> Usually works; may need material updates</li>
+                    <li><strong>Check Documentation:</strong> Pack may have migration notes</li>
+                    <li><strong>Contact Seller:</strong> They may provide updated versions</li>
+                </ul>
+
+                <h3>Generating Collision</h3>
+
+                <p>If meshes have no collision:</p>
+
+                <ol>
+                    <li>Double-click the Static Mesh to open editor</li>
+                    <li>Go to <strong>Collision</strong> menu</li>
+                    <li>Choose collision type:
+                        <ul>
+                            <li><strong>Add Box Simplified Collision:</strong> Fast, simple</li>
+                            <li><strong>Add Convex Collision:</strong> Better fit</li>
+                            <li><strong>Auto Convex Collision:</strong> Complex shapes</li>
+                            <li><strong>Use Complex as Simple:</strong> Exact mesh shape (expensive)</li>
+                        </ul>
+                    </li>
+                    <li>Save the mesh</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Check the Documentation</h4>
+                    <p>Quality marketplace packs include documentation (often a PDF or text file in the pack folder). This usually covers setup instructions, known issues, and tips. Always read it before troubleshooting!</p>
+                </div>
+            </section>
+
+            <!-- Section 7: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Adding and Using Marketplace Assets</h2>
+
+                <p>Let's practice the complete workflow of adding marketplace assets to a project and using them in a level.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Claim a free marketplace asset, add it to your project, explore its contents, and place assets in your level.</p>
+                </div>
+
+                <h3>Part 1: Claim a Free Asset</h3>
+
+                <ol>
+                    <li>Open the <strong>Epic Games Launcher</strong></li>
+                    <li>Go to <strong>Marketplace</strong> tab</li>
+                    <li>Search for <strong>"Free"</strong> or browse <strong>Free → For This Month</strong></li>
+                    <li>Find an environment or prop pack you like</li>
+                    <li>Click <strong>Free</strong> to claim it (adds to your vault)</li>
+                </ol>
+
+                <p><em>Suggestion: Look for packs like "Souls-like Interior," "Modular Building Set," or any current free monthly content.</em></p>
+
+                <h3>Part 2: Add to Your Project</h3>
+
+                <ol>
+                    <li>In the Launcher, go to <strong>Library → Vault</strong></li>
+                    <li>Find the pack you just claimed</li>
+                    <li>Click <strong>Add to Project</strong></li>
+                    <li>Select your existing project (or create a new one)</li>
+                    <li>Click <strong>Add to Project</strong></li>
+                    <li>Wait for the download and installation</li>
+                </ol>
+
+                <h3>Part 3: Explore the Asset Pack</h3>
+
+                <ol>
+                    <li>Open your project in Unreal Editor</li>
+                    <li>In Content Browser, find the new folder for the pack</li>
+                    <li>Explore the folder structure:
+                        <ul>
+                            <li>Look for <strong>Maps</strong> folder—open demo maps</li>
+                            <li>Check <strong>Meshes</strong> for 3D models</li>
+                            <li>Browse <strong>Materials</strong> for material setups</li>
+                            <li>Look for <strong>Documentation</strong> or ReadMe files</li>
+                        </ul>
+                    </li>
+                    <li>Open a demo map if available—study how assets are used</li>
+                </ol>
+
+                <h3>Part 4: Place Assets in Your Level</h3>
+
+                <ol>
+                    <li>Open or create a level to work in</li>
+                    <li>Find a static mesh you want to use</li>
+                    <li>Drag it from Content Browser into the viewport</li>
+                    <li>Position it using transform tools (W, E, R)</li>
+                    <li>Add more assets to build a small scene</li>
+                    <li>Try different materials on the same mesh</li>
+                </ol>
+
+                <h3>Part 5: Customize an Asset</h3>
+
+                <ol>
+                    <li>Select a placed mesh in the viewport</li>
+                    <li>In Details panel, find <strong>Materials</strong></li>
+                    <li>Try swapping to a different material from the pack</li>
+                    <li>If the pack has Material Instances:
+                        <ul>
+                            <li>Create a copy (right-click → Duplicate)</li>
+                            <li>Open and adjust parameters</li>
+                            <li>Apply your customized instance to the mesh</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Part 6: Migration Practice (Optional)</h3>
+
+                <p>If you want to practice migration:</p>
+
+                <ol>
+                    <li>Create a new empty project</li>
+                    <li>In your original project, select a few assets</li>
+                    <li>Right-click → <strong>Asset Actions → Migrate</strong></li>
+                    <li>Navigate to the new project's Content folder</li>
+                    <li>Complete the migration</li>
+                    <li>Open the new project and verify assets work</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've successfully:</p>
+                    <ul>
+                        <li>Claimed a free marketplace asset</li>
+                        <li>Added it to your project</li>
+                        <li>Explored the pack structure</li>
+                        <li>Placed and customized assets in your level</li>
+                    </ul>
+                    <p>You now have the skills to leverage the vast library of marketplace content!</p>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ul>
+                    <li><strong>Quixel Bridge:</strong> Install Bridge and import some Megascans assets</li>
+                    <li><strong>Mix Packs:</strong> Combine assets from two different packs in one scene</li>
+                    <li><strong>Create Variants:</strong> Make 3+ material instance variants of one material</li>
+                    <li><strong>Build a Room:</strong> Use modular pieces to construct a complete interior</li>
+                </ul>
+            </section>
+
+            <!-- Section 8: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>Marketplace assets are a powerful way to accelerate your game development. Whether you're prototyping, learning, or building a commercial project, knowing how to find, add, and use third-party content is an essential skill.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Finding Assets:</strong> The Fab Marketplace (formerly Epic Games Marketplace) is your primary source for verified UE assets. Quixel Megascans provides free photogrammetry content. Always check reviews, compatibility, and licenses before purchasing.</p>
+
+                <p><strong>Adding to Projects:</strong> Use the Epic Games Launcher's Vault to add purchased assets to your projects. Assets appear in your Content Browser after installation. Quixel Bridge provides a streamlined workflow for Megascans.</p>
+
+                <p><strong>Migration:</strong> Use the Migrate feature to copy specific assets between projects. Migration automatically includes all dependencies. Always target the destination project's Content folder.</p>
+
+                <p><strong>Organization:</strong> Keep asset packs organized using folders and collections. Explore demo maps to understand intended usage. Use Content Browser filters to find assets quickly.</p>
+
+                <p><strong>Using Assets:</strong> Drag assets from Content Browser to place in levels. Customize with transform tools and material swaps. Read pack documentation for setup instructions and tips.</p>
+
+                <h3>Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Task</th>
+                            <th style="padding: 10px; text-align: left;">Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Find assets</td>
+                            <td style="padding: 10px;">Fab Marketplace, Quixel Bridge, sample projects</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Add to project</td>
+                            <td style="padding: 10px;">Launcher → Library → Vault → Add to Project</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Migrate assets</td>
+                            <td style="padding: 10px;">Right-click → Asset Actions → Migrate</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Place in level</td>
+                            <td style="padding: 10px;">Drag from Content Browser to viewport</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Change material</td>
+                            <td style="padding: 10px;">Details → Materials → Select new material</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Generate collision</td>
+                            <td style="padding: 10px;">Static Mesh Editor → Collision menu</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Check compatibility:</strong> Verify UE version before purchasing</li>
+                    <li><strong>Read reviews:</strong> Learn from others' experiences</li>
+                    <li><strong>Explore demos:</strong> Study how assets are meant to be used</li>
+                    <li><strong>Read documentation:</strong> Most issues are covered in ReadMe files</li>
+                    <li><strong>Start with free:</strong> Practice with free assets before buying</li>
+                    <li><strong>Migrate selectively:</strong> Only bring what you need to keep projects lean</li>
+                    <li><strong>Back up before adding:</strong> Large packs can be hard to remove</li>
+                    <li><strong>Match art styles:</strong> Choose packs that work together visually</li>
+                </ul>
+
+                <!-- Summary SVG -->
+                <svg width="100%" height="160" viewBox="0 0 800 160" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Marketplace Asset Workflow</text>
+                    
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="120" height="70" rx="8" fill="#667eea"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">1. Find</text>
+                        <text x="60" y="45" text-anchor="middle" fill="#c5cae9" font-size="7">Browse marketplace</text>
+                        <text x="60" y="58" text-anchor="middle" fill="#c5cae9" font-size="7">Check reviews</text>
+                    </g>
+                    
+                    <path d="M 175 85 L 205 85" stroke="#333" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <g transform="translate(210, 50)">
+                        <rect x="0" y="0" width="120" height="70" rx="8" fill="#4CAF50"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">2. Add</text>
+                        <text x="60" y="45" text-anchor="middle" fill="#c8e6c9" font-size="7">Vault → Project</text>
+                        <text x="60" y="58" text-anchor="middle" fill="#c8e6c9" font-size="7">Or migrate</text>
+                    </g>
+                    
+                    <path d="M 335 85 L 365 85" stroke="#333" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <g transform="translate(370, 50)">
+                        <rect x="0" y="0" width="120" height="70" rx="8" fill="#FF9800"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">3. Explore</text>
+                        <text x="60" y="45" text-anchor="middle" fill="#fff3e0" font-size="7">Demo maps</text>
+                        <text x="60" y="58" text-anchor="middle" fill="#fff3e0" font-size="7">Documentation</text>
+                    </g>
+                    
+                    <path d="M 495 85 L 525 85" stroke="#333" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <g transform="translate(530, 50)">
+                        <rect x="0" y="0" width="120" height="70" rx="8" fill="#9C27B0"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">4. Use</text>
+                        <text x="60" y="45" text-anchor="middle" fill="#e1bee7" font-size="7">Place in level</text>
+                        <text x="60" y="58" text-anchor="middle" fill="#e1bee7" font-size="7">Customize</text>
+                    </g>
+                    
+                    <path d="M 655 85 L 685 85" stroke="#333" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <g transform="translate(690, 50)">
+                        <rect x="0" y="0" width="70" height="70" rx="35" fill="#2196F3"/>
+                        <text x="35" y="40" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">🎮</text>
+                        <text x="35" y="55" text-anchor="middle" fill="#bbdefb" font-size="7">Create!</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="sumArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The complete workflow from finding assets to using them in your game.</em></p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Where do you find purchased marketplace assets after claiming them?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> In your project's Content folder automatically</label>
+                            <label><input type="radio" name="q1" value="b"> Epic Games Launcher → Library → Vault</label>
+                            <label><input type="radio" name="q1" value="c"> Unreal Editor → Window → Marketplace</label>
+                            <label><input type="radio" name="q1" value="d"> Downloads folder on your computer</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Purchased and claimed assets appear in the Vault section of the Epic Games Launcher's Library. From there, you can add them to specific projects.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>When migrating assets, what folder should you select as the destination?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> The project's root folder</label>
+                            <label><input type="radio" name="q2" value="b"> The project's Content folder</label>
+                            <label><input type="radio" name="q2" value="c"> Any folder you want</label>
+                            <label><input type="radio" name="q2" value="d"> The Saved folder</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Always migrate to the destination project's Content folder. Migrating to the wrong location can cause reference issues and missing assets.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What does migration automatically include when you select an asset?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Only the selected asset</label>
+                            <label><input type="radio" name="q3" value="b"> The asset and all its dependencies</label>
+                            <label><input type="radio" name="q3" value="c"> The entire folder containing the asset</label>
+                            <label><input type="radio" name="q3" value="d"> Only textures and materials</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Migration automatically finds and includes all dependencies (materials, textures, referenced Blueprints, etc.) needed for the asset to work properly.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What does it usually mean when assets appear pink/magenta in your level?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> The lighting is too bright</label>
+                            <label><input type="radio" name="q4" value="b"> Materials or textures are missing</label>
+                            <label><input type="radio" name="q4" value="c"> The asset is selected</label>
+                            <label><input type="radio" name="q4" value="d"> Nanite is not enabled</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Pink/magenta is Unreal's default color for missing materials or textures. This usually means dependencies weren't migrated or paths are broken.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What source provides free photogrammetry assets for Unreal Engine users?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Sketchfab</label>
+                            <label><input type="radio" name="q5" value="b"> Turbosquid</label>
+                            <label><input type="radio" name="q5" value="c"> Quixel Megascans via Bridge</label>
+                            <label><input type="radio" name="q5" value="d"> Unity Asset Store</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Quixel Megascans, accessed through Quixel Bridge, provides thousands of free photogrammetry assets (3D scans, surfaces, vegetation) for Unreal Engine users.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What should you always check before purchasing a marketplace asset?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> File size only</label>
+                            <label><input type="radio" name="q6" value="b"> Reviews, UE version compatibility, and license terms</label>
+                            <label><input type="radio" name="q6" value="c"> Number of files in the pack</label>
+                            <label><input type="radio" name="q6" value="d"> Seller's profile picture</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Always check user reviews, UE version compatibility, and license terms before purchasing. This helps avoid compatibility issues and ensures the asset meets your needs.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>Where should you look first when learning how to use a marketplace asset pack?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> YouTube tutorials</label>
+                            <label><input type="radio" name="q7" value="b"> The pack's demo maps and documentation</label>
+                            <label><input type="radio" name="q7" value="c"> Reddit forums</label>
+                            <label><input type="radio" name="q7" value="d"> Trial and error</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Quality marketplace packs include demo maps showing intended usage and documentation covering setup instructions. These are the most reliable sources for learning to use the specific pack.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="index.html" class="btn">← Course Home</a>
+                <a href="index.html#modules" class="btn btn-outline">All Modules</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

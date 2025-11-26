@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create dynamic HUD elements in Unreal Engine 5. Learn data binding, real-time updates, and build health bars, ammo counters, and objective markers.">
+    <meta name="author" content="Practical Ace">
+    <title>HUD Elements - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 7: User Interface with UMG</a></li>
+            <li aria-current="page">Lesson 7.3: HUD Elements</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎮 HUD Elements</h1>
+                <p class="lead">A static health bar showing "75%" isn't very useful if the player actually has 30% health. Real game UI must update dynamically—health decreases when damaged, ammo counts change when firing, objectives update when completed. In this lesson, you'll learn how to connect your UI widgets to game data so they reflect the actual game state in real-time.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Bind widget properties to game data for real-time updates</li>
+                        <li>Create a health bar that reflects actual player health</li>
+                        <li>Build an ammo counter that updates when firing</li>
+                        <li>Display objective text that changes based on game progress</li>
+                        <li>Use formatting to display values appropriately</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 7.2 (Creating Widgets), Module 5 (Blueprints basics)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#data-binding" class="toc-link">Data Binding Fundamentals</a></li>
+                        <li><a href="#health-bar" class="toc-link">Creating a Dynamic Health Bar</a></li>
+                        <li><a href="#ammo-counter" class="toc-link">Ammo and Resource Counters</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Complete Player HUD</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Data Binding Fundamentals -->
+            <section id="data-binding" class="lesson-section">
+                <h2>Data Binding Fundamentals</h2>
+
+                <p><strong>Data binding</strong> connects widget properties to data sources so the UI automatically updates when data changes. Instead of manually setting a text widget's content every time health changes, you bind it once and the widget handles updates itself.</p>
+
+                <h3>Why Binding Matters</h3>
+
+                <p>Without binding, you'd need to:</p>
+                <ol>
+                    <li>Store a reference to the text widget</li>
+                    <li>Every time health changes, call Set Text</li>
+                    <li>Remember to update in every place health can change (damage, healing, pickups...)</li>
+                    <li>Risk forgetting one and having outdated UI</li>
+                </ol>
+
+                <p>With binding:</p>
+                <ol>
+                    <li>Create a binding function that returns current health</li>
+                    <li>UMG calls this function automatically each frame</li>
+                    <li>Widget always shows correct value</li>
+                </ol>
+
+                <h3>Types of Binding</h3>
+
+                <p>UMG supports several binding approaches:</p>
+
+                <p><strong>Property Binding (Function):</strong> Bind a property to a function that returns the value. Called every frame. Simple and automatic but can be expensive if the function is complex.</p>
+
+                <p><strong>Property Binding (Variable):</strong> Bind directly to a variable. Less flexible but slightly more efficient.</p>
+
+                <p><strong>Event-Driven Updates:</strong> Don't bind—instead, update the widget manually when data changes. More control, better performance for infrequent updates.</p>
+
+                <!-- SVG: Binding Approaches -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Data Binding Approaches</text>
+                    
+                    <!-- Function Binding -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="110" y="25" text-anchor="middle" fill="#1565C0" font-size="11" font-weight="bold">Function Binding</text>
+                        
+                        <rect x="20" y="40" width="80" height="30" rx="3" fill="#1976D2"/>
+                        <text x="60" y="60" text-anchor="middle" fill="#fff" font-size="8">GetHealth()</text>
+                        
+                        <path d="M 105 55 L 135 55" stroke="#1976D2" stroke-width="2" marker-end="url(#bindArrow)"/>
+                        
+                        <rect x="140" y="40" width="60" height="30" rx="3" fill="#4CAF50"/>
+                        <text x="170" y="60" text-anchor="middle" fill="#fff" font-size="8">75%</text>
+                        
+                        <text x="110" y="90" text-anchor="middle" fill="#666" font-size="7">Called every frame</text>
+                    </g>
+                    
+                    <!-- Variable Binding -->
+                    <g transform="translate(290, 55)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="110" y="25" text-anchor="middle" fill="#E65100" font-size="11" font-weight="bold">Variable Binding</text>
+                        
+                        <rect x="20" y="40" width="80" height="30" rx="3" fill="#FF9800"/>
+                        <text x="60" y="60" text-anchor="middle" fill="#fff" font-size="8">Health var</text>
+                        
+                        <path d="M 105 55 L 135 55" stroke="#FF9800" stroke-width="2" marker-end="url(#bindArrow2)"/>
+                        
+                        <rect x="140" y="40" width="60" height="30" rx="3" fill="#4CAF50"/>
+                        <text x="170" y="60" text-anchor="middle" fill="#fff" font-size="8">75%</text>
+                        
+                        <text x="110" y="90" text-anchor="middle" fill="#666" font-size="7">Direct variable reference</text>
+                    </g>
+                    
+                    <!-- Event-Driven -->
+                    <g transform="translate(530, 55)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#f3e5f5" stroke="#9C27B0"/>
+                        <text x="110" y="25" text-anchor="middle" fill="#7B1FA2" font-size="11" font-weight="bold">Event-Driven</text>
+                        
+                        <rect x="20" y="40" width="80" height="30" rx="3" fill="#9C27B0"/>
+                        <text x="60" y="60" text-anchor="middle" fill="#fff" font-size="8">OnDamage</text>
+                        
+                        <path d="M 105 55 L 135 55" stroke="#9C27B0" stroke-width="2" marker-end="url(#bindArrow3)"/>
+                        
+                        <rect x="140" y="40" width="60" height="30" rx="3" fill="#4CAF50"/>
+                        <text x="170" y="60" text-anchor="middle" fill="#fff" font-size="8">75%</text>
+                        
+                        <text x="110" y="90" text-anchor="middle" fill="#666" font-size="7">Manual Set Text call</text>
+                    </g>
+                    
+                    <!-- Comparison -->
+                    <g transform="translate(50, 175)">
+                        <rect x="0" y="0" width="700" height="80" rx="8" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="350" y="20" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">When to Use Each</text>
+                        
+                        <text x="120" y="45" text-anchor="middle" fill="#1976D2" font-size="8" font-weight="bold">Function Binding</text>
+                        <text x="120" y="60" text-anchor="middle" fill="#666" font-size="7">Simple values, frequent changes</text>
+                        <text x="120" y="72" text-anchor="middle" fill="#666" font-size="7">Health, ammo, timers</text>
+                        
+                        <text x="350" y="45" text-anchor="middle" fill="#FF9800" font-size="8" font-weight="bold">Variable Binding</text>
+                        <text x="350" y="60" text-anchor="middle" fill="#666" font-size="7">Widget-local data</text>
+                        <text x="350" y="72" text-anchor="middle" fill="#666" font-size="7">Internal state</text>
+                        
+                        <text x="580" y="45" text-anchor="middle" fill="#9C27B0" font-size="8" font-weight="bold">Event-Driven</text>
+                        <text x="580" y="60" text-anchor="middle" fill="#666" font-size="7">Infrequent changes, complex updates</text>
+                        <text x="580" y="72" text-anchor="middle" fill="#666" font-size="7">Inventory, objectives</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="bindArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#1976D2"/>
+                        </marker>
+                        <marker id="bindArrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#FF9800"/>
+                        </marker>
+                        <marker id="bindArrow3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#9C27B0"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Three approaches to connecting UI with game data.</em></p>
+
+                <h3>Creating a Property Binding</h3>
+
+                <p>To bind a widget property to a function:</p>
+
+                <ol>
+                    <li>Select the widget in Designer</li>
+                    <li>Find the property you want to bind (e.g., Text, Percent)</li>
+                    <li>Click the <strong>Bind</strong> dropdown next to the property</li>
+                    <li>Select <strong>Create Binding</strong></li>
+                    <li>A function is created—add logic to return the correct value</li>
+                </ol>
+
+                <p>The binding function must return the correct type for that property:</p>
+                <ul>
+                    <li>Text property → returns Text or String</li>
+                    <li>Percent (Progress Bar) → returns Float (0.0 to 1.0)</li>
+                    <li>Color → returns Slate Color or Linear Color</li>
+                    <li>Visibility → returns ESlateVisibility enum</li>
+                </ul>
+
+                <h3>Getting References to Game Data</h3>
+
+                <p>Your binding functions need access to game data. Common patterns:</p>
+
+                <p><strong>Get Player Character/Controller:</strong></p>
+                <pre><code>Get Player Character (index 0) → Cast to YourCharacter → Get Health</code></pre>
+
+                <p><strong>Get Game State:</strong></p>
+                <pre><code>Get Game State → Cast to YourGameState → Get Score</code></pre>
+
+                <p><strong>Cached Reference:</strong> Store reference in a variable on Event Construct, then use it in bindings. More efficient than getting reference every frame.</p>
+
+                <!-- Mermaid: Binding Flow -->
+                <pre class="mermaid">
+flowchart LR
+    W["Widget Property<br/>(Text, Percent)"] -->|"Bind"| F["Binding Function"]
+    F -->|"Every Frame"| G["Get Player Character"]
+    G --> C["Cast to MyCharacter"]
+    C --> H["Get Health"]
+    H --> R["Return Value"]
+    R -->|"Updates"| W
+    
+    style W fill:#4CAF50,color:#fff
+    style F fill:#667eea,color:#fff
+    style R fill:#FF9800,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Binding function flow—widget calls function each frame to get current value.</em></p>
+
+                <h3>Performance Considerations</h3>
+
+                <p>Bindings are called every frame, so keep them efficient:</p>
+
+                <ul>
+                    <li><strong>Cache references:</strong> Don't call Get Player Character every frame—store it once</li>
+                    <li><strong>Simple calculations:</strong> Avoid complex logic in binding functions</li>
+                    <li><strong>Consider events:</strong> For data that changes rarely, event-driven updates are more efficient</li>
+                    <li><strong>Limit bound widgets:</strong> Having 100 widgets all with bindings can add up</li>
+                </ul>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Binding Performance</h4>
+                    <p>While bindings are convenient, they're called every frame even if data hasn't changed. For a simple health bar, this is fine. For complex calculations or many bound widgets, consider caching the reference on Event Construct and using event-driven updates when performance matters.</p>
+                </div>
+
+                <h3>Formatting Bound Values</h3>
+
+                <p>Raw values often need formatting for display:</p>
+
+                <p><strong>Integer to Text:</strong> Use <code>To Text (Integer)</code> for whole numbers</p>
+
+                <p><strong>Float to Text:</strong> Use <code>To Text (Float)</code> with formatting options:</p>
+                <ul>
+                    <li>Minimum/Maximum Fractional Digits — control decimal places</li>
+                    <li>Use Grouping — add thousands separators (1,000 vs 1000)</li>
+                </ul>
+
+                <p><strong>Append/Format Text:</strong> Combine values with labels:</p>
+                <pre><code>Format Text: "Health: {0}%" with Health value = "Health: 75%"</code></pre>
+
+                <p><strong>Percentage Display:</strong> Multiply 0-1 value by 100 for percentage:</p>
+                <pre><code>Health (0.75) × 100 = 75 → "75%"</code></pre>
+            </section>
+
+            <!-- Section 2: Creating a Dynamic Health Bar -->
+            <section id="health-bar" class="lesson-section">
+                <h2>Creating a Dynamic Health Bar</h2>
+
+                <p>A health bar is the quintessential HUD element—it needs to show current health, maximum health, and update instantly when the player takes damage or heals. Let's build one properly.</p>
+
+                <h3>Health System Setup</h3>
+
+                <p>Before creating the UI, ensure your character has health data. A simple setup:</p>
+
+                <ol>
+                    <li>In your Character Blueprint, create variables:
+                        <ul>
+                            <li><code>CurrentHealth</code> (Float) — Default: 100</li>
+                            <li><code>MaxHealth</code> (Float) — Default: 100</li>
+                        </ul>
+                    </li>
+                    <li>Create a function <code>GetHealthPercent</code>:
+                        <ul>
+                            <li>Return: CurrentHealth / MaxHealth</li>
+                            <li>This gives a 0-1 value perfect for Progress Bar</li>
+                        </ul>
+                    </li>
+                    <li>Create functions <code>TakeDamage</code> and <code>Heal</code> that modify CurrentHealth</li>
+                </ol>
+
+                <!-- SVG: Character Health Setup -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Character Health Variables</text>
+                    
+                    <!-- Variables -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="100" rx="5" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">BP_PlayerCharacter</text>
+                        
+                        <text x="15" y="50" fill="#888" font-size="9">Variables:</text>
+                        <text x="25" y="68" fill="#fff" font-size="8">CurrentHealth: 75.0</text>
+                        <text x="25" y="83" fill="#fff" font-size="8">MaxHealth: 100.0</text>
+                    </g>
+                    
+                    <!-- Function -->
+                    <g transform="translate(280, 50)">
+                        <rect x="0" y="0" width="180" height="100" rx="5" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="90" y="22" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">GetHealthPercent()</text>
+                        
+                        <text x="90" y="55" text-anchor="middle" fill="#aaa" font-size="8">CurrentHealth / MaxHealth</text>
+                        <text x="90" y="75" text-anchor="middle" fill="#fff" font-size="9">Returns: 0.75</text>
+                        <text x="90" y="92" text-anchor="middle" fill="#888" font-size="7">(75 / 100 = 0.75)</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(490, 50)">
+                        <rect x="0" y="0" width="160" height="100" rx="5" fill="#3d3d3d" stroke="#FF9800"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Progress Bar</text>
+                        
+                        <rect x="20" y="40" width="120" height="25" rx="3" fill="#1a1a1a"/>
+                        <rect x="20" y="40" width="90" height="25" rx="3" fill="#f44336"/>
+                        
+                        <text x="80" y="85" text-anchor="middle" fill="#888" font-size="8">Percent bound to</text>
+                        <text x="80" y="97" text-anchor="middle" fill="#FF9800" font-size="8">GetHealthPercent()</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Character provides health data; widget binds to it.</em></p>
+
+                <h3>Creating the Health Bar Widget</h3>
+
+                <p>Create a new Widget Blueprint <code>WBP_HealthBar</code>:</p>
+
+                <ol>
+                    <li>Add a <strong>Canvas Panel</strong> as root</li>
+                    <li>Add a <strong>Size Box</strong> to control dimensions (Width: 300, Height: 40)</li>
+                    <li>Inside Size Box, add an <strong>Overlay</strong> (to layer background and fill)</li>
+                    <li>In Overlay, add:
+                        <ul>
+                            <li><strong>Image</strong> — Background (dark color, full size)</li>
+                            <li><strong>Progress Bar</strong> — Health fill (red color)</li>
+                            <li><strong>Text Block</strong> — Health text (centered, optional)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Widget Hierarchy</h4>
+                <pre><code>Canvas Panel
+└── Size Box (300 × 40)
+    └── Overlay
+        ├── Image (Background) — #1a1a1a
+        ├── Progress Bar (HealthBar) — #f44336
+        └── Text Block (HealthText) — "75%"</code></pre>
+
+                <h3>Caching the Player Reference</h3>
+
+                <p>Instead of getting the player every frame, cache it once:</p>
+
+                <ol>
+                    <li>Create a variable <code>PlayerRef</code> (type: Your Character class)</li>
+                    <li>In the Graph, override <strong>Event Construct</strong></li>
+                    <li>Get Player Character → Cast to YourCharacter → Set PlayerRef</li>
+                    <li>Now bindings can use PlayerRef directly</li>
+                </ol>
+
+                <!-- SVG: Caching Reference -->
+                <svg width="100%" height="140" viewBox="0 0 700 140" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Caching Player Reference on Construct</text>
+                    
+                    <!-- Event Construct -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#c62828"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9">Event Construct</text>
+                    </g>
+                    
+                    <path d="M 175 70 L 210 70" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Get Player -->
+                    <g transform="translate(215, 50)">
+                        <rect x="0" y="0" width="130" height="40" rx="5" fill="#1565C0"/>
+                        <text x="65" y="17" text-anchor="middle" fill="#fff" font-size="8">Get Player Character</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#90CAF9" font-size="7">Index: 0</text>
+                    </g>
+                    
+                    <path d="M 350 70 L 385 70" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Cast -->
+                    <g transform="translate(390, 50)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#1565C0"/>
+                        <text x="60" y="17" text-anchor="middle" fill="#fff" font-size="8">Cast To</text>
+                        <text x="60" y="32" text-anchor="middle" fill="#90CAF9" font-size="7">BP_PlayerCharacter</text>
+                    </g>
+                    
+                    <path d="M 515 70 L 550 70" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Set Variable -->
+                    <g transform="translate(555, 50)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#4CAF50"/>
+                        <text x="50" y="17" text-anchor="middle" fill="#fff" font-size="8">Set PlayerRef</text>
+                        <text x="50" y="32" text-anchor="middle" fill="#c8e6c9" font-size="7">(Cached!)</text>
+                    </g>
+                    
+                    <text x="350" y="115" text-anchor="middle" fill="#888" font-size="8">Now bindings use PlayerRef instead of getting player every frame</text>
+                </svg>
+                <p class="caption"><em>Figure: Cache the player reference once on widget construction.</em></p>
+
+                <h3>Binding the Progress Bar</h3>
+
+                <ol>
+                    <li>Select the Progress Bar widget</li>
+                    <li>In Details, find <strong>Percent</strong></li>
+                    <li>Click <strong>Bind → Create Binding</strong></li>
+                    <li>In the created function:
+                        <ul>
+                            <li>Check if PlayerRef is valid (Is Valid node)</li>
+                            <li>If valid: Call GetHealthPercent on PlayerRef → Return value</li>
+                            <li>If not valid: Return 1.0 (full bar as fallback)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Binding the Health Text</h3>
+
+                <ol>
+                    <li>Select the Text Block widget</li>
+                    <li>Bind the <strong>Text</strong> property</li>
+                    <li>In the binding function:
+                        <ul>
+                            <li>Get CurrentHealth from PlayerRef</li>
+                            <li>Round to integer (if desired)</li>
+                            <li>Format: <code>Format Text "{0} / {1}"</code> with CurrentHealth and MaxHealth</li>
+                            <li>Or simple: <code>Round(CurrentHealth) → To Text → Append " HP"</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Adding Visual Polish</h3>
+
+                <p><strong>Color Change Based on Health:</strong> Bind the Progress Bar's Fill Color to change from green (high) to yellow (medium) to red (low):</p>
+
+                <ol>
+                    <li>Create a binding for <strong>Fill Color and Opacity</strong></li>
+                    <li>In the function:
+                        <ul>
+                            <li>Get health percent</li>
+                            <li>If &gt; 0.6: Return Green</li>
+                            <li>If &gt; 0.3: Return Yellow</li>
+                            <li>Else: Return Red</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Health Bar Color States -->
+                <svg width="100%" height="140" viewBox="0 0 700 140" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Health Bar Color States</text>
+                    
+                    <!-- High health -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="180" height="35" rx="5" fill="#1a1a1a"/>
+                        <rect x="0" y="0" width="160" height="35" rx="5" fill="#4CAF50"/>
+                        <text x="90" y="22" text-anchor="middle" fill="#fff" font-size="10">90 / 100</text>
+                        <text x="90" y="55" text-anchor="middle" fill="#4CAF50" font-size="9">&gt; 60% = Green</text>
+                    </g>
+                    
+                    <!-- Medium health -->
+                    <g transform="translate(260, 50)">
+                        <rect x="0" y="0" width="180" height="35" rx="5" fill="#1a1a1a"/>
+                        <rect x="0" y="0" width="90" height="35" rx="5" fill="#FF9800"/>
+                        <text x="90" y="22" text-anchor="middle" fill="#fff" font-size="10">50 / 100</text>
+                        <text x="90" y="55" text-anchor="middle" fill="#FF9800" font-size="9">30-60% = Yellow</text>
+                    </g>
+                    
+                    <!-- Low health -->
+                    <g transform="translate(470, 50)">
+                        <rect x="0" y="0" width="180" height="35" rx="5" fill="#1a1a1a"/>
+                        <rect x="0" y="0" width="36" height="35" rx="5" fill="#f44336"/>
+                        <text x="90" y="22" text-anchor="middle" fill="#fff" font-size="10">20 / 100</text>
+                        <text x="90" y="55" text-anchor="middle" fill="#f44336" font-size="9">&lt; 30% = Red</text>
+                    </g>
+                    
+                    <text x="350" y="115" text-anchor="middle" fill="#888" font-size="8">Color communicates urgency at a glance</text>
+                </svg>
+                <p class="caption"><em>Figure: Health bar color changes based on current health percentage.</em></p>
+
+                <p><strong>Low Health Warning:</strong> Add a pulsing effect when health is critical:</p>
+
+                <ol>
+                    <li>Create a widget animation that pulses the bar (scale or opacity)</li>
+                    <li>In the binding or Event Tick, check if health &lt; 20%</li>
+                    <li>If low and animation not playing: Play Animation</li>
+                    <li>If not low and animation playing: Stop Animation</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Smooth Health Changes</h4>
+                    <p>For a polished feel, don't instantly jump to new health values. Instead, use <code>FInterp To</code> in Tick to smoothly animate toward the target. Show a "damage preview" bar behind the main bar that catches up over time.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Ammo and Resource Counters -->
+            <section id="ammo-counter" class="lesson-section">
+                <h2>Ammo and Resource Counters</h2>
+
+                <p>Unlike health bars, ammo and resources are typically displayed as numbers. They need to update instantly and may have more complex formatting requirements.</p>
+
+                <h3>Simple Ammo Display</h3>
+
+                <p>A basic ammo counter shows: Current Ammo / Magazine Size or Current / Reserve.</p>
+
+                <p><strong>Setup in Character:</strong></p>
+                <ul>
+                    <li><code>CurrentAmmo</code> (Integer) — Bullets in current magazine</li>
+                    <li><code>MaxAmmo</code> (Integer) — Magazine capacity</li>
+                    <li><code>ReserveAmmo</code> (Integer) — Extra bullets carried</li>
+                </ul>
+
+                <p><strong>Widget Structure:</strong></p>
+                <pre><code>Horizontal Box
+├── Text Block (CurrentAmmo) — "30"
+├── Text Block (Separator) — " / "
+└── Text Block (ReserveAmmo) — "120"</code></pre>
+
+                <p>Or use a single Text Block with formatted text:</p>
+                <pre><code>Format Text: "{0} / {1}" → "30 / 120"</code></pre>
+
+                <h3>Binding Ammo Text</h3>
+
+                <ol>
+                    <li>Create Text Block for ammo display</li>
+                    <li>Bind the Text property</li>
+                    <li>In binding function:
+                        <ul>
+                            <li>Get PlayerRef → Get CurrentAmmo, ReserveAmmo</li>
+                            <li>Format Text with both values</li>
+                            <li>Return formatted string</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Ammo Counter -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Ammo Counter Designs</text>
+                    
+                    <!-- Simple text -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="rgba(0,0,0,0.7)"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#888" font-size="9">🔫 AMMO</text>
+                        <text x="75" y="48" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">30 / 120</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#888" font-size="8">Current / Reserve</text>
+                    </g>
+                    
+                    <!-- Magazine style -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="rgba(0,0,0,0.7)"/>
+                        <text x="45" y="40" text-anchor="middle" fill="#fff" font-size="24" font-weight="bold">30</text>
+                        <text x="75" y="40" text-anchor="middle" fill="#555" font-size="16">/</text>
+                        <text x="110" y="40" text-anchor="middle" fill="#888" font-size="14">30</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#888" font-size="8">Current / Magazine</text>
+                    </g>
+                    
+                    <!-- Icon + number -->
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="rgba(0,0,0,0.7)"/>
+                        <rect x="15" y="15" width="30" height="30" rx="3" fill="#FF9800"/>
+                        <text x="30" y="35" text-anchor="middle" fill="#fff" font-size="12">🔫</text>
+                        <text x="100" y="40" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">30</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#888" font-size="8">Icon + Count</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different ammo counter layout options.</em></p>
+
+                <h3>Low Ammo Warning</h3>
+
+                <p>Communicate urgency when ammo is low:</p>
+
+                <p><strong>Color Change:</strong></p>
+                <ol>
+                    <li>Bind the text color property</li>
+                    <li>If CurrentAmmo &lt;= 5: Return Red</li>
+                    <li>If CurrentAmmo &lt;= 10: Return Yellow</li>
+                    <li>Else: Return White</li>
+                </ol>
+
+                <p><strong>Visibility:</strong> Show/hide a warning icon based on ammo level:</p>
+                <ol>
+                    <li>Add a warning icon Image widget</li>
+                    <li>Bind Visibility property</li>
+                    <li>Return Visible if ammo low, Collapsed otherwise</li>
+                </ol>
+
+                <h3>Multiple Resource Types</h3>
+
+                <p>Games often have multiple resources—health, mana, stamina, ammo types. Create a reusable resource display component:</p>
+
+                <ol>
+                    <li>Create <code>WBP_ResourceDisplay</code> User Widget</li>
+                    <li>Add exposed variables:
+                        <ul>
+                            <li><code>ResourceName</code> (Text)</li>
+                            <li><code>ResourceIcon</code> (Texture 2D)</li>
+                            <li><code>ResourceColor</code> (Slate Color)</li>
+                            <li><code>CurrentValue</code> (Float)</li>
+                            <li><code>MaxValue</code> (Float)</li>
+                        </ul>
+                    </li>
+                    <li>Design with icon, progress bar, and text</li>
+                    <li>Bind internal widgets to exposed variables</li>
+                    <li>Reuse for health, mana, stamina, experience, etc.</li>
+                </ol>
+
+                <h3>Objective and Status Text</h3>
+
+                <p>Beyond numeric values, HUDs often show text that changes based on game state:</p>
+
+                <p><strong>Current Objective:</strong></p>
+                <pre><code>"Find the key" → "Open the door" → "Escape the building"</code></pre>
+
+                <p><strong>Status Messages:</strong></p>
+                <pre><code>"Wave 3 of 10" | "Boss Health: 45%" | "Time: 2:30"</code></pre>
+
+                <p>For text that changes infrequently, event-driven updates are better than bindings:</p>
+
+                <ol>
+                    <li>Create a function in your HUD widget: <code>SetObjectiveText(Text)</code></li>
+                    <li>This function sets the Text Block's text directly</li>
+                    <li>Call this function from game logic when objectives change</li>
+                    <li>No per-frame binding overhead</li>
+                </ol>
+
+                <!-- Mermaid: Event-Driven Update -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Game["Game Logic"]
+        A["Player picks up key"] --> B["Update Objective"]
+    end
+    
+    subgraph HUD["HUD Widget"]
+        C["SetObjectiveText()"] --> D["Text Block<br/>Updated"]
+    end
+    
+    B -->|"Call Function"| C
+    
+    style A fill:#4CAF50,color:#fff
+    style B fill:#667eea,color:#fff
+    style C fill:#667eea,color:#fff
+    style D fill:#FF9800,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Event-driven updates—game logic directly updates HUD when needed.</em></p>
+
+                <h3>Timer Display</h3>
+
+                <p>Countdown timers need special formatting:</p>
+
+                <ol>
+                    <li>Store time as float (seconds remaining)</li>
+                    <li>In binding or update:
+                        <ul>
+                            <li>Calculate minutes: <code>Floor(Time / 60)</code></li>
+                            <li>Calculate seconds: <code>Floor(Time % 60)</code></li>
+                            <li>Format: <code>Format Text "{0}:{1}"</code></li>
+                            <li>Pad seconds with zero if needed: "2:05" not "2:5"</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Time Formatting Blueprint</h4>
+                    <p>For "MM:SS" format:</p>
+                    <pre><code>Minutes = Floor(TotalSeconds / 60)
+Seconds = Floor(TotalSeconds % 60)
+// Pad seconds: if Seconds < 10, prepend "0"
+Format Text: "{0}:{1}" where {1} is padded</code></pre>
+                </div>
+            </section>
+            <!-- Section 4: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Complete Player HUD</h2>
+
+                <p>Let's build a complete player HUD that displays health, ammo, and an objective tracker. This exercise ties together everything we've learned about data binding and dynamic updates.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a player HUD with: a health bar (top-left) that changes color based on health level, an ammo counter (bottom-right) with low ammo warning, and an objective text display (top-center). All elements update in real-time from character data.</p>
+                </div>
+
+                <h3>Step 1: Set Up Character Variables</h3>
+
+                <p>First, ensure your character has the necessary data. Open your Character Blueprint and add:</p>
+
+                <p><strong>Health Variables:</strong></p>
+                <ol>
+                    <li><code>CurrentHealth</code> (Float) — Default: 100</li>
+                    <li><code>MaxHealth</code> (Float) — Default: 100</li>
+                </ol>
+
+                <p><strong>Ammo Variables:</strong></p>
+                <ol>
+                    <li><code>CurrentAmmo</code> (Integer) — Default: 30</li>
+                    <li><code>MaxAmmo</code> (Integer) — Default: 30</li>
+                    <li><code>ReserveAmmo</code> (Integer) — Default: 90</li>
+                </ol>
+
+                <p><strong>Helper Functions:</strong></p>
+                <ol>
+                    <li>Create <code>GetHealthPercent</code> function:
+                        <ul>
+                            <li>Return type: Float</li>
+                            <li>Logic: Return CurrentHealth / MaxHealth</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p><strong>Test Functions (for debugging):</strong></p>
+                <ol>
+                    <li>Create <code>TakeDamage</code> (Input: Float Amount):
+                        <ul>
+                            <li>CurrentHealth = Clamp(CurrentHealth - Amount, 0, MaxHealth)</li>
+                        </ul>
+                    </li>
+                    <li>Create <code>UseAmmo</code>:
+                        <ul>
+                            <li>If CurrentAmmo > 0: CurrentAmmo = CurrentAmmo - 1</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 2: Create the HUD Widget</h3>
+
+                <ol>
+                    <li>Right-click in Content Browser → <strong>User Interface → Widget Blueprint</strong></li>
+                    <li>Name it <code>WBP_PlayerHUD</code></li>
+                    <li>Open it in the Widget Editor</li>
+                </ol>
+
+                <h3>Step 3: Set Up Root Structure</h3>
+
+                <ol>
+                    <li>Add a <strong>Canvas Panel</strong> as the root (this is default)</li>
+                    <li>The Canvas Panel allows free positioning with anchors</li>
+                </ol>
+
+                <h3>Step 4: Create the Health Bar Section (Top-Left)</h3>
+
+                <ol>
+                    <li>Add a <strong>Vertical Box</strong> to Canvas Panel</li>
+                    <li>Rename it to <code>HealthSection</code></li>
+                    <li>Set anchors to <strong>Top-Left</strong></li>
+                    <li>Set Position: X: 30, Y: 30</li>
+                    <li>Set Size: X: 250, Y: 60</li>
+                </ol>
+
+                <p>Inside HealthSection, add:</p>
+
+                <ol>
+                    <li><strong>Text Block</strong> — Name: <code>HealthLabel</code>
+                        <ul>
+                            <li>Text: "HEALTH"</li>
+                            <li>Font Size: 14</li>
+                            <li>Color: White with slight transparency (0.8 alpha)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Overlay</strong> — Name: <code>HealthBarContainer</code>
+                        <ul>
+                            <li>Inside, add <strong>Image</strong> (Background): Color #1a1a1a</li>
+                            <li>Inside, add <strong>Progress Bar</strong>: Name <code>HealthBar</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Text Block</strong> — Name: <code>HealthText</code>
+                        <ul>
+                            <li>Text: "100 / 100" (placeholder)</li>
+                            <li>Font Size: 12</li>
+                            <li>Justification: Right</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Health Section Layout -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Health Section Layout</text>
+                    
+                    <!-- Screen representation -->
+                    <rect x="50" y="45" width="600" height="120" rx="5" fill="#2d2d2d" stroke="#555"/>
+                    
+                    <!-- Top-left anchor indicator -->
+                    <circle cx="60" cy="55" r="5" fill="#4CAF50"/>
+                    
+                    <!-- Health section -->
+                    <g transform="translate(70, 60)">
+                        <rect x="0" y="0" width="200" height="80" rx="3" fill="rgba(102,126,234,0.1)" stroke="#667eea" stroke-dasharray="3,2"/>
+                        
+                        <text x="10" y="20" fill="#aaa" font-size="10">HEALTH</text>
+                        
+                        <rect x="10" y="28" width="180" height="22" rx="3" fill="#1a1a1a"/>
+                        <rect x="10" y="28" width="135" height="22" rx="3" fill="#4CAF50"/>
+                        
+                        <text x="190" y="68" text-anchor="end" fill="#888" font-size="9">75 / 100</text>
+                        
+                        <text x="100" y="95" text-anchor="middle" fill="#667eea" font-size="7">HealthSection (Vertical Box)</text>
+                    </g>
+                    
+                    <!-- Anchor label -->
+                    <text x="85" y="55" fill="#4CAF50" font-size="8">Top-Left</text>
+                </svg>
+                <p class="caption"><em>Figure: Health section positioned in top-left corner.</em></p>
+
+                <h3>Step 5: Create the Ammo Counter (Bottom-Right)</h3>
+
+                <ol>
+                    <li>Add a <strong>Vertical Box</strong> to Canvas Panel</li>
+                    <li>Rename it to <code>AmmoSection</code></li>
+                    <li>Set anchors to <strong>Bottom-Right</strong></li>
+                    <li>Set Position: X: -30, Y: -30 (negative because anchored to right/bottom)</li>
+                    <li>Set Alignment: X: 1.0, Y: 1.0 (aligns right edge to anchor)</li>
+                    <li>Set Size: X: 150, Y: 70</li>
+                </ol>
+
+                <p>Inside AmmoSection, add:</p>
+
+                <ol>
+                    <li><strong>Text Block</strong> — Name: <code>AmmoLabel</code>
+                        <ul>
+                            <li>Text: "AMMO"</li>
+                            <li>Font Size: 12</li>
+                            <li>Justification: Right</li>
+                        </ul>
+                    </li>
+                    <li><strong>Horizontal Box</strong> — Name: <code>AmmoDisplay</code>
+                        <ul>
+                            <li>Inside, add <strong>Text Block</strong> — Name: <code>CurrentAmmoText</code>
+                                <ul>
+                                    <li>Text: "30"</li>
+                                    <li>Font Size: 28, Bold</li>
+                                </ul>
+                            </li>
+                            <li>Inside, add <strong>Text Block</strong> — Name: <code>AmmoSeparator</code>
+                                <ul>
+                                    <li>Text: " / "</li>
+                                    <li>Font Size: 18</li>
+                                    <li>Color: Gray</li>
+                                </ul>
+                            </li>
+                            <li>Inside, add <strong>Text Block</strong> — Name: <code>ReserveAmmoText</code>
+                                <ul>
+                                    <li>Text: "90"</li>
+                                    <li>Font Size: 18</li>
+                                    <li>Color: Gray</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 6: Create Objective Display (Top-Center)</h3>
+
+                <ol>
+                    <li>Add a <strong>Vertical Box</strong> to Canvas Panel</li>
+                    <li>Rename it to <code>ObjectiveSection</code></li>
+                    <li>Set anchors to <strong>Top-Center</strong></li>
+                    <li>Set Position: X: 0, Y: 30</li>
+                    <li>Set Alignment: X: 0.5 (centers horizontally)</li>
+                </ol>
+
+                <p>Inside ObjectiveSection, add:</p>
+
+                <ol>
+                    <li><strong>Text Block</strong> — Name: <code>ObjectiveLabel</code>
+                        <ul>
+                            <li>Text: "OBJECTIVE"</li>
+                            <li>Font Size: 10</li>
+                            <li>Justification: Center</li>
+                            <li>Color: Yellow/Gold</li>
+                        </ul>
+                    </li>
+                    <li><strong>Text Block</strong> — Name: <code>ObjectiveText</code>
+                        <ul>
+                            <li>Text: "Find the hidden key"</li>
+                            <li>Font Size: 16</li>
+                            <li>Justification: Center</li>
+                            <li>Check <strong>Is Variable</strong></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Complete HUD Layout -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Complete HUD Layout</text>
+                    
+                    <!-- Screen -->
+                    <rect x="50" y="45" width="700" height="200" rx="5" fill="#252525" stroke="#555"/>
+                    <text x="400" y="150" text-anchor="middle" fill="#333" font-size="12">[ Game View ]</text>
+                    
+                    <!-- Health (Top-Left) -->
+                    <g transform="translate(70, 60)">
+                        <text x="0" y="12" fill="#aaa" font-size="9">HEALTH</text>
+                        <rect x="0" y="18" width="160" height="18" rx="2" fill="#1a1a1a"/>
+                        <rect x="0" y="18" width="120" height="18" rx="2" fill="#4CAF50"/>
+                        <text x="160" y="50" text-anchor="end" fill="#888" font-size="8">75 / 100</text>
+                    </g>
+                    
+                    <!-- Objective (Top-Center) -->
+                    <g transform="translate(400, 60)">
+                        <text x="0" y="0" text-anchor="middle" fill="#FFD700" font-size="8">OBJECTIVE</text>
+                        <text x="0" y="18" text-anchor="middle" fill="#fff" font-size="12">Find the hidden key</text>
+                    </g>
+                    
+                    <!-- Ammo (Bottom-Right) -->
+                    <g transform="translate(630, 190)">
+                        <text x="100" y="0" text-anchor="end" fill="#aaa" font-size="9">AMMO</text>
+                        <text x="55" y="30" text-anchor="end" fill="#fff" font-size="22" font-weight="bold">30</text>
+                        <text x="65" y="30" text-anchor="middle" fill="#555" font-size="14">/</text>
+                        <text x="100" y="30" text-anchor="end" fill="#888" font-size="14">90</text>
+                    </g>
+                    
+                    <!-- Anchor indicators -->
+                    <circle cx="60" cy="55" r="4" fill="#4CAF50"/>
+                    <text cx="75" y="50" fill="#4CAF50" font-size="6">TL</text>
+                    
+                    <circle cx="400" cy="55" r="4" fill="#2196F3"/>
+                    <text x="400" y="50" text-anchor="middle" fill="#2196F3" font-size="6">TC</text>
+                    
+                    <circle cx="740" cy="235" r="4" fill="#FF9800"/>
+                    <text x="725" y="240" text-anchor="end" fill="#FF9800" font-size="6">BR</text>
+                </svg>
+                <p class="caption"><em>Figure: Complete HUD layout with health (top-left), objective (top-center), and ammo (bottom-right).</em></p>
+
+                <h3>Step 7: Cache Player Reference</h3>
+
+                <p>Switch to the <strong>Graph</strong> view:</p>
+
+                <ol>
+                    <li>Create a variable <code>PlayerRef</code> (type: your Character Blueprint class)</li>
+                    <li>Add <strong>Event Construct</strong> node</li>
+                    <li>From Event Construct:
+                        <ul>
+                            <li>Get Owning Player Pawn</li>
+                            <li>Cast to your Character class</li>
+                            <li>Set PlayerRef to the cast result</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 8: Bind Health Bar Percent</h3>
+
+                <ol>
+                    <li>Switch to Designer, select <code>HealthBar</code> (Progress Bar)</li>
+                    <li>In Details, find <strong>Percent</strong></li>
+                    <li>Click <strong>Bind → Create Binding</strong></li>
+                    <li>In the binding function:
+                        <ul>
+                            <li>Add <strong>Is Valid</strong> node for PlayerRef</li>
+                            <li>If valid: Call GetHealthPercent on PlayerRef, return result</li>
+                            <li>If not valid: Return 1.0</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Health Percent Binding -->
+                <svg width="100%" height="150" viewBox="0 0 700 150" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Health Percent Binding Function</text>
+                    
+                    <!-- Is Valid check -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#9C27B0"/>
+                        <text x="50" y="17" text-anchor="middle" fill="#fff" font-size="8">Is Valid</text>
+                        <text x="50" y="32" text-anchor="middle" fill="#e1bee7" font-size="7">PlayerRef</text>
+                    </g>
+                    
+                    <!-- Branch -->
+                    <g transform="translate(180, 55)">
+                        <polygon points="0,20 40,0 40,40" fill="#1565C0"/>
+                    </g>
+                    <path d="M 155 75 L 175 75" stroke="#9C27B0" stroke-width="2"/>
+                    
+                    <!-- True path -->
+                    <g transform="translate(250, 40)">
+                        <rect x="0" y="0" width="140" height="40" rx="5" fill="#4CAF50"/>
+                        <text x="70" y="17" text-anchor="middle" fill="#fff" font-size="8">GetHealthPercent</text>
+                        <text x="70" y="32" text-anchor="middle" fill="#c8e6c9" font-size="7">PlayerRef</text>
+                    </g>
+                    <path d="M 225 65 L 245 55" stroke="#4CAF50" stroke-width="2"/>
+                    
+                    <!-- Return valid -->
+                    <g transform="translate(420, 40)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#667eea"/>
+                        <text x="50" y="17" text-anchor="middle" fill="#fff" font-size="8">Return</text>
+                        <text x="50" y="32" text-anchor="middle" fill="#c5cae9" font-size="7">Health %</text>
+                    </g>
+                    <path d="M 395 60 L 415 60" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- False path -->
+                    <g transform="translate(250, 90)">
+                        <rect x="0" y="0" width="100" height="35" rx="5" fill="#607D8B"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="8">Return 1.0</text>
+                    </g>
+                    <path d="M 225 85 L 245 100" stroke="#f44336" stroke-width="2"/>
+                    
+                    <text x="550" y="75" fill="#888" font-size="8">Fallback to full</text>
+                    <text x="550" y="90" fill="#888" font-size="8">if no player</text>
+                </svg>
+                <p class="caption"><em>Figure: Binding function with validity check and fallback.</em></p>
+
+                <h3>Step 9: Bind Health Bar Color</h3>
+
+                <ol>
+                    <li>Select <code>HealthBar</code>, find <strong>Fill Color and Opacity</strong></li>
+                    <li>Click <strong>Bind → Create Binding</strong></li>
+                    <li>In the binding function:
+                        <ul>
+                            <li>Get health percent from PlayerRef</li>
+                            <li>Use <strong>Select</strong> node or branches:</li>
+                            <li>If percent > 0.6: Return Green (0.3, 0.69, 0.31)</li>
+                            <li>Else if percent > 0.3: Return Yellow (1.0, 0.76, 0.03)</li>
+                            <li>Else: Return Red (0.96, 0.26, 0.21)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 10: Bind Health Text</h3>
+
+                <ol>
+                    <li>Select <code>HealthText</code>, bind the <strong>Text</strong> property</li>
+                    <li>In the binding function:
+                        <ul>
+                            <li>Get CurrentHealth and MaxHealth from PlayerRef</li>
+                            <li>Round CurrentHealth to integer</li>
+                            <li>Use <strong>Format Text</strong>: "{0} / {1}"</li>
+                            <li>Return the formatted text</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 11: Bind Ammo Display</h3>
+
+                <ol>
+                    <li>Select <code>CurrentAmmoText</code>, bind <strong>Text</strong>:
+                        <ul>
+                            <li>Get CurrentAmmo from PlayerRef</li>
+                            <li>Convert to Text, return</li>
+                        </ul>
+                    </li>
+                    <li>Select <code>ReserveAmmoText</code>, bind <strong>Text</strong>:
+                        <ul>
+                            <li>Get ReserveAmmo from PlayerRef</li>
+                            <li>Convert to Text, return</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 12: Bind Ammo Color (Low Ammo Warning)</h3>
+
+                <ol>
+                    <li>Select <code>CurrentAmmoText</code>, bind <strong>Color and Opacity</strong></li>
+                    <li>In the binding function:
+                        <ul>
+                            <li>Get CurrentAmmo from PlayerRef</li>
+                            <li>If CurrentAmmo <= 5: Return Red</li>
+                            <li>Else if CurrentAmmo <= 10: Return Yellow</li>
+                            <li>Else: Return White</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 13: Create Objective Update Function</h3>
+
+                <p>For the objective text, we'll use event-driven updates:</p>
+
+                <ol>
+                    <li>In the Graph, create a new function <code>SetObjective</code></li>
+                    <li>Add input parameter: <code>NewObjective</code> (Text)</li>
+                    <li>In the function:
+                        <ul>
+                            <li>Get reference to ObjectiveText (drag from Hierarchy)</li>
+                            <li>Call <code>Set Text</code> on ObjectiveText</li>
+                            <li>Connect NewObjective to the text input</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p>Now game logic can call this function to update the objective.</p>
+
+                <h3>Step 14: Display the HUD</h3>
+
+                <p>Open your Player Controller Blueprint:</p>
+
+                <ol>
+                    <li>Create variable <code>PlayerHUD</code> (type: WBP_PlayerHUD)</li>
+                    <li>On Event BeginPlay:
+                        <ul>
+                            <li>Create Widget (class: WBP_PlayerHUD)</li>
+                            <li>Add to Viewport</li>
+                            <li>Set PlayerHUD variable to the created widget</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 15: Test with Debug Keys</h3>
+
+                <p>Add test inputs to verify everything works:</p>
+
+                <ol>
+                    <li>In Character Blueprint, on keyboard <strong>H</strong> pressed: Call TakeDamage(10)</li>
+                    <li>On keyboard <strong>J</strong> pressed: Call TakeDamage(-10) (heal)</li>
+                    <li>On keyboard <strong>K</strong> pressed: Call UseAmmo</li>
+                </ol>
+
+                <p>Play the game and press these keys to see the HUD update!</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've built a complete player HUD with:</p>
+                    <ul>
+                        <li>Health bar with dynamic fill and color based on health level</li>
+                        <li>Health text showing current/max values</li>
+                        <li>Ammo counter with current and reserve display</li>
+                        <li>Low ammo color warning</li>
+                        <li>Objective text that can be updated from game logic</li>
+                        <li>Proper anchoring for different screen positions</li>
+                        <li>Cached player reference for performance</li>
+                    </ul>
+                    <p>This HUD pattern scales to any game—add more sections as needed!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Health bar doesn't update:</strong></p>
+                    <ul>
+                        <li>Check that PlayerRef is being set on Event Construct</li>
+                        <li>Verify the binding function is returning the correct value</li>
+                        <li>Make sure GetHealthPercent function exists on your character</li>
+                    </ul>
+                    
+                    <p><strong>Values show as 0 or empty:</strong></p>
+                    <ul>
+                        <li>Check Is Valid before accessing PlayerRef</li>
+                        <li>Verify character variables have default values set</li>
+                        <li>Ensure Cast To is using correct character class</li>
+                    </ul>
+                    
+                    <p><strong>HUD doesn't appear:</strong></p>
+                    <ul>
+                        <li>Verify Player Controller is set in Game Mode</li>
+                        <li>Check that Add to Viewport is connected</li>
+                        <li>Ensure widget has visible content (not all collapsed)</li>
+                    </ul>
+                    
+                    <p><strong>Position is wrong:</strong></p>
+                    <ul>
+                        <li>Check anchor settings match intended corner</li>
+                        <li>For right/bottom anchors, use negative position values</li>
+                        <li>Set Alignment to match anchor (1.0 for right/bottom)</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Smooth Health Animation:</strong> Instead of instant updates, lerp the health bar fill over 0.2 seconds</li>
+                    <li><strong>Damage Flash:</strong> Flash the health bar red briefly when taking damage</li>
+                    <li><strong>Ammo Reload:</strong> Add reload functionality and show reload progress</li>
+                    <li><strong>Minimap:</strong> Add a minimap in the corner using a Render Target</li>
+                    <li><strong>Crosshair:</strong> Add a centered crosshair that changes when aiming at enemies</li>
+                    <li><strong>Damage Numbers:</strong> Spawn floating damage numbers when the player takes damage</li>
+                </ol>
+            </section>
+            <!-- Section 5: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned how to create HUD elements that respond to real game data. Your UI is no longer static—it reflects the actual state of your game in real-time, providing players with the information they need to play effectively.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Data Binding:</strong> Connects widget properties to data sources. Function bindings are called every frame and work well for frequently changing data like health. Event-driven updates are more efficient for infrequent changes like objectives.</p>
+
+                <p><strong>Binding Functions:</strong> Return the appropriate type for the property being bound. Text properties need Text/String, Percent needs Float (0-1), Color needs Slate Color. Always validate references before using them.</p>
+
+                <p><strong>Caching References:</strong> Store references to frequently accessed objects (like the player character) in variables during Event Construct. This avoids expensive lookups every frame in binding functions.</p>
+
+                <p><strong>Health Bars:</strong> Use Progress Bar widgets with Percent bound to a health ratio (current/max). Color bindings can change the bar from green to yellow to red based on health level. Text displays can show exact values.</p>
+
+                <p><strong>Ammo Counters:</strong> Text-based displays showing current/reserve or current/magazine. Color changes indicate low ammo warnings. Use Format Text for combining multiple values.</p>
+
+                <p><strong>Event-Driven Updates:</strong> For data that changes infrequently (objectives, status messages), create functions that update widgets directly. Call these functions from game logic when changes occur.</p>
+
+                <p><strong>Value Formatting:</strong> Use To Text nodes with formatting options for numbers. Format Text combines values with labels. Time displays need special handling (minutes/seconds calculation).</p>
+
+                <h3>Data Binding Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Property Type</th>
+                            <th style="padding: 10px; text-align: left;">Return Type</th>
+                            <th style="padding: 10px; text-align: left;">Example Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Text</td>
+                            <td style="padding: 10px;">Text or String</td>
+                            <td style="padding: 10px;">Health text, ammo count, objective</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Percent</td>
+                            <td style="padding: 10px;">Float (0.0 - 1.0)</td>
+                            <td style="padding: 10px;">Progress bar fill amount</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Color and Opacity</td>
+                            <td style="padding: 10px;">Slate Color / Linear Color</td>
+                            <td style="padding: 10px;">Dynamic color based on value</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Visibility</td>
+                            <td style="padding: 10px;">ESlateVisibility</td>
+                            <td style="padding: 10px;">Show/hide warning icons</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Is Enabled</td>
+                            <td style="padding: 10px;">Boolean</td>
+                            <td style="padding: 10px;">Enable/disable buttons</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Common HUD Elements</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Element</th>
+                            <th style="padding: 10px; text-align: left;">Widget(s)</th>
+                            <th style="padding: 10px; text-align: left;">Binding Approach</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Health Bar</td>
+                            <td style="padding: 10px;">Progress Bar + Text</td>
+                            <td style="padding: 10px;">Function binding (frequent updates)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Ammo Counter</td>
+                            <td style="padding: 10px;">Text Blocks</td>
+                            <td style="padding: 10px;">Function binding</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Stamina/Mana Bar</td>
+                            <td style="padding: 10px;">Progress Bar</td>
+                            <td style="padding: 10px;">Function binding</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Objective Text</td>
+                            <td style="padding: 10px;">Text Block</td>
+                            <td style="padding: 10px;">Event-driven (infrequent)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Score/Points</td>
+                            <td style="padding: 10px;">Text Block</td>
+                            <td style="padding: 10px;">Event-driven</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Timer</td>
+                            <td style="padding: 10px;">Text Block</td>
+                            <td style="padding: 10px;">Function binding with formatting</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Minimap</td>
+                            <td style="padding: 10px;">Image (Render Target)</td>
+                            <td style="padding: 10px;">Scene Capture Component</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Cache references:</strong> Store frequently accessed objects (player, game state) in variables during Event Construct</li>
+                    <li><strong>Validate before use:</strong> Always check Is Valid before accessing cached references in bindings</li>
+                    <li><strong>Choose binding wisely:</strong> Use function bindings for frequent changes, event-driven for rare changes</li>
+                    <li><strong>Keep bindings simple:</strong> Complex logic in binding functions runs every frame—move complexity elsewhere</li>
+                    <li><strong>Provide fallbacks:</strong> Return sensible default values when references are invalid</li>
+                    <li><strong>Use visual feedback:</strong> Color changes, animations, and icons communicate urgency better than numbers alone</li>
+                    <li><strong>Test at extremes:</strong> Verify HUD looks correct at 0%, 50%, and 100% of values</li>
+                    <li><strong>Consider performance:</strong> Many bound widgets add up—profile if you have performance concerns</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">HUD Data Flow</text>
+                    
+                    <!-- Game Data -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="150" height="90" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Game Data</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">Character Variables</text>
+                        <text x="75" y="60" text-anchor="middle" fill="#666" font-size="8">Health, Ammo, Score</text>
+                        <text x="75" y="75" text-anchor="middle" fill="#666" font-size="8">Objectives, Timers</text>
+                    </g>
+                    
+                    <!-- Binding Functions -->
+                    <g transform="translate(250, 55)">
+                        <rect x="0" y="0" width="150" height="90" rx="8" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Binding Functions</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">GetHealthPercent()</text>
+                        <text x="75" y="60" text-anchor="middle" fill="#666" font-size="8">GetAmmoText()</text>
+                        <text x="75" y="75" text-anchor="middle" fill="#666" font-size="8">GetHealthColor()</text>
+                    </g>
+                    
+                    <!-- Widget Properties -->
+                    <g transform="translate(450, 55)">
+                        <rect x="0" y="0" width="150" height="90" rx="8" fill="#f3e5f5" stroke="#9C27B0"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#7B1FA2" font-size="10" font-weight="bold">Widget Properties</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">Progress Bar Percent</text>
+                        <text x="75" y="60" text-anchor="middle" fill="#666" font-size="8">Text Content</text>
+                        <text x="75" y="75" text-anchor="middle" fill="#666" font-size="8">Fill Color</text>
+                    </g>
+                    
+                    <!-- Display -->
+                    <g transform="translate(650, 55)">
+                        <rect x="0" y="0" width="100" height="90" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Screen</text>
+                        <rect x="15" y="40" width="70" height="40" rx="3" fill="#4CAF50"/>
+                        <text x="50" y="65" text-anchor="middle" fill="#fff" font-size="8">HUD</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 205 100 L 245 100" stroke="#667eea" stroke-width="2" marker-end="url(#sumHudArrow)"/>
+                    <path d="M 405 100 L 445 100" stroke="#667eea" stroke-width="2" marker-end="url(#sumHudArrow)"/>
+                    <path d="M 605 100 L 645 100" stroke="#667eea" stroke-width="2" marker-end="url(#sumHudArrow)"/>
+                    
+                    <!-- Update cycle note -->
+                    <g transform="translate(150, 170)">
+                        <rect x="0" y="0" width="500" height="50" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="250" y="20" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">Update Cycle</text>
+                        <text x="250" y="38" text-anchor="middle" fill="#666" font-size="8">Function bindings called every frame • Event-driven updates called when data changes</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="sumHudArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Data flows from game systems through binding functions to widget properties displayed on screen.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>With your HUD displaying real-time game data, the next lesson covers <strong>Menus and Navigation</strong>. You'll learn how to create main menus, pause screens, and settings interfaces. We'll cover menu navigation with keyboard/gamepad, widget focus, and transitioning between menu screens. Menus are where UI meets game flow control!</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What value range should a binding function return for a Progress Bar's Percent property?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> 0 to 100</label>
+                            <label><input type="radio" name="q1" value="b"> 0.0 to 1.0</label>
+                            <label><input type="radio" name="q1" value="c"> -1.0 to 1.0</label>
+                            <label><input type="radio" name="q1" value="d"> Any positive number</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Progress Bar Percent expects a float from 0.0 (empty) to 1.0 (full). If your health is stored as 0-100, divide by max health to get the 0-1 ratio: CurrentHealth / MaxHealth.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why should you cache the player reference in a variable instead of getting it every frame in binding functions?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> It's required by UMG</label>
+                            <label><input type="radio" name="q2" value="b"> Performance—Get Player Character has overhead that adds up when called every frame</label>
+                            <label><input type="radio" name="q2" value="c"> The player reference changes every frame</label>
+                            <label><input type="radio" name="q2" value="d"> Bindings can't call Get Player Character</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — While Get Player Character works, calling it every frame in multiple binding functions adds unnecessary overhead. Caching the reference once on Event Construct means binding functions just access a variable, which is much faster.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>When is event-driven updating better than function binding for HUD elements?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> For health bars that change frequently</label>
+                            <label><input type="radio" name="q3" value="b"> For data that changes rarely, like objective text</label>
+                            <label><input type="radio" name="q3" value="c"> Never—always use bindings</label>
+                            <label><input type="radio" name="q3" value="d"> For any numeric display</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Event-driven updates are more efficient for data that changes infrequently. Objective text might change once every few minutes—there's no need to check it 60 times per second. Instead, update the widget directly when the objective changes.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What should a binding function return if the cached player reference is not valid?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Crash the game to alert developers</label>
+                            <label><input type="radio" name="q4" value="b"> Return nothing and let UMG handle it</label>
+                            <label><input type="radio" name="q4" value="c"> Return a sensible default/fallback value</label>
+                            <label><input type="radio" name="q4" value="d"> Print an error message</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Always provide a fallback value. For health percent, return 1.0 (full bar) as fallback. For text, return a placeholder. This prevents errors and keeps the UI functional even if something goes wrong temporarily.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>How can you make a health bar change color based on health level?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Create three separate Progress Bars</label>
+                            <label><input type="radio" name="q5" value="b"> Bind the Fill Color property to a function that returns different colors based on health percent</label>
+                            <label><input type="radio" name="q5" value="c"> Use a special "Color Change" widget</label>
+                            <label><input type="radio" name="q5" value="d"> Health bars cannot change color</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Create a binding for the Fill Color and Opacity property. The function checks health percent and returns green (>60%), yellow (>30%), or red (≤30%). This provides instant visual feedback about health urgency.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What widget event is best for caching the player reference when the HUD widget is created?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Event Tick</label>
+                            <label><input type="radio" name="q6" value="b"> Event BeginPlay</label>
+                            <label><input type="radio" name="q6" value="c"> Event Construct</label>
+                            <label><input type="radio" name="q6" value="d"> Event Pre Construct</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Event Construct fires when the widget is created and initialized, making it the ideal place to cache references. Event Pre Construct fires earlier but the widget isn't fully set up yet. Event Tick would cache every frame, defeating the purpose.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>To display a timer as "2:05" (minutes:seconds), what calculation do you need?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Just divide total seconds by 60</label>
+                            <label><input type="radio" name="q7" value="b"> Minutes = Floor(seconds/60), Seconds = Floor(seconds % 60), then format with padding</label>
+                            <label><input type="radio" name="q7" value="c"> Use a built-in Timer Format node</label>
+                            <label><input type="radio" name="q7" value="d"> Convert to a Date Time struct</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Minutes is the integer division (Floor of seconds/60). Remaining seconds is the modulo (seconds % 60). Then format as text, padding seconds with a leading zero if less than 10 to get "2:05" instead of "2:5".</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m07_l02_creating_widgets.html" class="btn">← Previous: Creating Widgets</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m07_l04_menus_and_navigation.html" class="btn">Next: Menus and Navigation →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

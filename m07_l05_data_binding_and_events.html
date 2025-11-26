@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master advanced data binding and event-driven UI in Unreal Engine 5. Learn efficient patterns for connecting UI to game systems.">
+    <meta name="author" content="Practical Ace">
+    <title>Data Binding and Events - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 7: User Interface with UMG</a></li>
+            <li aria-current="page">Lesson 7.5: Data Binding and Events</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🔗 Data Binding and Events</h1>
+                <p class="lead">You've learned to create widgets and bind them to data, but as your game grows more complex, simple bindings aren't always enough. What happens when dozens of UI elements need updates? How do you handle data from multiple sources? In this lesson, you'll master advanced techniques for connecting UI to game systems efficiently and elegantly.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Choose between binding and event-driven updates appropriately</li>
+                        <li>Create efficient UI update patterns for complex games</li>
+                        <li>Use Event Dispatchers for decoupled UI communication</li>
+                        <li>Implement the Model-View pattern for UI architecture</li>
+                        <li>Optimize UI performance with smart update strategies</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 7.3 (HUD Elements), Lesson 7.4 (Menus and Navigation)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#binding-vs-events" class="toc-link">Binding vs Event-Driven Updates</a></li>
+                        <li><a href="#event-dispatchers" class="toc-link">Event Dispatchers for UI</a></li>
+                        <li><a href="#ui-architecture" class="toc-link">UI Architecture Patterns</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Event-Driven Inventory UI</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Binding vs Event-Driven Updates -->
+            <section id="binding-vs-events" class="lesson-section">
+                <h2>Binding vs Event-Driven Updates</h2>
+
+                <p>We've used property bindings throughout this module—they're simple and automatic. But bindings have costs, and understanding when to use them versus event-driven updates is crucial for performant, maintainable UI.</p>
+
+                <h3>How Bindings Work</h3>
+
+                <p>When you bind a widget property to a function, UMG calls that function <strong>every frame</strong>. For a 60 FPS game, that's 60 calls per second, per binding.</p>
+
+                <p>Consider a health bar with three bindings:</p>
+                <ul>
+                    <li>Progress Bar Percent (health ratio)</li>
+                    <li>Text (health value)</li>
+                    <li>Fill Color (based on health level)</li>
+                </ul>
+
+                <p>That's 180 function calls per second—just for one health bar. Now imagine a party of 4 characters, each with health, mana, and status effects...</p>
+
+                <h3>The Cost of Bindings</h3>
+
+                <p><strong>Per-binding overhead:</strong></p>
+                <ul>
+                    <li>Function call overhead</li>
+                    <li>Getting references (if not cached)</li>
+                    <li>Any calculations in the binding</li>
+                    <li>Widget property update (even if value unchanged)</li>
+                </ul>
+
+                <p><strong>When bindings become problematic:</strong></p>
+                <ul>
+                    <li>Many bound widgets (50+ bindings)</li>
+                    <li>Complex calculations in binding functions</li>
+                    <li>Frequent reference lookups (Get Player Character every frame)</li>
+                    <li>Data that rarely changes (objectives, player name)</li>
+                </ul>
+
+                <!-- SVG: Binding Cost Visualization -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Binding vs Event-Driven: Performance Comparison</text>
+                    
+                    <!-- Binding approach -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="320" height="130" rx="8" fill="#ffebee" stroke="#f44336"/>
+                        <text x="160" y="25" text-anchor="middle" fill="#c62828" font-size="11" font-weight="bold">Property Binding</text>
+                        
+                        <text x="20" y="50" fill="#666" font-size="9">Health changes: 2 times per second</text>
+                        <text x="20" y="70" fill="#666" font-size="9">Binding calls: 60 times per second</text>
+                        <text x="20" y="90" fill="#f44336" font-size="9" font-weight="bold">58 unnecessary calls per second!</text>
+                        
+                        <rect x="20" y="100" width="280" height="20" rx="3" fill="#ffcdd2"/>
+                        <rect x="20" y="100" width="9" height="20" rx="3" fill="#f44336"/>
+                        <text x="160" y="115" text-anchor="middle" fill="#c62828" font-size="7">3% useful work</text>
+                    </g>
+                    
+                    <!-- Event approach -->
+                    <g transform="translate(430, 55)">
+                        <rect x="0" y="0" width="320" height="130" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="160" y="25" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">Event-Driven Update</text>
+                        
+                        <text x="20" y="50" fill="#666" font-size="9">Health changes: 2 times per second</text>
+                        <text x="20" y="70" fill="#666" font-size="9">Update calls: 2 times per second</text>
+                        <text x="20" y="90" fill="#4CAF50" font-size="9" font-weight="bold">Only updates when needed!</text>
+                        
+                        <rect x="20" y="100" width="280" height="20" rx="3" fill="#c8e6c9"/>
+                        <rect x="20" y="100" width="280" height="20" rx="3" fill="#4CAF50"/>
+                        <text x="160" y="115" text-anchor="middle" fill="#fff" font-size="7">100% useful work</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Bindings update every frame; events update only when data changes.</em></p>
+
+                <h3>Event-Driven Updates</h3>
+
+                <p>Instead of constantly polling for changes, update UI only when data actually changes:</p>
+
+                <ol>
+                    <li>Data changes in game logic (player takes damage)</li>
+                    <li>Game logic fires an event (OnHealthChanged)</li>
+                    <li>UI listens for that event</li>
+                    <li>UI updates only when event fires</li>
+                </ol>
+
+                <p>This is more code to set up, but far more efficient for data that changes infrequently.</p>
+
+                <h3>When to Use Each Approach</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Use Bindings When...</th>
+                            <th style="padding: 10px; text-align: left;">Use Events When...</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Data changes very frequently (every frame)</td>
+                            <td style="padding: 10px;">Data changes infrequently (seconds/minutes)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Calculation is trivial (return variable)</td>
+                            <td style="padding: 10px;">Update involves complex logic</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Few bound properties (&lt;20)</td>
+                            <td style="padding: 10px;">Many UI elements need updates</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Prototyping/quick iteration</td>
+                            <td style="padding: 10px;">Performance-critical production code</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Smooth animations (timer countdown)</td>
+                            <td style="padding: 10px;">Discrete changes (score, inventory)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Hybrid Approach</h3>
+
+                <p>Many games use both approaches strategically:</p>
+
+                <ul>
+                    <li><strong>Bindings:</strong> Smoothly animating values (health bar lerp, timer countdown)</li>
+                    <li><strong>Events:</strong> Discrete updates (score change, item pickup, objective complete)</li>
+                </ul>
+
+                <p>You can even combine them: use an event to trigger a smooth animation, which then uses a binding for the animation duration.</p>
+
+                <!-- Mermaid: Hybrid Approach -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph GameLogic["Game Logic"]
+        A["Player Takes Damage"] --> B["Fire OnHealthChanged"]
+    end
+    
+    subgraph Widget["Health Bar Widget"]
+        C["Receive Event"] --> D["Set TargetHealth"]
+        D --> E["Binding: Lerp to Target"]
+        E --> F["Smooth Animation"]
+    end
+    
+    B --> C
+    
+    style A fill:#f44336,color:#fff
+    style B fill:#667eea,color:#fff
+    style C fill:#667eea,color:#fff
+    style F fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Hybrid approach—event triggers update, binding handles smooth animation.</em></p>
+
+                <h3>Optimizing Bindings</h3>
+
+                <p>If you must use bindings, optimize them:</p>
+
+                <p><strong>1. Cache References:</strong></p>
+                <pre><code>// Bad: Gets player every frame
+Get Player Character → Cast → Get Health
+
+// Good: Cached on construct
+PlayerRef.GetHealth() // PlayerRef set once on Event Construct</code></pre>
+
+                <p><strong>2. Early Validation:</strong></p>
+                <pre><code>// Return early if reference invalid
+If NOT IsValid(PlayerRef) → Return DefaultValue
+// Only then do the actual work</code></pre>
+
+                <p><strong>3. Avoid String Operations:</strong></p>
+                <pre><code>// Bad: Creates new string every frame
+Format Text "Health: {0}" 
+
+// Better: Only format when value changes (event-driven)</code></pre>
+
+                <p><strong>4. Consider Tick Interval:</strong></p>
+                <p>For widgets that don't need 60 FPS updates, you can manually update on a timer instead of using bindings:</p>
+                <pre><code>// In widget, set a timer
+Set Timer by Function Name: "UpdateHealthDisplay"
+  Time: 0.1 (10 updates per second instead of 60)</code></pre>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Profiling UI Performance</h4>
+                    <p>Use Unreal's built-in profiler (~ key in game, then <code>stat slate</code>) to see UI performance. High "Slate Tick" times might indicate too many bindings or expensive binding functions.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Event Dispatchers for UI -->
+            <section id="event-dispatchers" class="lesson-section">
+                <h2>Event Dispatchers for UI</h2>
+
+                <p>Event Dispatchers are the backbone of event-driven UI. They allow game systems to broadcast changes without knowing which UI elements are listening—creating clean, decoupled architecture.</p>
+
+                <h3>How Event Dispatchers Work</h3>
+
+                <p>An Event Dispatcher is like a radio broadcast:</p>
+                <ol>
+                    <li><strong>Declare:</strong> Create dispatcher on the broadcaster (Character, GameState, etc.)</li>
+                    <li><strong>Bind:</strong> Listeners subscribe to the dispatcher</li>
+                    <li><strong>Call:</strong> Broadcaster fires the dispatcher when something happens</li>
+                    <li><strong>Execute:</strong> All bound listeners receive the call</li>
+                </ol>
+
+                <!-- SVG: Event Dispatcher Pattern -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Event Dispatcher: One-to-Many Communication</text>
+                    
+                    <!-- Broadcaster -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="180" height="100" rx="8" fill="#667eea"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Player Character</text>
+                        <text x="90" y="50" text-anchor="middle" fill="#c5cae9" font-size="8">Event Dispatcher:</text>
+                        <text x="90" y="65" text-anchor="middle" fill="#fff" font-size="9">OnHealthChanged(NewHealth)</text>
+                        <text x="90" y="85" text-anchor="middle" fill="#c5cae9" font-size="7">Called when health changes</text>
+                    </g>
+                    
+                    <!-- Broadcast arrows -->
+                    <path d="M 235 110 L 320 70" stroke="#4CAF50" stroke-width="2" marker-end="url(#dispatchArrow)"/>
+                    <path d="M 235 110 L 320 110" stroke="#4CAF50" stroke-width="2" marker-end="url(#dispatchArrow)"/>
+                    <path d="M 235 110 L 320 150" stroke="#4CAF50" stroke-width="2" marker-end="url(#dispatchArrow)"/>
+                    
+                    <!-- Listeners -->
+                    <g transform="translate(330, 45)">
+                        <rect x="0" y="0" width="150" height="45" rx="5" fill="#4CAF50"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">HUD Health Bar</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#c8e6c9" font-size="7">Updates bar fill</text>
+                    </g>
+                    
+                    <g transform="translate(330, 95)">
+                        <rect x="0" y="0" width="150" height="45" rx="5" fill="#FF9800"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Sound Manager</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#fff3e0" font-size="7">Plays damage sound</text>
+                    </g>
+                    
+                    <g transform="translate(330, 145)">
+                        <rect x="0" y="0" width="150" height="45" rx="5" fill="#9C27B0"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Camera Shake</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#e1bee7" font-size="7">Shakes on low health</text>
+                    </g>
+                    
+                    <!-- Additional listeners -->
+                    <g transform="translate(520, 70)">
+                        <rect x="0" y="0" width="150" height="45" rx="5" fill="#2196F3"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Game Analytics</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#bbdefb" font-size="7">Logs damage events</text>
+                    </g>
+                    
+                    <path d="M 485 117 L 515 100" stroke="#4CAF50" stroke-width="2" marker-end="url(#dispatchArrow)"/>
+                    
+                    <!-- Note -->
+                    <text x="400" y="215" text-anchor="middle" fill="#888" font-size="9">Character doesn't know who's listening—just broadcasts the event</text>
+                    
+                    <defs>
+                        <marker id="dispatchArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Event Dispatcher allows multiple systems to respond to a single event.</em></p>
+
+                <h3>Creating an Event Dispatcher</h3>
+
+                <p>In your Character Blueprint (or wherever the data lives):</p>
+
+                <ol>
+                    <li>Open My Blueprint panel</li>
+                    <li>Find <strong>Event Dispatchers</strong> section</li>
+                    <li>Click <strong>+</strong> to add new dispatcher</li>
+                    <li>Name it descriptively: <code>OnHealthChanged</code></li>
+                    <li>Select it and add parameters in Details:
+                        <ul>
+                            <li>Click <strong>+</strong> next to Inputs</li>
+                            <li>Add parameter: <code>NewHealth</code> (Float)</li>
+                            <li>Optionally add: <code>MaxHealth</code> (Float), <code>DamageAmount</code> (Float)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Calling the Dispatcher</h3>
+
+                <p>When health changes, call the dispatcher:</p>
+
+                <pre><code>// In TakeDamage function, after modifying health:
+CurrentHealth = Clamp(CurrentHealth - Damage, 0, MaxHealth)
+
+// Call the dispatcher
+Call OnHealthChanged
+  NewHealth: CurrentHealth
+  MaxHealth: MaxHealth</code></pre>
+
+                <p>Drag the dispatcher into the graph and select "Call" to fire it.</p>
+
+                <h3>Binding to the Dispatcher</h3>
+
+                <p>In your HUD widget:</p>
+
+                <ol>
+                    <li>Get reference to the Character (cache it on Event Construct)</li>
+                    <li>Drag from the reference, search for "Bind Event to OnHealthChanged"</li>
+                    <li>The node creates a red event pin—drag off and create custom event</li>
+                    <li>Name it <code>HandleHealthChanged</code></li>
+                    <li>Implement the handler to update your UI</li>
+                </ol>
+
+                <!-- SVG: Binding in Widget -->
+                <svg width="100%" height="160" viewBox="0 0 750 160" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Widget Binding to Character Dispatcher</text>
+                    
+                    <!-- Event Construct -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="110" height="40" rx="5" fill="#c62828"/>
+                        <text x="55" y="25" text-anchor="middle" fill="#fff" font-size="8">Event Construct</text>
+                    </g>
+                    
+                    <path d="M 145 75 L 175 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Get Character -->
+                    <g transform="translate(180, 55)">
+                        <rect x="0" y="0" width="110" height="40" rx="5" fill="#1565C0"/>
+                        <text x="55" y="17" text-anchor="middle" fill="#fff" font-size="7">Get Owning</text>
+                        <text x="55" y="32" text-anchor="middle" fill="#fff" font-size="7">Player Pawn</text>
+                    </g>
+                    
+                    <path d="M 295 75 L 325 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Bind -->
+                    <g transform="translate(330, 50)">
+                        <rect x="0" y="0" width="160" height="50" rx="5" fill="#667eea"/>
+                        <text x="80" y="18" text-anchor="middle" fill="#fff" font-size="8">Bind Event to</text>
+                        <text x="80" y="33" text-anchor="middle" fill="#fff" font-size="8">OnHealthChanged</text>
+                        <circle cx="150" cy="40" r="6" fill="#c62828"/>
+                    </g>
+                    
+                    <path d="M 495 75 L 525 75" stroke="#c62828" stroke-width="2"/>
+                    
+                    <!-- Custom Event -->
+                    <g transform="translate(530, 50)">
+                        <rect x="0" y="0" width="170" height="50" rx="5" fill="#c62828"/>
+                        <text x="85" y="18" text-anchor="middle" fill="#fff" font-size="8">HandleHealthChanged</text>
+                        <text x="85" y="35" text-anchor="middle" fill="#ffcdd2" font-size="7">NewHealth, MaxHealth</text>
+                    </g>
+                    
+                    <text x="375" y="130" text-anchor="middle" fill="#888" font-size="8">Binding happens once on construct • Handler called each time health changes</text>
+                </svg>
+                <p class="caption"><em>Figure: Widget binds to dispatcher on construct, receives events when health changes.</em></p>
+
+                <h3>Implementing the Handler</h3>
+
+                <p>The HandleHealthChanged event receives the parameters you defined:</p>
+
+                <pre><code>// HandleHealthChanged(NewHealth, MaxHealth)
+
+// Update progress bar
+HealthBar.SetPercent(NewHealth / MaxHealth)
+
+// Update text
+HealthText.SetText(Format("{0} / {1}", Round(NewHealth), Round(MaxHealth)))
+
+// Update color based on health level
+If NewHealth / MaxHealth > 0.6:
+    HealthBar.SetFillColorAndOpacity(Green)
+Else If NewHealth / MaxHealth > 0.3:
+    HealthBar.SetFillColorAndOpacity(Yellow)
+Else:
+    HealthBar.SetFillColorAndOpacity(Red)</code></pre>
+
+                <h3>Unbinding Dispatchers</h3>
+
+                <p>When a widget is destroyed, bindings are automatically cleaned up. But if you need to unbind manually:</p>
+
+                <pre><code>// Unbind specific event
+Unbind Event from OnHealthChanged
+
+// Unbind all events from this dispatcher
+Unbind All Events from OnHealthChanged</code></pre>
+
+                <p>Manual unbinding is useful when switching characters or changing which object the UI tracks.</p>
+
+                <h3>Common Dispatchers for UI</h3>
+
+                <p>Consider adding these dispatchers to your game systems:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">System</th>
+                            <th style="padding: 10px; text-align: left;">Dispatcher</th>
+                            <th style="padding: 10px; text-align: left;">Parameters</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Character</td>
+                            <td style="padding: 10px;">OnHealthChanged</td>
+                            <td style="padding: 10px;">NewHealth, MaxHealth, DamageAmount</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Character</td>
+                            <td style="padding: 10px;">OnDeath</td>
+                            <td style="padding: 10px;">Killer (optional)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Weapon</td>
+                            <td style="padding: 10px;">OnAmmoChanged</td>
+                            <td style="padding: 10px;">CurrentAmmo, MaxAmmo, ReserveAmmo</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Inventory</td>
+                            <td style="padding: 10px;">OnInventoryUpdated</td>
+                            <td style="padding: 10px;">ItemAdded/Removed, SlotIndex</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Game State</td>
+                            <td style="padding: 10px;">OnScoreChanged</td>
+                            <td style="padding: 10px;">NewScore, ScoreDelta</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Quest System</td>
+                            <td style="padding: 10px;">OnObjectiveUpdated</td>
+                            <td style="padding: 10px;">QuestID, ObjectiveText, Progress</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Dispatcher Timing</h4>
+                    <p>Make sure to bind to dispatchers before they fire. If your widget constructs after the character's BeginPlay, you might miss initial events. Consider calling your update function once after binding to initialize the UI with current values.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: UI Architecture Patterns -->
+            <section id="ui-architecture" class="lesson-section">
+                <h2>UI Architecture Patterns</h2>
+
+                <p>As games grow complex, having a clear architecture for UI prevents spaghetti code. Let's look at patterns that scale well.</p>
+
+                <h3>The Model-View Pattern</h3>
+
+                <p>Separate <strong>data</strong> (Model) from <strong>presentation</strong> (View):</p>
+
+                <p><strong>Model:</strong> The game data—health value, inventory array, quest status. Lives in Characters, Game State, Subsystems.</p>
+
+                <p><strong>View:</strong> The UI widgets that display the data. Knows how to present data but doesn't own it.</p>
+
+                <p>This separation means:</p>
+                <ul>
+                    <li>Data can exist without UI (headless server, AI-controlled characters)</li>
+                    <li>Multiple UIs can display the same data (HUD and inventory screen both show item count)</li>
+                    <li>UI can be swapped without changing game logic</li>
+                </ul>
+
+                <!-- Mermaid: Model-View Pattern -->
+                <pre class="mermaid">
+flowchart TB
+    subgraph Model["Model (Game Data)"]
+        A["Character Health: 75"] 
+        B["Inventory: [Sword, Potion]"]
+        C["Score: 1500"]
+    end
+    
+    subgraph View["View (UI Widgets)"]
+        D["Health Bar Widget"]
+        E["Inventory Panel"]
+        F["Score Display"]
+    end
+    
+    A -->|OnHealthChanged| D
+    B -->|OnInventoryUpdated| E
+    C -->|OnScoreChanged| F
+    
+    style A fill:#667eea,color:#fff
+    style B fill:#667eea,color:#fff
+    style C fill:#667eea,color:#fff
+    style D fill:#4CAF50,color:#fff
+    style E fill:#4CAF50,color:#fff
+    style F fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Model-View separation—data exists independently of UI presentation.</em></p>
+
+                <h3>UI Manager Pattern</h3>
+
+                <p>Centralize UI control in a manager class:</p>
+
+                <pre><code>BP_UIManager (Actor Component on Player Controller or Game Instance)
+├── ShowHUD()
+├── HideHUD()
+├── ShowPauseMenu()
+├── HidePauseMenu()
+├── ShowInventory()
+├── ShowNotification(Text, Duration)
+├── PushScreen(WidgetClass)
+├── PopScreen()
+└── References to active widgets</code></pre>
+
+                <p><strong>Benefits:</strong></p>
+                <ul>
+                    <li>Single point of control for all UI</li>
+                    <li>Manages screen stack (push/pop for nested menus)</li>
+                    <li>Handles input mode changes consistently</li>
+                    <li>Easy to query "is any menu open?"</li>
+                </ul>
+
+                <h3>Screen Stack</h3>
+
+                <p>For games with many screens, use a stack-based approach:</p>
+
+                <pre><code>Screen Stack: [MainMenu, Options, GraphicsSettings]
+                             ↑ Top (visible)
+
+PopScreen() → removes GraphicsSettings → Options now on top
+PushScreen(AudioSettings) → adds AudioSettings on top</code></pre>
+
+                <!-- SVG: Screen Stack -->
+                <svg width="100%" height="220" viewBox="0 0 700 220" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Screen Stack Navigation</text>
+                    
+                    <!-- Stack visualization -->
+                    <g transform="translate(100, 50)">
+                        <text x="100" y="15" text-anchor="middle" fill="#666" font-size="10" font-weight="bold">Current Stack</text>
+                        
+                        <!-- Stack items -->
+                        <rect x="25" y="25" width="150" height="30" rx="3" fill="#9C27B0"/>
+                        <text x="100" y="45" text-anchor="middle" fill="#fff" font-size="9">Graphics Settings</text>
+                        <text x="190" y="45" fill="#9C27B0" font-size="8">← Top (Visible)</text>
+                        
+                        <rect x="25" y="60" width="150" height="30" rx="3" fill="#667eea"/>
+                        <text x="100" y="80" text-anchor="middle" fill="#fff" font-size="9">Options Menu</text>
+                        
+                        <rect x="25" y="95" width="150" height="30" rx="3" fill="#4CAF50"/>
+                        <text x="100" y="115" text-anchor="middle" fill="#fff" font-size="9">Main Menu</text>
+                        <text x="190" y="115" fill="#4CAF50" font-size="8">← Bottom</text>
+                    </g>
+                    
+                    <!-- After Pop -->
+                    <g transform="translate(400, 50)">
+                        <text x="100" y="15" text-anchor="middle" fill="#666" font-size="10" font-weight="bold">After PopScreen()</text>
+                        
+                        <rect x="25" y="60" width="150" height="30" rx="3" fill="#667eea"/>
+                        <text x="100" y="80" text-anchor="middle" fill="#fff" font-size="9">Options Menu</text>
+                        <text x="190" y="80" fill="#667eea" font-size="8">← Now Visible</text>
+                        
+                        <rect x="25" y="95" width="150" height="30" rx="3" fill="#4CAF50"/>
+                        <text x="100" y="115" text-anchor="middle" fill="#fff" font-size="9">Main Menu</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 290 90 L 360 90" stroke="#667eea" stroke-width="2" marker-end="url(#stackArrow)"/>
+                    <text x="325" y="80" text-anchor="middle" fill="#667eea" font-size="8">Back</text>
+                    
+                    <!-- Note -->
+                    <g transform="translate(100, 165)">
+                        <rect x="0" y="0" width="500" height="40" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="250" y="17" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">Stack Benefits</text>
+                        <text x="250" y="32" text-anchor="middle" fill="#666" font-size="8">Back button always pops • Easy navigation history • Clean return paths</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="stackArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Screen stack manages menu navigation with push/pop operations.</em></p>
+
+                <h3>Widget Communication Patterns</h3>
+
+                <p><strong>Parent → Child:</strong> Direct function calls or setting exposed variables. Parent owns child, so direct access is fine.</p>
+
+                <p><strong>Child → Parent:</strong> Event Dispatchers. Child broadcasts event, parent binds and responds. Keeps child reusable.</p>
+
+                <p><strong>Sibling → Sibling:</strong> Through shared parent or through a manager. Don't have siblings reference each other directly.</p>
+
+                <p><strong>Game → UI:</strong> Event Dispatchers on game systems. UI binds to relevant dispatchers.</p>
+
+                <p><strong>UI → Game:</strong> Direct function calls (UI has reference to game systems) or commands through Player Controller.</p>
+
+                <h3>Lazy Initialization</h3>
+
+                <p>Don't create all UI at game start—create on demand:</p>
+
+                <pre><code>// In UI Manager
+Function: ShowInventory()
+  If InventoryWidget is NOT Valid:
+    Create Widget (WBP_Inventory)
+    Set InventoryWidget
+  
+  Add to Viewport (InventoryWidget)
+  // ...input mode, focus, etc.</code></pre>
+
+                <p>This reduces startup time and memory usage. Destroy infrequently used widgets after closing to free memory.</p>
+
+                <h3>Notification System</h3>
+
+                <p>Many games need floating notifications—achievements, pickups, damage numbers. Create a reusable system:</p>
+
+                <ol>
+                    <li>Create <code>WBP_Notification</code> with text, icon, animation</li>
+                    <li>Create <code>WBP_NotificationContainer</code> with Vertical Box to stack notifications</li>
+                    <li>Add to viewport once, leave always present</li>
+                    <li>Expose function: <code>ShowNotification(Text, Icon, Duration)</code></li>
+                    <li>Spawns WBP_Notification, adds to container, auto-removes after duration</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Architecture Checklist</h4>
+                    <ul>
+                        <li>Data lives in game systems, not UI widgets</li>
+                        <li>UI updates via events, not polling (where practical)</li>
+                        <li>Centralized UI Manager controls screens</li>
+                        <li>Child widgets use Event Dispatchers to communicate up</li>
+                        <li>Create widgets on demand, destroy when not needed</li>
+                        <li>Single responsibility—each widget does one thing</li>
+                    </ul>
+                </div>
+            </section>
+            <!-- Section 4: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Event-Driven Inventory UI</h2>
+
+                <p>Let's build an inventory system that demonstrates event-driven UI architecture. The inventory data lives in the Character, and the UI updates only when items change—no per-frame polling.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a simple inventory system with: an inventory data structure in the Character, Event Dispatchers that fire when inventory changes, an inventory UI that binds to these events, and item pickup that updates the UI automatically. This demonstrates clean separation between data and presentation.</p>
+                </div>
+
+                <h3>Part 1: Create the Inventory Data Structure</h3>
+
+                <h4>Step 1: Create Item Data Structure</h4>
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Blueprints → Structure</strong></li>
+                    <li>Name it <code>S_InventoryItem</code></li>
+                    <li>Open it and add variables:
+                        <ul>
+                            <li><code>ItemName</code> (Name)</li>
+                            <li><code>ItemIcon</code> (Texture 2D)</li>
+                            <li><code>Quantity</code> (Integer)</li>
+                            <li><code>Description</code> (Text)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 2: Set Up Character Inventory</h4>
+                <ol>
+                    <li>Open your Character Blueprint</li>
+                    <li>Add variable: <code>Inventory</code>
+                        <ul>
+                            <li>Type: Array of S_InventoryItem</li>
+                            <li>Make it a fixed size array of 8 slots (or dynamic)</li>
+                        </ul>
+                    </li>
+                    <li>Add variable: <code>MaxInventorySlots</code> (Integer, default: 8)</li>
+                </ol>
+
+                <h4>Step 3: Create Event Dispatchers</h4>
+                <p>In Character Blueprint, add these Event Dispatchers:</p>
+
+                <ol>
+                    <li><code>OnInventoryUpdated</code>
+                        <ul>
+                            <li>No parameters (UI will refresh entire inventory)</li>
+                        </ul>
+                    </li>
+                    <li><code>OnItemAdded</code>
+                        <ul>
+                            <li>Parameter: <code>Item</code> (S_InventoryItem)</li>
+                            <li>Parameter: <code>SlotIndex</code> (Integer)</li>
+                        </ul>
+                    </li>
+                    <li><code>OnItemRemoved</code>
+                        <ul>
+                            <li>Parameter: <code>SlotIndex</code> (Integer)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Character Inventory Structure -->
+                <svg width="100%" height="200" viewBox="0 0 750 200" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Character Inventory Data Structure</text>
+                    
+                    <!-- Character box -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="300" height="130" rx="8" fill="#667eea"/>
+                        <text x="150" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">BP_PlayerCharacter</text>
+                        
+                        <!-- Variables -->
+                        <text x="15" y="50" fill="#c5cae9" font-size="9">Variables:</text>
+                        <text x="25" y="68" fill="#fff" font-size="8">📦 Inventory (Array of S_InventoryItem)</text>
+                        <text x="25" y="83" fill="#fff" font-size="8">🔢 MaxInventorySlots = 8</text>
+                        
+                        <!-- Dispatchers -->
+                        <text x="15" y="103" fill="#c5cae9" font-size="9">Event Dispatchers:</text>
+                        <text x="25" y="118" fill="#4CAF50" font-size="8">📡 OnInventoryUpdated()</text>
+                        <text x="160" y="118" fill="#FF9800" font-size="8">📡 OnItemAdded(Item, Slot)</text>
+                    </g>
+                    
+                    <!-- Item struct -->
+                    <g transform="translate(400, 50)">
+                        <rect x="0" y="0" width="300" height="130" rx="8" fill="#4CAF50"/>
+                        <text x="150" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">S_InventoryItem (Struct)</text>
+                        
+                        <text x="25" y="55" fill="#fff" font-size="9">📝 ItemName (Name)</text>
+                        <text x="25" y="75" fill="#fff" font-size="9">🖼️ ItemIcon (Texture 2D)</text>
+                        <text x="25" y="95" fill="#fff" font-size="9">🔢 Quantity (Integer)</text>
+                        <text x="25" y="115" fill="#fff" font-size="9">📄 Description (Text)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Character holds inventory array and dispatchers; struct defines item data.</em></p>
+
+                <h3>Part 2: Create Inventory Functions</h3>
+
+                <h4>Step 4: AddItem Function</h4>
+                <p>Create function <code>AddItem</code> in Character:</p>
+
+                <ol>
+                    <li>Input: <code>NewItem</code> (S_InventoryItem)</li>
+                    <li>Output: <code>Success</code> (Boolean)</li>
+                    <li>Logic:
+                        <ul>
+                            <li>First, check if item already exists (stack if same name)</li>
+                            <li>Loop through Inventory array</li>
+                            <li>If slot has same ItemName: Add quantities, call OnInventoryUpdated, return True</li>
+                            <li>If no match found, find first empty slot</li>
+                            <li>If empty slot found: Set item at index, call OnItemAdded, return True</li>
+                            <li>If no empty slot: return False (inventory full)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <pre><code>// AddItem Function Pseudocode
+For Each slot in Inventory (with index):
+    If slot.ItemName == NewItem.ItemName:
+        slot.Quantity += NewItem.Quantity
+        Call OnInventoryUpdated
+        Return True
+
+For Each slot in Inventory (with index):
+    If slot.ItemName == None (empty):
+        Set Inventory[index] = NewItem
+        Call OnItemAdded(NewItem, index)
+        Return True
+
+Return False // Inventory full</code></pre>
+
+                <h4>Step 5: RemoveItem Function</h4>
+                <p>Create function <code>RemoveItem</code>:</p>
+
+                <ol>
+                    <li>Input: <code>SlotIndex</code> (Integer)</li>
+                    <li>Input: <code>Amount</code> (Integer, default 1)</li>
+                    <li>Logic:
+                        <ul>
+                            <li>Get item at SlotIndex</li>
+                            <li>Subtract Amount from Quantity</li>
+                            <li>If Quantity <= 0: Clear the slot, call OnItemRemoved</li>
+                            <li>Else: call OnInventoryUpdated</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 6: GetInventory Function</h4>
+                <p>Create a simple getter:</p>
+                <ol>
+                    <li>Output: Returns the Inventory array</li>
+                    <li>Used by UI to get initial state</li>
+                </ol>
+
+                <h3>Part 3: Create Inventory Slot Widget</h3>
+
+                <h4>Step 7: Create WBP_InventorySlot</h4>
+                <ol>
+                    <li>Create Widget Blueprint: <code>WBP_InventorySlot</code></li>
+                    <li>This represents a single inventory slot</li>
+                </ol>
+
+                <h4>Step 8: Design the Slot</h4>
+                <ol>
+                    <li>Root: <strong>Size Box</strong> (64 × 64)</li>
+                    <li>Inside Size Box, add <strong>Overlay</strong></li>
+                    <li>Inside Overlay:
+                        <ul>
+                            <li><strong>Image</strong>: <code>SlotBackground</code> (dark gray #2a2a2a)</li>
+                            <li><strong>Image</strong>: <code>ItemIcon</code> (Is Variable ✓)</li>
+                            <li><strong>Text Block</strong>: <code>QuantityText</code> (Is Variable ✓)
+                                <ul>
+                                    <li>Alignment: Bottom-Right</li>
+                                    <li>Padding: 4</li>
+                                    <li>Font Size: 12</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 9: Add Slot Variables</h4>
+                <p>In WBP_InventorySlot Graph:</p>
+                <ol>
+                    <li>Add variable: <code>SlotIndex</code> (Integer, Expose on Spawn ✓, Instance Editable ✓)</li>
+                    <li>Add variable: <code>CurrentItem</code> (S_InventoryItem)</li>
+                </ol>
+
+                <h4>Step 10: Create UpdateSlot Function</h4>
+                <ol>
+                    <li>Create function: <code>UpdateSlot</code></li>
+                    <li>Input: <code>Item</code> (S_InventoryItem)</li>
+                    <li>Logic:
+                        <ul>
+                            <li>Set CurrentItem = Item</li>
+                            <li>If Item.ItemName is valid/not empty:
+                                <ul>
+                                    <li>Set ItemIcon image to Item.ItemIcon</li>
+                                    <li>Set ItemIcon visibility: Visible</li>
+                                    <li>If Item.Quantity > 1: Set QuantityText to quantity, Visible</li>
+                                    <li>Else: Set QuantityText visibility: Collapsed</li>
+                                </ul>
+                            </li>
+                            <li>Else (empty slot):
+                                <ul>
+                                    <li>Set ItemIcon visibility: Collapsed</li>
+                                    <li>Set QuantityText visibility: Collapsed</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Inventory Slot Widget -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">WBP_InventorySlot Design</text>
+                    
+                    <!-- Empty slot -->
+                    <g transform="translate(100, 50)">
+                        <rect x="0" y="0" width="80" height="80" rx="5" fill="#2a2a2a" stroke="#444"/>
+                        <text x="40" y="100" text-anchor="middle" fill="#666" font-size="9">Empty Slot</text>
+                    </g>
+                    
+                    <!-- Slot with item (quantity 1) -->
+                    <g transform="translate(250, 50)">
+                        <rect x="0" y="0" width="80" height="80" rx="5" fill="#2a2a2a" stroke="#667eea" stroke-width="2"/>
+                        <rect x="15" y="15" width="50" height="50" rx="3" fill="#4CAF50"/>
+                        <text x="40" y="45" text-anchor="middle" fill="#fff" font-size="8">🗡️</text>
+                        <text x="40" y="100" text-anchor="middle" fill="#666" font-size="9">Item (qty: 1)</text>
+                    </g>
+                    
+                    <!-- Slot with stacked item -->
+                    <g transform="translate(400, 50)">
+                        <rect x="0" y="0" width="80" height="80" rx="5" fill="#2a2a2a" stroke="#667eea" stroke-width="2"/>
+                        <rect x="15" y="15" width="50" height="50" rx="3" fill="#FF9800"/>
+                        <text x="40" y="45" text-anchor="middle" fill="#fff" font-size="8">🧪</text>
+                        <text x="70" y="75" text-anchor="end" fill="#fff" font-size="12" font-weight="bold">5</text>
+                        <text x="40" y="100" text-anchor="middle" fill="#666" font-size="9">Stacked (qty: 5)</text>
+                    </g>
+                    
+                    <!-- Hierarchy -->
+                    <g transform="translate(530, 55)">
+                        <text x="0" y="0" fill="#333" font-size="9" font-weight="bold">Hierarchy:</text>
+                        <text x="0" y="18" fill="#666" font-size="8">📦 Size Box (64×64)</text>
+                        <text x="10" y="33" fill="#666" font-size="8">└─ Overlay</text>
+                        <text x="25" y="48" fill="#666" font-size="8">├─ SlotBackground</text>
+                        <text x="25" y="63" fill="#666" font-size="8">├─ ItemIcon</text>
+                        <text x="25" y="78" fill="#666" font-size="8">└─ QuantityText</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Inventory slot showing empty, single item, and stacked states.</em></p>
+
+                <h3>Part 4: Create Inventory Panel Widget</h3>
+
+                <h4>Step 11: Create WBP_InventoryPanel</h4>
+                <ol>
+                    <li>Create Widget Blueprint: <code>WBP_InventoryPanel</code></li>
+                </ol>
+
+                <h4>Step 12: Design the Panel</h4>
+                <ol>
+                    <li>Add <strong>Canvas Panel</strong> as root</li>
+                    <li>Add <strong>Image</strong> for semi-transparent background overlay</li>
+                    <li>Add <strong>Vertical Box</strong> (centered) containing:
+                        <ul>
+                            <li><strong>Text Block</strong>: "INVENTORY" (title)</li>
+                            <li><strong>Spacer</strong>: Height 10</li>
+                            <li><strong>Uniform Grid Panel</strong>: <code>SlotGrid</code> (Is Variable ✓)
+                                <ul>
+                                    <li>Slot Padding: 5</li>
+                                    <li>Min Desired Slot Width: 70</li>
+                                    <li>Min Desired Slot Height: 70</li>
+                                </ul>
+                            </li>
+                            <li><strong>Spacer</strong>: Height 20</li>
+                            <li><strong>Button</strong>: "Close" → <code>CloseButton</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 13: Add Panel Variables</h4>
+                <ol>
+                    <li><code>PlayerRef</code> (Your Character class)</li>
+                    <li><code>SlotWidgets</code> (Array of WBP_InventorySlot)</li>
+                </ol>
+
+                <h4>Step 14: Create Event Dispatcher</h4>
+                <ol>
+                    <li>Add Event Dispatcher: <code>OnCloseRequested</code></li>
+                    <li>Close button calls this dispatcher</li>
+                </ol>
+
+                <h4>Step 15: Initialize Inventory on Construct</h4>
+                <p>In Event Construct:</p>
+
+                <ol>
+                    <li>Get Owning Player Pawn → Cast to Character → Set PlayerRef</li>
+                    <li>Get MaxInventorySlots from PlayerRef</li>
+                    <li>Loop from 0 to MaxInventorySlots - 1:
+                        <ul>
+                            <li>Create Widget (WBP_InventorySlot)</li>
+                            <li>Set SlotIndex on the slot widget</li>
+                            <li>Add to SlotGrid (Add Child to Uniform Grid Panel)</li>
+                            <li>Add to SlotWidgets array</li>
+                        </ul>
+                    </li>
+                    <li>Call <code>RefreshInventory</code> to populate initial data</li>
+                    <li>Bind to PlayerRef.OnInventoryUpdated → HandleInventoryUpdated</li>
+                    <li>Bind to PlayerRef.OnItemAdded → HandleItemAdded</li>
+                    <li>Bind to PlayerRef.OnItemRemoved → HandleItemRemoved</li>
+                </ol>
+
+                <!-- SVG: Inventory Panel Binding -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Inventory Panel Event Binding</text>
+                    
+                    <!-- Event Construct chain -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="100" height="35" rx="5" fill="#c62828"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="8">Event Construct</text>
+                    </g>
+                    
+                    <path d="M 135 72 L 160 72" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(165, 55)">
+                        <rect x="0" y="0" width="110" height="35" rx="5" fill="#1565C0"/>
+                        <text x="55" y="15" text-anchor="middle" fill="#fff" font-size="7">Get PlayerRef</text>
+                        <text x="55" y="28" text-anchor="middle" fill="#90CAF9" font-size="6">+ Cache</text>
+                    </g>
+                    
+                    <path d="M 280 72 L 305 72" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(310, 55)">
+                        <rect x="0" y="0" width="110" height="35" rx="5" fill="#4CAF50"/>
+                        <text x="55" y="15" text-anchor="middle" fill="#fff" font-size="7">Create Slot</text>
+                        <text x="55" y="28" text-anchor="middle" fill="#c8e6c9" font-size="6">Widgets (loop)</text>
+                    </g>
+                    
+                    <path d="M 425 72 L 450 72" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(455, 55)">
+                        <rect x="0" y="0" width="130" height="35" rx="5" fill="#FF9800"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#fff" font-size="7">RefreshInventory</text>
+                        <text x="65" y="28" text-anchor="middle" fill="#fff3e0" font-size="6">Load initial data</text>
+                    </g>
+                    
+                    <path d="M 590 72 L 615 72" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(620, 50)">
+                        <rect x="0" y="0" width="150" height="45" rx="5" fill="#667eea"/>
+                        <text x="75" y="15" text-anchor="middle" fill="#fff" font-size="7">Bind to Dispatchers</text>
+                        <text x="75" y="30" text-anchor="middle" fill="#c5cae9" font-size="6">OnInventoryUpdated</text>
+                        <text x="75" y="42" text-anchor="middle" fill="#c5cae9" font-size="6">OnItemAdded/Removed</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <text x="400" y="130" text-anchor="middle" fill="#888" font-size="9">Initialization happens once • Events handle all future updates</text>
+                    
+                    <g transform="translate(200, 140)">
+                        <rect x="0" y="0" width="400" height="25" rx="3" fill="rgba(76,175,80,0.2)"/>
+                        <text x="200" y="17" text-anchor="middle" fill="#4CAF50" font-size="8">No bindings polling every frame—only event-driven updates!</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Panel creates slots once, then responds only to events.</em></p>
+
+                <h4>Step 16: Implement RefreshInventory</h4>
+                <p>Create function <code>RefreshInventory</code>:</p>
+
+                <ol>
+                    <li>Get Inventory array from PlayerRef</li>
+                    <li>Loop through SlotWidgets with index:
+                        <ul>
+                            <li>Get item from Inventory at same index</li>
+                            <li>Call UpdateSlot on SlotWidgets[index] with item</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 17: Implement Event Handlers</h4>
+
+                <p><strong>HandleInventoryUpdated:</strong></p>
+                <pre><code>// Simple approach: refresh everything
+Call RefreshInventory</code></pre>
+
+                <p><strong>HandleItemAdded (Item, SlotIndex):</strong></p>
+                <pre><code>// Targeted update: only update the affected slot
+Get SlotWidgets[SlotIndex]
+Call UpdateSlot(Item)</code></pre>
+
+                <p><strong>HandleItemRemoved (SlotIndex):</strong></p>
+                <pre><code>// Clear the specific slot
+Get SlotWidgets[SlotIndex]
+Call UpdateSlot(Empty S_InventoryItem)</code></pre>
+
+                <h3>Part 5: Create Item Pickup Actor</h3>
+
+                <h4>Step 18: Create BP_ItemPickup</h4>
+                <ol>
+                    <li>Create Blueprint Actor: <code>BP_ItemPickup</code></li>
+                    <li>Add components:
+                        <ul>
+                            <li><strong>Static Mesh</strong> (visible representation)</li>
+                            <li><strong>Sphere Collision</strong> (trigger for pickup)</li>
+                        </ul>
+                    </li>
+                    <li>Add variable: <code>ItemData</code> (S_InventoryItem, Instance Editable ✓, Expose on Spawn ✓)</li>
+                </ol>
+
+                <h4>Step 19: Implement Pickup Logic</h4>
+                <ol>
+                    <li>On Sphere Collision → OnComponentBeginOverlap</li>
+                    <li>Cast Other Actor to Character</li>
+                    <li>If valid: Call Character.AddItem(ItemData)</li>
+                    <li>If AddItem returns True: Destroy Actor (pickup consumed)</li>
+                    <li>If False: Don't destroy (inventory full)</li>
+                </ol>
+
+                <h3>Part 6: Set Up Player Controller</h3>
+
+                <h4>Step 20: Add Inventory Toggle</h4>
+                <p>In Player Controller:</p>
+
+                <ol>
+                    <li>Add variable: <code>InventoryWidget</code> (WBP_InventoryPanel)</li>
+                    <li>Add variable: <code>bIsInventoryOpen</code> (Boolean)</li>
+                    <li>Create functions:
+                        <ul>
+                            <li><code>OpenInventory</code></li>
+                            <li><code>CloseInventory</code></li>
+                        </ul>
+                    </li>
+                    <li>Bind input (I key or Tab) to toggle</li>
+                </ol>
+
+                <h4>Step 21: Implement OpenInventory</h4>
+                <pre><code>If NOT bIsInventoryOpen:
+    Create Widget (WBP_InventoryPanel) → Set InventoryWidget
+    Add to Viewport
+    Set Input Mode Game And UI (allow movement while inventory open, optional)
+    Set Show Mouse Cursor: True
+    Bind to InventoryWidget.OnCloseRequested → CloseInventory
+    Set bIsInventoryOpen: True</code></pre>
+
+                <h4>Step 22: Implement CloseInventory</h4>
+                <pre><code>If bIsInventoryOpen:
+    Remove from Parent (InventoryWidget)
+    Set InventoryWidget: None
+    Set Input Mode Game Only
+    Set Show Mouse Cursor: False
+    Set bIsInventoryOpen: False</code></pre>
+
+                <h3>Part 7: Test the System</h3>
+
+                <ol>
+                    <li>Place several BP_ItemPickup actors in your level</li>
+                    <li>Configure each with different ItemData (name, icon, quantity)</li>
+                    <li>Play the game</li>
+                    <li>Walk into pickups—items should be collected</li>
+                    <li>Press I to open inventory—should show collected items</li>
+                    <li>Pick up more items with inventory open—UI updates automatically!</li>
+                    <li>Try picking up same item type—should stack quantities</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've built an event-driven inventory system with:</p>
+                    <ul>
+                        <li>Clean data structure (S_InventoryItem)</li>
+                        <li>Inventory data in Character (Model)</li>
+                        <li>Event Dispatchers for change notification</li>
+                        <li>Inventory UI that only updates on events (View)</li>
+                        <li>Reusable slot widgets</li>
+                        <li>Item stacking support</li>
+                        <li>Pickup actors that integrate with the system</li>
+                    </ul>
+                    <p>This pattern scales beautifully—add more items, more slots, even multiplayer support without changing the UI architecture!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Items don't appear in inventory:</strong></p>
+                    <ul>
+                        <li>Verify AddItem is being called (add Print String)</li>
+                        <li>Check that OnItemAdded dispatcher is being called</li>
+                        <li>Verify panel binds to dispatcher on construct</li>
+                        <li>Ensure SlotWidgets array is populated</li>
+                    </ul>
+                    
+                    <p><strong>UI doesn't update when picking up items:</strong></p>
+                    <ul>
+                        <li>Confirm dispatcher binding happens before pickup</li>
+                        <li>Check that event handler calls UpdateSlot</li>
+                        <li>Verify SlotIndex matches between data and widget</li>
+                    </ul>
+                    
+                    <p><strong>Icons don't show:</strong></p>
+                    <ul>
+                        <li>Ensure ItemIcon texture is set on pickup's ItemData</li>
+                        <li>Check that Image widget brush is being set correctly</li>
+                        <li>Verify visibility is set to Visible, not Collapsed</li>
+                    </ul>
+                    
+                    <p><strong>Quantities don't stack:</strong></p>
+                    <ul>
+                        <li>Verify ItemName comparison works (exact match)</li>
+                        <li>Check that quantity addition is correct</li>
+                        <li>Ensure OnInventoryUpdated fires after stacking</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Use Item:</strong> Double-click or button to use/consume items</li>
+                    <li><strong>Drop Item:</strong> Right-click to drop items back into world</li>
+                    <li><strong>Drag and Drop:</strong> Implement slot swapping by dragging</li>
+                    <li><strong>Item Tooltips:</strong> Show description on hover</li>
+                    <li><strong>Equipment Slots:</strong> Add special slots for equipped weapon/armor</li>
+                    <li><strong>Inventory Save/Load:</strong> Persist inventory to Save Game</li>
+                    <li><strong>Item Categories:</strong> Add tabs for different item types</li>
+                    <li><strong>Notification Popup:</strong> Show "+1 Health Potion" when items are picked up</li>
+                </ol>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Complete Inventory System Architecture</text>
+                    
+                    <!-- Model (Character) -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="200" height="90" rx="8" fill="#667eea"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">MODEL: Character</text>
+                        <text x="100" y="42" text-anchor="middle" fill="#c5cae9" font-size="8">Inventory Array</text>
+                        <text x="100" y="58" text-anchor="middle" fill="#c5cae9" font-size="8">AddItem() / RemoveItem()</text>
+                        <text x="100" y="78" text-anchor="middle" fill="#4CAF50" font-size="8">Event Dispatchers</text>
+                    </g>
+                    
+                    <!-- Events -->
+                    <path d="M 255 100 L 350 100" stroke="#4CAF50" stroke-width="3" marker-end="url(#invArrow)"/>
+                    <text x="302" y="90" text-anchor="middle" fill="#4CAF50" font-size="8">Events</text>
+                    
+                    <!-- View (UI) -->
+                    <g transform="translate(360, 55)">
+                        <rect x="0" y="0" width="200" height="90" rx="8" fill="#4CAF50"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">VIEW: Inventory UI</text>
+                        <text x="100" y="42" text-anchor="middle" fill="#c8e6c9" font-size="8">WBP_InventoryPanel</text>
+                        <text x="100" y="58" text-anchor="middle" fill="#c8e6c9" font-size="8">WBP_InventorySlot[]</text>
+                        <text x="100" y="78" text-anchor="middle" fill="#c8e6c9" font-size="8">UpdateSlot() on events</text>
+                    </g>
+                    
+                    <!-- Pickup -->
+                    <g transform="translate(50, 165)">
+                        <rect x="0" y="0" width="200" height="70" rx="8" fill="#FF9800"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">BP_ItemPickup</text>
+                        <text x="100" y="42" text-anchor="middle" fill="#fff3e0" font-size="8">S_InventoryItem data</text>
+                        <text x="100" y="58" text-anchor="middle" fill="#fff3e0" font-size="8">Calls Character.AddItem()</text>
+                    </g>
+                    
+                    <path d="M 150 160 L 150 150" stroke="#FF9800" stroke-width="2" marker-end="url(#invArrow)"/>
+                    
+                    <!-- Controller -->
+                    <g transform="translate(550, 55)">
+                        <rect x="0" y="0" width="200" height="90" rx="8" fill="#9C27B0"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Player Controller</text>
+                        <text x="100" y="42" text-anchor="middle" fill="#e1bee7" font-size="8">OpenInventory()</text>
+                        <text x="100" y="58" text-anchor="middle" fill="#e1bee7" font-size="8">CloseInventory()</text>
+                        <text x="100" y="78" text-anchor="middle" fill="#e1bee7" font-size="8">Input handling</text>
+                    </g>
+                    
+                    <path d="M 565 100 L 550 100" stroke="#9C27B0" stroke-width="2"/>
+                    
+                    <!-- Benefits -->
+                    <g transform="translate(300, 175)">
+                        <rect x="0" y="0" width="450" height="60" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="225" y="20" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Event-Driven Benefits</text>
+                        <text x="225" y="38" text-anchor="middle" fill="#666" font-size="8">✓ No per-frame polling  ✓ Clean separation  ✓ Scales to complex systems</text>
+                        <text x="225" y="52" text-anchor="middle" fill="#666" font-size="8">✓ Easy to add new listeners  ✓ Testable components  ✓ Multiplayer-ready</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="invArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Complete inventory system showing Model-View separation with event-driven updates.</em></p>
+            </section>
+            <!-- Section 5: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned advanced techniques for connecting UI to game systems efficiently. Moving beyond simple bindings to event-driven architecture prepares you for building complex, performant games where UI is a first-class citizen of your codebase.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Binding Trade-offs:</strong> Property bindings are simple but run every frame. For data that changes infrequently, this wastes performance. Event-driven updates only fire when data actually changes, making them far more efficient for discrete updates like inventory, score, and objectives.</p>
+
+                <p><strong>Event Dispatchers:</strong> The backbone of event-driven UI. Game systems declare dispatchers and call them when state changes. UI widgets bind to these dispatchers and update only when notified. This creates clean, decoupled architecture where data owners don't need to know about their consumers.</p>
+
+                <p><strong>Model-View Separation:</strong> Keep data (Model) in game systems like Characters and Game State. Keep presentation (View) in UI widgets. Connect them via events. This separation makes both sides easier to modify, test, and extend independently.</p>
+
+                <p><strong>UI Manager Pattern:</strong> Centralize UI control in a manager that handles showing/hiding screens, managing input modes, and maintaining screen stacks. This prevents scattered UI logic and makes state management predictable.</p>
+
+                <p><strong>Hybrid Approaches:</strong> Use bindings for continuously animating values (lerping health bars, countdown timers) and events for discrete changes (item pickups, objective updates). Trigger animations with events, animate with bindings or Tick.</p>
+
+                <p><strong>Optimization Strategies:</strong> Cache references, validate early, avoid string operations in bindings, consider timer-based updates instead of per-frame bindings when 60 FPS updates aren't needed.</p>
+
+                <h3>Binding vs Events Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Criteria</th>
+                            <th style="padding: 10px; text-align: left;">Use Bindings</th>
+                            <th style="padding: 10px; text-align: left;">Use Events</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Update Frequency</td>
+                            <td style="padding: 10px;">Every frame / continuous</td>
+                            <td style="padding: 10px;">Occasional / discrete</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Examples</td>
+                            <td style="padding: 10px;">Timer countdown, animation lerp</td>
+                            <td style="padding: 10px;">Score, inventory, objectives</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Setup Complexity</td>
+                            <td style="padding: 10px;">Simple (one-click binding)</td>
+                            <td style="padding: 10px;">More code (dispatcher + binding)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Performance</td>
+                            <td style="padding: 10px;">Constant overhead</td>
+                            <td style="padding: 10px;">Only when triggered</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Scalability</td>
+                            <td style="padding: 10px;">Degrades with many bindings</td>
+                            <td style="padding: 10px;">Scales well</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Event Dispatcher Workflow</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Step</th>
+                            <th style="padding: 10px; text-align: left;">Location</th>
+                            <th style="padding: 10px; text-align: left;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">1. Declare</td>
+                            <td style="padding: 10px;">Data Owner (Character, etc.)</td>
+                            <td style="padding: 10px;">Create Event Dispatcher with parameters</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">2. Call</td>
+                            <td style="padding: 10px;">Data Owner</td>
+                            <td style="padding: 10px;">Call dispatcher when data changes</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">3. Bind</td>
+                            <td style="padding: 10px;">UI Widget (on Construct)</td>
+                            <td style="padding: 10px;">Bind Event to dispatcher → Custom Event</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">4. Handle</td>
+                            <td style="padding: 10px;">UI Widget</td>
+                            <td style="padding: 10px;">Update widget in the custom event handler</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">5. Initialize</td>
+                            <td style="padding: 10px;">UI Widget (on Construct)</td>
+                            <td style="padding: 10px;">Call update function once to set initial state</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Start with events for new systems:</strong> It's easier to add bindings later than to refactor from bindings to events</li>
+                    <li><strong>One dispatcher per logical event:</strong> OnHealthChanged, not OnHealthDecreased + OnHealthIncreased + OnHealthReset</li>
+                    <li><strong>Include useful parameters:</strong> Pass new values, deltas, or context that handlers might need</li>
+                    <li><strong>Initialize after binding:</strong> Call your update function once after binding to set initial UI state</li>
+                    <li><strong>Unbind when switching targets:</strong> If UI tracks different characters, unbind from old before binding to new</li>
+                    <li><strong>Keep handlers focused:</strong> Each handler updates its specific UI element, nothing more</li>
+                    <li><strong>Document your dispatchers:</strong> Comment what triggers each dispatcher and what parameters mean</li>
+                    <li><strong>Test without UI:</strong> Game logic should work without any UI bound—events just broadcast</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Event-Driven UI Architecture Overview</text>
+                    
+                    <!-- Game Systems -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="200" height="150" rx="8" fill="#667eea"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Game Systems (Model)</text>
+                        
+                        <rect x="15" y="40" width="170" height="25" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <text x="100" y="57" text-anchor="middle" fill="#fff" font-size="8">Character: Health, Inventory</text>
+                        
+                        <rect x="15" y="70" width="170" height="25" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <text x="100" y="87" text-anchor="middle" fill="#fff" font-size="8">Game State: Score, Timer</text>
+                        
+                        <rect x="15" y="100" width="170" height="25" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <text x="100" y="117" text-anchor="middle" fill="#fff" font-size="8">Quest System: Objectives</text>
+                        
+                        <text x="100" y="140" text-anchor="middle" fill="#c5cae9" font-size="7">Owns data + dispatchers</text>
+                    </g>
+                    
+                    <!-- Event flow -->
+                    <g transform="translate(280, 80)">
+                        <rect x="0" y="0" width="120" height="80" rx="40" fill="#4CAF50"/>
+                        <text x="60" y="35" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Events</text>
+                        <text x="60" y="52" text-anchor="middle" fill="#c8e6c9" font-size="7">OnHealthChanged</text>
+                        <text x="60" y="65" text-anchor="middle" fill="#c8e6c9" font-size="7">OnScoreChanged</text>
+                    </g>
+                    
+                    <path d="M 255 130 L 275 120" stroke="#4CAF50" stroke-width="2" marker-end="url(#sumEventArrow)"/>
+                    <path d="M 405 120 L 425 130" stroke="#4CAF50" stroke-width="2" marker-end="url(#sumEventArrow)"/>
+                    
+                    <!-- UI Widgets -->
+                    <g transform="translate(430, 55)">
+                        <rect x="0" y="0" width="200" height="150" rx="8" fill="#9C27B0"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">UI Widgets (View)</text>
+                        
+                        <rect x="15" y="40" width="170" height="25" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <text x="100" y="57" text-anchor="middle" fill="#fff" font-size="8">HUD: Health Bar, Ammo</text>
+                        
+                        <rect x="15" y="70" width="170" height="25" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <text x="100" y="87" text-anchor="middle" fill="#fff" font-size="8">Inventory Panel</text>
+                        
+                        <rect x="15" y="100" width="170" height="25" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <text x="100" y="117" text-anchor="middle" fill="#fff" font-size="8">Objective Tracker</text>
+                        
+                        <text x="100" y="140" text-anchor="middle" fill="#e1bee7" font-size="7">Binds + updates on events</text>
+                    </g>
+                    
+                    <!-- UI Manager -->
+                    <g transform="translate(660, 85)">
+                        <rect x="0" y="0" width="110" height="70" rx="5" fill="#FF9800"/>
+                        <text x="55" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">UI Manager</text>
+                        <text x="55" y="38" text-anchor="middle" fill="#fff3e0" font-size="7">Show/Hide</text>
+                        <text x="55" y="50" text-anchor="middle" fill="#fff3e0" font-size="7">Screen Stack</text>
+                        <text x="55" y="62" text-anchor="middle" fill="#fff3e0" font-size="7">Input Modes</text>
+                    </g>
+                    
+                    <path d="M 635 120 L 655 120" stroke="#FF9800" stroke-width="2"/>
+                    
+                    <!-- Benefits footer -->
+                    <g transform="translate(150, 210)">
+                        <text x="250" y="15" text-anchor="middle" fill="#666" font-size="9">✓ Decoupled  ✓ Performant  ✓ Scalable  ✓ Testable  ✓ Maintainable</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="sumEventArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Event-driven architecture connects game systems to UI through dispatchers.</em></p>
+
+                <h3>Module 7 Complete!</h3>
+
+                <p>Congratulations! You've completed the User Interface with UMG module. You now have the skills to create professional UI for any game:</p>
+
+                <ul>
+                    <li><strong>Lesson 7.1:</strong> UMG fundamentals, Widget Blueprints, the Designer</li>
+                    <li><strong>Lesson 7.2:</strong> Widget styling, common widgets, composition patterns</li>
+                    <li><strong>Lesson 7.3:</strong> HUD elements, data binding, health bars, ammo counters</li>
+                    <li><strong>Lesson 7.4:</strong> Menus, navigation, pause systems, input modes</li>
+                    <li><strong>Lesson 7.5:</strong> Event-driven architecture, dispatchers, scalable patterns</li>
+                </ul>
+
+                <p>With these skills, you're ready to create polished, performant UI for your Unreal Engine projects!</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is the main performance problem with property bindings?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> They use too much memory</label>
+                            <label><input type="radio" name="q1" value="b"> They are called every frame, even when data hasn't changed</label>
+                            <label><input type="radio" name="q1" value="c"> They can only return simple types</label>
+                            <label><input type="radio" name="q1" value="d"> They require C++ code</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Bindings are polled every frame regardless of whether the underlying data changed. For data that changes rarely (like objectives or score), this means most calls do nothing useful but still consume CPU time.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Where should Event Dispatchers be declared for UI data updates?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> In the UI widget that displays the data</label>
+                            <label><input type="radio" name="q2" value="b"> In a global Blueprint library</label>
+                            <label><input type="radio" name="q2" value="c"> In the object that owns the data (Character, Game State, etc.)</label>
+                            <label><input type="radio" name="q2" value="d"> In the Level Blueprint</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Dispatchers should be declared where the data lives. The Character owns health data, so it declares OnHealthChanged. The UI binds to this dispatcher. This keeps data and its change notifications together.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>In the Model-View pattern, what is the "Model"?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> The visual widgets on screen</label>
+                            <label><input type="radio" name="q3" value="b"> The game data that exists independently of UI</label>
+                            <label><input type="radio" name="q3" value="c"> The 3D models in the game world</label>
+                            <label><input type="radio" name="q3" value="d"> The player input system</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The Model is the actual game data: health values, inventory contents, quest progress. It exists and functions without any UI. The View (UI widgets) presents this data visually but doesn't own it.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>When should you bind to an Event Dispatcher in a UI widget?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> In Event Tick</label>
+                            <label><input type="radio" name="q4" value="b"> In Event Construct (or shortly after creation)</label>
+                            <label><input type="radio" name="q4" value="c"> Only when the user opens the widget</label>
+                            <label><input type="radio" name="q4" value="d"> Never—bindings are automatic</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Bind on Event Construct so the widget receives events from the moment it exists. If you bind later, you might miss events that fired before the binding was established.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What should you do after binding to a dispatcher to ensure correct initial UI state?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Wait for the first event to fire naturally</label>
+                            <label><input type="radio" name="q5" value="b"> Call your update function once manually to initialize with current values</label>
+                            <label><input type="radio" name="q5" value="c"> Create a binding alongside the event</label>
+                            <label><input type="radio" name="q5" value="d"> Nothing—the dispatcher handles initialization</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Dispatchers only fire when data changes. If the widget opens after initial values are set, it won't receive the "initial" event. Call your update function (like RefreshInventory) once after binding to populate the UI with current data.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What is a good use case for combining events and bindings (hybrid approach)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Displaying static text that never changes</label>
+                            <label><input type="radio" name="q6" value="b"> An event triggers a smooth animation, which uses a binding to lerp the value</label>
+                            <label><input type="radio" name="q6" value="c"> Replacing all bindings with events in every case</label>
+                            <label><input type="radio" name="q6" value="d"> Using bindings for menu buttons</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Hybrid approaches work well when you want discrete triggers but smooth visual transitions. An OnHealthChanged event sets a target value, then a binding (or Tick) smoothly lerps the health bar toward that target over several frames.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>What is the benefit of a UI Manager class?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> It makes widgets render faster</label>
+                            <label><input type="radio" name="q7" value="b"> It centralizes control of all UI screens, input modes, and navigation</label>
+                            <label><input type="radio" name="q7" value="c"> It automatically creates all widgets at game start</label>
+                            <label><input type="radio" name="q7" value="d"> It replaces the need for Event Dispatchers</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — A UI Manager provides a single point of control for showing/hiding screens, managing screen stacks, handling input mode changes, and querying UI state. This prevents scattered UI logic and makes the system easier to maintain.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m07_l04_menus_and_navigation.html" class="btn">← Previous: Menus and Navigation</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m08_l01_audio_fundamentals.html" class="btn">Next: Module 8 →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

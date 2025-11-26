@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn to trigger VFX from Blueprints in Unreal Engine 5. Spawn Niagara systems at runtime, respond to gameplay events, and control effects dynamically.">
+    <meta name="author" content="Practical Ace">
+    <title>Triggering VFX - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 9: Particles and VFX</a></li>
+            <li aria-current="page">Lesson 9.3: Triggering VFX</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎮 Triggering VFX</h1>
+                <p class="lead">Creating beautiful effects is only half the battle—you need to spawn them at the right time and place. An explosion when a projectile hits, sparks when a sword strikes metal, dust clouds when a character lands. This lesson teaches you to integrate Niagara effects with gameplay through Blueprints.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Spawn Niagara systems from Blueprints</li>
+                        <li>Use Spawn System at Location for one-shot effects</li>
+                        <li>Add Niagara Components for persistent effects</li>
+                        <li>Control and deactivate effects at runtime</li>
+                        <li>Pass parameters to Niagara from Blueprints</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 35-45 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 9.2 (Creating Particle Effects), Basic Blueprint knowledge</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#spawn-methods" class="toc-link">Spawn Methods</a></li>
+                        <li><a href="#niagara-components" class="toc-link">Niagara Components</a></li>
+                        <li><a href="#gameplay-triggers" class="toc-link">Common Gameplay Triggers</a></li>
+                        <li><a href="#parameters" class="toc-link">Passing Parameters</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Spawn Methods -->
+            <section id="spawn-methods" class="lesson-section">
+                <h2>Spawn Methods</h2>
+
+                <p>Unreal provides several ways to spawn Niagara effects from Blueprints. The right choice depends on whether you need a one-shot effect or ongoing control.</p>
+
+                <h3>Spawn System at Location</h3>
+
+                <p>The most common method for one-shot effects like explosions, impacts, and muzzle flashes.</p>
+
+                <p><strong>How to use:</strong></p>
+                <ol>
+                    <li>In any Blueprint, right-click and search for <strong>Spawn System at Location</strong></li>
+                    <li>Connect your execution pin (trigger event)</li>
+                    <li>Set <strong>System Template</strong> to your Niagara System</li>
+                    <li>Provide <strong>Location</strong> (world position vector)</li>
+                    <li>Optionally set <strong>Rotation</strong></li>
+                </ol>
+
+                <h3>Node Parameters</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Type</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">System Template</td>
+                            <td style="padding: 10px;">Niagara System</td>
+                            <td style="padding: 10px;">The effect to spawn</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Location</td>
+                            <td style="padding: 10px;">Vector</td>
+                            <td style="padding: 10px;">World position to spawn at</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Rotation</td>
+                            <td style="padding: 10px;">Rotator</td>
+                            <td style="padding: 10px;">Orientation of the system</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Auto Destroy</td>
+                            <td style="padding: 10px;">Boolean</td>
+                            <td style="padding: 10px;">Destroy when effect completes (default: true)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Auto Activate</td>
+                            <td style="padding: 10px;">Boolean</td>
+                            <td style="padding: 10px;">Start playing immediately (default: true)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Pooling Method</td>
+                            <td style="padding: 10px;">Enum</td>
+                            <td style="padding: 10px;">Object pooling for performance</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Spawn at Location -->
+                <svg width="100%" height="180" viewBox="0 0 750 180" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Spawn System at Location</text>
+                    
+                    <!-- Trigger event -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#c62828"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">On Hit</text>
+                        <text x="65" y="38" text-anchor="middle" fill="#ffcdd2" font-size="7">(Projectile Impact)</text>
+                        <circle cx="130" cy="25" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 185 80 L 230 80" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Spawn node -->
+                    <g transform="translate(235, 45)">
+                        <rect x="0" y="0" width="220" height="90" rx="5" fill="#1565C0"/>
+                        <text x="110" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Spawn System at Location</text>
+                        
+                        <circle cx="0" cy="35" r="4" fill="#fff"/>
+                        <text x="15" y="38" fill="#90CAF9" font-size="7">Exec</text>
+                        
+                        <circle cx="0" cy="55" r="4" fill="#4CAF50"/>
+                        <text x="15" y="58" fill="#90CAF9" font-size="7">System: NS_Explosion</text>
+                        
+                        <circle cx="0" cy="75" r="4" fill="#FFD700"/>
+                        <text x="15" y="78" fill="#90CAF9" font-size="7">Location: Hit Location</text>
+                        
+                        <circle cx="220" cy="35" r="4" fill="#fff"/>
+                        <circle cx="220" cy="60" r="4" fill="#2196F3"/>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(510, 55)">
+                        <rect x="0" y="0" width="180" height="70" rx="5" fill="rgba(255,152,0,0.2)" stroke="#FF9800"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">Result</text>
+                        <text x="90" y="40" text-anchor="middle" fill="#FF9800" font-size="8">💥 Explosion spawns</text>
+                        <text x="90" y="55" text-anchor="middle" fill="#888" font-size="7">Auto-destroys when done</text>
+                    </g>
+                    
+                    <text x="375" y="160" text-anchor="middle" fill="#888" font-size="9">One-shot effects: spawn and forget</text>
+                </svg>
+                <p class="caption"><em>Figure: Spawn System at Location for one-shot effects like explosions.</em></p>
+
+                <h3>Spawn System Attached</h3>
+
+                <p>Spawns an effect attached to a component—the effect moves with the component.</p>
+
+                <p><strong>When to use:</strong></p>
+                <ul>
+                    <li>Muzzle flash attached to weapon barrel</li>
+                    <li>Smoke trail following a projectile</li>
+                    <li>Aura effects on a character</li>
+                    <li>Exhaust attached to a vehicle</li>
+                </ul>
+
+                <p><strong>Key Parameters:</strong></p>
+                <ul>
+                    <li><strong>Attach to Component:</strong> The component to follow</li>
+                    <li><strong>Attach Point Name:</strong> Optional socket/bone name</li>
+                    <li><strong>Location Type:</strong> Keep Relative or Snap to Target</li>
+                </ul>
+
+                <h3>Choosing Between Methods</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Scenario</th>
+                            <th style="padding: 10px; text-align: left;">Method</th>
+                            <th style="padding: 10px; text-align: left;">Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Explosion at impact point</td>
+                            <td style="padding: 10px;">Spawn at Location</td>
+                            <td style="padding: 10px;">Static position, no attachment</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Muzzle flash on gun</td>
+                            <td style="padding: 10px;">Spawn Attached</td>
+                            <td style="padding: 10px;">Follows weapon movement</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Footstep dust</td>
+                            <td style="padding: 10px;">Spawn at Location</td>
+                            <td style="padding: 10px;">Dust stays where foot hit</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Rocket trail</td>
+                            <td style="padding: 10px;">Spawn Attached</td>
+                            <td style="padding: 10px;">Trail follows rocket</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Character power-up glow</td>
+                            <td style="padding: 10px;">Niagara Component</td>
+                            <td style="padding: 10px;">Persistent, needs control</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Fire and Forget</h4>
+                    <p>Spawn System at Location with Auto Destroy = true is perfect for one-shot effects. You don't need to store a reference or clean up—the system destroys itself when all particles die. This is the cleanest approach for impacts, explosions, and similar effects.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Niagara Components -->
+            <section id="niagara-components" class="lesson-section">
+                <h2>Niagara Components</h2>
+
+                <p>For effects that need to persist or be controlled over time, add a Niagara Component to your actor. This gives you full control to activate, deactivate, and modify the effect.</p>
+
+                <h3>Adding a Niagara Component</h3>
+
+                <p><strong>In the Editor:</strong></p>
+                <ol>
+                    <li>Open your Actor Blueprint</li>
+                    <li>In Components panel, click <strong>Add</strong></li>
+                    <li>Search for and add <strong>Niagara Particle System</strong></li>
+                    <li>Select it and set <strong>Niagara System Asset</strong> in Details</li>
+                    <li>Configure <strong>Auto Activate</strong> as needed</li>
+                </ol>
+
+                <p><strong>At Runtime (Blueprint):</strong></p>
+                <ol>
+                    <li>Use <strong>Add Niagara Component</strong> node</li>
+                    <li>Or <strong>Spawn System Attached</strong> returns a component reference</li>
+                </ol>
+
+                <h3>Component Control Functions</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Function</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Activate</td>
+                            <td style="padding: 10px;">Start/resume the effect</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Deactivate</td>
+                            <td style="padding: 10px;">Stop spawning, existing particles finish</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Deactivate Immediate</td>
+                            <td style="padding: 10px;">Stop immediately, kill all particles</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Is Active</td>
+                            <td style="padding: 10px;">Check if currently playing</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Reset System</td>
+                            <td style="padding: 10px;">Restart from beginning</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Set Niagara Variable</td>
+                            <td style="padding: 10px;">Pass parameters to the system</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Set Asset</td>
+                            <td style="padding: 10px;">Change the Niagara System</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Component Control -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Niagara Component Control Flow</text>
+                    
+                    <!-- States -->
+                    <g transform="translate(100, 80)">
+                        <rect x="0" y="0" width="120" height="50" rx="25" fill="#666"/>
+                        <text x="60" y="30" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Inactive</text>
+                    </g>
+                    
+                    <g transform="translate(340, 80)">
+                        <rect x="0" y="0" width="120" height="50" rx="25" fill="#4CAF50"/>
+                        <text x="60" y="30" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Active</text>
+                    </g>
+                    
+                    <g transform="translate(580, 80)">
+                        <rect x="0" y="0" width="120" height="50" rx="25" fill="#FF9800"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Finishing</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#fff3e0" font-size="7">(no new spawns)</text>
+                    </g>
+                    
+                    <!-- Transitions -->
+                    <path d="M 225 105 L 335 105" stroke="#4CAF50" stroke-width="2" marker-end="url(#compArrow)"/>
+                    <text x="280" y="95" text-anchor="middle" fill="#4CAF50" font-size="8">Activate</text>
+                    
+                    <path d="M 335 105 L 225 105" stroke="#f44336" stroke-width="2" marker-end="url(#compArrow)" transform="translate(0, 30)"/>
+                    <text x="280" y="150" text-anchor="middle" fill="#f44336" font-size="8">Deactivate Immediate</text>
+                    
+                    <path d="M 465 105 L 575 105" stroke="#FF9800" stroke-width="2" marker-end="url(#compArrow)"/>
+                    <text x="520" y="95" text-anchor="middle" fill="#FF9800" font-size="8">Deactivate</text>
+                    
+                    <path d="M 640 135 Q 640 180, 400 180 Q 160 180, 160 135" stroke="#666" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#compArrow)"/>
+                    <text x="400" y="195" text-anchor="middle" fill="#888" font-size="8">Particles die → Inactive</text>
+                    
+                    <!-- Reset -->
+                    <path d="M 400 75 Q 400 50, 400 50" stroke="#2196F3" stroke-width="2"/>
+                    <text x="400" y="60" text-anchor="middle" fill="#2196F3" font-size="8">Reset System</text>
+                    
+                    <defs>
+                        <marker id="compArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#fff"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Niagara Component state transitions.</em></p>
+
+                <h3>Example: Torch Toggle</h3>
+
+                <pre><code>// BP_Torch Blueprint
+// Has: NiagaraComponent (Fire), PointLight
+
+// Event: Interact
+Branch (Is Fire Active?)
+├── True: 
+│   ├── Fire Component → Deactivate
+│   └── Point Light → Set Visibility (False)
+└── False:
+    ├── Fire Component → Activate
+    └── Point Light → Set Visibility (True)</code></pre>
+
+                <h3>Deactivate vs Deactivate Immediate</h3>
+
+                <p><strong>Deactivate:</strong></p>
+                <ul>
+                    <li>Stops spawning new particles</li>
+                    <li>Existing particles live out their lifetime</li>
+                    <li>Effect fades naturally</li>
+                    <li>Use for: turning off fire, ending a spell</li>
+                </ul>
+
+                <p><strong>Deactivate Immediate:</strong></p>
+                <ul>
+                    <li>Stops spawning AND kills existing particles</li>
+                    <li>Effect vanishes instantly</li>
+                    <li>Use for: death, teleport, instant state change</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Best Practice</h4>
+                    <p>Use regular Deactivate for most cases—it looks more natural. Reserve Deactivate Immediate for situations where instant disappearance makes sense (actor destroyed, teleported away, etc.).</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Common Gameplay Triggers -->
+            <section id="gameplay-triggers" class="lesson-section">
+                <h2>Common Gameplay Triggers</h2>
+
+                <p>Let's look at specific gameplay scenarios and how to trigger VFX for each.</p>
+
+                <h3>Impact Effects (Projectile Hit)</h3>
+
+                <pre><code>// Projectile Blueprint - On Hit Event
+Event Hit
+├── Get Impact Point from Hit Result
+├── Get Impact Normal from Hit Result
+├── Make Rotator from Normal
+└── Spawn System at Location
+    ├── System: NS_BulletImpact
+    ├── Location: Impact Point
+    └── Rotation: Impact Rotation</code></pre>
+
+                <h3>Footstep Effects</h3>
+
+                <pre><code>// Character Blueprint - Animation Notify
+// Add Notify "FootstepVFX" in walk animation
+
+Event: Anim Notify FootstepVFX
+├── Get Foot Bone Location (from Mesh)
+├── Line Trace Down (find ground)
+├── Get Surface Type (optional)
+└── Spawn System at Location
+    ├── System: NS_FootstepDust (or surface-specific)
+    └── Location: Ground Hit Point</code></pre>
+
+                <h3>Weapon Muzzle Flash</h3>
+
+                <pre><code>// Weapon Blueprint - Fire Event
+Event Fire
+├── Spawn System Attached
+│   ├── System: NS_MuzzleFlash
+│   ├── Attach To: Gun Mesh Component
+│   └── Socket Name: "Muzzle"
+├── Play Sound at Location
+└── Spawn Projectile</code></pre>
+
+                <h3>Character State Effects</h3>
+
+                <pre><code>// Character Blueprint
+// NiagaraComponent "PowerUpVFX" added in editor (Auto Activate: false)
+
+Event: Collect Power-Up
+├── PowerUpVFX → Activate
+├── Set Timer (Duration: 10s)
+└── Play Sound
+
+Event: Power-Up Timer Expired
+├── PowerUpVFX → Deactivate
+└── Play Sound</code></pre>
+
+                <!-- SVG: Trigger Examples -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Common VFX Trigger Scenarios</text>
+                    
+                    <!-- Impact -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="160" height="110" rx="8" fill="#f44336"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">💥 Impact</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#ffcdd2" font-size="8">Trigger: On Hit</text>
+                        <text x="80" y="60" text-anchor="middle" fill="#ffcdd2" font-size="8">Method: Spawn at Location</text>
+                        <text x="80" y="80" text-anchor="middle" fill="#fff" font-size="7">Location: Impact Point</text>
+                        <text x="80" y="95" text-anchor="middle" fill="#fff" font-size="7">Rotation: Impact Normal</text>
+                    </g>
+                    
+                    <!-- Muzzle -->
+                    <g transform="translate(230, 55)">
+                        <rect x="0" y="0" width="160" height="110" rx="8" fill="#FF9800"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🔫 Muzzle Flash</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#fff3e0" font-size="8">Trigger: Fire Event</text>
+                        <text x="80" y="60" text-anchor="middle" fill="#fff3e0" font-size="8">Method: Spawn Attached</text>
+                        <text x="80" y="80" text-anchor="middle" fill="#fff" font-size="7">Attach: Gun Mesh</text>
+                        <text x="80" y="95" text-anchor="middle" fill="#fff" font-size="7">Socket: "Muzzle"</text>
+                    </g>
+                    
+                    <!-- Footstep -->
+                    <g transform="translate(410, 55)">
+                        <rect x="0" y="0" width="160" height="110" rx="8" fill="#4CAF50"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">👟 Footstep</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#c8e6c9" font-size="8">Trigger: Anim Notify</text>
+                        <text x="80" y="60" text-anchor="middle" fill="#c8e6c9" font-size="8">Method: Spawn at Location</text>
+                        <text x="80" y="80" text-anchor="middle" fill="#fff" font-size="7">Location: Foot → Ground</text>
+                        <text x="80" y="95" text-anchor="middle" fill="#fff" font-size="7">Line Trace for surface</text>
+                    </g>
+                    
+                    <!-- State -->
+                    <g transform="translate(590, 55)">
+                        <rect x="0" y="0" width="160" height="110" rx="8" fill="#9C27B0"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">✨ State Effect</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#e1bee7" font-size="8">Trigger: State Change</text>
+                        <text x="80" y="60" text-anchor="middle" fill="#e1bee7" font-size="8">Method: Component</text>
+                        <text x="80" y="80" text-anchor="middle" fill="#fff" font-size="7">Activate on start</text>
+                        <text x="80" y="95" text-anchor="middle" fill="#fff" font-size="7">Deactivate on end</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Four common gameplay scenarios and their VFX approaches.</em></p>
+
+                <h3>Surface-Based Effects</h3>
+
+                <p>Different surfaces should spawn different effects:</p>
+
+                <pre><code>// After line trace to ground
+Get Physical Surface from Hit Result
+├── Switch on Surface Type
+│   ├── Concrete → Spawn NS_DustConcrete
+│   ├── Grass → Spawn NS_DustGrass  
+│   ├── Water → Spawn NS_Splash
+│   ├── Metal → Spawn NS_Sparks
+│   └── Default → Spawn NS_DustDefault</code></pre>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Physical Materials</h4>
+                    <p>Surface-based effects require Physical Materials set up on your level geometry. Each material needs a Surface Type assigned. This is also used for footstep sounds—a common pattern is to query surface type for both sound and VFX.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Passing Parameters -->
+            <section id="parameters" class="lesson-section">
+                <h2>Passing Parameters</h2>
+
+                <p>Niagara systems can receive parameters from Blueprints, allowing you to customize effects at runtime. This enables one system to work for multiple situations—different colors, sizes, or behaviors based on gameplay context.</p>
+
+                <h3>User Parameters in Niagara</h3>
+
+                <p>First, expose parameters in your Niagara System:</p>
+
+                <ol>
+                    <li>Open your Niagara System</li>
+                    <li>In the Parameters panel, find <strong>User Exposed</strong> section</li>
+                    <li>Click <strong>+</strong> to add a new user parameter</li>
+                    <li>Choose type (Float, Vector, Color, etc.)</li>
+                    <li>Name it clearly (e.g., "EffectColor", "ExplosionScale")</li>
+                    <li>Use this parameter in your modules (drag into graph)</li>
+                </ol>
+
+                <h3>Setting Parameters from Blueprint</h3>
+
+                <p>Use <strong>Set Niagara Variable</strong> nodes:</p>
+
+                <pre><code>// For Niagara Component
+Niagara Component → Set Niagara Variable (Float)
+├── Variable Name: "ExplosionScale" (must match exactly)
+└── Value: 2.0
+
+// For spawned systems
+Spawn System at Location → Returns Component
+Component → Set Niagara Variable (Color)
+├── Variable Name: "EffectColor"
+└── Value: Red</code></pre>
+
+                <h3>Common Parameter Types</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Type</th>
+                            <th style="padding: 10px; text-align: left;">Node</th>
+                            <th style="padding: 10px; text-align: left;">Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Float</td>
+                            <td style="padding: 10px;">Set Niagara Variable (Float)</td>
+                            <td style="padding: 10px;">Scale, intensity, speed</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Vector</td>
+                            <td style="padding: 10px;">Set Niagara Variable (Vector)</td>
+                            <td style="padding: 10px;">Direction, position offset</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Linear Color</td>
+                            <td style="padding: 10px;">Set Niagara Variable (Linear Color)</td>
+                            <td style="padding: 10px;">Effect color, tint</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Bool</td>
+                            <td style="padding: 10px;">Set Niagara Variable (Bool)</td>
+                            <td style="padding: 10px;">Toggle features</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Int</td>
+                            <td style="padding: 10px;">Set Niagara Variable (Int)</td>
+                            <td style="padding: 10px;">Particle count, variant selection</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Parameter Flow -->
+                <svg width="100%" height="180" viewBox="0 0 750 180" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Parameter Flow: Blueprint → Niagara</text>
+                    
+                    <!-- Blueprint side -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="200" height="90" rx="8" fill="#1565C0"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Blueprint</text>
+                        
+                        <rect x="15" y="35" width="170" height="20" rx="3" fill="#1976D2"/>
+                        <text x="100" y="50" text-anchor="middle" fill="#fff" font-size="7">Set Niagara Variable (Color)</text>
+                        
+                        <rect x="15" y="60" width="170" height="20" rx="3" fill="#1976D2"/>
+                        <text x="100" y="75" text-anchor="middle" fill="#fff" font-size="7">"EffectColor" = Team Color</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 260 100 L 330 100" stroke="#4CAF50" stroke-width="3" marker-end="url(#paramArrow)"/>
+                    <text x="295" y="90" text-anchor="middle" fill="#4CAF50" font-size="8">Runtime</text>
+                    
+                    <!-- Niagara side -->
+                    <g transform="translate(340, 55)">
+                        <rect x="0" y="0" width="200" height="90" rx="8" fill="#FF9800"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Niagara System</text>
+                        
+                        <rect x="15" y="35" width="170" height="20" rx="3" fill="#FFA726"/>
+                        <text x="100" y="50" text-anchor="middle" fill="#fff" font-size="7">User.EffectColor</text>
+                        
+                        <rect x="15" y="60" width="170" height="20" rx="3" fill="#FFA726"/>
+                        <text x="100" y="75" text-anchor="middle" fill="#fff" font-size="7">→ Scale Color module</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(560, 60)">
+                        <rect x="0" y="0" width="140" height="80" rx="5" fill="rgba(76,175,80,0.2)" stroke="#4CAF50"/>
+                        <text x="70" y="20" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Result</text>
+                        
+                        <circle cx="40" cy="50" r="15" fill="#f44336"/>
+                        <text x="40" y="70" text-anchor="middle" fill="#f44336" font-size="7">Red Team</text>
+                        
+                        <circle cx="100" cy="50" r="15" fill="#2196F3"/>
+                        <text x="100" y="70" text-anchor="middle" fill="#2196F3" font-size="7">Blue Team</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="paramArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                            <polygon points="0 0, 10 4, 0 8" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Same effect, different colors based on team parameter.</em></p>
+
+                <h3>Example: Team-Colored Explosion</h3>
+
+                <pre><code>// Niagara System: NS_TeamExplosion
+// User Parameter: "TeamColor" (Linear Color, default White)
+// Used in: Scale Color module → Initial Color
+
+// Blueprint: Projectile On Hit
+Spawn System at Location (NS_TeamExplosion)
+├── Get Return Value (Niagara Component)
+└── Set Niagara Variable (Linear Color)
+    ├── Variable Name: "TeamColor"
+    └── Value: Owner's Team Color</code></pre>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Parameter Naming</h4>
+                    <p>The variable name in Blueprint must EXACTLY match the User Parameter name in Niagara (case-sensitive). A common mistake is mistyping the name, causing the parameter to silently fail. Double-check spelling!</p>
+                </div>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Adding VFX to Gameplay</h2>
+
+                <p>Let's integrate VFX with actual gameplay. You'll create impact effects for projectiles, muzzle flashes for weapons, and state effects for character abilities.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Wire up VFX to gameplay events: spawn explosions on projectile impact, add muzzle flash to a weapon, and create a toggleable character aura. This demonstrates the three main VFX triggering patterns.</p>
+                </div>
+
+                <h3>Prerequisites</h3>
+
+                <p>Before starting, ensure you have:</p>
+                <ul>
+                    <li>A Niagara explosion effect (or create a simple one)</li>
+                    <li>A basic projectile Blueprint (or we'll create one)</li>
+                    <li>A character Blueprint</li>
+                </ul>
+
+                <h3>Part 1: Impact Effect (Spawn at Location)</h3>
+
+                <h4>Step 1: Create Simple Projectile</h4>
+                <p>If you don't have a projectile, create one:</p>
+                <ol>
+                    <li>Right-click → <strong>Blueprint Class → Actor</strong></li>
+                    <li>Name it <code>BP_SimpleProjectile</code></li>
+                    <li>Add components:
+                        <ul>
+                            <li><strong>Sphere Collision</strong> (root, radius 10)</li>
+                            <li><strong>Static Mesh</strong> (sphere, scale 0.1)</li>
+                            <li><strong>Projectile Movement</strong></li>
+                        </ul>
+                    </li>
+                    <li>Configure Projectile Movement:
+                        <ul>
+                            <li>Initial Speed: 2000</li>
+                            <li>Max Speed: 2000</li>
+                        </ul>
+                    </li>
+                    <li>Set Sphere Collision to Block All</li>
+                </ol>
+
+                <h4>Step 2: Add On Hit Event</h4>
+                <ol>
+                    <li>Open BP_SimpleProjectile Event Graph</li>
+                    <li>Select Sphere Collision component</li>
+                    <li>In Details → Events, click <strong>+</strong> next to On Component Hit</li>
+                    <li>This creates an Event node</li>
+                </ol>
+
+                <h4>Step 3: Spawn Explosion on Hit</h4>
+                <ol>
+                    <li>From <strong>On Component Hit</strong> event:</li>
+                    <li>Drag from <strong>Hit</strong> parameter → <strong>Break Hit Result</strong></li>
+                    <li>Get <strong>Impact Point</strong> and <strong>Impact Normal</strong></li>
+                    <li>Add <strong>Make Rot from X</strong> (or use Impact Normal for rotation)</li>
+                    <li>Add <strong>Spawn System at Location</strong> node</li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>System Template:</strong> Your explosion effect</li>
+                            <li><strong>Location:</strong> Impact Point</li>
+                            <li><strong>Rotation:</strong> Make Rot from Normal</li>
+                            <li><strong>Auto Destroy:</strong> True</li>
+                        </ul>
+                    </li>
+                    <li>After spawn, add <strong>Destroy Actor</strong> (destroys projectile)</li>
+                </ol>
+
+                <!-- SVG: Impact Blueprint -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Projectile Impact VFX Blueprint</text>
+                    
+                    <!-- On Hit -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="110" height="55" rx="5" fill="#c62828"/>
+                        <text x="55" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">On Component</text>
+                        <text x="55" y="32" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Hit</text>
+                        <circle cx="110" cy="20" r="4" fill="#fff"/>
+                        <circle cx="110" cy="42" r="4" fill="#2196F3"/>
+                        <text x="85" y="48" fill="#ffcdd2" font-size="6">Hit</text>
+                    </g>
+                    
+                    <!-- Break Hit Result -->
+                    <g transform="translate(170, 55)">
+                        <rect x="0" y="0" width="110" height="55" rx="5" fill="#4CAF50"/>
+                        <text x="55" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Break Hit</text>
+                        <text x="55" y="32" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Result</text>
+                        <circle cx="0" cy="35" r="4" fill="#2196F3"/>
+                        <circle cx="110" cy="25" r="4" fill="#FFD700"/>
+                        <circle cx="110" cy="42" r="4" fill="#FFD700"/>
+                        <text x="85" y="30" fill="#c8e6c9" font-size="5">Point</text>
+                        <text x="85" y="47" fill="#c8e6c9" font-size="5">Normal</text>
+                    </g>
+                    
+                    <path d="M 145 97 L 165 90" stroke="#2196F3" stroke-width="2"/>
+                    
+                    <!-- Spawn System -->
+                    <g transform="translate(320, 45)">
+                        <rect x="0" y="0" width="180" height="85" rx="5" fill="#1565C0"/>
+                        <text x="90" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Spawn System at Location</text>
+                        <circle cx="0" cy="35" r="4" fill="#fff"/>
+                        <circle cx="0" cy="55" r="4" fill="#4CAF50"/>
+                        <text x="15" y="58" fill="#90CAF9" font-size="6">NS_Explosion</text>
+                        <circle cx="0" cy="72" r="4" fill="#FFD700"/>
+                        <text x="15" y="75" fill="#90CAF9" font-size="6">Location ←</text>
+                        <circle cx="180" cy="35" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 145 75 L 165 75 L 165 55 L 315 100" stroke="#fff" stroke-width="2"/>
+                    <path d="M 285 80 L 315 117" stroke="#FFD700" stroke-width="2"/>
+                    
+                    <!-- Destroy Actor -->
+                    <g transform="translate(540, 55)">
+                        <rect x="0" y="0" width="120" height="45" rx="5" fill="#f44336"/>
+                        <text x="60" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Destroy Actor</text>
+                        <text x="60" y="35" text-anchor="middle" fill="#ffcdd2" font-size="7">(Self)</text>
+                        <circle cx="0" cy="22" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 505 80 L 535 77" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Result visualization -->
+                    <g transform="translate(680, 55)">
+                        <circle cx="30" cy="30" r="25" fill="rgba(255,100,0,0.3)"/>
+                        <circle cx="30" cy="30" r="15" fill="rgba(255,150,0,0.5)"/>
+                        <circle cx="30" cy="30" r="8" fill="#FF9800"/>
+                        <text x="30" y="70" text-anchor="middle" fill="#FF9800" font-size="7">💥</text>
+                    </g>
+                    
+                    <text x="400" y="175" text-anchor="middle" fill="#888" font-size="9">Explosion spawns at impact point, projectile destroys itself</text>
+                </svg>
+                <p class="caption"><em>Figure: Projectile spawns explosion VFX on impact.</em></p>
+
+                <h4>Step 4: Test Projectile</h4>
+                <ol>
+                    <li>Create a simple way to spawn projectiles (key press in character)</li>
+                    <li>In Character Blueprint:
+                        <ul>
+                            <li>Input Event (e.g., Left Mouse) → Spawn Actor (BP_SimpleProjectile)</li>
+                            <li>Location: Camera location + forward offset</li>
+                        </ul>
+                    </li>
+                    <li>Play and shoot at walls</li>
+                    <li>Explosions should appear at impact points</li>
+                </ol>
+
+                <h3>Part 2: Muzzle Flash (Spawn Attached)</h3>
+
+                <h4>Step 5: Create Weapon Blueprint</h4>
+                <ol>
+                    <li>Right-click → <strong>Blueprint Class → Actor</strong></li>
+                    <li>Name it <code>BP_SimpleWeapon</code></li>
+                    <li>Add components:
+                        <ul>
+                            <li><strong>Scene</strong> (root)</li>
+                            <li><strong>Static Mesh</strong> (any gun-like mesh, or cube)</li>
+                            <li><strong>Arrow</strong> (named "Muzzle", position at barrel end)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 6: Create Fire Function</h4>
+                <ol>
+                    <li>In BP_SimpleWeapon, create a function: <code>Fire</code></li>
+                    <li>In the function:
+                        <ul>
+                            <li>Add <strong>Spawn System Attached</strong> node</li>
+                            <li>System Template: Your muzzle flash effect</li>
+                            <li>Attach to Component: Muzzle Arrow (or mesh)</li>
+                            <li>Location Type: Keep Relative Position</li>
+                        </ul>
+                    </li>
+                    <li>Add sound: <strong>Play Sound at Location</strong></li>
+                </ol>
+
+                <h4>Step 7: Attach Weapon to Character</h4>
+                <ol>
+                    <li>In Character Blueprint, add variable: <code>EquippedWeapon</code> (BP_SimpleWeapon reference)</li>
+                    <li>On Begin Play:
+                        <ul>
+                            <li>Spawn Actor (BP_SimpleWeapon)</li>
+                            <li>Attach to Mesh Component (hand socket if available)</li>
+                            <li>Store in EquippedWeapon</li>
+                        </ul>
+                    </li>
+                    <li>On Fire Input:
+                        <ul>
+                            <li>EquippedWeapon → Call Fire function</li>
+                            <li>Spawn projectile from muzzle location</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 8: Test Muzzle Flash</h4>
+                <ol>
+                    <li>Play the game</li>
+                    <li>Fire the weapon</li>
+                    <li>Muzzle flash should appear at the weapon's muzzle</li>
+                    <li>Flash follows weapon as character moves</li>
+                </ol>
+
+                <h3>Part 3: Character Aura (Component Control)</h3>
+
+                <h4>Step 9: Create Aura Effect</h4>
+                <ol>
+                    <li>Create a simple aura Niagara System (or use existing)</li>
+                    <li>Continuous spawn, particles orbiting or rising around center</li>
+                    <li>Name it <code>NS_PowerAura</code></li>
+                </ol>
+
+                <h4>Step 10: Add Niagara Component to Character</h4>
+                <ol>
+                    <li>Open your Character Blueprint</li>
+                    <li>In Components, add <strong>Niagara Particle System</strong></li>
+                    <li>Name it <code>AuraVFX</code></li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>Niagara System Asset:</strong> NS_PowerAura</li>
+                            <li><strong>Auto Activate:</strong> False (starts inactive)</li>
+                        </ul>
+                    </li>
+                    <li>Position at character center</li>
+                </ol>
+
+                <h4>Step 11: Create Toggle Logic</h4>
+                <ol>
+                    <li>Add variable: <code>bHasPowerUp</code> (Boolean, default False)</li>
+                    <li>Create function: <code>ActivatePowerUp</code>
+                        <ul>
+                            <li>Set bHasPowerUp = True</li>
+                            <li>AuraVFX → <strong>Activate</strong></li>
+                            <li>Set Timer by Event (10 seconds) → DeactivatePowerUp</li>
+                        </ul>
+                    </li>
+                    <li>Create function: <code>DeactivatePowerUp</code>
+                        <ul>
+                            <li>Set bHasPowerUp = False</li>
+                            <li>AuraVFX → <strong>Deactivate</strong></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 12: Trigger from Pickup</h4>
+                <ol>
+                    <li>Create a pickup actor (BP_PowerUpPickup)</li>
+                    <li>Add Sphere Collision for overlap</li>
+                    <li>On Overlap with Character:
+                        <ul>
+                            <li>Cast to Character → Call ActivatePowerUp</li>
+                            <li>Destroy self (pickup disappears)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Aura Control -->
+                <svg width="100%" height="180" viewBox="0 0 750 180" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Character Aura VFX Control</text>
+                    
+                    <!-- Pickup Overlap -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#c62828"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">On Overlap</text>
+                        <text x="65" y="35" text-anchor="middle" fill="#ffcdd2" font-size="7">(Power-Up Pickup)</text>
+                        <circle cx="130" cy="25" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 165 80 L 195 80" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Activate -->
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="140" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="70" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">ActivatePowerUp</text>
+                        <text x="70" y="35" text-anchor="middle" fill="#c8e6c9" font-size="7">AuraVFX → Activate</text>
+                        <text x="70" y="50" text-anchor="middle" fill="#c8e6c9" font-size="7">Set Timer (10s)</text>
+                        <circle cx="0" cy="30" r="4" fill="#fff"/>
+                        <circle cx="140" cy="30" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 345 80 L 375 80" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Timer fires -->
+                    <g transform="translate(380, 55)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#FF9800"/>
+                        <text x="50" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Timer</text>
+                        <text x="50" y="35" text-anchor="middle" fill="#fff3e0" font-size="7">10 seconds...</text>
+                        <circle cx="0" cy="25" r="4" fill="#fff"/>
+                        <circle cx="100" cy="25" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 485 80 L 515 80" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Deactivate -->
+                    <g transform="translate(520, 50)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#f44336"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">DeactivatePowerUp</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#ffcdd2" font-size="7">AuraVFX → Deactivate</text>
+                        <text x="75" y="50" text-anchor="middle" fill="#ffcdd2" font-size="7">Effect fades naturally</text>
+                        <circle cx="0" cy="30" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <text x="375" y="145" text-anchor="middle" fill="#888" font-size="9">Pickup → Activate aura → Timer expires → Deactivate (graceful fade)</text>
+                </svg>
+                <p class="caption"><em>Figure: Power-up activates character aura, timer deactivates it.</em></p>
+
+                <h4>Step 13: Test Complete System</h4>
+                <ol>
+                    <li>Place power-up pickups in level</li>
+                    <li>Play and collect a pickup</li>
+                    <li>Aura should activate around character</li>
+                    <li>After 10 seconds, aura should fade out</li>
+                    <li>Aura should follow character movement</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've implemented three essential VFX patterns:</p>
+                    <ul>
+                        <li><strong>Impact Effect:</strong> Spawn at Location for one-shot explosions</li>
+                        <li><strong>Muzzle Flash:</strong> Spawn Attached for weapon effects</li>
+                        <li><strong>Character Aura:</strong> Component control for persistent effects</li>
+                    </ul>
+                    <p>These patterns cover the vast majority of gameplay VFX needs!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Effect doesn't spawn:</strong></p>
+                    <ul>
+                        <li>Verify System Template is set (not None)</li>
+                        <li>Check that the trigger event is firing (add Print String)</li>
+                        <li>Ensure location is valid (not zero vector if unexpected)</li>
+                    </ul>
+                    
+                    <p><strong>Effect spawns at wrong location:</strong></p>
+                    <ul>
+                        <li>Debug the location vector (Print String)</li>
+                        <li>Check coordinate space (world vs local)</li>
+                        <li>For attached effects, verify component reference is valid</li>
+                    </ul>
+                    
+                    <p><strong>Niagara Component doesn't activate:</strong></p>
+                    <ul>
+                        <li>Verify Auto Activate is False if you want manual control</li>
+                        <li>Check that Activate is being called (Print before it)</li>
+                        <li>Ensure Niagara System Asset is assigned</li>
+                    </ul>
+                    
+                    <p><strong>Effect doesn't follow actor:</strong></p>
+                    <ul>
+                        <li>Use Spawn Attached instead of Spawn at Location</li>
+                        <li>Or use a Niagara Component added to the actor</li>
+                        <li>Check Location Type: Keep Relative Position</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Trail Effect:</strong> Add a smoke trail that follows the projectile until impact</li>
+                    <li><strong>Charged Attack:</strong> Scale effect intensity based on charge time</li>
+                    <li><strong>Surface Effects:</strong> Different impact VFX for different surface types</li>
+                    <li><strong>Health-Based Aura:</strong> Change aura color based on health percentage</li>
+                    <li><strong>Hit Feedback:</strong> Spawn blood/sparks when enemy is damaged</li>
+                    <li><strong>Environmental Interaction:</strong> Sparks when sword hits metal, dust when hitting stone</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned to integrate Niagara effects with gameplay through Blueprints. Knowing when and how to trigger effects transforms static particles into dynamic, responsive game elements.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Spawn System at Location:</strong> The go-to method for one-shot effects like explosions and impacts. Spawns at a world position, optionally rotates to match surface normal, and auto-destroys when complete. Perfect for fire-and-forget scenarios.</p>
+
+                <p><strong>Spawn System Attached:</strong> For effects that need to follow a moving object. Muzzle flashes, rocket trails, and character-attached effects. The effect moves with the component it's attached to.</p>
+
+                <p><strong>Niagara Components:</strong> For persistent effects requiring runtime control. Add to actors in the editor or spawn at runtime. Use Activate/Deactivate for clean on/off control. Deactivate allows graceful fade-out; Deactivate Immediate kills instantly.</p>
+
+                <p><strong>Passing Parameters:</strong> Expose User Parameters in Niagara, then use Set Niagara Variable nodes in Blueprint. Enables one effect to serve multiple purposes (team colors, intensity scaling, etc.). Variable names must match exactly.</p>
+
+                <p><strong>Common Triggers:</strong> Impact effects on collision, muzzle flash on fire, footsteps via Animation Notifies, state effects on gameplay events. Match the spawn method to the effect's needs.</p>
+
+                <h3>Spawn Method Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Method</th>
+                            <th style="padding: 10px; text-align: left;">Use Case</th>
+                            <th style="padding: 10px; text-align: left;">Key Feature</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Spawn at Location</td>
+                            <td style="padding: 10px;">Explosions, impacts, footsteps</td>
+                            <td style="padding: 10px;">Static position, auto-destroy</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Spawn Attached</td>
+                            <td style="padding: 10px;">Muzzle flash, trails, auras</td>
+                            <td style="padding: 10px;">Follows component</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Niagara Component</td>
+                            <td style="padding: 10px;">Persistent controllable effects</td>
+                            <td style="padding: 10px;">Activate/Deactivate control</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Component Control Functions</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Function</th>
+                            <th style="padding: 10px; text-align: left;">Behavior</th>
+                            <th style="padding: 10px; text-align: left;">When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Activate</td>
+                            <td style="padding: 10px;">Starts/resumes effect</td>
+                            <td style="padding: 10px;">Turning on fire, starting aura</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Deactivate</td>
+                            <td style="padding: 10px;">Stops spawning, particles fade</td>
+                            <td style="padding: 10px;">Graceful end, effect fades</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Deactivate Immediate</td>
+                            <td style="padding: 10px;">Kills all particles instantly</td>
+                            <td style="padding: 10px;">Actor destroyed, teleport</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Reset System</td>
+                            <td style="padding: 10px;">Restarts from beginning</td>
+                            <td style="padding: 10px;">Replay one-shot burst</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Is Active</td>
+                            <td style="padding: 10px;">Returns current state</td>
+                            <td style="padding: 10px;">Conditional logic</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Set Niagara Variable</td>
+                            <td style="padding: 10px;">Passes parameter value</td>
+                            <td style="padding: 10px;">Runtime customization</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Common Gameplay Patterns</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Scenario</th>
+                            <th style="padding: 10px; text-align: left;">Trigger</th>
+                            <th style="padding: 10px; text-align: left;">Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Projectile explosion</td>
+                            <td style="padding: 10px;">On Hit event</td>
+                            <td style="padding: 10px;">Spawn at Impact Point</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Muzzle flash</td>
+                            <td style="padding: 10px;">Fire event</td>
+                            <td style="padding: 10px;">Spawn Attached to muzzle</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Footstep dust</td>
+                            <td style="padding: 10px;">Animation Notify</td>
+                            <td style="padding: 10px;">Spawn at foot location</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Power-up aura</td>
+                            <td style="padding: 10px;">Pickup overlap</td>
+                            <td style="padding: 10px;">Component Activate</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Torch fire</td>
+                            <td style="padding: 10px;">Interact event</td>
+                            <td style="padding: 10px;">Component toggle</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Rocket trail</td>
+                            <td style="padding: 10px;">Projectile spawn</td>
+                            <td style="padding: 10px;">Spawn Attached to rocket</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Use the simplest method:</strong> Spawn at Location for one-shots, Component for control</li>
+                    <li><strong>Enable Auto Destroy:</strong> For one-shot effects to prevent memory leaks</li>
+                    <li><strong>Prefer Deactivate over Immediate:</strong> Graceful fade looks more polished</li>
+                    <li><strong>Match parameter names exactly:</strong> Case-sensitive, typos fail silently</li>
+                    <li><strong>Debug with Print String:</strong> Verify triggers fire before blaming VFX</li>
+                    <li><strong>Use rotation from normals:</strong> Impact effects aligned to surface look better</li>
+                    <li><strong>Pool frequently spawned effects:</strong> Use pooling for performance with many spawns</li>
+                    <li><strong>Test at runtime:</strong> Editor preview differs from actual gameplay</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">VFX Triggering Decision Guide</text>
+                    
+                    <!-- Start -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="100" height="35" rx="17" fill="#667eea"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Need VFX?</text>
+                    </g>
+                    
+                    <path d="M 400 90 L 400 110" stroke="#333" stroke-width="2"/>
+                    
+                    <!-- First decision -->
+                    <g transform="translate(320, 115)">
+                        <polygon points="80,0 160,30 80,60 0,30" fill="#FF9800"/>
+                        <text x="80" y="35" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Needs control?</text>
+                    </g>
+                    
+                    <!-- No branch - one shot -->
+                    <path d="M 315 145 L 180 145" stroke="#333" stroke-width="2"/>
+                    <text x="250" y="138" text-anchor="middle" fill="#666" font-size="8">No</text>
+                    
+                    <g transform="translate(50, 125)">
+                        <rect x="0" y="0" width="130" height="40" rx="5" fill="#4CAF50"/>
+                        <text x="65" y="17" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Spawn at Location</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#c8e6c9" font-size="7">One-shot, auto-destroy</text>
+                    </g>
+                    
+                    <!-- Yes branch -->
+                    <path d="M 485 145 L 620 145" stroke="#333" stroke-width="2"/>
+                    <text x="550" y="138" text-anchor="middle" fill="#666" font-size="8">Yes</text>
+                    
+                    <g transform="translate(620, 125)">
+                        <rect x="0" y="0" width="130" height="40" rx="5" fill="#2196F3"/>
+                        <text x="65" y="17" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Niagara Component</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#bbdefb" font-size="7">Activate/Deactivate</text>
+                    </g>
+                    
+                    <!-- Follow actor decision -->
+                    <path d="M 115 170 L 115 190" stroke="#333" stroke-width="2"/>
+                    
+                    <g transform="translate(55, 180)">
+                        <polygon points="60,0 120,20 60,40 0,20" fill="#9C27B0" transform="scale(0.8)"/>
+                        <text x="48" y="22" text-anchor="middle" fill="#fff" font-size="7">Follow actor?</text>
+                    </g>
+                    
+                    <path d="M 50 200 L 20 200 L 20 210" stroke="#333" stroke-width="1.5"/>
+                    <text x="35" y="195" fill="#666" font-size="6">Yes</text>
+                    
+                    <text x="20" y="218" text-anchor="middle" fill="#9C27B0" font-size="7">Spawn Attached</text>
+                    
+                    <path d="M 100 205 L 100 218" stroke="#333" stroke-width="1.5"/>
+                    <text x="120" y="210" fill="#666" font-size="6">No</text>
+                    
+                    <text x="100" y="226" text-anchor="middle" fill="#4CAF50" font-size="7">Static Location</text>
+                </svg>
+                <p class="caption"><em>Figure: Decision guide for choosing the right VFX spawning method.</em></p>
+
+                <h3>Module 9 Complete!</h3>
+
+                <p>Congratulations on completing the Particles and VFX module! You've learned:</p>
+
+                <ul>
+                    <li><strong>Lesson 9.1:</strong> Niagara's architecture—Systems, Emitters, Modules, and the editor</li>
+                    <li><strong>Lesson 9.2:</strong> Creating effects—spawning, movement, materials, fire/smoke/sparks</li>
+                    <li><strong>Lesson 9.3:</strong> Triggering VFX—Blueprint integration, spawn methods, parameters</li>
+                </ul>
+
+                <p>You can now create professional particle effects and integrate them seamlessly with gameplay!</p>
+
+                <h3>What's Next?</h3>
+
+                <p>The final module covers <strong>Packaging</strong>—preparing your project for distribution. You'll learn to configure project settings, optimize for different platforms, and build your game for release.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Which spawn method is best for a one-shot explosion at an impact point?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Niagara Component with Activate</label>
+                            <label><input type="radio" name="q1" value="b"> Spawn System at Location</label>
+                            <label><input type="radio" name="q1" value="c"> Spawn System Attached</label>
+                            <label><input type="radio" name="q1" value="d"> Add Niagara Component at runtime</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Spawn System at Location is ideal for one-shot effects at a specific world position. With Auto Destroy enabled, it cleans itself up when complete. No persistent reference or control needed.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What's the difference between Deactivate and Deactivate Immediate?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> No difference, they're the same</label>
+                            <label><input type="radio" name="q2" value="b"> Deactivate stops spawning but lets particles fade; Immediate kills all particles instantly</label>
+                            <label><input type="radio" name="q2" value="c"> Deactivate Immediate is slower for performance</label>
+                            <label><input type="radio" name="q2" value="d"> Deactivate only works on CPU particles</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Deactivate stops spawning new particles but allows existing particles to live out their lifetime (graceful fade). Deactivate Immediate kills all particles instantly. Use regular Deactivate for natural-looking transitions.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>For a muzzle flash that follows a moving weapon, which method should you use?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Spawn System at Location</label>
+                            <label><input type="radio" name="q3" value="b"> Spawn System Attached</label>
+                            <label><input type="radio" name="q3" value="c"> Set Actor Location every frame</label>
+                            <label><input type="radio" name="q3" value="d"> Multiple Spawn at Location calls</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Spawn System Attached attaches the effect to a component, so it automatically follows the weapon's movement. Perfect for muzzle flashes, rocket trails, and other effects that need to track with moving objects.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>How do you pass a custom color to a Niagara effect from Blueprint?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Change the material at runtime</label>
+                            <label><input type="radio" name="q4" value="b"> Create a new Niagara System for each color</label>
+                            <label><input type="radio" name="q4" value="c"> Expose a User Parameter in Niagara, use Set Niagara Variable in Blueprint</label>
+                            <label><input type="radio" name="q4" value="d"> Colors can't be changed at runtime</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Expose a User Parameter (Linear Color type) in the Niagara System, use it in your modules, then call Set Niagara Variable (Linear Color) from Blueprint with the matching parameter name.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What's a common way to trigger footstep VFX in sync with character animation?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Timer that spawns every 0.5 seconds</label>
+                            <label><input type="radio" name="q5" value="b"> Animation Notify in the walk animation</label>
+                            <label><input type="radio" name="q5" value="c"> Collision detection on feet</label>
+                            <label><input type="radio" name="q5" value="d"> Continuous spawn at character location</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Animation Notifies are the standard way to trigger events synced to specific animation frames. Add a notify at the moment each foot contacts the ground, then spawn the dust effect in response.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>When should you use a Niagara Component instead of spawning at location?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Always—it's more efficient</label>
+                            <label><input type="radio" name="q6" value="b"> Never—Spawn at Location is always better</label>
+                            <label><input type="radio" name="q6" value="c"> When you need to control the effect over time (activate, deactivate, modify)</label>
+                            <label><input type="radio" name="q6" value="d"> Only for GPU-simulated particles</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Use Niagara Components when you need persistent control: turning effects on/off, modifying parameters during gameplay, or effects that should exist for the actor's lifetime. For simple one-shots, Spawn at Location is cleaner.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>Why is it important to use the Impact Normal for explosion rotation?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> It makes the explosion bigger</label>
+                            <label><input type="radio" name="q7" value="b"> It's required for the effect to spawn</label>
+                            <label><input type="radio" name="q7" value="c"> It aligns the effect to the surface for more realistic appearance</label>
+                            <label><input type="radio" name="q7" value="d"> It improves performance</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Using the impact normal to set rotation aligns the effect perpendicular to the surface hit. This makes debris fly away from the surface realistically and ensures directional effects (like bullet holes or scorch marks) face the right way.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m09_l02_creating_particles.html" class="btn">← Previous: Creating Particle Effects</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m10_l01_project_settings.html" class="btn">Next: Project Settings →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

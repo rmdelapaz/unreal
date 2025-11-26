@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn ambient audio in Unreal Engine 5. Master Ambient Sound actors, Audio Volumes, reverb effects, and background music implementation.">
+    <meta name="author" content="Practical Ace">
+    <title>Ambient Audio - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 8: Audio Basics</a></li>
+            <li aria-current="page">Lesson 8.3: Ambient Audio</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🌲 Ambient Audio</h1>
+                <p class="lead">Ambient audio transforms silent levels into living, breathing environments. The distant hum of machinery, wind rustling through trees, echoing footsteps in a cave—these sounds tell players about the world without a single word. In this lesson, you'll learn to create immersive soundscapes using Unreal's ambient audio tools.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Place and configure Ambient Sound actors</li>
+                        <li>Use Audio Volumes for reverb and audio zones</li>
+                        <li>Create layered environmental soundscapes</li>
+                        <li>Implement background music systems</li>
+                        <li>Design audio that enhances level atmosphere</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 35-45 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 8.2 (Playing Sounds)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#ambient-sounds" class="toc-link">Ambient Sound Actors</a></li>
+                        <li><a href="#audio-volumes" class="toc-link">Audio Volumes and Reverb</a></li>
+                        <li><a href="#background-music" class="toc-link">Background Music</a></li>
+                        <li><a href="#soundscape-design" class="toc-link">Soundscape Design</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Ambient Sound Actors -->
+            <section id="ambient-sounds" class="lesson-section">
+                <h2>Ambient Sound Actors</h2>
+
+                <p>Ambient Sound actors are the easiest way to add environmental audio to your levels. They're pre-configured actors with built-in Audio Components—just place them, assign a sound, and configure attenuation. No Blueprint required.</p>
+
+                <h3>Placing Ambient Sounds</h3>
+
+                <ol>
+                    <li>In the Place Actors panel, search for <strong>Ambient Sound</strong></li>
+                    <li>Drag it into your level at the desired location</li>
+                    <li>Select the actor and open the Details panel</li>
+                    <li>Set the <strong>Sound</strong> property to your audio asset</li>
+                    <li>The sound plays automatically when the level runs</li>
+                </ol>
+
+                <h3>Ambient Sound Properties</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Property</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sound</td>
+                            <td style="padding: 10px;">The audio asset to play (Wave, Cue, MetaSound)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Auto Activate</td>
+                            <td style="padding: 10px;">Start playing when level begins (default: true)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Is UI Sound</td>
+                            <td style="padding: 10px;">Play as 2D (disable for 3D ambient)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Volume Multiplier</td>
+                            <td style="padding: 10px;">Adjust the base volume</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Pitch Multiplier</td>
+                            <td style="padding: 10px;">Adjust the pitch/speed</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Attenuation Settings</td>
+                            <td style="padding: 10px;">Override 3D distance behavior</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Override Attenuation</td>
+                            <td style="padding: 10px;">Enable per-instance attenuation tweaks</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Ambient Sound Actor -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Ambient Sound Actor in Level</text>
+                    
+                    <!-- Level viewport representation -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="350" height="150" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="175" y="18" text-anchor="middle" fill="#667eea" font-size="9">Viewport</text>
+                        
+                        <!-- Ground -->
+                        <rect x="10" y="100" width="330" height="40" fill="#3d5c3d"/>
+                        
+                        <!-- Tree/bush shapes -->
+                        <ellipse cx="60" cy="85" rx="30" ry="25" fill="#2d4a2d"/>
+                        <ellipse cx="150" cy="90" rx="25" ry="20" fill="#2d4a2d"/>
+                        
+                        <!-- Waterfall -->
+                        <rect x="220" y="50" width="40" height="50" fill="#4a90a4"/>
+                        <rect x="210" y="100" width="60" height="25" fill="#5ba3b8"/>
+                        
+                        <!-- Ambient Sound icon -->
+                        <circle cx="240" cy="75" r="20" fill="rgba(102,126,234,0.3)" stroke="#667eea" stroke-width="2"/>
+                        <text x="240" y="80" text-anchor="middle" fill="#667eea" font-size="14">🔊</text>
+                        
+                        <!-- Attenuation radius visualization -->
+                        <circle cx="240" cy="75" r="50" fill="none" stroke="#667eea" stroke-dasharray="4,2" opacity="0.5"/>
+                        <circle cx="240" cy="75" r="80" fill="none" stroke="#667eea" stroke-dasharray="4,2" opacity="0.3"/>
+                        
+                        <!-- Player -->
+                        <circle cx="100" cy="95" r="10" fill="#4CAF50"/>
+                        <text x="100" y="98" text-anchor="middle" fill="#fff" font-size="8">P</text>
+                    </g>
+                    
+                    <!-- Details panel -->
+                    <g transform="translate(450, 50)">
+                        <rect x="0" y="0" width="300" height="150" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="150" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Ambient Sound Details</text>
+                        
+                        <text x="15" y="45" fill="#4CAF50" font-size="9">Sound: SC_Waterfall_Loop</text>
+                        <text x="15" y="65" fill="#4CAF50" font-size="9">Auto Activate: ✓</text>
+                        <text x="15" y="85" fill="#FF9800" font-size="9">Volume: 0.8</text>
+                        <text x="15" y="105" fill="#2196F3" font-size="9">Attenuation: SA_WaterfallLarge</text>
+                        
+                        <text x="15" y="130" fill="#888" font-size="8">Inner: 200  Falloff: 2000</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Ambient Sound actor positioned at a waterfall with attenuation visualization.</em></p>
+
+                <h3>Configuring Attenuation</h3>
+
+                <p>Attenuation controls how the sound fades with distance. You can either:</p>
+
+                <p><strong>Use a Sound Attenuation Asset:</strong></p>
+                <ol>
+                    <li>Create a Sound Attenuation asset (reusable)</li>
+                    <li>Assign it to the Attenuation Settings property</li>
+                    <li>All Ambient Sounds using this asset share the same settings</li>
+                </ol>
+
+                <p><strong>Override Attenuation Per-Instance:</strong></p>
+                <ol>
+                    <li>Check <strong>Override Attenuation</strong></li>
+                    <li>Expand the Attenuation Overrides section</li>
+                    <li>Configure settings directly on this actor</li>
+                </ol>
+
+                <h3>Common Attenuation Presets</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Sound Type</th>
+                            <th style="padding: 10px; text-align: left;">Inner Radius</th>
+                            <th style="padding: 10px; text-align: left;">Falloff</th>
+                            <th style="padding: 10px; text-align: left;">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Small fire/torch</td>
+                            <td style="padding: 10px;">50</td>
+                            <td style="padding: 10px;">500</td>
+                            <td style="padding: 10px;">Intimate, close-range</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Machinery</td>
+                            <td style="padding: 10px;">100</td>
+                            <td style="padding: 10px;">1000</td>
+                            <td style="padding: 10px;">Room-scale</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Waterfall</td>
+                            <td style="padding: 10px;">200</td>
+                            <td style="padding: 10px;">2000</td>
+                            <td style="padding: 10px;">Large outdoor feature</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Distant thunder</td>
+                            <td style="padding: 10px;">500</td>
+                            <td style="padding: 10px;">5000</td>
+                            <td style="padding: 10px;">Atmospheric, wide range</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Global ambient bed</td>
+                            <td style="padding: 10px;">-</td>
+                            <td style="padding: 10px;">-</td>
+                            <td style="padding: 10px;">Use 2D (Is UI Sound: true)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Editor Visualization</h4>
+                    <p>In the viewport, Ambient Sound actors show their attenuation radius as a sphere wireframe. Use <strong>Show → Audio</strong> in the viewport menu to toggle this visualization. It helps you see sound coverage without playing the level.</p>
+                </div>
+
+                <h3>Looping Sounds</h3>
+
+                <p>Most ambient sounds should loop seamlessly. Configure looping:</p>
+
+                <p><strong>On the Sound Wave:</strong></p>
+                <ol>
+                    <li>Open the Sound Wave asset</li>
+                    <li>In Details, find <strong>Looping</strong></li>
+                    <li>Enable it</li>
+                </ol>
+
+                <p><strong>Using a Sound Cue:</strong></p>
+                <ol>
+                    <li>Create a Sound Cue</li>
+                    <li>Add a <strong>Looping</strong> node after the Wave Player</li>
+                    <li>Connect to Output</li>
+                </ol>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Seamless Loops</h4>
+                    <p>For seamless looping, ensure your audio file loops cleanly—the end should seamlessly connect to the beginning with no click or gap. Edit in audio software (Audacity, etc.) to create proper loop points. Many stock ambient sounds are pre-designed to loop.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Audio Volumes and Reverb -->
+            <section id="audio-volumes" class="lesson-section">
+                <h2>Audio Volumes and Reverb</h2>
+
+                <p>Audio Volumes define regions where audio properties change. The most common use is adding reverb—the echo and reflections that make caves sound cavernous and hallways sound enclosed. Reverb is one of the most impactful ways to enhance environmental audio.</p>
+
+                <h3>Creating an Audio Volume</h3>
+
+                <ol>
+                    <li>In Place Actors, search for <strong>Audio Volume</strong></li>
+                    <li>Drag it into your level</li>
+                    <li>Scale and position to cover your area (cave, room, hallway)</li>
+                    <li>Select it and configure in Details panel</li>
+                </ol>
+
+                <h3>Audio Volume Properties</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Property</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Priority</td>
+                            <td style="padding: 10px;">Higher priority volumes override lower (for overlaps)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Apply Reverb</td>
+                            <td style="padding: 10px;">Enable reverb effect in this volume</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Reverb Effect</td>
+                            <td style="padding: 10px;">The reverb preset to apply</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Volume</td>
+                            <td style="padding: 10px;">Reverb intensity (0-1)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Fade Time</td>
+                            <td style="padding: 10px;">Seconds to transition when entering/exiting</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Creating Reverb Effects</h3>
+
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Sounds → Reverb Effect</strong></li>
+                    <li>Name it descriptively (e.g., <code>RE_Cave</code>, <code>RE_Hallway</code>)</li>
+                    <li>Open it and adjust parameters</li>
+                </ol>
+
+                <h3>Reverb Parameters</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Effect</th>
+                            <th style="padding: 10px; text-align: left;">Typical Range</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Density</td>
+                            <td style="padding: 10px;">Complexity of reflections</td>
+                            <td style="padding: 10px;">0.0 - 1.0</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Diffusion</td>
+                            <td style="padding: 10px;">Spread of reflections</td>
+                            <td style="padding: 10px;">0.0 - 1.0</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Gain</td>
+                            <td style="padding: 10px;">Overall reverb volume</td>
+                            <td style="padding: 10px;">0.0 - 1.0</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Decay Time</td>
+                            <td style="padding: 10px;">How long reverb lasts (seconds)</td>
+                            <td style="padding: 10px;">0.1 - 20.0</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Late Delay</td>
+                            <td style="padding: 10px;">Delay before reverb tail</td>
+                            <td style="padding: 10px;">0.0 - 0.1</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Air Absorption</td>
+                            <td style="padding: 10px;">High frequency damping</td>
+                            <td style="padding: 10px;">0.0 - 1.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Audio Volume Reverb -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Audio Volume with Reverb</text>
+                    
+                    <!-- Level cross-section -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="400" height="160" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="200" y="18" text-anchor="middle" fill="#667eea" font-size="9">Level Cross-Section</text>
+                        
+                        <!-- Outdoor area -->
+                        <rect x="10" y="30" width="120" height="110" fill="#3d5c3d"/>
+                        <text x="70" y="90" text-anchor="middle" fill="#81C784" font-size="8">Outdoor</text>
+                        <text x="70" y="102" text-anchor="middle" fill="#81C784" font-size="7">(No reverb)</text>
+                        
+                        <!-- Cave entrance -->
+                        <rect x="130" y="30" width="30" height="110" fill="#5d4037"/>
+                        
+                        <!-- Cave interior with Audio Volume -->
+                        <rect x="160" y="30" width="230" height="110" fill="#3e2723" stroke="#9C27B0" stroke-width="3" stroke-dasharray="5,3"/>
+                        <text x="275" y="55" text-anchor="middle" fill="#9C27B0" font-size="9" font-weight="bold">Audio Volume</text>
+                        <text x="275" y="90" text-anchor="middle" fill="#CE93D8" font-size="8">RE_Cave</text>
+                        <text x="275" y="105" text-anchor="middle" fill="#CE93D8" font-size="7">Decay: 3.0s</text>
+                        <text x="275" y="118" text-anchor="middle" fill="#CE93D8" font-size="7">High reverb</text>
+                        
+                        <!-- Player moving -->
+                        <circle cx="90" cy="85" r="10" fill="#4CAF50" opacity="0.5"/>
+                        <circle cx="200" cy="85" r="10" fill="#4CAF50"/>
+                        <text x="200" y="88" text-anchor="middle" fill="#fff" font-size="8">P</text>
+                        
+                        <!-- Arrow showing movement -->
+                        <path d="M 105 85 L 185 85" stroke="#4CAF50" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#reverbArrow)"/>
+                    </g>
+                    
+                    <!-- Reverb effect details -->
+                    <g transform="translate(500, 50)">
+                        <rect x="0" y="0" width="250" height="160" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="125" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">RE_Cave Settings</text>
+                        
+                        <text x="15" y="50" fill="#9C27B0" font-size="9">Density: 1.0</text>
+                        <text x="15" y="70" fill="#9C27B0" font-size="9">Diffusion: 1.0</text>
+                        <text x="15" y="90" fill="#9C27B0" font-size="9">Gain: 0.8</text>
+                        <text x="15" y="110" fill="#FF9800" font-size="9">Decay Time: 3.0</text>
+                        <text x="15" y="130" fill="#FF9800" font-size="9">Late Delay: 0.02</text>
+                        <text x="15" y="150" fill="#2196F3" font-size="9">Air Absorption: 0.5</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <text x="400" y="225" text-anchor="middle" fill="#888" font-size="9">Player entering the cave triggers reverb transition over Fade Time</text>
+                    
+                    <defs>
+                        <marker id="reverbArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Audio Volume applies cave reverb when the player enters.</em></p>
+
+                <h3>Reverb Presets by Environment</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Environment</th>
+                            <th style="padding: 10px; text-align: left;">Decay</th>
+                            <th style="padding: 10px; text-align: left;">Density</th>
+                            <th style="padding: 10px; text-align: left;">Character</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Small room</td>
+                            <td style="padding: 10px;">0.5 - 1.0</td>
+                            <td style="padding: 10px;">0.7</td>
+                            <td style="padding: 10px;">Tight, minimal echo</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Hallway</td>
+                            <td style="padding: 10px;">1.5 - 2.5</td>
+                            <td style="padding: 10px;">0.5</td>
+                            <td style="padding: 10px;">Flutter echoes</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Large hall</td>
+                            <td style="padding: 10px;">2.0 - 4.0</td>
+                            <td style="padding: 10px;">0.9</td>
+                            <td style="padding: 10px;">Grand, spacious</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Cave</td>
+                            <td style="padding: 10px;">3.0 - 5.0</td>
+                            <td style="padding: 10px;">1.0</td>
+                            <td style="padding: 10px;">Dark, boomy</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Cathedral</td>
+                            <td style="padding: 10px;">5.0 - 10.0</td>
+                            <td style="padding: 10px;">1.0</td>
+                            <td style="padding: 10px;">Massive, ethereal</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Outdoor</td>
+                            <td style="padding: 10px;">0.1 - 0.3</td>
+                            <td style="padding: 10px;">0.3</td>
+                            <td style="padding: 10px;">Minimal (or none)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Fade Time Matters</h4>
+                    <p>Set an appropriate Fade Time (0.5-2.0 seconds) to smooth transitions between areas. Instant reverb changes sound jarring and unnatural. A gradual fade mimics how your ears would adapt moving between spaces.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Background Music -->
+            <section id="background-music" class="lesson-section">
+                <h2>Background Music</h2>
+
+                <p>Background music sets the emotional tone of your game. Unlike ambient sounds, music typically plays as 2D audio—constant volume regardless of position. Managing music involves starting tracks, transitioning between them, and responding to gameplay states.</p>
+
+                <h3>Music Playback Strategies</h3>
+
+                <p><strong>Strategy 1: Simple 2D Loop</strong></p>
+                <p>For games with a single music track:</p>
+                <ol>
+                    <li>In Game Mode or Player Controller BeginPlay</li>
+                    <li>Use <strong>Play Sound 2D</strong> with your music track</li>
+                    <li>Enable looping on the Sound Wave</li>
+                </ol>
+
+                <p><strong>Strategy 2: Controllable Music Component</strong></p>
+                <p>For music that needs fading or switching:</p>
+                <ol>
+                    <li>Use <strong>Spawn Sound 2D</strong> to get a reference</li>
+                    <li>Store the Audio Component reference</li>
+                    <li>Use Fade In/Fade Out for transitions</li>
+                </ol>
+
+                <p><strong>Strategy 3: Music Manager</strong></p>
+                <p>For complex music systems:</p>
+                <ol>
+                    <li>Create a dedicated Music Manager Actor or Component</li>
+                    <li>Track current music state</li>
+                    <li>Handle crossfades between tracks</li>
+                    <li>Respond to gameplay events (combat, exploration, menu)</li>
+                </ol>
+
+                <!-- SVG: Music Flow -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Music State Flow</text>
+                    
+                    <!-- States -->
+                    <g transform="translate(50, 70)">
+                        <rect x="0" y="0" width="120" height="50" rx="25" fill="#4CAF50"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Exploration</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#c8e6c9" font-size="7">Calm ambient</text>
+                    </g>
+                    
+                    <g transform="translate(250, 70)">
+                        <rect x="0" y="0" width="120" height="50" rx="25" fill="#f44336"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Combat</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#ffcdd2" font-size="7">Intense action</text>
+                    </g>
+                    
+                    <g transform="translate(450, 70)">
+                        <rect x="0" y="0" width="120" height="50" rx="25" fill="#FF9800"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Victory</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#fff3e0" font-size="7">Triumphant sting</text>
+                    </g>
+                    
+                    <g transform="translate(650, 70)">
+                        <rect x="0" y="0" width="100" height="50" rx="25" fill="#9C27B0"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Menu</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#e1bee7" font-size="7">Title theme</text>
+                    </g>
+                    
+                    <!-- Transitions -->
+                    <path d="M 175 95 L 245 95" stroke="#666" stroke-width="2" marker-end="url(#musicArrow)"/>
+                    <text x="210" y="85" text-anchor="middle" fill="#666" font-size="7">Enemy detected</text>
+                    
+                    <path d="M 245 95 L 175 95" stroke="#666" stroke-width="2" marker-end="url(#musicArrow)" transform="translate(0, 20)"/>
+                    <text x="210" y="130" text-anchor="middle" fill="#666" font-size="7">Combat ends</text>
+                    
+                    <path d="M 375 95 L 445 95" stroke="#666" stroke-width="2" marker-end="url(#musicArrow)"/>
+                    <text x="410" y="85" text-anchor="middle" fill="#666" font-size="7">Boss defeated</text>
+                    
+                    <path d="M 575 95 L 645 95" stroke="#666" stroke-width="2" marker-end="url(#musicArrow)"/>
+                    <text x="610" y="85" text-anchor="middle" fill="#666" font-size="7">Pause</text>
+                    
+                    <!-- Crossfade note -->
+                    <g transform="translate(200, 150)">
+                        <rect x="0" y="0" width="400" height="30" rx="3" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="200" y="20" text-anchor="middle" fill="#667eea" font-size="8">Transitions use crossfade: Fade Out current (1s) while Fade In new (1s)</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="musicArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Music transitions between gameplay states with crossfades.</em></p>
+
+                <h3>Simple Music Manager Blueprint</h3>
+
+                <p>Here's a basic approach for a Music Manager:</p>
+
+                <pre><code>// Variables:
+- CurrentMusicComponent (Audio Component)
+- ExplorationMusic (Sound Base)
+- CombatMusic (Sound Base)
+- FadeDuration (Float, default 1.0)
+
+// Function: PlayMusic(NewMusic)
+1. If CurrentMusicComponent is valid and playing:
+   - Fade Out over FadeDuration
+   - Set Timer to destroy after fade
+2. Spawn Sound 2D (NewMusic) → Store in CurrentMusicComponent
+3. Set Volume Multiplier to 0
+4. Fade In over FadeDuration
+
+// Function: StartCombat()
+- Call PlayMusic(CombatMusic)
+
+// Function: EndCombat()
+- Call PlayMusic(ExplorationMusic)</code></pre>
+
+                <h3>Music and Pause Menu</h3>
+
+                <p>When pausing the game, you have options:</p>
+
+                <ul>
+                    <li><strong>Duck music:</strong> Reduce volume to 30-50% so UI sounds are clear</li>
+                    <li><strong>Pause music:</strong> Stop playback, resume when unpaused</li>
+                    <li><strong>Switch to menu music:</strong> Crossfade to a separate menu track</li>
+                </ul>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Sound Class for Music</h4>
+                    <p>Assign all music to a dedicated Music Sound Class. This lets players adjust music volume independently from SFX, and makes ducking during pause menus trivial—just adjust the class volume.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Soundscape Design -->
+            <section id="soundscape-design" class="lesson-section">
+                <h2>Soundscape Design</h2>
+
+                <p>A great soundscape uses multiple audio layers working together. Rather than a single "forest sound," you combine wind, bird calls, rustling leaves, distant water, and occasional animal sounds. This creates a rich, believable environment.</p>
+
+                <h3>The Layer Approach</h3>
+
+                <p><strong>Layer 1: Ambient Bed (2D)</strong></p>
+                <ul>
+                    <li>Constant, low-level background</li>
+                    <li>Plays everywhere in the level</li>
+                    <li>Examples: wind, room tone, distant city hum</li>
+                    <li>Use Play Sound 2D or Ambient Sound with Is UI Sound enabled</li>
+                </ul>
+
+                <p><strong>Layer 2: Regional Sounds (3D, Large Radius)</strong></p>
+                <ul>
+                    <li>Define major areas</li>
+                    <li>Large attenuation radius</li>
+                    <li>Examples: river, industrial area, forest section</li>
+                    <li>Use Ambient Sound actors positioned in each region</li>
+                </ul>
+
+                <p><strong>Layer 3: Point Sources (3D, Small Radius)</strong></p>
+                <ul>
+                    <li>Specific objects in the world</li>
+                    <li>Small to medium attenuation</li>
+                    <li>Examples: campfire, generator, fountain, torch</li>
+                    <li>Use Ambient Sound or Audio Components on actors</li>
+                </ul>
+
+                <p><strong>Layer 4: Random/Interval Sounds</strong></p>
+                <ul>
+                    <li>Occasional sounds for life and variety</li>
+                    <li>Not constant—triggered by timer or random chance</li>
+                    <li>Examples: bird calls, distant thunder, creaking wood</li>
+                    <li>Use Sound Cues with random delays or Blueprint timers</li>
+                </ul>
+
+                <!-- SVG: Soundscape Layers -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Soundscape Layers</text>
+                    
+                    <!-- Layer visualization -->
+                    <g transform="translate(50, 50)">
+                        <!-- Layer 1: Bed -->
+                        <rect x="0" y="0" width="700" height="40" rx="5" fill="#2196F3" opacity="0.3"/>
+                        <rect x="0" y="0" width="700" height="40" rx="5" fill="none" stroke="#2196F3" stroke-width="2"/>
+                        <text x="350" y="25" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Layer 1: Ambient Bed (2D - Everywhere)</text>
+                    </g>
+                    
+                    <g transform="translate(50, 100)">
+                        <!-- Layer 2: Regional -->
+                        <rect x="50" y="0" width="250" height="40" rx="5" fill="#4CAF50" opacity="0.3"/>
+                        <rect x="50" y="0" width="250" height="40" rx="5" fill="none" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="175" y="25" text-anchor="middle" fill="#2E7D32" font-size="9" font-weight="bold">Forest Region</text>
+                        
+                        <rect x="350" y="0" width="300" height="40" rx="5" fill="#FF9800" opacity="0.3"/>
+                        <rect x="350" y="0" width="300" height="40" rx="5" fill="none" stroke="#FF9800" stroke-width="2"/>
+                        <text x="500" y="25" text-anchor="middle" fill="#E65100" font-size="9" font-weight="bold">Industrial Region</text>
+                    </g>
+                    
+                    <g transform="translate(50, 150)">
+                        <!-- Layer 3: Point sources -->
+                        <circle cx="100" cy="20" r="30" fill="#9C27B0" opacity="0.3"/>
+                        <circle cx="100" cy="20" r="30" fill="none" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="100" y="24" text-anchor="middle" fill="#7B1FA2" font-size="8">🔥 Fire</text>
+                        
+                        <circle cx="250" cy="20" r="25" fill="#9C27B0" opacity="0.3"/>
+                        <circle cx="250" cy="20" r="25" fill="none" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="250" y="24" text-anchor="middle" fill="#7B1FA2" font-size="8">💧 Well</text>
+                        
+                        <circle cx="420" cy="20" r="35" fill="#9C27B0" opacity="0.3"/>
+                        <circle cx="420" cy="20" r="35" fill="none" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="420" y="24" text-anchor="middle" fill="#7B1FA2" font-size="8">⚙️ Machine</text>
+                        
+                        <circle cx="580" cy="20" r="20" fill="#9C27B0" opacity="0.3"/>
+                        <circle cx="580" cy="20" r="20" fill="none" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="580" y="24" text-anchor="middle" fill="#7B1FA2" font-size="7">💡 Light</text>
+                    </g>
+                    
+                    <g transform="translate(50, 210)">
+                        <!-- Layer 4: Random -->
+                        <text x="80" y="15" fill="#f44336" font-size="10">🐦</text>
+                        <text x="200" y="20" fill="#f44336" font-size="10">🐦</text>
+                        <text x="350" y="10" fill="#f44336" font-size="10">⚡</text>
+                        <text x="500" y="18" fill="#f44336" font-size="10">🌲</text>
+                        <text x="620" y="12" fill="#f44336" font-size="10">🐦</text>
+                        
+                        <text x="350" y="40" text-anchor="middle" fill="#c62828" font-size="9">Layer 4: Random Sounds (Birds, Thunder, Creaks - Interval Triggered)</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(550, 245)">
+                        <text x="100" y="15" text-anchor="middle" fill="#666" font-size="8">Layers combine for rich, believable audio</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Multiple audio layers create a complete soundscape.</em></p>
+
+                <h3>Random Sound Implementation</h3>
+
+                <p>For occasional sounds (birds, thunder), use one of these approaches:</p>
+
+                <p><strong>Sound Cue with Delay:</strong></p>
+                <ol>
+                    <li>Create a Sound Cue</li>
+                    <li>Add <strong>Delay</strong> node (set min/max delay)</li>
+                    <li>Add <strong>Random</strong> node with multiple sounds</li>
+                    <li>Add <strong>Looping</strong> node</li>
+                    <li>Connect: Delay → Random → Looping → Output</li>
+                </ol>
+
+                <p><strong>Blueprint Timer:</strong></p>
+                <ol>
+                    <li>Set Timer by Event (random interval)</li>
+                    <li>On timer: Play Sound at Location with random sound</li>
+                    <li>Set new timer with random delay</li>
+                </ol>
+
+                <h3>Performance Considerations</h3>
+
+                <ul>
+                    <li><strong>Limit simultaneous sounds:</strong> Don't place hundreds of ambient sources</li>
+                    <li><strong>Use appropriate attenuation:</strong> Sounds far from the player shouldn't process</li>
+                    <li><strong>Stream large files:</strong> Music and long ambient loops should stream</li>
+                    <li><strong>Combine when possible:</strong> One "forest ambience" loop vs. 50 separate bird/wind/leaf sounds</li>
+                    <li><strong>Test on target hardware:</strong> Audio processing adds CPU load</li>
+                </ul>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Less is More</h4>
+                    <p>A few well-placed, high-quality ambient sounds beat dozens of mediocre ones. Start with a solid ambient bed, add 2-3 regional layers, and sprinkle point sources only where they matter. Players notice silence more than they notice another subtle background sound.</p>
+                </div>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Setting Up Ambient Sounds in a Level</h2>
+
+                <p>Let's create a complete ambient audio setup for a level. You'll place ambient sound sources, configure reverb zones, and implement background music with proper transitions.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create an immersive soundscape with: a global ambient bed, point-source environmental sounds, reverb zones for indoor areas, and background music that can fade on pause. This demonstrates professional ambient audio setup.</p>
+                </div>
+
+                <h3>Prerequisites</h3>
+
+                <p>Before starting, prepare these assets:</p>
+                <ul>
+                    <li>A level with indoor and outdoor areas (or create a simple test level)</li>
+                    <li>Ambient loop sounds (wind, room tone, nature)</li>
+                    <li>Point-source sounds (fire, water, machinery)</li>
+                    <li>Background music track</li>
+                </ul>
+
+                <h3>Part 1: Create Ambient Audio Assets</h3>
+
+                <h4>Step 1: Organize Audio Folder</h4>
+                <ol>
+                    <li>In Content Browser, navigate to your Audio folder</li>
+                    <li>Create subfolder: <code>Audio/Ambient</code></li>
+                    <li>Import or locate these sounds:
+                        <ul>
+                            <li>Wind/outdoor ambient loop</li>
+                            <li>Indoor room tone loop</li>
+                            <li>Fire crackling loop</li>
+                            <li>Water/fountain loop (optional)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 2: Create Sound Attenuation Assets</h4>
+                <ol>
+                    <li>Right-click → <strong>Sounds → Sound Attenuation</strong></li>
+                    <li>Create these presets:
+                        <ul>
+                            <li><code>SA_SmallSource</code> (Inner: 50, Falloff: 500)</li>
+                            <li><code>SA_MediumSource</code> (Inner: 100, Falloff: 1000)</li>
+                            <li><code>SA_LargeSource</code> (Inner: 200, Falloff: 2000)</li>
+                        </ul>
+                    </li>
+                    <li>For each, set Attenuation Function to <strong>Natural Sound</strong></li>
+                </ol>
+
+                <h4>Step 3: Enable Looping on Ambient Sounds</h4>
+                <ol>
+                    <li>Open each ambient Sound Wave</li>
+                    <li>In Details, enable <strong>Looping</strong></li>
+                    <li>Save all</li>
+                </ol>
+
+                <!-- SVG: Asset Setup -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Ambient Audio Asset Organization</text>
+                    
+                    <g transform="translate(50, 50)">
+                        <text x="0" y="15" fill="#FFD700" font-size="10">📁 Audio/Ambient</text>
+                        
+                        <text x="20" y="40" fill="#4CAF50" font-size="9">Sound Waves:</text>
+                        <text x="35" y="58" fill="#888" font-size="8">SW_Wind_Loop ✓ Looping</text>
+                        <text x="35" y="73" fill="#888" font-size="8">SW_RoomTone_Loop ✓ Looping</text>
+                        <text x="35" y="88" fill="#888" font-size="8">SW_Fire_Loop ✓ Looping</text>
+                        
+                        <text x="20" y="113" fill="#2196F3" font-size="9">Attenuation:</text>
+                        <text x="35" y="128" fill="#888" font-size="8">SA_SmallSource (50/500)</text>
+                    </g>
+                    
+                    <g transform="translate(300, 50)">
+                        <text x="0" y="15" fill="#FFD700" font-size="10">📁 Audio/Music</text>
+                        <text x="20" y="40" fill="#888" font-size="8">SW_BGM_Exploration ✓ Looping</text>
+                    </g>
+                    
+                    <g transform="translate(500, 50)">
+                        <text x="0" y="15" fill="#FFD700" font-size="10">📁 Audio/Reverb</text>
+                        <text x="20" y="40" fill="#888" font-size="8">RE_SmallRoom</text>
+                        <text x="20" y="55" fill="#888" font-size="8">RE_Cave</text>
+                        <text x="20" y="70" fill="#888" font-size="8">RE_Hallway</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Organized ambient audio assets ready for level placement.</em></p>
+
+                <h3>Part 2: Place Global Ambient Bed</h3>
+
+                <h4>Step 4: Add 2D Ambient Sound</h4>
+                <ol>
+                    <li>Open your level</li>
+                    <li>From Place Actors, drag an <strong>Ambient Sound</strong> into the level</li>
+                    <li>Position doesn't matter for 2D sounds—place it somewhere convenient</li>
+                    <li>Select it and configure in Details:
+                        <ul>
+                            <li><strong>Sound:</strong> Your wind/outdoor ambient loop</li>
+                            <li><strong>Auto Activate:</strong> ✓</li>
+                            <li><strong>Is UI Sound:</strong> ✓ (makes it 2D)</li>
+                            <li><strong>Volume Multiplier:</strong> 0.5 (subtle background)</li>
+                        </ul>
+                    </li>
+                    <li>Rename it: <code>AmbientSound_GlobalBed</code></li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Why 2D for the Bed?</h4>
+                    <p>The ambient bed creates a constant background regardless of player position. By making it 2D (Is UI Sound: true), it plays at consistent volume everywhere. This forms the foundation layer that other sounds build upon.</p>
+                </div>
+
+                <h3>Part 3: Place Point-Source Ambient Sounds</h3>
+
+                <h4>Step 5: Add Fire Sound</h4>
+                <ol>
+                    <li>Locate a torch, campfire, or fireplace in your level (or place one)</li>
+                    <li>Drag an <strong>Ambient Sound</strong> near it</li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>Sound:</strong> Fire loop</li>
+                            <li><strong>Auto Activate:</strong> ✓</li>
+                            <li><strong>Is UI Sound:</strong> ✗ (we want 3D)</li>
+                            <li><strong>Attenuation Settings:</strong> SA_SmallSource</li>
+                            <li><strong>Volume Multiplier:</strong> 1.0</li>
+                        </ul>
+                    </li>
+                    <li>Rename: <code>AmbientSound_Fire_01</code></li>
+                </ol>
+
+                <h4>Step 6: Test Fire Attenuation</h4>
+                <ol>
+                    <li>Play the level</li>
+                    <li>Walk toward the fire—sound should get louder</li>
+                    <li>Walk away—sound should fade</li>
+                    <li>Walk around it—sound should pan left/right</li>
+                    <li>Adjust attenuation if needed</li>
+                </ol>
+
+                <h4>Step 7: Add Additional Point Sources</h4>
+                <p>Place more Ambient Sound actors for:</p>
+                <ul>
+                    <li>Water features (fountain, stream)</li>
+                    <li>Machinery (generators, fans)</li>
+                    <li>Electrical (humming lights, sparking wires)</li>
+                    <li>Any environmental objects that would make sound</li>
+                </ul>
+
+                <h3>Part 4: Create Reverb Zones</h3>
+
+                <h4>Step 8: Create Reverb Effect Assets</h4>
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Sounds → Reverb Effect</strong></li>
+                    <li>Create <code>RE_SmallRoom</code>:
+                        <ul>
+                            <li>Density: 0.7</li>
+                            <li>Diffusion: 0.7</li>
+                            <li>Gain: 0.5</li>
+                            <li>Decay Time: 0.8</li>
+                        </ul>
+                    </li>
+                    <li>Create <code>RE_Cave</code>:
+                        <ul>
+                            <li>Density: 1.0</li>
+                            <li>Diffusion: 1.0</li>
+                            <li>Gain: 0.8</li>
+                            <li>Decay Time: 3.5</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 9: Place Audio Volume for Indoor Area</h4>
+                <ol>
+                    <li>From Place Actors, drag an <strong>Audio Volume</strong> into your level</li>
+                    <li>Scale it to cover an indoor room or cave area</li>
+                    <li>Use the Brush Settings to adjust the shape if needed</li>
+                    <li>Configure in Details:
+                        <ul>
+                            <li><strong>Apply Reverb:</strong> ✓</li>
+                            <li><strong>Reverb Effect:</strong> RE_SmallRoom (or RE_Cave)</li>
+                            <li><strong>Volume:</strong> 1.0</li>
+                            <li><strong>Fade Time:</strong> 1.0</li>
+                            <li><strong>Priority:</strong> 1</li>
+                        </ul>
+                    </li>
+                    <li>Rename: <code>AudioVolume_IndoorRoom</code></li>
+                </ol>
+
+                <h4>Step 10: Test Reverb Transition</h4>
+                <ol>
+                    <li>Play the level</li>
+                    <li>Stand outside the Audio Volume</li>
+                    <li>Walk into the volume—reverb should fade in</li>
+                    <li>Listen to footsteps or sounds—they should have echo</li>
+                    <li>Walk out—reverb should fade out</li>
+                </ol>
+
+                <!-- SVG: Reverb Zone Setup -->
+                <svg width="100%" height="200" viewBox="0 0 750 200" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Audio Volume Reverb Zone Setup</text>
+                    
+                    <!-- Level top-down view -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="300" height="130" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="150" y="18" text-anchor="middle" fill="#667eea" font-size="9">Top-Down View</text>
+                        
+                        <!-- Outdoor area -->
+                        <rect x="10" y="30" width="100" height="90" fill="#3d5c3d"/>
+                        <text x="60" y="80" text-anchor="middle" fill="#81C784" font-size="8">Outdoor</text>
+                        
+                        <!-- Indoor room with Audio Volume -->
+                        <rect x="120" y="30" width="170" height="90" fill="#5d4037" stroke="#9C27B0" stroke-width="3" stroke-dasharray="5,3"/>
+                        <text x="205" y="55" text-anchor="middle" fill="#9C27B0" font-size="8" font-weight="bold">Audio Volume</text>
+                        <text x="205" y="80" text-anchor="middle" fill="#CE93D8" font-size="7">RE_SmallRoom</text>
+                        
+                        <!-- Fire source inside -->
+                        <circle cx="250" cy="90" r="10" fill="#FF6600"/>
+                        <text x="250" y="93" text-anchor="middle" fill="#fff" font-size="7">🔥</text>
+                        
+                        <!-- Player path -->
+                        <circle cx="50" cy="75" r="8" fill="#4CAF50" opacity="0.5"/>
+                        <circle cx="180" cy="75" r="8" fill="#4CAF50"/>
+                        <path d="M 60 75 L 170 75" stroke="#4CAF50" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#handsonArrow)"/>
+                    </g>
+                    
+                    <!-- Details -->
+                    <g transform="translate(400, 50)">
+                        <rect x="0" y="0" width="300" height="130" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="150" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Audio Volume Settings</text>
+                        
+                        <text x="15" y="45" fill="#4CAF50" font-size="9">✓ Apply Reverb</text>
+                        <text x="15" y="65" fill="#9C27B0" font-size="9">Reverb: RE_SmallRoom</text>
+                        <text x="15" y="85" fill="#FF9800" font-size="9">Volume: 1.0</text>
+                        <text x="15" y="105" fill="#2196F3" font-size="9">Fade Time: 1.0 seconds</text>
+                        <text x="15" y="125" fill="#888" font-size="8">Priority: 1</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="handsonArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Audio Volume covering indoor room with reverb effect.</em></p>
+
+                <h3>Part 5: Implement Background Music</h3>
+
+                <h4>Step 11: Create Music in Game Mode</h4>
+                <ol>
+                    <li>Open your Game Mode Blueprint (or create one)</li>
+                    <li>Add variable: <code>MusicComponent</code> (Audio Component, reference)</li>
+                    <li>Add variable: <code>BackgroundMusic</code> (Sound Base, set default to your music track)</li>
+                </ol>
+
+                <h4>Step 12: Start Music on Begin Play</h4>
+                <ol>
+                    <li>In Event Graph, from <strong>Event BeginPlay</strong>:</li>
+                    <li>Add <strong>Spawn Sound 2D</strong> node</li>
+                    <li>Set Sound to BackgroundMusic variable</li>
+                    <li>Connect return value to <strong>Set MusicComponent</strong></li>
+                    <li>The music will start playing when the level loads</li>
+                </ol>
+
+                <h4>Step 13: Create Music Fade Functions</h4>
+                <p>Create function <code>FadeOutMusic</code>:</p>
+                <ol>
+                    <li>Get MusicComponent</li>
+                    <li>Is Valid? → If yes:</li>
+                    <li>Call <strong>Fade Out</strong> (Duration: 1.0, Fade Volume: 0.0)</li>
+                </ol>
+
+                <p>Create function <code>FadeInMusic</code>:</p>
+                <ol>
+                    <li>Get MusicComponent</li>
+                    <li>Is Valid? → If yes:</li>
+                    <li>Call <strong>Fade In</strong> (Duration: 1.0, Fade Volume: 1.0)</li>
+                </ol>
+
+                <h4>Step 14: Duck Music on Pause (Optional)</h4>
+                <p>In your Pause Menu logic:</p>
+                <ol>
+                    <li>When opening pause menu:
+                        <ul>
+                            <li>Get Game Mode → Get MusicComponent</li>
+                            <li>Call <strong>Set Volume Multiplier</strong> (0.3)</li>
+                        </ul>
+                    </li>
+                    <li>When closing pause menu:
+                        <ul>
+                            <li>Get Game Mode → Get MusicComponent</li>
+                            <li>Call <strong>Set Volume Multiplier</strong> (1.0)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Music Blueprint -->
+                <svg width="100%" height="180" viewBox="0 0 750 180" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Background Music Setup in Game Mode</text>
+                    
+                    <!-- BeginPlay chain -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="110" height="40" rx="5" fill="#c62828"/>
+                        <text x="55" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">BeginPlay</text>
+                        <circle cx="110" cy="20" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 145 75 L 180 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(185, 50)">
+                        <rect x="0" y="0" width="150" height="50" rx="5" fill="#1565C0"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Spawn Sound 2D</text>
+                        <text x="75" y="38" text-anchor="middle" fill="#90CAF9" font-size="7">BackgroundMusic</text>
+                        <circle cx="0" cy="25" r="4" fill="#fff"/>
+                        <circle cx="150" cy="25" r="5" fill="#2196F3"/>
+                    </g>
+                    
+                    <path d="M 340 75 L 380 75" stroke="#2196F3" stroke-width="2"/>
+                    
+                    <g transform="translate(385, 50)">
+                        <rect x="0" y="0" width="160" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Set MusicComponent</text>
+                        <text x="80" y="38" text-anchor="middle" fill="#c8e6c9" font-size="7">Store reference</text>
+                        <circle cx="0" cy="25" r="4" fill="#2196F3"/>
+                    </g>
+                    
+                    <!-- Variables -->
+                    <g transform="translate(580, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="5" fill="rgba(102,126,234,0.2)" stroke="#667eea"/>
+                        <text x="70" y="18" text-anchor="middle" fill="#667eea" font-size="8" font-weight="bold">Variables</text>
+                        <text x="70" y="38" fill="#888" font-size="7">MusicComponent</text>
+                        <text x="70" y="55" fill="#888" font-size="7">BackgroundMusic</text>
+                    </g>
+                    
+                    <text x="375" y="150" text-anchor="middle" fill="#888" font-size="9">Music starts on level load, reference stored for later control (fade, duck)</text>
+                </svg>
+                <p class="caption"><em>Figure: Game Mode spawns background music and stores reference.</em></p>
+
+                <h3>Part 6: Test Complete Soundscape</h3>
+
+                <ol>
+                    <li>Play the level</li>
+                    <li>Verify you hear the global ambient bed (constant wind/tone)</li>
+                    <li>Walk to point sources—they should fade in/out with distance</li>
+                    <li>Enter indoor areas—reverb should engage</li>
+                    <li>Listen for music playing in background</li>
+                    <li>If you have a pause menu, test music ducking</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've created a professional ambient audio setup with:</p>
+                    <ul>
+                        <li><strong>Global ambient bed:</strong> 2D sound playing everywhere</li>
+                        <li><strong>Point sources:</strong> 3D sounds at specific locations</li>
+                        <li><strong>Reverb zones:</strong> Indoor areas with appropriate echo</li>
+                        <li><strong>Background music:</strong> Controllable music with fade capability</li>
+                    </ul>
+                    <p>These layers combine to create an immersive, believable game world!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Ambient sound not playing:</strong></p>
+                    <ul>
+                        <li>Check Auto Activate is enabled</li>
+                        <li>Verify Sound asset is assigned</li>
+                        <li>Check volume isn't set to 0</li>
+                    </ul>
+                    
+                    <p><strong>3D sound doesn't change with distance:</strong></p>
+                    <ul>
+                        <li>Ensure Is UI Sound is UNCHECKED for 3D sounds</li>
+                        <li>Verify Attenuation Settings are assigned</li>
+                        <li>Check the sound file is Mono</li>
+                    </ul>
+                    
+                    <p><strong>Reverb not working:</strong></p>
+                    <ul>
+                        <li>Confirm Apply Reverb is checked on Audio Volume</li>
+                        <li>Verify Reverb Effect asset is assigned</li>
+                        <li>Make sure player is actually inside the volume</li>
+                        <li>Check volume scale covers the intended area</li>
+                    </ul>
+                    
+                    <p><strong>Music doesn't fade:</strong></p>
+                    <ul>
+                        <li>Verify MusicComponent reference is valid (not null)</li>
+                        <li>Check that Spawn Sound 2D return value is stored</li>
+                        <li>Confirm Fade In/Fade Out duration is > 0</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Day/Night Ambience:</strong> Switch between daytime birds and nighttime crickets</li>
+                    <li><strong>Weather Sounds:</strong> Add rain ambient that fades in/out based on weather state</li>
+                    <li><strong>Multiple Reverb Zones:</strong> Create different reverb for different rooms (hallway vs. large hall)</li>
+                    <li><strong>Proximity Music:</strong> Music volume increases near a specific area (boss room approach)</li>
+                    <li><strong>Random Bird Calls:</strong> Use a timer to play random bird sounds at intervals</li>
+                    <li><strong>Underwater Effect:</strong> Use Audio Volume to muffle sounds when underwater</li>
+                    <li><strong>Audio Occlusion:</strong> Sounds behind walls should be quieter (advanced: use occlusion settings)</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned how to create immersive environmental audio using Unreal's ambient sound tools. A well-designed soundscape transforms silent levels into living, believable worlds that enhance player immersion.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Ambient Sound Actors:</strong> Pre-configured actors for placing environmental audio. Set the sound, configure attenuation, and enable Auto Activate. Use Is UI Sound for 2D ambient beds, leave it off for 3D point sources.</p>
+
+                <p><strong>Audio Volumes:</strong> Define regions where audio properties change. Most commonly used for reverb—caves echo, hallways flutter, large halls resonate. Configure Fade Time for smooth transitions when entering/exiting.</p>
+
+                <p><strong>Reverb Effects:</strong> Simulate sound reflections in different environments. Key parameters include Decay Time (how long echoes last), Density (complexity of reflections), and Gain (overall reverb volume). Match settings to the space type.</p>
+
+                <p><strong>Background Music:</strong> Typically plays as 2D audio. Use Spawn Sound 2D for controllable music, store the Audio Component reference for later fade/stop operations. Duck music during menus for better UI audio clarity.</p>
+
+                <p><strong>Soundscape Layering:</strong> Build rich audio from multiple layers: ambient bed (constant 2D background), regional sounds (large 3D areas), point sources (specific objects), and random interval sounds (occasional variety). Each layer adds depth.</p>
+
+                <h3>Ambient Sound Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Sound Type</th>
+                            <th style="padding: 10px; text-align: left;">Is UI Sound</th>
+                            <th style="padding: 10px; text-align: left;">Attenuation</th>
+                            <th style="padding: 10px; text-align: left;">Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Global ambient bed</td>
+                            <td style="padding: 10px;">✓ Yes (2D)</td>
+                            <td style="padding: 10px;">None needed</td>
+                            <td style="padding: 10px;">Wind, room tone</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Regional area</td>
+                            <td style="padding: 10px;">✗ No (3D)</td>
+                            <td style="padding: 10px;">Large radius</td>
+                            <td style="padding: 10px;">Forest section, river</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Point source</td>
+                            <td style="padding: 10px;">✗ No (3D)</td>
+                            <td style="padding: 10px;">Small/medium</td>
+                            <td style="padding: 10px;">Fire, fountain, machine</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Background music</td>
+                            <td style="padding: 10px;">✓ Yes (2D)</td>
+                            <td style="padding: 10px;">None needed</td>
+                            <td style="padding: 10px;">BGM tracks</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Reverb Presets Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Environment</th>
+                            <th style="padding: 10px; text-align: left;">Decay Time</th>
+                            <th style="padding: 10px; text-align: left;">Character</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Small room</td>
+                            <td style="padding: 10px;">0.5 - 1.0s</td>
+                            <td style="padding: 10px;">Tight, minimal</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Hallway</td>
+                            <td style="padding: 10px;">1.5 - 2.5s</td>
+                            <td style="padding: 10px;">Flutter echoes</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Large hall</td>
+                            <td style="padding: 10px;">2.0 - 4.0s</td>
+                            <td style="padding: 10px;">Spacious, grand</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Cave</td>
+                            <td style="padding: 10px;">3.0 - 5.0s</td>
+                            <td style="padding: 10px;">Dark, boomy</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Cathedral</td>
+                            <td style="padding: 10px;">5.0 - 10.0s</td>
+                            <td style="padding: 10px;">Massive, ethereal</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Layer your soundscape:</strong> Combine ambient bed + regional + point sources for depth</li>
+                    <li><strong>Use 2D for constant sounds:</strong> Global ambience and music don't need 3D positioning</li>
+                    <li><strong>Configure attenuation thoughtfully:</strong> Match radius to the sound's real-world audibility</li>
+                    <li><strong>Enable looping:</strong> Most ambient sounds should loop seamlessly</li>
+                    <li><strong>Set fade times on Audio Volumes:</strong> Smooth reverb transitions feel natural</li>
+                    <li><strong>Store music references:</strong> Keep the Audio Component for fade and control</li>
+                    <li><strong>Less is more:</strong> A few well-placed sounds beat dozens of mediocre ones</li>
+                    <li><strong>Test while playing:</strong> Walk through your level and listen critically</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Complete Ambient Audio System</text>
+                    
+                    <!-- Layers -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="700" height="35" rx="5" fill="#2196F3" opacity="0.3" stroke="#2196F3" stroke-width="2"/>
+                        <text x="350" y="23" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Layer 1: Global Ambient Bed (2D)</text>
+                    </g>
+                    
+                    <g transform="translate(50, 95)">
+                        <rect x="50" y="0" width="280" height="35" rx="5" fill="#4CAF50" opacity="0.3" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="190" y="23" text-anchor="middle" fill="#2E7D32" font-size="9">Forest Region</text>
+                        
+                        <rect x="370" y="0" width="280" height="35" rx="5" fill="#FF9800" opacity="0.3" stroke="#FF9800" stroke-width="2"/>
+                        <text x="510" y="23" text-anchor="middle" fill="#E65100" font-size="9">Industrial Region</text>
+                    </g>
+                    
+                    <g transform="translate(50, 140)">
+                        <circle cx="100" cy="20" r="25" fill="#9C27B0" opacity="0.3" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="100" y="24" text-anchor="middle" fill="#7B1FA2" font-size="8">🔥</text>
+                        
+                        <circle cx="250" cy="20" r="20" fill="#9C27B0" opacity="0.3" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="250" y="24" text-anchor="middle" fill="#7B1FA2" font-size="8">💧</text>
+                        
+                        <circle cx="450" cy="20" r="30" fill="#9C27B0" opacity="0.3" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="450" y="24" text-anchor="middle" fill="#7B1FA2" font-size="8">⚙️</text>
+                        
+                        <circle cx="600" cy="20" r="18" fill="#9C27B0" opacity="0.3" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="600" y="24" text-anchor="middle" fill="#7B1FA2" font-size="8">💡</text>
+                        
+                        <text x="350" y="60" text-anchor="middle" fill="#7B1FA2" font-size="9">Layer 3: Point Sources (3D)</text>
+                    </g>
+                    
+                    <!-- Reverb zones -->
+                    <g transform="translate(500, 95)">
+                        <rect x="0" y="0" width="100" height="70" rx="5" fill="none" stroke="#E91E63" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="50" y="45" text-anchor="middle" fill="#C2185B" font-size="7">Reverb Zone</text>
+                    </g>
+                    
+                    <!-- Music layer -->
+                    <g transform="translate(50, 200)">
+                        <rect x="0" y="0" width="700" height="35" rx="5" fill="#f44336" opacity="0.2" stroke="#f44336" stroke-width="2"/>
+                        <text x="350" y="23" text-anchor="middle" fill="#c62828" font-size="10" font-weight="bold">Background Music (2D, Controllable)</text>
+                    </g>
+                    
+                    <!-- Labels on right -->
+                    <g transform="translate(680, 60)">
+                        <text x="0" y="0" fill="#1565C0" font-size="7">Constant</text>
+                        <text x="0" y="50" fill="#2E7D32" font-size="7">Area-based</text>
+                        <text x="0" y="110" fill="#7B1FA2" font-size="7">Object-based</text>
+                        <text x="0" y="155" fill="#c62828" font-size="7">Mood/Story</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Complete ambient audio system with all layers working together.</em></p>
+
+                <h3>Module 8 Complete!</h3>
+
+                <p>Congratulations! You've completed the Audio Basics module. You now have the skills to add professional audio to your Unreal Engine projects:</p>
+
+                <ul>
+                    <li><strong>Lesson 8.1:</strong> Audio fundamentals, importing, Sound Cues, MetaSounds, 2D/3D audio</li>
+                    <li><strong>Lesson 8.2:</strong> Playing sounds from Blueprints, Audio Components, playback control</li>
+                    <li><strong>Lesson 8.3:</strong> Ambient sounds, reverb zones, background music, soundscape design</li>
+                </ul>
+
+                <p>With these skills, your games will sound as good as they look!</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is the purpose of enabling "Is UI Sound" on an Ambient Sound actor?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Makes the sound play only in menus</label>
+                            <label><input type="radio" name="q1" value="b"> Makes the sound play as 2D audio (same volume everywhere)</label>
+                            <label><input type="radio" name="q1" value="c"> Increases the volume automatically</label>
+                            <label><input type="radio" name="q1" value="d"> Enables looping</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Is UI Sound makes the Ambient Sound play as 2D audio, meaning it has no 3D positioning. The volume stays constant regardless of the player's position. This is ideal for global ambient beds and background music.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What does an Audio Volume primarily do?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Increases the volume of all sounds</label>
+                            <label><input type="radio" name="q2" value="b"> Blocks sounds from passing through</label>
+                            <label><input type="radio" name="q2" value="c"> Defines a region where audio properties change (commonly reverb)</label>
+                            <label><input type="radio" name="q2" value="d"> Automatically plays ambient sounds</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Audio Volumes define regions where audio properties change. Most commonly, they're used to apply reverb effects—when the player enters the volume, reverb engages; when they leave, it fades out.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What does "Decay Time" control in a Reverb Effect?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> How quickly the player enters the reverb zone</label>
+                            <label><input type="radio" name="q3" value="b"> How long the reverb/echo lasts before fading out</label>
+                            <label><input type="radio" name="q3" value="c"> The volume of the original sound</label>
+                            <label><input type="radio" name="q3" value="d"> The delay before reverb starts</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Decay Time controls how long the reverb tail lasts. Short decay (0.5s) for small rooms, long decay (5s+) for caves and cathedrals. It's one of the most important parameters for defining the perceived size of a space.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Which approach creates the best soundscape?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> One very loud ambient sound covering everything</label>
+                            <label><input type="radio" name="q4" value="b"> Multiple layers: ambient bed, regional sounds, and point sources</label>
+                            <label><input type="radio" name="q4" value="c"> Only point-source sounds with no background</label>
+                            <label><input type="radio" name="q4" value="d"> Silence with occasional random sounds</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — A layered approach creates the richest soundscapes: a constant ambient bed for baseline atmosphere, regional sounds for different areas, and point sources for specific objects. Each layer adds depth and believability.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Why should you set a "Fade Time" on Audio Volumes?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> To make sounds louder</label>
+                            <label><input type="radio" name="q5" value="b"> To create smooth transitions when entering/exiting reverb zones</label>
+                            <label><input type="radio" name="q5" value="c"> To delay when the reverb starts</label>
+                            <label><input type="radio" name="q5" value="d"> Fade Time is not a real property</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Fade Time creates smooth transitions when the player enters or exits the Audio Volume. Without it, reverb would instantly snap on/off, which sounds jarring and unnatural. A 0.5-2.0 second fade mimics how ears naturally adapt.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>How should background music typically be played?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> As 3D audio attached to the player</label>
+                            <label><input type="radio" name="q6" value="b"> As 2D audio (non-spatialized) using Spawn Sound 2D or Play Sound 2D</label>
+                            <label><input type="radio" name="q6" value="c"> Through an Ambient Sound actor at world origin</label>
+                            <label><input type="radio" name="q6" value="d"> Only through the level's World Settings</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Background music should play as 2D audio so it's consistent regardless of player position. Use Spawn Sound 2D to get a controllable reference for fading and stopping, or Play Sound 2D for simple fire-and-forget playback.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>What's a good practice when the player opens the pause menu?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Stop all audio completely</label>
+                            <label><input type="radio" name="q7" value="b"> Duck (reduce) the music volume so UI sounds are clear</label>
+                            <label><input type="radio" name="q7" value="c"> Increase all volumes</label>
+                            <label><input type="radio" name="q7" value="d"> Switch to mono audio</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Ducking the music (reducing to 30-50% volume) keeps the atmosphere while ensuring UI sounds and menu navigation audio are clearly audible. This is a standard practice in professional games.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m08_l02_playing_sounds.html" class="btn">← Previous: Playing Sounds</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m09_l01_niagara_overview.html" class="btn">Next: Module 9 →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

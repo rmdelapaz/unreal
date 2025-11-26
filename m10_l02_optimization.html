@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Optimize your Unreal Engine 5 project for packaging. Learn performance profiling, content optimization, and techniques to reduce package size.">
+    <meta name="author" content="Practical Ace">
+    <title>Optimization - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 10: Packaging</a></li>
+            <li aria-current="page">Lesson 10.2: Optimization</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🚀 Optimization</h1>
+                <p class="lead">Before packaging, it's crucial to optimize your project for performance and size. A well-optimized game runs smoothly on target hardware, loads quickly, and downloads faster. This lesson covers profiling tools, common performance issues, and techniques to reduce your package size.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Use Unreal's profiling tools to identify bottlenecks</li>
+                        <li>Optimize textures, meshes, and materials</li>
+                        <li>Improve Blueprint and level performance</li>
+                        <li>Reduce package size with content auditing</li>
+                        <li>Apply LOD and culling techniques</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 40-50 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 10.1 (Project Settings)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#profiling" class="toc-link">Profiling Tools</a></li>
+                        <li><a href="#content-optimization" class="toc-link">Content Optimization</a></li>
+                        <li><a href="#runtime-optimization" class="toc-link">Runtime Optimization</a></li>
+                        <li><a href="#package-size" class="toc-link">Reducing Package Size</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Profiling Tools -->
+            <section id="profiling" class="lesson-section">
+                <h2>Profiling Tools</h2>
+
+                <p>Before optimizing, you need to know what's actually slow. Guessing wastes time—profiling shows you exactly where to focus your efforts.</p>
+
+                <h3>Stat Commands</h3>
+
+                <p>Type these in the console (~ key) while playing:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Command</th>
+                            <th style="padding: 10px; text-align: left;">Shows</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>stat fps</code></td>
+                            <td style="padding: 10px;">Frames per second</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>stat unit</code></td>
+                            <td style="padding: 10px;">Frame time breakdown (Game, Draw, GPU)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>stat unitgraph</code></td>
+                            <td style="padding: 10px;">Visual graph of frame times</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>stat game</code></td>
+                            <td style="padding: 10px;">Game thread performance</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>stat gpu</code></td>
+                            <td style="padding: 10px;">GPU rendering costs</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>stat scenerendering</code></td>
+                            <td style="padding: 10px;">Render pass costs</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>stat memory</code></td>
+                            <td style="padding: 10px;">Memory usage</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Understanding Frame Time</h3>
+
+                <p>Frame time tells you more than FPS:</p>
+
+                <ul>
+                    <li><strong>60 FPS</strong> = 16.67ms per frame</li>
+                    <li><strong>30 FPS</strong> = 33.33ms per frame</li>
+                    <li><code>stat unit</code> shows: Game thread, Draw thread, GPU time</li>
+                    <li>The longest time determines your framerate</li>
+                </ul>
+
+                <p><strong>Interpreting stat unit:</strong></p>
+                <ul>
+                    <li><strong>Game:</strong> High = Blueprint/C++ logic is slow</li>
+                    <li><strong>Draw:</strong> High = CPU rendering commands bottleneck</li>
+                    <li><strong>GPU:</strong> High = Graphics are too demanding</li>
+                </ul>
+
+                <!-- SVG: Frame Time Breakdown -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Frame Time Breakdown (stat unit)</text>
+                    
+                    <!-- Timeline bar -->
+                    <g transform="translate(50, 60)">
+                        <text x="0" y="-5" fill="#888" font-size="9">0ms</text>
+                        <text x="700" y="-5" fill="#888" font-size="9">16.67ms (60fps target)</text>
+                        
+                        <!-- Background -->
+                        <rect x="0" y="0" width="700" height="30" rx="3" fill="#444"/>
+                        
+                        <!-- Game thread -->
+                        <rect x="0" y="0" width="200" height="30" rx="3" fill="#4CAF50"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Game: 5ms</text>
+                        
+                        <!-- Draw thread -->
+                        <rect x="200" y="0" width="150" height="30" fill="#2196F3"/>
+                        <text x="275" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Draw: 4ms</text>
+                        
+                        <!-- GPU -->
+                        <rect x="350" y="0" width="300" height="30" fill="#FF9800"/>
+                        <text x="500" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">GPU: 8ms</text>
+                        
+                        <!-- Target line -->
+                        <line x1="600" y1="-10" x2="600" y2="40" stroke="#f44336" stroke-width="2" stroke-dasharray="4,2"/>
+                        <text x="605" y="50" fill="#f44336" font-size="8">Target</text>
+                    </g>
+                    
+                    <!-- Labels -->
+                    <g transform="translate(50, 130)">
+                        <rect x="0" y="0" width="220" height="50" rx="5" fill="#3d3d3d"/>
+                        <text x="110" y="20" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Game Thread</text>
+                        <text x="110" y="38" text-anchor="middle" fill="#888" font-size="7">Blueprint, Physics, AI</text>
+                    </g>
+                    
+                    <g transform="translate(240, 130)">
+                        <rect x="0" y="0" width="220" height="50" rx="5" fill="#3d3d3d"/>
+                        <text x="110" y="20" text-anchor="middle" fill="#2196F3" font-size="9" font-weight="bold">Draw Thread</text>
+                        <text x="110" y="38" text-anchor="middle" fill="#888" font-size="7">CPU render commands</text>
+                    </g>
+                    
+                    <g transform="translate(480, 130)">
+                        <rect x="0" y="0" width="220" height="50" rx="5" fill="#3d3d3d"/>
+                        <text x="110" y="20" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">GPU Time</text>
+                        <text x="110" y="38" text-anchor="middle" fill="#888" font-size="7">Rendering, Shaders</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Frame time breakdown shows where your game spends time each frame.</em></p>
+
+                <h3>GPU Visualizer</h3>
+
+                <p>For GPU bottlenecks, use the GPU Visualizer:</p>
+                <ol>
+                    <li>Press <strong>Ctrl+Shift+,</strong> (comma) while playing</li>
+                    <li>Or type <code>profilegpu</code> in console</li>
+                    <li>Shows detailed GPU pass timing</li>
+                    <li>Identifies expensive rendering passes</li>
+                </ol>
+
+                <h3>Unreal Insights</h3>
+
+                <p>For deep profiling:</p>
+                <ol>
+                    <li>Enable via <strong>Tools → Session Frontend</strong></li>
+                    <li>Or launch with <code>-trace=default</code></li>
+                    <li>Records comprehensive performance data</li>
+                    <li>Analyze with Unreal Insights tool</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Profile First, Optimize Second</h4>
+                    <p>Never guess what's slow. Run <code>stat unit</code> to see if you're Game, Draw, or GPU bound. Then use specific tools to find the exact bottleneck. Optimizing the wrong thing wastes time.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Content Optimization -->
+            <section id="content-optimization" class="lesson-section">
+                <h2>Content Optimization</h2>
+
+                <p>Content—textures, meshes, materials—often has the biggest impact on both performance and package size. Optimizing assets is usually the most effective improvement.</p>
+
+                <h3>Texture Optimization</h3>
+
+                <p>Textures are often the largest assets:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Technique</th>
+                            <th style="padding: 10px; text-align: left;">Impact</th>
+                            <th style="padding: 10px; text-align: left;">How</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Reduce resolution</td>
+                            <td style="padding: 10px;">Memory, size</td>
+                            <td style="padding: 10px;">Use appropriate sizes (512-2K for most)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Enable streaming</td>
+                            <td style="padding: 10px;">Memory</td>
+                            <td style="padding: 10px;">Texture Streaming (default on)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Compress textures</td>
+                            <td style="padding: 10px;">Size, memory</td>
+                            <td style="padding: 10px;">Use compressed formats (BC/DXT)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Generate mipmaps</td>
+                            <td style="padding: 10px;">Performance</td>
+                            <td style="padding: 10px;">Enable in texture settings (default)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Texture atlasing</td>
+                            <td style="padding: 10px;">Draw calls</td>
+                            <td style="padding: 10px;">Combine small textures</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Texture Size Guidelines:</strong></p>
+                <ul>
+                    <li><strong>Hero assets (main character, key props):</strong> 2048-4096</li>
+                    <li><strong>Standard props:</strong> 512-1024</li>
+                    <li><strong>Background/distant objects:</strong> 256-512</li>
+                    <li><strong>UI elements:</strong> Smallest size that looks good</li>
+                </ul>
+
+                <h3>Mesh Optimization</h3>
+
+                <p>High-poly meshes hurt performance:</p>
+
+                <ul>
+                    <li><strong>Reduce polygon count:</strong> Use lowest that looks acceptable</li>
+                    <li><strong>Enable Nanite:</strong> For UE5 projects with compatible meshes</li>
+                    <li><strong>Set up LODs:</strong> Lower detail at distance</li>
+                    <li><strong>Use instances:</strong> Static Mesh instances share resources</li>
+                    <li><strong>Merge actors:</strong> Combine static meshes to reduce draw calls</li>
+                </ul>
+
+                <h3>Level of Detail (LOD)</h3>
+
+                <p>LODs swap to simpler meshes at distance:</p>
+
+                <ol>
+                    <li>Select mesh in Content Browser</li>
+                    <li>Right-click → <strong>Create LOD</strong></li>
+                    <li>Or import with LODs already created</li>
+                    <li>Configure LOD distances in Static Mesh editor</li>
+                </ol>
+
+                <!-- SVG: LOD System -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Level of Detail (LOD) System</text>
+                    
+                    <!-- Camera -->
+                    <g transform="translate(50, 90)">
+                        <polygon points="0,0 30,15 30,-15" fill="#333"/>
+                        <text x="15" y="35" text-anchor="middle" fill="#666" font-size="8">Camera</text>
+                    </g>
+                    
+                    <!-- Distance line -->
+                    <line x1="85" y1="90" x2="750" y2="90" stroke="#ccc" stroke-width="2" stroke-dasharray="5,3"/>
+                    
+                    <!-- LOD 0 -->
+                    <g transform="translate(120, 55)">
+                        <rect x="0" y="0" width="100" height="70" rx="5" fill="#4CAF50"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">LOD 0</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#c8e6c9" font-size="8">10,000 tris</text>
+                        <text x="50" y="55" text-anchor="middle" fill="#c8e6c9" font-size="7">0-50 meters</text>
+                    </g>
+                    
+                    <!-- LOD 1 -->
+                    <g transform="translate(280, 55)">
+                        <rect x="0" y="0" width="100" height="70" rx="5" fill="#FF9800"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">LOD 1</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#fff3e0" font-size="8">2,500 tris</text>
+                        <text x="50" y="55" text-anchor="middle" fill="#fff3e0" font-size="7">50-150 meters</text>
+                    </g>
+                    
+                    <!-- LOD 2 -->
+                    <g transform="translate(440, 55)">
+                        <rect x="0" y="0" width="100" height="70" rx="5" fill="#2196F3"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">LOD 2</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#bbdefb" font-size="8">500 tris</text>
+                        <text x="50" y="55" text-anchor="middle" fill="#bbdefb" font-size="7">150-300 meters</text>
+                    </g>
+                    
+                    <!-- Culled -->
+                    <g transform="translate(600, 55)">
+                        <rect x="0" y="0" width="100" height="70" rx="5" fill="#9E9E9E"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Culled</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#e0e0e0" font-size="8">0 tris</text>
+                        <text x="50" y="55" text-anchor="middle" fill="#e0e0e0" font-size="7">300+ meters</text>
+                    </g>
+                    
+                    <text x="400" y="160" text-anchor="middle" fill="#666" font-size="9">Objects use simpler geometry as they get farther away</text>
+                </svg>
+                <p class="caption"><em>Figure: LODs reduce polygon count based on camera distance.</em></p>
+
+                <h3>Material Optimization</h3>
+
+                <ul>
+                    <li><strong>Simplify shader complexity:</strong> Fewer instructions = faster</li>
+                    <li><strong>Use Material Instances:</strong> Share base materials, vary parameters</li>
+                    <li><strong>Reduce texture samples:</strong> Each sample costs performance</li>
+                    <li><strong>Enable material instancing:</strong> Batches similar materials</li>
+                    <li><strong>Avoid complex math:</strong> Simplify where possible</li>
+                </ul>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Nanite Considerations</h4>
+                    <p>Nanite is fantastic for high-poly static meshes but has limitations: no skeletal meshes, no translucency, no world position offset. Check if your meshes are Nanite-compatible before relying on it.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Runtime Optimization -->
+            <section id="runtime-optimization" class="lesson-section">
+                <h2>Runtime Optimization</h2>
+
+                <p>Game logic, Blueprints, and level setup affect runtime performance. These optimizations happen in how your game runs, not just its content.</p>
+
+                <h3>Blueprint Optimization</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Issue</th>
+                            <th style="padding: 10px; text-align: left;">Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Heavy logic in Event Tick</td>
+                            <td style="padding: 10px;">Use timers, events, or lower tick rate</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Expensive casts every frame</td>
+                            <td style="padding: 10px;">Cache references, cast once</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Get All Actors frequently</td>
+                            <td style="padding: 10px;">Cache results, use tags for filtering</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Complex for loops</td>
+                            <td style="padding: 10px;">Spread over frames, use async</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Many string operations</td>
+                            <td style="padding: 10px;">Use Names instead of Strings</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Tick Rate Control:</strong></p>
+                <ul>
+                    <li>Actors can have custom tick intervals</li>
+                    <li>Set in Class Defaults → Actor Tick → Tick Interval</li>
+                    <li>Disable tick entirely for static actors</li>
+                    <li>Use timers for periodic updates instead of tick</li>
+                </ul>
+
+                <h3>Culling and Visibility</h3>
+
+                <p>Don't render what the player can't see:</p>
+
+                <ul>
+                    <li><strong>Frustum Culling:</strong> Automatic, hides objects outside view</li>
+                    <li><strong>Occlusion Culling:</strong> Hides objects behind other objects</li>
+                    <li><strong>Distance Culling:</strong> Set Max Draw Distance on actors</li>
+                    <li><strong>Cull Distance Volumes:</strong> Define areas with custom cull distances</li>
+                </ul>
+
+                <p><strong>Setting Max Draw Distance:</strong></p>
+                <ol>
+                    <li>Select actor(s) in the level</li>
+                    <li>In Details, find <strong>LOD → Max Draw Distance</strong></li>
+                    <li>Set the distance (in cm) beyond which the actor disappears</li>
+                    <li>Small detail objects should have lower distances</li>
+                </ol>
+
+                <h3>Lighting Optimization</h3>
+
+                <ul>
+                    <li><strong>Bake static lighting:</strong> Much faster than dynamic</li>
+                    <li><strong>Limit dynamic lights:</strong> Each adds rendering cost</li>
+                    <li><strong>Use light importance:</strong> Set to Low for minor lights</li>
+                    <li><strong>Reduce shadow-casting lights:</strong> Shadows are expensive</li>
+                    <li><strong>Use Lumen wisely:</strong> Adjust quality vs. performance</li>
+                </ul>
+
+                <!-- SVG: Culling Visualization -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Culling: Only Render What's Visible</text>
+                    
+                    <!-- Camera and frustum -->
+                    <g transform="translate(150, 110)">
+                        <polygon points="0,0 200,80 200,-80" fill="rgba(76,175,80,0.2)" stroke="#4CAF50" stroke-width="2"/>
+                        <polygon points="-15,0 0,10 0,-10" fill="#fff"/>
+                        <text x="-5" y="30" text-anchor="middle" fill="#fff" font-size="8">Camera</text>
+                    </g>
+                    
+                    <!-- Objects in frustum (rendered) -->
+                    <g transform="translate(250, 80)">
+                        <rect x="0" y="0" width="25" height="25" fill="#4CAF50"/>
+                        <text x="12" y="40" text-anchor="middle" fill="#4CAF50" font-size="7">✓</text>
+                    </g>
+                    
+                    <g transform="translate(300, 120)">
+                        <rect x="0" y="0" width="25" height="25" fill="#4CAF50"/>
+                        <text x="12" y="40" text-anchor="middle" fill="#4CAF50" font-size="7">✓</text>
+                    </g>
+                    
+                    <g transform="translate(330, 70)">
+                        <rect x="0" y="0" width="20" height="20" fill="#4CAF50"/>
+                    </g>
+                    
+                    <!-- Objects outside frustum (culled) -->
+                    <g transform="translate(200, 30)">
+                        <rect x="0" y="0" width="20" height="20" fill="#f44336" opacity="0.5"/>
+                        <text x="10" y="35" text-anchor="middle" fill="#f44336" font-size="7">✗</text>
+                    </g>
+                    
+                    <g transform="translate(180, 170)">
+                        <rect x="0" y="0" width="20" height="20" fill="#f44336" opacity="0.5"/>
+                        <text x="10" y="-5" text-anchor="middle" fill="#f44336" font-size="7">✗</text>
+                    </g>
+                    
+                    <!-- Objects behind occluder (culled) -->
+                    <g transform="translate(400, 90)">
+                        <rect x="0" y="0" width="40" height="40" fill="#2196F3"/>
+                        <text x="20" y="55" text-anchor="middle" fill="#2196F3" font-size="7">Occluder</text>
+                    </g>
+                    
+                    <g transform="translate(450, 95)">
+                        <rect x="0" y="0" width="20" height="20" fill="#f44336" opacity="0.5"/>
+                        <text x="10" y="35" text-anchor="middle" fill="#f44336" font-size="7">Hidden</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(550, 60)">
+                        <rect x="0" y="0" width="200" height="100" rx="5" fill="#2d2d2d" stroke="#444"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Culling Types</text>
+                        
+                        <rect x="15" y="35" width="12" height="12" fill="#4CAF50"/>
+                        <text x="35" y="45" fill="#888" font-size="8">Rendered (in view)</text>
+                        
+                        <rect x="15" y="55" width="12" height="12" fill="#f44336" opacity="0.5"/>
+                        <text x="35" y="65" fill="#888" font-size="8">Frustum culled</text>
+                        
+                        <rect x="15" y="75" width="12" height="12" fill="#f44336" opacity="0.5"/>
+                        <text x="35" y="85" fill="#888" font-size="8">Occlusion culled</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Culling prevents rendering objects the player can't see.</em></p>
+
+                <h3>Physics Optimization</h3>
+
+                <ul>
+                    <li><strong>Simplify collision:</strong> Use simple shapes, not complex meshes</li>
+                    <li><strong>Disable physics when not needed:</strong> Set Simulate Physics = false</li>
+                    <li><strong>Use physics LOD:</strong> Simpler physics at distance</li>
+                    <li><strong>Reduce physics tick rate:</strong> In Project Settings if needed</li>
+                </ul>
+            </section>
+
+            <!-- Section 4: Reducing Package Size -->
+            <section id="package-size" class="lesson-section">
+                <h2>Reducing Package Size</h2>
+
+                <p>Smaller packages download faster, use less storage, and improve user experience. Here's how to audit and reduce your package size.</p>
+
+                <h3>Size Map Tool</h3>
+
+                <p>Find what's taking space:</p>
+                <ol>
+                    <li>Go to <strong>Window → Developer Tools → Size Map</strong></li>
+                    <li>Or use <strong>Asset Audit</strong> (Window → Developer Tools)</li>
+                    <li>See which assets consume the most space</li>
+                    <li>Focus optimization on the biggest offenders</li>
+                </ol>
+
+                <h3>Common Size Culprits</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #f44336; color: white;">
+                            <th style="padding: 10px; text-align: left;">Issue</th>
+                            <th style="padding: 10px; text-align: left;">Typical Size Impact</th>
+                            <th style="padding: 10px; text-align: left;">Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Oversized textures</td>
+                            <td style="padding: 10px;">100s of MB</td>
+                            <td style="padding: 10px;">Reduce resolution, compress</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Unused assets</td>
+                            <td style="padding: 10px;">Variable</td>
+                            <td style="padding: 10px;">Delete or exclude from cook</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Duplicate assets</td>
+                            <td style="padding: 10px;">2x+ size</td>
+                            <td style="padding: 10px;">Consolidate references</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">High-res audio</td>
+                            <td style="padding: 10px;">10s of MB</td>
+                            <td style="padding: 10px;">Compress, stream long files</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Debug content</td>
+                            <td style="padding: 10px;">Variable</td>
+                            <td style="padding: 10px;">Exclude from Shipping</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Uncompressed movies</td>
+                            <td style="padding: 10px;">100s of MB</td>
+                            <td style="padding: 10px;">Compress video files</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Excluding Unused Content</h3>
+
+                <p><strong>In Project Settings → Packaging:</strong></p>
+                <ul>
+                    <li><strong>Directories to never cook:</strong> Add test/debug folders</li>
+                    <li><strong>Cook only maps:</strong> Disable to include all referenced content</li>
+                </ul>
+
+                <p><strong>Finding unused assets:</strong></p>
+                <ol>
+                    <li>Right-click folder → <strong>Audit Assets</strong></li>
+                    <li>Or use <strong>Reference Viewer</strong> on individual assets</li>
+                    <li>Assets with no references may be unused</li>
+                    <li>Be careful—some assets are loaded by string paths</li>
+                </ol>
+
+                <h3>Compression Settings</h3>
+
+                <p><strong>Project → Packaging:</strong></p>
+                <ul>
+                    <li><strong>Create compressed cooked packages:</strong> Enable for smaller size</li>
+                    <li><strong>Pak File Compression:</strong> Zlib (compatible) or Oodle (smaller)</li>
+                </ul>
+
+                <p><strong>Per-asset compression:</strong></p>
+                <ul>
+                    <li>Textures: Use compressed formats (BC/DXT)</li>
+                    <li>Audio: Enable compression, use streaming for long files</li>
+                    <li>Meshes: Enable mesh compression in import settings</li>
+                </ul>
+
+                <!-- SVG: Size Reduction -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Package Size Reduction Example</text>
+                    
+                    <!-- Before -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="250" height="80" rx="5" fill="#f44336"/>
+                        <text x="125" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Before Optimization</text>
+                        <text x="125" y="45" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">2.5 GB</text>
+                        <text x="125" y="65" text-anchor="middle" fill="#ffcdd2" font-size="8">4K textures, unused assets</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 310 90 L 370 90" stroke="#333" stroke-width="3" marker-end="url(#sizeArrow)"/>
+                    <text x="340" y="80" text-anchor="middle" fill="#666" font-size="8">Optimize</text>
+                    
+                    <!-- After -->
+                    <g transform="translate(400, 50)">
+                        <rect x="0" y="0" width="250" height="80" rx="5" fill="#4CAF50"/>
+                        <text x="125" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">After Optimization</text>
+                        <text x="125" y="45" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">800 MB</text>
+                        <text x="125" y="65" text-anchor="middle" fill="#c8e6c9" font-size="8">Compressed, cleaned up</text>
+                    </g>
+                    
+                    <text x="350" y="145" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">68% size reduction!</text>
+                    
+                    <defs>
+                        <marker id="sizeArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                            <polygon points="0 0, 10 4, 0 8" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Proper optimization can dramatically reduce package size.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Quick Wins</h4>
+                    <ul>
+                        <li>Reduce max texture size in Project Settings (e.g., 2048 max)</li>
+                        <li>Enable pak file compression</li>
+                        <li>Delete Starter Content if not using it</li>
+                        <li>Remove unused plugins</li>
+                    </ul>
+                </div>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Optimizing Your Project</h2>
+
+                <p>Let's profile your project, identify issues, and apply optimizations. You'll use profiling tools to find bottlenecks and apply techniques to improve performance and reduce size.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Profile your game to establish baseline performance, identify and fix common issues, audit content for size optimization, and verify improvements. These skills ensure your packaged game runs well.</p>
+                </div>
+
+                <h3>Part 1: Establish Baseline Performance</h3>
+
+                <h4>Step 1: Open Your Main Level</h4>
+                <ol>
+                    <li>Open the level you'll be packaging (your main gameplay level)</li>
+                    <li>Make sure it's representative of typical gameplay</li>
+                </ol>
+
+                <h4>Step 2: Enable Stat Display</h4>
+                <ol>
+                    <li>Press <strong>Play</strong> to start PIE</li>
+                    <li>Press <strong>~</strong> (tilde) to open console</li>
+                    <li>Type: <code>stat fps</code> and press Enter</li>
+                    <li>Type: <code>stat unit</code> and press Enter</li>
+                    <li>Note your current FPS and frame times</li>
+                </ol>
+
+                <h4>Step 3: Record Baseline</h4>
+                <ol>
+                    <li>Walk around your level, especially busy areas</li>
+                    <li>Note minimum FPS and maximum frame times</li>
+                    <li>Record these numbers:
+                        <ul>
+                            <li>Average FPS: _____</li>
+                            <li>Minimum FPS: _____</li>
+                            <li>Game Thread: _____ ms</li>
+                            <li>Draw Thread: _____ ms</li>
+                            <li>GPU: _____ ms</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Recording Stats -->
+                <svg width="100%" height="140" viewBox="0 0 700 140" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Recording Baseline Stats</text>
+                    
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="180" height="70" rx="5" fill="#2d2d2d" stroke="#4CAF50"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">stat fps</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#fff" font-size="18">62 FPS</text>
+                        <text x="90" y="62" text-anchor="middle" fill="#888" font-size="8">16.1 ms</text>
+                    </g>
+                    
+                    <g transform="translate(260, 50)">
+                        <rect x="0" y="0" width="180" height="70" rx="5" fill="#2d2d2d" stroke="#2196F3"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">stat unit</text>
+                        <text x="30" y="42" fill="#4CAF50" font-size="9">Game: 4.2ms</text>
+                        <text x="30" y="56" fill="#FF9800" font-size="9">Draw: 3.1ms</text>
+                        <text x="100" y="42" fill="#f44336" font-size="9">GPU: 9.8ms</text>
+                    </g>
+                    
+                    <g transform="translate(470, 50)">
+                        <rect x="0" y="0" width="180" height="70" rx="5" fill="#2d2d2d" stroke="#FF9800"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Bottleneck</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#fff" font-size="12">GPU Bound</text>
+                        <text x="90" y="62" text-anchor="middle" fill="#888" font-size="8">Focus on rendering</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Record baseline stats to measure improvement.</em></p>
+
+                <h3>Part 2: Identify Bottlenecks</h3>
+
+                <h4>Step 4: Determine Bottleneck Type</h4>
+                <p>Based on your stat unit results:</p>
+                <ul>
+                    <li><strong>Game &gt; Draw and GPU:</strong> You're CPU/Game bound → optimize Blueprints</li>
+                    <li><strong>Draw &gt; Game and GPU:</strong> You're Draw call bound → reduce objects/materials</li>
+                    <li><strong>GPU &gt; Game and Draw:</strong> You're GPU bound → reduce rendering complexity</li>
+                </ul>
+
+                <h4>Step 5: GPU Profiling (if GPU bound)</h4>
+                <ol>
+                    <li>While playing, press <strong>Ctrl+Shift+,</strong> (comma)</li>
+                    <li>GPU Visualizer opens showing render pass costs</li>
+                    <li>Look for the most expensive passes:
+                        <ul>
+                            <li><strong>BasePass:</strong> Material/geometry complexity</li>
+                            <li><strong>Shadows:</strong> Shadow map rendering</li>
+                            <li><strong>Translucency:</strong> Transparent materials</li>
+                            <li><strong>PostProcessing:</strong> Screen effects</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 6: Check Specific Stats</h4>
+                <p>Try these additional stat commands:</p>
+                <ul>
+                    <li><code>stat scenerendering</code> — Detailed render stats</li>
+                    <li><code>stat initviews</code> — View culling information</li>
+                    <li><code>stat particles</code> — Particle system costs</li>
+                    <li><code>stat anim</code> — Animation costs</li>
+                </ul>
+
+                <h3>Part 3: Apply Optimizations</h3>
+
+                <h4>Step 7: Optimize Textures</h4>
+                <ol>
+                    <li>Open <strong>Window → Developer Tools → Size Map</strong></li>
+                    <li>Find the largest textures</li>
+                    <li>For oversized textures:
+                        <ul>
+                            <li>Open the texture asset</li>
+                            <li>Set <strong>Maximum Texture Size</strong> to appropriate value (1024 or 2048)</li>
+                            <li>Ensure <strong>Compression Settings</strong> uses a compressed format</li>
+                            <li>Apply and save</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 8: Add LODs to Key Meshes</h4>
+                <ol>
+                    <li>Identify high-poly meshes used frequently</li>
+                    <li>Right-click mesh in Content Browser → <strong>Create LOD</strong></li>
+                    <li>Choose reduction settings (50% for LOD1, 25% for LOD2)</li>
+                    <li>Open Static Mesh editor, adjust LOD screen sizes</li>
+                </ol>
+
+                <h4>Step 9: Set Distance Culling</h4>
+                <ol>
+                    <li>Select small detail objects in your level</li>
+                    <li>In Details, find <strong>LOD → Max Draw Distance</strong></li>
+                    <li>Set appropriate distances:
+                        <ul>
+                            <li>Small props: 3000-5000</li>
+                            <li>Medium objects: 8000-15000</li>
+                            <li>Large structures: Leave at 0 (no limit)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 10: Check Blueprint Tick</h4>
+                <ol>
+                    <li>Open your main gameplay Blueprints</li>
+                    <li>Check Event Tick usage</li>
+                    <li>Move non-critical logic to timers</li>
+                    <li>Cache frequently accessed references</li>
+                    <li>For Actors that don't need tick:
+                        <ul>
+                            <li>In Class Defaults → Actor Tick</li>
+                            <li>Uncheck <strong>Start with Tick Enabled</strong></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Part 4: Audit Content Size</h3>
+
+                <h4>Step 11: Check Project Size</h4>
+                <ol>
+                    <li>Open <strong>Window → Developer Tools → Size Map</strong></li>
+                    <li>Click <strong>Load All</strong> to analyze entire project</li>
+                    <li>Sort by size to find largest assets</li>
+                    <li>Note total estimated cooked size</li>
+                </ol>
+
+                <h4>Step 12: Find Unused Assets</h4>
+                <ol>
+                    <li>Right-click Content folder → <strong>Audit Assets</strong></li>
+                    <li>Or use Reference Viewer on suspicious assets</li>
+                    <li>Look for assets with 0 referencers</li>
+                    <li>Verify they're truly unused before deleting</li>
+                </ol>
+
+                <h4>Step 13: Clean Up</h4>
+                <ol>
+                    <li>Delete confirmed unused assets</li>
+                    <li>Right-click Content → <strong>Fix Up Redirectors in Folder</strong></li>
+                    <li>This cleans up after moved/renamed assets</li>
+                </ol>
+
+                <h3>Part 5: Verify Improvements</h3>
+
+                <h4>Step 14: Re-test Performance</h4>
+                <ol>
+                    <li>Play your level again</li>
+                    <li>Enable <code>stat fps</code> and <code>stat unit</code></li>
+                    <li>Walk through the same areas as before</li>
+                    <li>Record new numbers and compare:
+                        <ul>
+                            <li>New Average FPS: _____ (was: _____)</li>
+                            <li>New Minimum FPS: _____ (was: _____)</li>
+                            <li>Frame time improvement: _____</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 15: Check Size Map Again</h4>
+                <ol>
+                    <li>Reopen Size Map</li>
+                    <li>Compare estimated size to before</li>
+                    <li>Note size reduction achieved</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've profiled and optimized your project:</p>
+                    <ul>
+                        <li>Established baseline performance metrics</li>
+                        <li>Identified your bottleneck type (Game/Draw/GPU)</li>
+                        <li>Applied texture, mesh, and culling optimizations</li>
+                        <li>Audited and reduced content size</li>
+                        <li>Verified performance improvements</li>
+                    </ul>
+                    <p>Your project is now optimized and ready for final packaging!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Stats don't show:</strong></p>
+                    <ul>
+                        <li>Make sure you're in play mode (not just in editor)</li>
+                        <li>Type commands without typos</li>
+                        <li>Try <code>stat none</code> then re-enable</li>
+                    </ul>
+                    
+                    <p><strong>No improvement after optimization:</strong></p>
+                    <ul>
+                        <li>You may be optimizing the wrong bottleneck</li>
+                        <li>Check if Game/Draw/GPU changed after optimization</li>
+                        <li>Some optimizations need level rebuild (Lighting)</li>
+                    </ul>
+                    
+                    <p><strong>Size Map shows 0 or wrong values:</strong></p>
+                    <ul>
+                        <li>Click "Load All" to scan entire project</li>
+                        <li>May need to save all and restart editor</li>
+                    </ul>
+                    
+                    <p><strong>Can't delete assets (referenced):</strong></p>
+                    <ul>
+                        <li>Use Reference Viewer to see what's using them</li>
+                        <li>May be blueprint references or level instances</li>
+                        <li>Force delete only as last resort (can break things)</li>
+                    </ul>
+                </div>
+
+                <h3>Optimization Targets</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Platform</th>
+                            <th style="padding: 10px; text-align: left;">Target FPS</th>
+                            <th style="padding: 10px; text-align: left;">Frame Budget</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">High-end PC</td>
+                            <td style="padding: 10px;">60+ FPS</td>
+                            <td style="padding: 10px;">16.67ms</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Mid-range PC</td>
+                            <td style="padding: 10px;">30-60 FPS</td>
+                            <td style="padding: 10px;">16.67-33.33ms</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Console</td>
+                            <td style="padding: 10px;">30 or 60 FPS (locked)</td>
+                            <td style="padding: 10px;">16.67 or 33.33ms</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Mobile</td>
+                            <td style="padding: 10px;">30 FPS</td>
+                            <td style="padding: 10px;">33.33ms</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Merge Actors:</strong> Select static meshes → Actor → Merge Actors to reduce draw calls</li>
+                    <li><strong>HLOD:</strong> Set up Hierarchical LOD for open world areas</li>
+                    <li><strong>Async Loading:</strong> Implement level streaming for large levels</li>
+                    <li><strong>Niagara GPU:</strong> Convert heavy particle systems to GPU simulation</li>
+                    <li><strong>Material Instances:</strong> Replace duplicate materials with instances</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned to profile your project, identify performance bottlenecks, and apply optimizations. A well-optimized game runs smoothly, loads quickly, and provides a better player experience.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Profiling First:</strong> Always measure before optimizing. Use <code>stat unit</code> to identify whether you're Game, Draw, or GPU bound. Profile specific systems with <code>stat gpu</code>, GPU Visualizer, or Unreal Insights.</p>
+
+                <p><strong>Content Optimization:</strong> Textures, meshes, and materials often have the biggest impact. Reduce texture sizes, enable compression, set up LODs, and use appropriate polygon counts. Nanite helps with high-poly meshes on compatible hardware.</p>
+
+                <p><strong>Runtime Optimization:</strong> Blueprint performance matters—avoid heavy logic in Event Tick, cache references, and use timers. Enable culling (frustum, occlusion, distance) to skip rendering invisible objects. Optimize lighting with baking and fewer dynamic lights.</p>
+
+                <p><strong>Package Size:</strong> Use Size Map to find large assets. Remove unused content, compress textures and audio, and enable pak file compression. Smaller packages download faster and use less storage.</p>
+
+                <h3>Profiling Commands Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Command</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                            <th style="padding: 10px; text-align: left;">When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>stat fps</code></td>
+                            <td style="padding: 10px;">Show framerate</td>
+                            <td style="padding: 10px;">Quick performance check</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>stat unit</code></td>
+                            <td style="padding: 10px;">Frame time breakdown</td>
+                            <td style="padding: 10px;">Identify bottleneck type</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>stat gpu</code></td>
+                            <td style="padding: 10px;">GPU render costs</td>
+                            <td style="padding: 10px;">When GPU bound</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>stat game</code></td>
+                            <td style="padding: 10px;">Game thread details</td>
+                            <td style="padding: 10px;">When Game bound</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>stat scenerendering</code></td>
+                            <td style="padding: 10px;">Render pass timing</td>
+                            <td style="padding: 10px;">Detailed render analysis</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>stat memory</code></td>
+                            <td style="padding: 10px;">Memory usage</td>
+                            <td style="padding: 10px;">Memory issues</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>Ctrl+Shift+,</code></td>
+                            <td style="padding: 10px;">GPU Visualizer</td>
+                            <td style="padding: 10px;">Detailed GPU profiling</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Optimization Techniques</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Category</th>
+                            <th style="padding: 10px; text-align: left;">Techniques</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Textures</td>
+                            <td style="padding: 10px;">Reduce resolution, enable compression, use streaming, generate mipmaps</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Meshes</td>
+                            <td style="padding: 10px;">Set up LODs, reduce poly count, use Nanite, merge static actors</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Materials</td>
+                            <td style="padding: 10px;">Simplify shaders, use Material Instances, reduce texture samples</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Blueprints</td>
+                            <td style="padding: 10px;">Avoid Tick abuse, cache references, use timers, disable unused ticks</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Rendering</td>
+                            <td style="padding: 10px;">Distance culling, bake lighting, limit dynamic lights/shadows</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Package Size</td>
+                            <td style="padding: 10px;">Remove unused assets, compress content, exclude debug folders</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Profile first:</strong> Never guess—measure to find real bottlenecks</li>
+                    <li><strong>Optimize the right thing:</strong> GPU optimizations don't help if you're CPU bound</li>
+                    <li><strong>Test on target hardware:</strong> Your dev machine may hide issues</li>
+                    <li><strong>Iterate:</strong> Make one change, measure, repeat</li>
+                    <li><strong>Budget your frame time:</strong> Know your target and stay under it</li>
+                    <li><strong>Use LODs and culling:</strong> Don't render what players can't see</li>
+                    <li><strong>Audit content regularly:</strong> Unused assets accumulate over time</li>
+                    <li><strong>Enable compression:</strong> Smaller files = faster downloads</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Optimization Workflow</text>
+                    
+                    <!-- Profile -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="140" height="80" rx="8" fill="#2196F3"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">1. Profile</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#bbdefb" font-size="8">stat unit</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#bbdefb" font-size="8">GPU Visualizer</text>
+                        <text x="70" y="75" text-anchor="middle" fill="#bbdefb" font-size="8">Measure baseline</text>
+                    </g>
+                    
+                    <path d="M 195 100 L 225 100" stroke="#333" stroke-width="2" marker-end="url(#optArrow)"/>
+                    
+                    <!-- Identify -->
+                    <g transform="translate(230, 60)">
+                        <rect x="0" y="0" width="140" height="80" rx="8" fill="#FF9800"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">2. Identify</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#fff3e0" font-size="8">Game bound?</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#fff3e0" font-size="8">Draw bound?</text>
+                        <text x="70" y="75" text-anchor="middle" fill="#fff3e0" font-size="8">GPU bound?</text>
+                    </g>
+                    
+                    <path d="M 375 100 L 405 100" stroke="#333" stroke-width="2" marker-end="url(#optArrow)"/>
+                    
+                    <!-- Optimize -->
+                    <g transform="translate(410, 60)">
+                        <rect x="0" y="0" width="140" height="80" rx="8" fill="#9C27B0"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">3. Optimize</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#e1bee7" font-size="8">Apply targeted</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#e1bee7" font-size="8">techniques for</text>
+                        <text x="70" y="75" text-anchor="middle" fill="#e1bee7" font-size="8">your bottleneck</text>
+                    </g>
+                    
+                    <path d="M 555 100 L 585 100" stroke="#333" stroke-width="2" marker-end="url(#optArrow)"/>
+                    
+                    <!-- Verify -->
+                    <g transform="translate(590, 60)">
+                        <rect x="0" y="0" width="140" height="80" rx="8" fill="#4CAF50"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">4. Verify</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#c8e6c9" font-size="8">Re-measure</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#c8e6c9" font-size="8">Compare to baseline</text>
+                        <text x="70" y="75" text-anchor="middle" fill="#c8e6c9" font-size="8">Repeat if needed</text>
+                    </g>
+                    
+                    <!-- Loop back arrow -->
+                    <path d="M 660 145 L 660 165 L 120 165 L 120 145" stroke="#666" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#optArrow)"/>
+                    <text x="400" y="180" text-anchor="middle" fill="#666" font-size="8">Iterate until target achieved</text>
+                    
+                    <defs>
+                        <marker id="optArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The optimization cycle—profile, identify, optimize, verify, repeat.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>With your project configured and optimized, the final lesson covers <strong>Building and Distribution</strong>. You'll package your game, create installers, and prepare for release on different platforms.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What console command shows the breakdown of Game, Draw, and GPU frame times?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> stat fps</label>
+                            <label><input type="radio" name="q1" value="b"> stat unit</label>
+                            <label><input type="radio" name="q1" value="c"> stat memory</label>
+                            <label><input type="radio" name="q1" value="d"> stat gpu</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — <code>stat unit</code> shows the breakdown of Game thread, Draw thread, and GPU time per frame. The longest time indicates your bottleneck. <code>stat fps</code> only shows framerate.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>If your Game thread time is highest in stat unit, what type of optimization should you focus on?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Reducing texture sizes</label>
+                            <label><input type="radio" name="q2" value="b"> Simplifying materials and shaders</label>
+                            <label><input type="radio" name="q2" value="c"> Optimizing Blueprints and game logic</label>
+                            <label><input type="radio" name="q2" value="d"> Adding more LODs</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — High Game thread time indicates CPU-bound gameplay logic. Focus on Blueprint optimization: reduce Tick usage, cache references, use timers. Texture and shader optimizations help GPU-bound situations.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is the purpose of Level of Detail (LOD) systems?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> To make objects look better up close</label>
+                            <label><input type="radio" name="q3" value="b"> To use simpler geometry for distant objects, improving performance</label>
+                            <label><input type="radio" name="q3" value="c"> To increase texture resolution at distance</label>
+                            <label><input type="radio" name="q3" value="d"> To add more polygons as objects get closer</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — LODs swap to simpler meshes as objects get farther from the camera. Since distant objects appear smaller, reduced detail isn't noticeable but significantly improves performance by reducing polygon count.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What tool helps you find which assets are consuming the most disk space?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Reference Viewer</label>
+                            <label><input type="radio" name="q4" value="b"> Blueprint Debugger</label>
+                            <label><input type="radio" name="q4" value="c"> Size Map</label>
+                            <label><input type="radio" name="q4" value="d"> Output Log</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Size Map (Window → Developer Tools → Size Map) analyzes your project and shows asset sizes. Sort by size to find the biggest offenders—usually textures, meshes, and audio.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What's a common Blueprint optimization mistake to avoid?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Using too many variables</label>
+                            <label><input type="radio" name="q5" value="b"> Putting heavy logic in Event Tick that runs every frame</label>
+                            <label><input type="radio" name="q5" value="c"> Using custom events</label>
+                            <label><input type="radio" name="q5" value="d"> Creating functions</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Event Tick runs every frame (60+ times per second). Heavy logic there multiplies rapidly. Use timers for periodic checks, events for responses, and disable Tick on actors that don't need it.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What does Max Draw Distance do for an actor?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Sets the maximum size an actor can be</label>
+                            <label><input type="radio" name="q6" value="b"> Prevents the actor from rendering beyond that distance from the camera</label>
+                            <label><input type="radio" name="q6" value="c"> Limits how far the actor can move</label>
+                            <label><input type="radio" name="q6" value="d"> Sets the actor's collision range</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Max Draw Distance culls actors beyond the specified distance. Objects farther away simply don't render, saving GPU resources. Use for small detail objects that aren't visible at distance anyway.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>What's the recommended approach before starting optimization?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Optimize everything equally</label>
+                            <label><input type="radio" name="q7" value="b"> Start with textures since they're usually the problem</label>
+                            <label><input type="radio" name="q7" value="c"> Profile first to identify the actual bottleneck</label>
+                            <label><input type="radio" name="q7" value="d"> Reduce all polygon counts by 50%</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Always profile first. Optimizing the wrong area wastes time—reducing textures won't help if you're CPU bound. Use stat unit to identify whether Game, Draw, or GPU is your bottleneck, then focus efforts there.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m10_l01_project_settings.html" class="btn">← Previous: Project Settings</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m10_l03_building_distribution.html" class="btn">Next: Building and Distribution →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

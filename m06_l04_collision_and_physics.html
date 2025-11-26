@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master collision and physics interaction in Unreal Engine 5. Learn collision channels, presets, overlap vs block responses, trigger volumes, and Blueprint collision events.">
+    <meta name="author" content="Practical Ace">
+    <title>Collision and Physics Interaction - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 6: Player Interaction and Input</a></li>
+            <li aria-current="page">Lesson 6.4: Collision and Physics Interaction</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>💥 Collision and Physics Interaction</h1>
+                <p class="lead">Every game needs to know when things touch. When a player walks into a wall, they should stop. When they step on a button, something should happen. When they enter a room, enemies might wake up. Unreal's collision system handles all of this—determining which objects can pass through each other, which ones block, and which ones generate events when they touch. In this lesson, you'll learn how collision works, how to configure it, and how to respond to collision events in your Blueprints.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain how collision channels and presets work in Unreal</li>
+                        <li>Configure collision responses: Block, Overlap, and Ignore</li>
+                        <li>Create trigger volumes that detect player entry and exit</li>
+                        <li>Respond to collision and overlap events in Blueprints</li>
+                        <li>Set up basic physics simulation on actors</li>
+                        <li>Build a trigger zone that responds to the player</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 6.3 (Character Movement)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#collision-basics" class="toc-link">Collision Basics</a></li>
+                        <li><a href="#channels-presets" class="toc-link">Collision Channels and Presets</a></li>
+                        <li><a href="#collision-responses" class="toc-link">Collision Responses: Block, Overlap, Ignore</a></li>
+                        <li><a href="#collision-events" class="toc-link">Collision Events in Blueprints</a></li>
+                        <li><a href="#trigger-volumes" class="toc-link">Trigger Volumes</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Create a Trigger Zone</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Collision Basics -->
+            <section id="collision-basics" class="lesson-section">
+                <h2>Collision Basics</h2>
+
+                <p>Collision in Unreal determines what happens when two objects try to occupy the same space. Should they stop each other? Pass through? Generate an event? The collision system answers these questions for every pair of objects in your game, every frame.</p>
+
+                <h3>Collision Components</h3>
+
+                <p>Collision is handled by <strong>collision components</strong>—invisible shapes that define an object's physical presence. Common collision components include:</p>
+
+                <p><strong>Box Collision:</strong> A rectangular box shape. Good for crates, doors, rooms, trigger zones.</p>
+
+                <p><strong>Sphere Collision:</strong> A spherical shape. Good for pickups, area effects, radial detection.</p>
+
+                <p><strong>Capsule Collision:</strong> A pill shape (cylinder with hemispherical caps). Used for characters—it's the default collision for the Character class.</p>
+
+                <p><strong>Mesh Collision:</strong> Collision that matches the shape of a mesh. Can be simple (convex hull) or complex (per-polygon). Complex is expensive but accurate.</p>
+
+                <!-- SVG: Collision Shapes -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Common Collision Shapes</text>
+                    
+                    <!-- Box -->
+                    <g transform="translate(80, 60)">
+                        <rect x="0" y="0" width="100" height="80" rx="3" fill="none" stroke="#4CAF50" stroke-width="3" stroke-dasharray="5,3"/>
+                        <rect x="10" y="10" width="80" height="60" fill="#4CAF50" opacity="0.3"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">Box</text>
+                        <text x="50" y="125" text-anchor="middle" fill="#666" font-size="8">Crates, doors, zones</text>
+                    </g>
+                    
+                    <!-- Sphere -->
+                    <g transform="translate(250, 60)">
+                        <circle cx="50" cy="40" r="45" fill="none" stroke="#2196F3" stroke-width="3" stroke-dasharray="5,3"/>
+                        <circle cx="50" cy="40" r="35" fill="#2196F3" opacity="0.3"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#1565C0" font-size="11" font-weight="bold">Sphere</text>
+                        <text x="50" y="125" text-anchor="middle" fill="#666" font-size="8">Pickups, radial areas</text>
+                    </g>
+                    
+                    <!-- Capsule -->
+                    <g transform="translate(420, 50)">
+                        <rect x="20" y="20" width="60" height="50" rx="30" fill="none" stroke="#FF9800" stroke-width="3" stroke-dasharray="5,3"/>
+                        <rect x="30" y="25" width="40" height="40" rx="20" fill="#FF9800" opacity="0.3"/>
+                        <text x="50" y="120" text-anchor="middle" fill="#E65100" font-size="11" font-weight="bold">Capsule</text>
+                        <text x="50" y="135" text-anchor="middle" fill="#666" font-size="8">Characters, humanoids</text>
+                    </g>
+                    
+                    <!-- Mesh -->
+                    <g transform="translate(590, 55)">
+                        <polygon points="50,5 95,35 80,85 20,85 5,35" fill="none" stroke="#9C27B0" stroke-width="3" stroke-dasharray="5,3"/>
+                        <polygon points="50,15 85,40 72,80 28,80 15,40" fill="#9C27B0" opacity="0.3"/>
+                        <text x="50" y="115" text-anchor="middle" fill="#7B1FA2" font-size="11" font-weight="bold">Mesh</text>
+                        <text x="50" y="130" text-anchor="middle" fill="#666" font-size="8">Complex shapes</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Common collision shapes. Simpler shapes are cheaper to compute.</em></p>
+
+                <h3>Simple vs. Complex Collision</h3>
+
+                <p>Static meshes can have two types of collision:</p>
+
+                <p><strong>Simple Collision:</strong> Basic shapes (boxes, spheres, capsules, or convex hulls) that approximate the mesh. Fast to compute, used for most game objects.</p>
+
+                <p><strong>Complex Collision:</strong> Uses the actual mesh triangles for collision. Accurate but expensive. Used sparingly for things like terrain or when precise collision is critical.</p>
+
+                <p>In the Static Mesh Editor, you can view and add simple collision via the Collision menu. Common options include:</p>
+                <ul>
+                    <li>Add Box Simplified Collision</li>
+                    <li>Add Sphere Simplified Collision</li>
+                    <li>Add Capsule Simplified Collision</li>
+                    <li>Auto Convex Collision (generates a convex hull)</li>
+                </ul>
+
+                <h3>Collision Enabled Settings</h3>
+
+                <p>Every component with collision has a <strong>Collision Enabled</strong> setting that determines what the collision does:</p>
+
+                <p><strong>No Collision:</strong> Collision is completely disabled. Objects pass through freely. No events generated.</p>
+
+                <p><strong>Query Only (No Physics Collision):</strong> Generates overlap/touch events but doesn't physically block. Good for triggers.</p>
+
+                <p><strong>Physics Only (No Query Collision):</strong> Physically blocks but doesn't generate events. Rare use case.</p>
+
+                <p><strong>Collision Enabled (Query and Physics):</strong> Both blocks and generates events. Default for most objects.</p>
+
+                <!-- SVG: Collision Enabled Options -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Collision Enabled Settings</text>
+                    
+                    <!-- No Collision -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="150" height="55" rx="5" fill="#3d3d3d" stroke="#f44336"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#f44336" font-size="9" font-weight="bold">No Collision</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#888" font-size="7">Physics: ✗</text>
+                        <text x="75" y="48" text-anchor="middle" fill="#888" font-size="7">Events: ✗</text>
+                    </g>
+                    
+                    <!-- Query Only -->
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="150" height="55" rx="5" fill="#3d3d3d" stroke="#FF9800"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">Query Only</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#888" font-size="7">Physics: ✗</text>
+                        <text x="75" y="48" text-anchor="middle" fill="#4CAF50" font-size="7">Events: ✓</text>
+                    </g>
+                    
+                    <!-- Physics Only -->
+                    <g transform="translate(370, 50)">
+                        <rect x="0" y="0" width="150" height="55" rx="5" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#2196F3" font-size="9" font-weight="bold">Physics Only</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#4CAF50" font-size="7">Physics: ✓</text>
+                        <text x="75" y="48" text-anchor="middle" fill="#888" font-size="7">Events: ✗</text>
+                    </g>
+                    
+                    <!-- Query and Physics -->
+                    <g transform="translate(540, 50)">
+                        <rect x="0" y="0" width="150" height="55" rx="5" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Query and Physics</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#4CAF50" font-size="7">Physics: ✓</text>
+                        <text x="75" y="48" text-anchor="middle" fill="#4CAF50" font-size="7">Events: ✓</text>
+                    </g>
+                    
+                    <!-- Use cases -->
+                    <g transform="translate(30, 120)">
+                        <text x="75" y="15" text-anchor="middle" fill="#666" font-size="7">Ghosts, visual only</text>
+                        <text x="245" y="15" text-anchor="middle" fill="#666" font-size="7">Triggers, sensors</text>
+                        <text x="445" y="15" text-anchor="middle" fill="#666" font-size="7">Invisible barriers</text>
+                        <text x="615" y="15" text-anchor="middle" fill="#666" font-size="7">Most game objects</text>
+                    </g>
+                    
+                    <text x="350" y="160" text-anchor="middle" fill="#667eea" font-size="9">Query = Events | Physics = Blocking</text>
+                </svg>
+                <p class="caption"><em>Figure: Collision Enabled determines whether collision blocks movement and/or generates events.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Query vs. Physics</h4>
+                    <p><strong>Query</strong> refers to the ability to detect overlaps and generate events. <strong>Physics</strong> refers to actual physical blocking (preventing objects from passing through). Triggers use "Query Only" because they need to detect the player entering but shouldn't physically block them.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Collision Channels and Presets -->
+            <section id="channels-presets" class="lesson-section">
+                <h2>Collision Channels and Presets</h2>
+
+                <p>Not everything should collide with everything else. Bullets might pass through other bullets but hit characters. The player might pass through pickups but not walls. Unreal uses <strong>Collision Channels</strong> and <strong>Presets</strong> to control which objects interact with which.</p>
+
+                <h3>Object Channels</h3>
+
+                <p>Object Channels define categories of objects. Unreal provides several built-in channels:</p>
+
+                <ul>
+                    <li><strong>WorldStatic:</strong> Static level geometry (walls, floors, terrain)</li>
+                    <li><strong>WorldDynamic:</strong> Movable objects that aren't pawns (doors, platforms)</li>
+                    <li><strong>Pawn:</strong> Player and AI-controlled characters</li>
+                    <li><strong>PhysicsBody:</strong> Simulated physics objects</li>
+                    <li><strong>Vehicle:</strong> Vehicles</li>
+                    <li><strong>Destructible:</strong> Destructible meshes</li>
+                </ul>
+
+                <p>You can also create custom channels in Project Settings → Collision for game-specific needs (Projectile, Pickup, InteractiveObject, etc.).</p>
+
+                <h3>Trace Channels</h3>
+
+                <p>Trace Channels are used for line traces (raycasts), not object collision. Built-in trace channels:</p>
+
+                <ul>
+                    <li><strong>Visibility:</strong> For visibility checks (line of sight)</li>
+                    <li><strong>Camera:</strong> For camera collision/obstruction</li>
+                </ul>
+
+                <p>Custom trace channels are useful for things like weapon traces that should hit specific object types.</p>
+
+                <h3>Collision Presets</h3>
+
+                <p>Rather than configuring collision responses manually for each object, you can use <strong>Collision Presets</strong>—predefined configurations that set Object Type and responses to all channels at once.</p>
+
+                <p>Common built-in presets:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Preset</th>
+                            <th style="padding: 10px; text-align: left;">Object Type</th>
+                            <th style="padding: 10px; text-align: left;">Behavior</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">BlockAll</td>
+                            <td style="padding: 10px;">WorldStatic</td>
+                            <td style="padding: 10px;">Blocks everything</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">BlockAllDynamic</td>
+                            <td style="padding: 10px;">WorldDynamic</td>
+                            <td style="padding: 10px;">Blocks everything, movable</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">OverlapAll</td>
+                            <td style="padding: 10px;">WorldDynamic</td>
+                            <td style="padding: 10px;">Overlaps everything (trigger)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">OverlapAllDynamic</td>
+                            <td style="padding: 10px;">WorldDynamic</td>
+                            <td style="padding: 10px;">Overlaps everything, movable</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Pawn</td>
+                            <td style="padding: 10px;">Pawn</td>
+                            <td style="padding: 10px;">Character collision</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">NoCollision</td>
+                            <td style="padding: 10px;">WorldStatic</td>
+                            <td style="padding: 10px;">No collision at all</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Custom...</td>
+                            <td style="padding: 10px;">Various</td>
+                            <td style="padding: 10px;">Manual configuration</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Collision Preset Selection -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Collision Preset in Details Panel</text>
+                    
+                    <!-- Panel mockup -->
+                    <rect x="100" y="45" width="500" height="140" rx="5" fill="#3d3d3d" stroke="#555"/>
+                    
+                    <!-- Header -->
+                    <rect x="100" y="45" width="500" height="25" rx="5" fill="#4a4a4a"/>
+                    <text x="120" y="62" fill="#fff" font-size="10" font-weight="bold">▼ Collision</text>
+                    
+                    <!-- Collision Preset row -->
+                    <text x="120" y="95" fill="#aaa" font-size="9">Collision Preset</text>
+                    <rect x="280" y="80" width="300" height="22" rx="3" fill="#4a4a4a" stroke="#667eea"/>
+                    <text x="295" y="95" fill="#667eea" font-size="9">OverlapAllDynamic ▼</text>
+                    
+                    <!-- Object Type row -->
+                    <text x="120" y="125" fill="#aaa" font-size="9">Object Type</text>
+                    <rect x="280" y="110" width="300" height="22" rx="3" fill="#4a4a4a" stroke="#888"/>
+                    <text x="295" y="125" fill="#888" font-size="9">WorldDynamic</text>
+                    
+                    <!-- Collision Enabled row -->
+                    <text x="120" y="155" fill="#aaa" font-size="9">Collision Enabled</text>
+                    <rect x="280" y="140" width="300" height="22" rx="3" fill="#4a4a4a" stroke="#888"/>
+                    <text x="295" y="155" fill="#888" font-size="9">Query Only (No Physics Collision)</text>
+                    
+                    <!-- Note -->
+                    <text x="350" y="195" text-anchor="middle" fill="#888" font-size="8">Select a preset or choose "Custom..." to configure individually</text>
+                </svg>
+                <p class="caption"><em>Figure: Collision Preset dropdown in the Details panel provides quick configuration.</em></p>
+
+                <h3>Creating Custom Presets</h3>
+
+                <p>You can create custom collision presets in Project Settings:</p>
+
+                <ol>
+                    <li>Go to <strong>Edit → Project Settings → Collision</strong></li>
+                    <li>Scroll to <strong>Preset</strong> section</li>
+                    <li>Click <strong>New...</strong> to create a new preset</li>
+                    <li>Name it (e.g., "Pickup", "Projectile", "Trigger")</li>
+                    <li>Set Object Type and responses to each channel</li>
+                </ol>
+
+                <p>Custom presets appear in the Collision Preset dropdown on all components.</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Both Objects Matter</h4>
+                    <p>Collision is determined by <em>both</em> objects involved. If Object A says "Block Pawn" but Object B (a Pawn) says "Ignore WorldStatic," the result depends on both settings. Generally, if either object says "Ignore," they won't interact. Both must agree to Block for blocking to occur.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Collision Responses -->
+            <section id="collision-responses" class="lesson-section">
+                <h2>Collision Responses: Block, Overlap, Ignore</h2>
+
+                <p>Each object defines how it responds to each collision channel. The three possible responses are:</p>
+
+                <h3>Block</h3>
+
+                <p><strong>Block</strong> means the objects cannot pass through each other. Physical collision occurs. This is what you want for walls, floors, solid objects, and characters that shouldn't walk through each other.</p>
+
+                <p>When blocking collision occurs:</p>
+                <ul>
+                    <li>Objects stop at the collision point</li>
+                    <li>Physics forces are applied (if simulating)</li>
+                    <li><code>On Hit</code> events fire (if enabled)</li>
+                </ul>
+
+                <h3>Overlap</h3>
+
+                <p><strong>Overlap</strong> means objects can pass through each other, but overlap events are generated. This is perfect for triggers, pickups, damage zones, and detection areas.</p>
+
+                <p>When overlap occurs:</p>
+                <ul>
+                    <li>Objects pass through freely</li>
+                    <li><code>On Begin Overlap</code> fires when overlap starts</li>
+                    <li><code>On End Overlap</code> fires when overlap ends</li>
+                </ul>
+
+                <h3>Ignore</h3>
+
+                <p><strong>Ignore</strong> means no collision interaction at all. Objects pass through each other silently—no physics, no events.</p>
+
+                <!-- SVG: Response Types -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Collision Response Types</text>
+                    
+                    <!-- Block -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="200" height="110" rx="8" fill="#fff" stroke="#f44336" stroke-width="2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#c62828" font-size="12" font-weight="bold">🛑 Block</text>
+                        
+                        <!-- Visual: two objects stopped -->
+                        <circle cx="60" cy="65" r="20" fill="#667eea"/>
+                        <text cx="60" cy="65" text-anchor="middle" fill="#fff" font-size="8">→</text>
+                        <rect x="95" y="45" width="10" height="40" fill="#f44336"/>
+                        <circle cx="140" cy="65" r="20" fill="#4CAF50"/>
+                        
+                        <text x="100" y="100" text-anchor="middle" fill="#666" font-size="8">Objects stop, On Hit fires</text>
+                    </g>
+                    
+                    <!-- Overlap -->
+                    <g transform="translate(300, 55)">
+                        <rect x="0" y="0" width="200" height="110" rx="8" fill="#fff" stroke="#FF9800" stroke-width="2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#E65100" font-size="12" font-weight="bold">🔄 Overlap</text>
+                        
+                        <!-- Visual: objects overlapping -->
+                        <circle cx="85" cy="65" r="20" fill="#667eea" opacity="0.7"/>
+                        <circle cx="115" cy="65" r="20" fill="#4CAF50" opacity="0.7"/>
+                        
+                        <text x="100" y="100" text-anchor="middle" fill="#666" font-size="8">Pass through, events fire</text>
+                    </g>
+                    
+                    <!-- Ignore -->
+                    <g transform="translate(550, 55)">
+                        <rect x="0" y="0" width="200" height="110" rx="8" fill="#fff" stroke="#9E9E9E" stroke-width="2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#616161" font-size="12" font-weight="bold">👻 Ignore</text>
+                        
+                        <!-- Visual: objects passing through -->
+                        <circle cx="60" cy="65" r="20" fill="#667eea" opacity="0.5"/>
+                        <path d="M 80 65 L 120 65" stroke="#666" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#ignoreArrow)"/>
+                        <circle cx="140" cy="65" r="20" fill="#4CAF50" opacity="0.5"/>
+                        
+                        <text x="100" y="100" text-anchor="middle" fill="#666" font-size="8">Pass through, no events</text>
+                    </g>
+                    
+                    <!-- Use cases -->
+                    <g transform="translate(50, 180)">
+                        <rect x="0" y="0" width="200" height="80" rx="5" fill="#ffebee"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#c62828" font-size="10" font-weight="bold">Use Cases</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#666" font-size="8">• Walls, floors, terrain</text>
+                        <text x="100" y="52" text-anchor="middle" fill="#666" font-size="8">• Solid objects</text>
+                        <text x="100" y="66" text-anchor="middle" fill="#666" font-size="8">• Character collision</text>
+                    </g>
+                    
+                    <g transform="translate(300, 180)">
+                        <rect x="0" y="0" width="200" height="80" rx="5" fill="#fff3e0"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Use Cases</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#666" font-size="8">• Triggers, sensors</text>
+                        <text x="100" y="52" text-anchor="middle" fill="#666" font-size="8">• Pickups, collectibles</text>
+                        <text x="100" y="66" text-anchor="middle" fill="#666" font-size="8">• Damage zones</text>
+                    </g>
+                    
+                    <g transform="translate(550, 180)">
+                        <rect x="0" y="0" width="200" height="80" rx="5" fill="#fafafa"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#616161" font-size="10" font-weight="bold">Use Cases</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#666" font-size="8">• Visual-only effects</text>
+                        <text x="100" y="52" text-anchor="middle" fill="#666" font-size="8">• Same-team characters</text>
+                        <text x="100" y="66" text-anchor="middle" fill="#666" font-size="8">• Projectile-to-projectile</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="ignoreArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Block stops objects; Overlap lets them pass but fires events; Ignore does nothing.</em></p>
+
+                <h3>Configuring Custom Responses</h3>
+
+                <p>To set custom responses per channel:</p>
+
+                <ol>
+                    <li>Select the component with collision</li>
+                    <li>In Details panel, find <strong>Collision</strong> section</li>
+                    <li>Set Collision Preset to <strong>Custom...</strong></li>
+                    <li>Expand <strong>Collision Responses</strong></li>
+                    <li>Set each channel to Block, Overlap, or Ignore</li>
+                </ol>
+
+                <!-- SVG: Custom Response Configuration -->
+                <svg width="100%" height="220" viewBox="0 0 700 220" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Custom Collision Response Configuration</text>
+                    
+                    <!-- Panel -->
+                    <rect x="100" y="45" width="500" height="160" rx="5" fill="#3d3d3d" stroke="#555"/>
+                    
+                    <!-- Header -->
+                    <rect x="100" y="45" width="500" height="25" rx="5" fill="#4a4a4a"/>
+                    <text x="120" y="62" fill="#fff" font-size="10" font-weight="bold">▼ Collision Responses</text>
+                    
+                    <!-- Column headers -->
+                    <text x="350" y="85" text-anchor="middle" fill="#aaa" font-size="8">Ignore | Overlap | Block</text>
+                    
+                    <!-- WorldStatic row -->
+                    <text x="120" y="105" fill="#aaa" font-size="9">WorldStatic</text>
+                    <circle cx="320" cy="100" r="8" fill="#3d3d3d" stroke="#888"/>
+                    <circle cx="365" cy="100" r="8" fill="#3d3d3d" stroke="#888"/>
+                    <circle cx="410" cy="100" r="8" fill="#4CAF50"/>
+                    
+                    <!-- WorldDynamic row -->
+                    <text x="120" y="125" fill="#aaa" font-size="9">WorldDynamic</text>
+                    <circle cx="320" cy="120" r="8" fill="#3d3d3d" stroke="#888"/>
+                    <circle cx="365" cy="120" r="8" fill="#FF9800"/>
+                    <circle cx="410" cy="120" r="8" fill="#3d3d3d" stroke="#888"/>
+                    
+                    <!-- Pawn row -->
+                    <text x="120" y="145" fill="#aaa" font-size="9">Pawn</text>
+                    <circle cx="320" cy="140" r="8" fill="#3d3d3d" stroke="#888"/>
+                    <circle cx="365" cy="140" r="8" fill="#FF9800"/>
+                    <circle cx="410" cy="140" r="8" fill="#3d3d3d" stroke="#888"/>
+                    
+                    <!-- PhysicsBody row -->
+                    <text x="120" y="165" fill="#aaa" font-size="9">PhysicsBody</text>
+                    <circle cx="320" cy="160" r="8" fill="#9E9E9E"/>
+                    <circle cx="365" cy="160" r="8" fill="#3d3d3d" stroke="#888"/>
+                    <circle cx="410" cy="160" r="8" fill="#3d3d3d" stroke="#888"/>
+                    
+                    <!-- Legend -->
+                    <text x="500" y="105" fill="#4CAF50" font-size="8">● Block</text>
+                    <text x="500" y="125" fill="#FF9800" font-size="8">● Overlap</text>
+                    <text x="500" y="145" fill="#9E9E9E" font-size="8">● Ignore</text>
+                    
+                    <!-- Note -->
+                    <text x="350" y="195" text-anchor="middle" fill="#667eea" font-size="9">This trigger: Blocks walls, Overlaps pawns, Ignores physics bodies</text>
+                </svg>
+                <p class="caption"><em>Figure: Custom collision responses allow fine-grained control per channel.</em></p>
+
+                <h3>Generate Overlap Events</h3>
+
+                <p>For overlap events to fire, you must enable <strong>Generate Overlap Events</strong> on the component. This is a checkbox in the Collision section of the Details panel.</p>
+
+                <p>Both components involved in the overlap need this enabled for events to fire. If either has it disabled, no overlap events occur.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Overlap Checklist</h4>
+                    <p>For overlaps to work, ensure:</p>
+                    <ol>
+                        <li>Collision Enabled includes "Query" (Query Only or Query and Physics)</li>
+                        <li>Generate Overlap Events is checked</li>
+                        <li>Collision Response to the other object's channel is set to Overlap</li>
+                        <li>The other object also has Generate Overlap Events enabled</li>
+                    </ol>
+                </div>
+            </section>
+            <!-- Section 6: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Create a Trigger Zone</h2>
+
+                <p>Let's build a practical trigger zone from scratch. We'll create an area that detects when the player enters and exits, displays a message, and demonstrates the one-time trigger pattern. This exercise covers the complete workflow for trigger-based interactions.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a trigger zone Blueprint that: detects player entry/exit, displays on-screen messages, changes a light color when entered, and includes a one-time "first visit" message. This covers overlap events, actor identification, and practical trigger patterns.</p>
+                </div>
+
+                <h3>Step 1: Create the Trigger Blueprint</h3>
+
+                <ol>
+                    <li>In Content Browser, right-click → <strong>Blueprint Class</strong></li>
+                    <li>Select <strong>Actor</strong> as the parent class</li>
+                    <li>Name it <code>BP_TriggerZone</code></li>
+                    <li>Double-click to open the Blueprint Editor</li>
+                </ol>
+
+                <h3>Step 2: Add Components</h3>
+
+                <p>In the Components panel, add:</p>
+
+                <ol>
+                    <li>Click <strong>Add</strong> → search for <code>Box Collision</code> → add it</li>
+                    <li>Rename it to <code>TriggerBox</code></li>
+                    <li>With TriggerBox selected, in Details panel:
+                        <ul>
+                            <li>Set <strong>Box Extent</strong> to X: 200, Y: 200, Z: 100</li>
+                            <li>This creates a 400×400×200 unit trigger area</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p>Add a visual indicator (optional but helpful for testing):</p>
+
+                <ol>
+                    <li>Click <strong>Add</strong> → <code>Point Light</code></li>
+                    <li>Rename it to <code>IndicatorLight</code></li>
+                    <li>In Details, set:
+                        <ul>
+                            <li><strong>Intensity:</strong> 5000</li>
+                            <li><strong>Light Color:</strong> Red (we'll change it to green when triggered)</li>
+                            <li><strong>Attenuation Radius:</strong> 500</li>
+                        </ul>
+                    </li>
+                    <li>Position it at Z: 150 (above the trigger box)</li>
+                </ol>
+
+                <!-- SVG: Component Setup -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">BP_TriggerZone Component Structure</text>
+                    
+                    <!-- Component hierarchy -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="250" height="130" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="125" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Components</text>
+                        
+                        <text x="20" y="50" fill="#4CAF50" font-size="9">📦 DefaultSceneRoot</text>
+                        <text x="40" y="70" fill="#2196F3" font-size="9">├─ 📐 TriggerBox (Box Collision)</text>
+                        <text x="40" y="90" fill="#FF9800" font-size="9">└─ 💡 IndicatorLight (Point Light)</text>
+                        
+                        <text x="125" y="120" text-anchor="middle" fill="#888" font-size="8">Trigger detects, light indicates</text>
+                    </g>
+                    
+                    <!-- Visual representation -->
+                    <g transform="translate(400, 50)">
+                        <rect x="0" y="0" width="250" height="130" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="125" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">In Level (Side View)</text>
+                        
+                        <!-- Ground -->
+                        <line x1="20" y1="110" x2="230" y2="110" stroke="#666" stroke-width="2"/>
+                        
+                        <!-- Trigger box -->
+                        <rect x="60" y="60" width="130" height="50" rx="3" fill="rgba(33,150,243,0.2)" stroke="#2196F3" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="125" y="90" text-anchor="middle" fill="#2196F3" font-size="8">Trigger Box</text>
+                        
+                        <!-- Light -->
+                        <circle cx="125" cy="45" r="10" fill="#FF9800"/>
+                        <text x="125" y="35" text-anchor="middle" fill="#fff" font-size="6">💡</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Component hierarchy and visual representation of the trigger zone.</em></p>
+
+                <h3>Step 3: Configure Collision</h3>
+
+                <p>Select the TriggerBox component and configure collision:</p>
+
+                <ol>
+                    <li>In Details panel, find <strong>Collision</strong> section</li>
+                    <li>Set <strong>Collision Preset</strong> to <code>OverlapAllDynamic</code></li>
+                    <li>Verify <strong>Generate Overlap Events</strong> is checked ☑</li>
+                    <li>Collision Enabled should show "Query Only (No Physics Collision)"</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Collision Settings Check</h4>
+                    <p>Your TriggerBox collision should show:</p>
+                    <ul>
+                        <li>Collision Preset: OverlapAllDynamic</li>
+                        <li>Generate Overlap Events: ☑ Checked</li>
+                        <li>Collision Enabled: Query Only</li>
+                    </ul>
+                </div>
+
+                <h3>Step 4: Create Variables</h3>
+
+                <p>In the Variables section of My Blueprint panel, create:</p>
+
+                <ol>
+                    <li><code>HasBeenVisited</code> — Boolean, default False
+                        <ul>
+                            <li>This tracks if the player has entered before (for one-time message)</li>
+                        </ul>
+                    </li>
+                    <li><code>PlayerInZone</code> — Boolean, default False
+                        <ul>
+                            <li>This tracks if the player is currently inside</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 5: Add Overlap Events</h3>
+
+                <p>Now add the event handlers:</p>
+
+                <p><strong>Add Begin Overlap Event:</strong></p>
+                <ol>
+                    <li>Select the <code>TriggerBox</code> component</li>
+                    <li>In Details panel, scroll to <strong>Events</strong> section</li>
+                    <li>Click the <strong>+</strong> next to <code>On Component Begin Overlap</code></li>
+                    <li>This adds the event node to your Event Graph</li>
+                </ol>
+
+                <p><strong>Add End Overlap Event:</strong></p>
+                <ol>
+                    <li>With TriggerBox still selected</li>
+                    <li>Click the <strong>+</strong> next to <code>On Component End Overlap</code></li>
+                </ol>
+
+                <h3>Step 6: Implement Begin Overlap Logic</h3>
+
+                <p>Build this logic from the On Component Begin Overlap event:</p>
+
+                <ol>
+                    <li>Drag from <strong>Other Actor</strong> pin</li>
+                    <li>Add <code>Cast To</code> node → select your character class (e.g., BP_ThirdPersonCharacter)</li>
+                    <li>Connect the execution wire from the event to the Cast node</li>
+                    <li>From the Cast's <strong>success</strong> execution pin:</li>
+                </ol>
+
+                <p><strong>Set Player In Zone:</strong></p>
+                <ol>
+                    <li>Add <code>Set Player In Zone</code> → set to True</li>
+                </ol>
+
+                <p><strong>Change Light Color:</strong></p>
+                <ol>
+                    <li>Drag the <code>IndicatorLight</code> reference into the graph</li>
+                    <li>Drag from it and add <code>Set Light Color</code></li>
+                    <li>Set the color to Green (0, 1, 0)</li>
+                </ol>
+
+                <p><strong>Check First Visit:</strong></p>
+                <ol>
+                    <li>Add a <code>Branch</code> node</li>
+                    <li>Get <code>HasBeenVisited</code> variable</li>
+                    <li>Add a <code>NOT Boolean</code> node (so we check if NOT visited)</li>
+                    <li>Connect to Branch condition</li>
+                </ol>
+
+                <p><strong>On True (First Visit):</strong></p>
+                <ol>
+                    <li>Add <code>Print String</code> → "Welcome! This is your first time here."</li>
+                    <li>Add <code>Set HasBeenVisited</code> → True</li>
+                </ol>
+
+                <p><strong>On False (Repeat Visit):</strong></p>
+                <ol>
+                    <li>Add <code>Print String</code> → "Welcome back!"</li>
+                </ol>
+
+                <!-- SVG: Begin Overlap Logic -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Begin Overlap Blueprint Logic</text>
+                    
+                    <!-- Event node -->
+                    <g transform="translate(20, 50)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#c62828"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">On Begin Overlap</text>
+                        <text x="65" y="35" text-anchor="middle" fill="#ffcdd2" font-size="7">(TriggerBox)</text>
+                        <circle cx="125" cy="25" r="5" fill="#fff"/>
+                        <circle cx="125" cy="42" r="4" fill="#4CAF50"/>
+                    </g>
+                    
+                    <!-- Cast node -->
+                    <g transform="translate(170, 45)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#1565C0"/>
+                        <text x="50" y="18" text-anchor="middle" fill="#fff" font-size="8">Cast To</text>
+                        <text x="50" y="32" text-anchor="middle" fill="#90CAF9" font-size="6">Character</text>
+                        <circle cx="-5" cy="20" r="4" fill="#fff"/>
+                        <circle cx="-5" cy="45" r="4" fill="#4CAF50"/>
+                        <circle cx="95" cy="20" r="4" fill="#fff"/>
+                    </g>
+                    <line x1="150" y1="75" x2="165" y2="75" stroke="#fff" stroke-width="2"/>
+                    <line x1="149" y1="92" x2="165" y2="90" stroke="#4CAF50" stroke-width="2"/>
+                    
+                    <!-- Set In Zone + Light Color -->
+                    <g transform="translate(290, 40)">
+                        <rect x="0" y="0" width="120" height="70" rx="5" fill="#4CAF50"/>
+                        <text x="60" y="18" text-anchor="middle" fill="#fff" font-size="7">Set PlayerInZone</text>
+                        <text x="60" y="32" text-anchor="middle" fill="#c8e6c9" font-size="7">= True</text>
+                        <line x1="10" y1="42" x2="110" y2="42" stroke="#388E3C"/>
+                        <text x="60" y="55" text-anchor="middle" fill="#fff" font-size="7">Set Light Color</text>
+                        <text x="60" y="67" text-anchor="middle" fill="#c8e6c9" font-size="7">= Green</text>
+                    </g>
+                    <line x1="270" y1="65" x2="285" y2="70" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Branch -->
+                    <g transform="translate(430, 55)">
+                        <polygon points="0,30 70,0 70,60" fill="#1565C0"/>
+                        <text x="40" y="33" text-anchor="middle" fill="#fff" font-size="7">Branch</text>
+                    </g>
+                    <line x1="415" y1="75" x2="425" y2="85" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- NOT HasBeenVisited -->
+                    <g transform="translate(430, 130)">
+                        <rect x="0" y="0" width="70" height="30" rx="3" fill="#9C27B0"/>
+                        <text x="35" y="12" text-anchor="middle" fill="#fff" font-size="6">NOT</text>
+                        <text x="35" y="24" text-anchor="middle" fill="#e1bee7" font-size="6">HasVisited</text>
+                    </g>
+                    <line x1="465" y1="130" x2="465" y2="115" stroke="#9C27B0" stroke-width="2"/>
+                    
+                    <!-- True path - First visit -->
+                    <g transform="translate(520, 35)">
+                        <rect x="0" y="0" width="130" height="55" rx="5" fill="#FF9800"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#fff" font-size="7" font-weight="bold">True (First Visit)</text>
+                        <text x="65" y="30" text-anchor="middle" fill="#ffe0b2" font-size="6">Print: "Welcome!"</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#ffe0b2" font-size="6">Set HasVisited = True</text>
+                    </g>
+                    <line x1="505" y1="70" x2="515" y2="60" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="510" y="50" fill="#4CAF50" font-size="7">T</text>
+                    
+                    <!-- False path - Repeat visit -->
+                    <g transform="translate(520, 105)">
+                        <rect x="0" y="0" width="130" height="40" rx="5" fill="#607D8B"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#fff" font-size="7" font-weight="bold">False (Repeat)</text>
+                        <text x="65" y="30" text-anchor="middle" fill="#cfd8dc" font-size="6">Print: "Welcome back!"</text>
+                    </g>
+                    <line x1="505" y1="100" x2="515" y2="120" stroke="#f44336" stroke-width="2"/>
+                    <text x="510" y="115" fill="#f44336" font-size="7">F</text>
+                    
+                    <!-- Summary -->
+                    <g transform="translate(100, 200)">
+                        <rect x="0" y="0" width="600" height="60" rx="5" fill="rgba(102,126,234,0.15)" stroke="#667eea"/>
+                        <text x="300" y="20" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Logic Flow</text>
+                        <text x="300" y="38" text-anchor="middle" fill="#888" font-size="8">1. Cast to verify it's the player → 2. Set state + change light → 3. Check first visit → 4. Show appropriate message</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Complete Begin Overlap logic with first-visit detection.</em></p>
+
+                <h3>Step 7: Implement End Overlap Logic</h3>
+
+                <p>From the On Component End Overlap event:</p>
+
+                <ol>
+                    <li>Cast to your character class (same as before)</li>
+                    <li>On success:
+                        <ul>
+                            <li>Set <code>PlayerInZone</code> to False</li>
+                            <li>Set Light Color back to Red</li>
+                            <li>Print String: "Goodbye!"</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 8: Compile and Save</h3>
+
+                <ol>
+                    <li>Click <strong>Compile</strong> in the toolbar</li>
+                    <li>Fix any errors (check wire connections)</li>
+                    <li>Click <strong>Save</strong></li>
+                </ol>
+
+                <h3>Step 9: Place in Level and Test</h3>
+
+                <ol>
+                    <li>Drag <code>BP_TriggerZone</code> from Content Browser into your level</li>
+                    <li>Position it where the player can walk through</li>
+                    <li>Add a floor if needed (cube scaled to 10×10×0.1)</li>
+                    <li>Press <strong>Play</strong></li>
+                </ol>
+
+                <p><strong>Test the following:</strong></p>
+                <ul>
+                    <li>Walk into the trigger zone — light turns green, "Welcome!" message appears</li>
+                    <li>Walk out — light turns red, "Goodbye!" message appears</li>
+                    <li>Walk back in — "Welcome back!" appears (not the first-time message)</li>
+                    <li>Repeat exit/entry — always shows "Welcome back!" now</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've built a fully functional trigger zone with:</p>
+                    <ul>
+                        <li>Overlap detection for player entry and exit</li>
+                        <li>Actor type verification using Cast</li>
+                        <li>Visual feedback (light color change)</li>
+                        <li>One-time trigger pattern for first visit</li>
+                        <li>State tracking with boolean variables</li>
+                    </ul>
+                    <p>This pattern applies to loading zones, checkpoints, cutscene triggers, and countless other game mechanics.</p>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Sound Effect:</strong> Play a sound when entering/exiting (Add Audio Component, call Play)</li>
+                    <li><strong>UI Message:</strong> Instead of Print String, create a UMG widget that displays on screen</li>
+                    <li><strong>Multiple Triggers:</strong> Create several instances with different messages using exposed variables</li>
+                    <li><strong>Damage Zone:</strong> Apply damage while PlayerInZone is true using a Timer</li>
+                    <li><strong>Collectible:</strong> Destroy the trigger after first overlap (one-time pickup)</li>
+                </ol>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Overlap event doesn't fire:</strong></p>
+                    <ul>
+                        <li>Check "Generate Overlap Events" is enabled on BOTH the trigger AND the character's capsule</li>
+                        <li>Verify Collision Preset is set to overlap (not block or ignore)</li>
+                        <li>Make sure you're testing with the correct character class in the Cast</li>
+                    </ul>
+                    
+                    <p><strong>Cast always fails:</strong></p>
+                    <ul>
+                        <li>The "Other Actor" might not be your character — could be camera, weapon, etc.</li>
+                        <li>Double-check the class name in the Cast node matches your actual character Blueprint</li>
+                    </ul>
+                    
+                    <p><strong>Light doesn't change color:</strong></p>
+                    <ul>
+                        <li>Ensure the IndicatorLight variable reference is connected properly</li>
+                        <li>Try using "Set Light Color" with a Linear Color (not regular color)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 7: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned how Unreal Engine's collision system works—from basic collision shapes to custom channel configurations to event-driven gameplay. Collision is fundamental to game development, enabling everything from solid walls to pickup items to damage zones.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Collision Components:</strong> Box, Sphere, Capsule, and Mesh collision shapes define an object's physical presence. Simple collision (basic shapes) is fast; complex collision (mesh triangles) is accurate but expensive.</p>
+
+                <p><strong>Collision Enabled:</strong> Determines what collision does. "Query Only" generates events but doesn't block. "Physics Only" blocks but doesn't generate events. "Query and Physics" does both.</p>
+
+                <p><strong>Collision Channels:</strong> Categories like WorldStatic, Pawn, and PhysicsBody that organize objects. Each object belongs to a channel and defines how it responds to other channels.</p>
+
+                <p><strong>Collision Responses:</strong> Block stops objects and fires Hit events. Overlap lets objects pass through and fires Overlap events. Ignore does nothing.</p>
+
+                <p><strong>Collision Events:</strong> On Begin Overlap fires when overlap starts. On End Overlap fires when it ends. On Hit fires on blocking collision. Use "Other Actor" to identify what collided.</p>
+
+                <p><strong>Trigger Volumes:</strong> Invisible collision areas that detect entry/exit. Use OverlapAllDynamic preset, enable Generate Overlap Events, and respond in Blueprints.</p>
+
+                <h3>Collision Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Use Case</th>
+                            <th style="padding: 10px; text-align: left;">Collision Preset</th>
+                            <th style="padding: 10px; text-align: left;">Event</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Solid wall/floor</td>
+                            <td style="padding: 10px;">BlockAll</td>
+                            <td style="padding: 10px;">On Hit (if needed)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Trigger zone</td>
+                            <td style="padding: 10px;">OverlapAllDynamic</td>
+                            <td style="padding: 10px;">On Begin/End Overlap</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Pickup item</td>
+                            <td style="padding: 10px;">OverlapAllDynamic</td>
+                            <td style="padding: 10px;">On Begin Overlap → Destroy</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Physics object</td>
+                            <td style="padding: 10px;">PhysicsActor</td>
+                            <td style="padding: 10px;">On Hit for impacts</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Character</td>
+                            <td style="padding: 10px;">Pawn</td>
+                            <td style="padding: 10px;">Various as needed</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Use simple collision:</strong> Box, sphere, and capsule are much faster than mesh collision</li>
+                    <li><strong>Enable Generate Overlap Events only when needed:</strong> It has a performance cost</li>
+                    <li><strong>Cast to verify actor type:</strong> Don't assume what entered your trigger—always check</li>
+                    <li><strong>Use presets when possible:</strong> They're optimized and consistent</li>
+                    <li><strong>Test both entry and exit:</strong> Make sure cleanup logic runs on exit</li>
+                    <li><strong>Use flags for one-time triggers:</strong> Boolean variables prevent repeat execution</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Collision System Overview</text>
+                    
+                    <!-- Objects -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="140" height="60" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Object A</text>
+                        <text x="70" y="42" text-anchor="middle" fill="#666" font-size="8">Channel + Response</text>
+                    </g>
+                    
+                    <g transform="translate(610, 55)">
+                        <rect x="0" y="0" width="140" height="60" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Object B</text>
+                        <text x="70" y="42" text-anchor="middle" fill="#666" font-size="8">Channel + Response</text>
+                    </g>
+                    
+                    <!-- Collision check -->
+                    <g transform="translate(250, 55)">
+                        <rect x="0" y="0" width="300" height="60" rx="8" fill="#667eea"/>
+                        <text x="150" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Collision Resolution</text>
+                        <text x="150" y="42" text-anchor="middle" fill="#c5cae9" font-size="8">Both responses checked → Result determined</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 195 85 L 245 85" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    <path d="M 555 85 L 605 85" stroke="#667eea" stroke-width="2" marker-start="url(#sumArrow2)"/>
+                    
+                    <!-- Results -->
+                    <g transform="translate(250, 130)">
+                        <rect x="0" y="0" width="90" height="35" rx="5" fill="#f44336"/>
+                        <text x="45" y="22" text-anchor="middle" fill="#fff" font-size="9">Block</text>
+                    </g>
+                    
+                    <g transform="translate(355, 130)">
+                        <rect x="0" y="0" width="90" height="35" rx="5" fill="#FF9800"/>
+                        <text x="45" y="22" text-anchor="middle" fill="#fff" font-size="9">Overlap</text>
+                    </g>
+                    
+                    <g transform="translate(460, 130)">
+                        <rect x="0" y="0" width="90" height="35" rx="5" fill="#9E9E9E"/>
+                        <text x="45" y="22" text-anchor="middle" fill="#fff" font-size="9">Ignore</text>
+                    </g>
+                    
+                    <!-- Lines to results -->
+                    <line x1="400" y1="120" x2="295" y2="125" stroke="#ddd" stroke-width="1"/>
+                    <line x1="400" y1="120" x2="400" y2="125" stroke="#ddd" stroke-width="1"/>
+                    <line x1="400" y1="120" x2="505" y2="125" stroke="#ddd" stroke-width="1"/>
+                    
+                    <defs>
+                        <marker id="sumArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                        <marker id="sumArrow2" markerWidth="8" markerHeight="6" refX="1" refY="3" orient="auto">
+                            <polygon points="8 0, 0 3, 8 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Collision is resolved by checking both objects' channel settings.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you can detect when players enter areas and collide with objects, the next lesson covers <strong>Interactable Objects</strong>. You'll learn to create objects the player can interact with using a button press—doors that open, switches that activate, items that can be picked up, and more. This combines collision detection with input handling for rich gameplay interactions.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What does "Query Only" collision enabled mean?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Objects block each other and generate events</label>
+                            <label><input type="radio" name="q1" value="b"> Objects pass through each other but generate overlap/hit events</label>
+                            <label><input type="radio" name="q1" value="c"> Objects block each other but don't generate events</label>
+                            <label><input type="radio" name="q1" value="d"> Collision is completely disabled</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — "Query Only" means objects can pass through each other (no physics blocking) but overlap and hit events are still generated. This is perfect for triggers that need to detect the player without stopping them.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What collision response should you use for a trigger zone that the player walks through?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Block</label>
+                            <label><input type="radio" name="q2" value="b"> Ignore</label>
+                            <label><input type="radio" name="q2" value="c"> Overlap</label>
+                            <label><input type="radio" name="q2" value="d"> Physics Only</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Overlap allows objects to pass through each other while still generating Begin Overlap and End Overlap events. This lets you detect when the player enters/exits the trigger without blocking their movement.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>Which parameter in an overlap event tells you what actor entered the trigger zone?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Overlapped Component</label>
+                            <label><input type="radio" name="q3" value="b"> Other Actor</label>
+                            <label><input type="radio" name="q3" value="c"> Sweep Result</label>
+                            <label><input type="radio" name="q3" value="d"> From Sweep</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — "Other Actor" is the actor that caused the overlap (the player, enemy, etc.). "Overlapped Component" is your trigger component. You typically cast "Other Actor" to your character class to verify it's the player.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What must be enabled on BOTH components for overlap events to fire?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Simulate Physics</label>
+                            <label><input type="radio" name="q4" value="b"> Generate Overlap Events</label>
+                            <label><input type="radio" name="q4" value="c"> Block All</label>
+                            <label><input type="radio" name="q4" value="d"> Complex Collision</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — "Generate Overlap Events" must be checked on both components involved in the overlap. If either component has it disabled, no overlap events will fire. This is a common source of "my trigger doesn't work" bugs.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>How do you make a trigger fire only once (like a first-time tutorial message)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Destroy the trigger after it fires</label>
+                            <label><input type="radio" name="q5" value="b"> Use a boolean variable to track if it has already triggered</label>
+                            <label><input type="radio" name="q5" value="c"> Set Collision Enabled to No Collision after firing</label>
+                            <label><input type="radio" name="q5" value="d"> All of the above are valid approaches</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="d">
+                            <p><strong>Correct answer: D</strong> — All three approaches work for one-time triggers. Boolean flags are most flexible (trigger stays, just doesn't re-execute logic). Destroying works for pickups. Disabling collision works if you want the actor to remain but stop detecting. Choose based on your specific needs.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m06_l03_character_movement.html" class="btn">← Previous: Character Movement</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m06_l05_interactable_objects.html" class="btn">Next: Interactable Objects →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1774 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create professional menus in Unreal Engine 5. Learn main menus, pause screens, settings interfaces, and keyboard/gamepad navigation.">
+    <meta name="author" content="Practical Ace">
+    <title>Menus and Navigation - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 7: User Interface with UMG</a></li>
+            <li aria-current="page">Lesson 7.4: Menus and Navigation</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>📋 Menus and Navigation</h1>
+                <p class="lead">Every game needs menus—a main menu to start, a pause menu to take breaks, settings to customize the experience. But menus are more than buttons on screen. They need to handle input modes, support keyboard and gamepad navigation, manage focus, and transition smoothly between screens. In this lesson, you'll learn to create professional menu systems that feel polished and responsive.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Create main menus with proper input handling</li>
+                        <li>Build pause menus that freeze gameplay</li>
+                        <li>Implement settings screens with working controls</li>
+                        <li>Support keyboard and gamepad navigation</li>
+                        <li>Manage widget focus for accessible navigation</li>
+                        <li>Transition between menu screens smoothly</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 55-65 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 7.2 (Creating Widgets), Lesson 7.3 (HUD Elements)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#menu-fundamentals" class="toc-link">Menu Fundamentals</a></li>
+                        <li><a href="#main-menu" class="toc-link">Creating a Main Menu</a></li>
+                        <li><a href="#pause-menu" class="toc-link">Pause Menu System</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Complete Menu System</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Menu Fundamentals -->
+            <section id="menu-fundamentals" class="lesson-section">
+                <h2>Menu Fundamentals</h2>
+
+                <p>Menus differ from HUD elements in important ways. While a HUD overlays gameplay and shouldn't interfere with controls, menus take over—they capture input, show a cursor, and often pause the game. Understanding these differences is key to building menus that feel right.</p>
+
+                <h3>Input Modes</h3>
+
+                <p>Unreal Engine has three input modes that determine where player input goes:</p>
+
+                <p><strong>Game Only:</strong> Input goes to the game (character movement, shooting, camera). The mouse cursor is hidden. Use this during normal gameplay.</p>
+
+                <p><strong>UI Only:</strong> Input goes only to UI widgets (buttons, sliders). The mouse cursor is visible. Game input is blocked. Use this for full-screen menus like main menu or inventory.</p>
+
+                <p><strong>Game and UI:</strong> Input can go to both game and UI. The cursor can be shown or hidden. Use this for in-game UI that needs clicks while allowing movement (like an RTS game).</p>
+
+                <!-- SVG: Input Modes -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Input Modes Comparison</text>
+                    
+                    <!-- Game Only -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">Game Only</text>
+                        
+                        <text x="20" y="50" fill="#666" font-size="9">✓ Character movement</text>
+                        <text x="20" y="68" fill="#666" font-size="9">✓ Camera control</text>
+                        <text x="20" y="86" fill="#666" font-size="9">✗ UI interaction</text>
+                        <text x="20" y="104" fill="#666" font-size="9">🖱️ Cursor: Hidden</text>
+                    </g>
+                    
+                    <!-- UI Only -->
+                    <g transform="translate(300, 50)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#1565C0" font-size="11" font-weight="bold">UI Only</text>
+                        
+                        <text x="20" y="50" fill="#666" font-size="9">✗ Character movement</text>
+                        <text x="20" y="68" fill="#666" font-size="9">✗ Camera control</text>
+                        <text x="20" y="86" fill="#666" font-size="9">✓ UI interaction</text>
+                        <text x="20" y="104" fill="#666" font-size="9">🖱️ Cursor: Visible</text>
+                    </g>
+                    
+                    <!-- Game and UI -->
+                    <g transform="translate(550, 50)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#E65100" font-size="11" font-weight="bold">Game and UI</text>
+                        
+                        <text x="20" y="50" fill="#666" font-size="9">✓ Character movement</text>
+                        <text x="20" y="68" fill="#666" font-size="9">✓ Camera control</text>
+                        <text x="20" y="86" fill="#666" font-size="9">✓ UI interaction</text>
+                        <text x="20" y="104" fill="#666" font-size="9">🖱️ Cursor: Optional</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Three input modes control where player input is directed.</em></p>
+
+                <h3>Setting Input Mode</h3>
+
+                <p>Input mode is set on the <strong>Player Controller</strong>:</p>
+
+                <pre><code>// Opening a menu
+Set Input Mode UI Only
+  Target: Player Controller (Self)
+  In Widget to Focus: Your Menu Widget (optional)
+Set Show Mouse Cursor: True
+
+// Closing a menu
+Set Input Mode Game Only
+  Target: Player Controller (Self)
+Set Show Mouse Cursor: False</code></pre>
+
+                <p>The "In Widget to Focus" parameter is important for keyboard/gamepad navigation—it tells UMG which widget should receive initial focus.</p>
+
+                <h3>Widget Focus</h3>
+
+                <p><strong>Focus</strong> determines which widget receives keyboard/gamepad input. When a button has focus, pressing Enter/A activates it. Arrow keys/D-pad move focus between widgets.</p>
+
+                <p><strong>Setting Initial Focus:</strong></p>
+                <ul>
+                    <li>Use the "In Widget to Focus" parameter when setting input mode</li>
+                    <li>Or call <code>Set Keyboard Focus</code> on a specific widget</li>
+                    <li>Or set <code>Is Focusable</code> on widgets and let UMG auto-focus</li>
+                </ul>
+
+                <p><strong>Focus Navigation:</strong></p>
+                <ul>
+                    <li>UMG automatically handles navigation between focusable widgets</li>
+                    <li>Navigation follows visual layout (up/down/left/right)</li>
+                    <li>You can override navigation with explicit settings per widget</li>
+                </ul>
+
+                <h3>Is Focusable Property</h3>
+
+                <p>Not all widgets should receive focus. A background image doesn't need it, but buttons do.</p>
+
+                <p><strong>Focusable by Default:</strong> Button, Check Box, Slider, Editable Text</p>
+                <p><strong>Not Focusable by Default:</strong> Text Block, Image, Progress Bar, Panels</p>
+
+                <p>You can change focusability in the widget's Details panel under <strong>Interaction → Is Focusable</strong>.</p>
+
+                <h3>Navigation Override</h3>
+
+                <p>Sometimes automatic navigation doesn't work well—maybe widgets are positioned unusually or you want to wrap from the last button to the first. Override navigation per widget:</p>
+
+                <ol>
+                    <li>Select a widget</li>
+                    <li>In Details, find <strong>Navigation</strong> section</li>
+                    <li>Set <strong>Left/Right/Up/Down</strong> to:
+                        <ul>
+                            <li><strong>Escape:</strong> Navigation leaves focus (default for reaching edges)</li>
+                            <li><strong>Stop:</strong> Can't navigate in this direction</li>
+                            <li><strong>Wrap:</strong> Wraps to opposite side</li>
+                            <li><strong>Explicit:</strong> Specify exact widget to navigate to</li>
+                            <li><strong>Custom:</strong> Call a function to determine target</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Focus Navigation -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Focus Navigation Between Buttons</text>
+                    
+                    <!-- Buttons in menu -->
+                    <g transform="translate(200, 50)">
+                        <!-- Play button (focused) -->
+                        <rect x="0" y="0" width="150" height="40" rx="5" fill="#667eea" stroke="#fff" stroke-width="3"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="11">Play Game</text>
+                        <text x="180" y="25" fill="#4CAF50" font-size="9">← Focused</text>
+                        
+                        <!-- Options button -->
+                        <rect x="0" y="50" width="150" height="40" rx="5" fill="#667eea"/>
+                        <text x="75" y="75" text-anchor="middle" fill="#fff" font-size="11">Options</text>
+                        
+                        <!-- Quit button -->
+                        <rect x="0" y="100" width="150" height="40" rx="5" fill="#667eea"/>
+                        <text x="75" y="125" text-anchor="middle" fill="#fff" font-size="11">Quit</text>
+                    </g>
+                    
+                    <!-- Navigation arrows -->
+                    <g transform="translate(380, 50)">
+                        <text x="0" y="15" fill="#888" font-size="9">↓ Down = Options</text>
+                        <text x="0" y="65" fill="#888" font-size="9">↑ Up = Play</text>
+                        <text x="0" y="80" fill="#888" font-size="9">↓ Down = Quit</text>
+                        <text x="0" y="130" fill="#888" font-size="9">↑ Up = Options</text>
+                        <text x="0" y="145" fill="#888" font-size="9">↓ Down = (Wrap?) Play</text>
+                    </g>
+                    
+                    <!-- Controller hint -->
+                    <g transform="translate(150, 165)">
+                        <rect x="0" y="0" width="400" height="25" rx="3" fill="rgba(102,126,234,0.2)"/>
+                        <text x="200" y="17" text-anchor="middle" fill="#667eea" font-size="9">D-Pad / Arrow Keys navigate • A / Enter selects • B / Escape goes back</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Focus navigation allows keyboard/gamepad menu control.</em></p>
+
+                <h3>Game Pause</h3>
+
+                <p>Pause menus typically freeze the game. Use <code>Set Game Paused</code>:</p>
+
+                <pre><code>// Pausing
+Set Game Paused: True
+
+// Unpausing  
+Set Game Paused: False</code></pre>
+
+                <p><strong>What Pauses:</strong> Actor ticking, physics, animations, timers (unless set to ignore pause)</p>
+                <p><strong>What Doesn't Pause:</strong> UI, audio (by default), anything marked to ignore pause</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Pause Menu Must Be Ticking</h4>
+                    <p>If your pause menu uses animations or needs to tick while paused, ensure the widget is set to tick when paused. In the widget's Class Settings, enable <strong>Tick When Paused</strong>.</p>
+                </div>
+
+                <h3>Menu Architecture</h3>
+
+                <p>Well-organized menus use a hierarchical structure:</p>
+
+                <pre><code>Main Menu
+├── Play Button → Start Game
+├── Options Button → Options Menu
+│   ├── Graphics Tab
+│   ├── Audio Tab
+│   ├── Controls Tab
+│   └── Back Button → Main Menu
+└── Quit Button → Exit Game
+
+Pause Menu
+├── Resume Button → Close Menu
+├── Options Button → Options Menu
+├── Main Menu Button → Return to Main Menu
+└── Quit Button → Exit Game</code></pre>
+
+                <p>Consider using a <strong>Widget Switcher</strong> for menus with multiple screens, or spawn/destroy menu widgets as needed.</p>
+
+                <!-- Mermaid: Menu Flow -->
+                <pre class="mermaid">
+flowchart TD
+    A["Main Menu"] -->|Play| B["Gameplay"]
+    A -->|Options| C["Options Menu"]
+    A -->|Quit| D["Exit Game"]
+    
+    C -->|Back| A
+    
+    B -->|Pause| E["Pause Menu"]
+    E -->|Resume| B
+    E -->|Options| C
+    E -->|Main Menu| A
+    E -->|Quit| D
+    
+    style A fill:#667eea,color:#fff
+    style B fill:#4CAF50,color:#fff
+    style C fill:#FF9800,color:#fff
+    style E fill:#9C27B0,color:#fff
+    style D fill:#f44336,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Typical menu flow between screens.</em></p>
+            </section>
+
+            <!-- Section 2: Creating a Main Menu -->
+            <section id="main-menu" class="lesson-section">
+                <h2>Creating a Main Menu</h2>
+
+                <p>The main menu is often the first thing players see. It needs to be visually appealing, easy to navigate, and functional. Let's build a proper main menu from scratch.</p>
+
+                <h3>Main Menu Structure</h3>
+
+                <p>A typical main menu includes:</p>
+                <ul>
+                    <li>Game title/logo</li>
+                    <li>Menu buttons (Play, Options, Credits, Quit)</li>
+                    <li>Background (image, video, or 3D scene)</li>
+                    <li>Optional: Version number, copyright text</li>
+                </ul>
+
+                <h3>Creating the Widget</h3>
+
+                <ol>
+                    <li>Create Widget Blueprint: <code>WBP_MainMenu</code></li>
+                    <li>Add <strong>Canvas Panel</strong> as root</li>
+                </ol>
+
+                <h4>Background</h4>
+                <ol>
+                    <li>Add <strong>Image</strong> to Canvas Panel</li>
+                    <li>Set anchors to <strong>Stretch</strong> (fills entire screen)</li>
+                    <li>Set all offsets to 0</li>
+                    <li>Set Image to your background texture (or solid color)</li>
+                    <li>Rename to <code>BackgroundImage</code></li>
+                </ol>
+
+                <h4>Title</h4>
+                <ol>
+                    <li>Add <strong>Text Block</strong> to Canvas Panel</li>
+                    <li>Set anchors to <strong>Top-Center</strong></li>
+                    <li>Set Text to your game title</li>
+                    <li>Set Font Size large (48-72)</li>
+                    <li>Position appropriately (Y: 100-150)</li>
+                    <li>Rename to <code>TitleText</code></li>
+                </ol>
+
+                <h4>Button Container</h4>
+                <ol>
+                    <li>Add <strong>Vertical Box</strong> to Canvas Panel</li>
+                    <li>Set anchors to <strong>Center</strong></li>
+                    <li>Set Alignment to 0.5, 0.5 (centers the box)</li>
+                    <li>Rename to <code>ButtonContainer</code></li>
+                </ol>
+
+                <h4>Menu Buttons</h4>
+                <p>Add buttons to the Vertical Box (or use your reusable button from Lesson 7.2):</p>
+                <ol>
+                    <li>Add <strong>Button</strong> with child <strong>Text Block</strong> "Play"</li>
+                    <li>Add <strong>Button</strong> with child <strong>Text Block</strong> "Options"</li>
+                    <li>Add <strong>Button</strong> with child <strong>Text Block</strong> "Quit"</li>
+                    <li>For each button, set <strong>Padding</strong> in the Slot section (e.g., 10 on all sides)</li>
+                    <li>Style buttons consistently (size, colors, font)</li>
+                </ol>
+
+                <!-- SVG: Main Menu Layout -->
+                <svg width="100%" height="300" viewBox="0 0 700 300" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Main Menu Layout</text>
+                    
+                    <!-- Screen representation -->
+                    <rect x="100" y="45" width="500" height="230" rx="5" fill="#252525" stroke="#555"/>
+                    
+                    <!-- Background indicator -->
+                    <rect x="100" y="45" width="500" height="230" rx="5" fill="url(#menuBgGrad)" opacity="0.3"/>
+                    
+                    <!-- Title -->
+                    <text x="350" y="95" text-anchor="middle" fill="#fff" font-size="24" font-weight="bold">MY AWESOME GAME</text>
+                    
+                    <!-- Buttons -->
+                    <g transform="translate(275, 130)">
+                        <rect x="0" y="0" width="150" height="40" rx="5" fill="#667eea"/>
+                        <text x="75" y="26" text-anchor="middle" fill="#fff" font-size="12">Play</text>
+                        
+                        <rect x="0" y="50" width="150" height="40" rx="5" fill="#667eea"/>
+                        <text x="75" y="76" text-anchor="middle" fill="#fff" font-size="12">Options</text>
+                        
+                        <rect x="0" y="100" width="150" height="40" rx="5" fill="#667eea"/>
+                        <text x="75" y="126" text-anchor="middle" fill="#fff" font-size="12">Quit</text>
+                    </g>
+                    
+                    <!-- Version -->
+                    <text x="590" y="265" text-anchor="end" fill="#555" font-size="8">v1.0.0</text>
+                    
+                    <!-- Anchor indicators -->
+                    <circle cx="350" cy="55" r="3" fill="#2196F3"/>
+                    <text x="365" y="58" fill="#2196F3" font-size="6">Top-Center (Title)</text>
+                    
+                    <circle cx="350" y="180" r="3" fill="#4CAF50"/>
+                    <text x="365" y="183" fill="#4CAF50" font-size="6">Center (Buttons)</text>
+                    
+                    <defs>
+                        <linearGradient id="menuBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#4a148c;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Main menu with centered title and button stack.</em></p>
+
+                <h3>Button Click Handlers</h3>
+
+                <p>For each button, create click event handlers:</p>
+
+                <h4>Play Button</h4>
+                <ol>
+                    <li>Select Play button, in Details find Events → On Clicked</li>
+                    <li>Click + to create handler</li>
+                    <li>In the handler:
+                        <ul>
+                            <li><code>Open Level</code> node with your gameplay level name</li>
+                            <li>Or use <code>Remove from Parent</code> if menu is in the game level</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Options Button</h4>
+                <ol>
+                    <li>Create click handler</li>
+                    <li>Options:
+                        <ul>
+                            <li>Switch to options screen (if using Widget Switcher)</li>
+                            <li>Create and show Options widget</li>
+                            <li>Or set visibility of options panel</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Quit Button</h4>
+                <ol>
+                    <li>Create click handler</li>
+                    <li>Add <code>Quit Game</code> node</li>
+                    <li>Set Specific Player to Player Controller</li>
+                </ol>
+
+                <h3>Displaying the Main Menu</h3>
+
+                <p>Main menus are typically shown from a dedicated menu level or on game start:</p>
+
+                <h4>Option 1: Menu Level</h4>
+                <ol>
+                    <li>Create a level for your main menu (MainMenu_Level)</li>
+                    <li>In Level Blueprint, on Event BeginPlay:
+                        <ul>
+                            <li>Create Widget (WBP_MainMenu)</li>
+                            <li>Add to Viewport</li>
+                            <li>Get Player Controller → Set Input Mode UI Only</li>
+                            <li>Set Show Mouse Cursor: True</li>
+                        </ul>
+                    </li>
+                    <li>Set this level as the default/startup level in Project Settings</li>
+                </ol>
+
+                <h4>Option 2: Game Instance</h4>
+                <p>For more complex games, manage menus through a Game Instance that persists across levels.</p>
+
+                <h3>Setting Initial Focus</h3>
+
+                <p>For keyboard/gamepad support, set focus to the first button:</p>
+
+                <ol>
+                    <li>In the menu widget's Event Construct:
+                        <ul>
+                            <li>Get reference to Play button</li>
+                            <li>Call <code>Set Keyboard Focus</code> on it</li>
+                        </ul>
+                    </li>
+                    <li>Or in Level Blueprint when creating the widget:
+                        <ul>
+                            <li>Pass the Play button to "In Widget to Focus" parameter</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Setting Focus -->
+                <svg width="100%" height="130" viewBox="0 0 700 130" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Setting Initial Button Focus</text>
+                    
+                    <!-- Event Construct -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="130" height="40" rx="5" fill="#c62828"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9">Event Construct</text>
+                    </g>
+                    
+                    <path d="M 185 70 L 220 70" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Get PlayButton -->
+                    <g transform="translate(225, 50)">
+                        <rect x="0" y="0" width="130" height="40" rx="5" fill="#1565C0"/>
+                        <text x="65" y="17" text-anchor="middle" fill="#fff" font-size="8">Get</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#90CAF9" font-size="8">PlayButton</text>
+                    </g>
+                    
+                    <path d="M 360 70 L 395 70" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Set Focus -->
+                    <g transform="translate(400, 50)">
+                        <rect x="0" y="0" width="150" height="40" rx="5" fill="#4CAF50"/>
+                        <text x="75" y="17" text-anchor="middle" fill="#fff" font-size="8">Set Keyboard Focus</text>
+                        <text x="75" y="32" text-anchor="middle" fill="#c8e6c9" font-size="7">Target: PlayButton</text>
+                    </g>
+                    
+                    <text x="350" y="115" text-anchor="middle" fill="#888" font-size="8">This allows immediate navigation with keyboard/gamepad without clicking first</text>
+                </svg>
+                <p class="caption"><em>Figure: Set keyboard focus to enable immediate controller navigation.</em></p>
+
+                <h3>Adding Menu Animations</h3>
+
+                <p>Polished menus have entrance animations. UMG supports widget animations:</p>
+
+                <ol>
+                    <li>Open your menu widget</li>
+                    <li>At bottom of Designer, find <strong>Animations</strong> panel</li>
+                    <li>Click <strong>+ Animation</strong>, name it "FadeIn"</li>
+                    <li>In the animation timeline:
+                        <ul>
+                            <li>Add a track for the Canvas Panel's Render Opacity</li>
+                            <li>At frame 0: Set opacity to 0</li>
+                            <li>At frame 0.5 (half second): Set opacity to 1</li>
+                        </ul>
+                    </li>
+                    <li>In Event Construct, call <code>Play Animation</code> with your FadeIn animation</li>
+                </ol>
+
+                <p>Common menu animations:</p>
+                <ul>
+                    <li><strong>Fade In:</strong> Opacity 0 → 1</li>
+                    <li><strong>Slide In:</strong> Position offset → 0</li>
+                    <li><strong>Scale In:</strong> Scale 0.8 → 1.0</li>
+                    <li><strong>Staggered Buttons:</strong> Each button animates in sequence</li>
+                </ul>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Animation Tips</h4>
+                    <p>Keep menu animations short (0.2-0.5 seconds). Players will see them repeatedly, so long animations become annoying. Add animation curves (ease in/out) for smoother motion. Consider letting players skip animations with a button press.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Pause Menu System -->
+            <section id="pause-menu" class="lesson-section">
+                <h2>Pause Menu System</h2>
+
+                <p>The pause menu appears during gameplay, freezes the game, and lets players access options or quit. It requires careful handling of input mode and game pause state.</p>
+
+                <h3>Pause Menu Widget</h3>
+
+                <p>Create <code>WBP_PauseMenu</code> with structure similar to main menu:</p>
+
+                <pre><code>Canvas Panel
+├── Image (Semi-transparent background overlay)
+└── Vertical Box (Centered)
+    ├── Text Block: "PAUSED"
+    ├── Button: "Resume"
+    ├── Button: "Options"
+    ├── Button: "Main Menu"
+    └── Button: "Quit"</code></pre>
+
+                <p>The background overlay should be semi-transparent (e.g., black with 0.7 alpha) to dim the game view.</p>
+
+                <h3>Opening the Pause Menu</h3>
+
+                <p>Handle pause input in your Player Controller:</p>
+
+                <ol>
+                    <li>Create an Input Action for Pause (or use the Escape key directly)</li>
+                    <li>In Player Controller, on pause input:
+                        <ul>
+                            <li>Check if pause menu is already open</li>
+                            <li>If not open: Create and show pause menu</li>
+                            <li>If open: Close pause menu</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Player Controller Setup</h4>
+
+                <p>Variables needed:</p>
+                <ul>
+                    <li><code>PauseMenuWidget</code> (type: WBP_PauseMenu) — Reference to current pause menu</li>
+                    <li><code>bIsPaused</code> (Boolean) — Track pause state</li>
+                </ul>
+
+                <p>Functions:</p>
+
+                <pre><code>// Function: OpenPauseMenu
+Create Widget (WBP_PauseMenu) → Set PauseMenuWidget
+Add to Viewport (PauseMenuWidget)
+Set Game Paused: True
+Set Input Mode UI Only (Widget to Focus: Resume Button)
+Set Show Mouse Cursor: True
+Set bIsPaused: True
+
+// Function: ClosePauseMenu
+Remove from Parent (PauseMenuWidget)
+Set PauseMenuWidget: None
+Set Game Paused: False
+Set Input Mode Game Only
+Set Show Mouse Cursor: False
+Set bIsPaused: False
+
+// On Pause Input Pressed
+Branch on bIsPaused
+  True → ClosePauseMenu
+  False → OpenPauseMenu</code></pre>
+
+                <!-- SVG: Pause Flow -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Pause Menu Flow</text>
+                    
+                    <!-- Gameplay -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="150" height="70" rx="8" fill="#4CAF50"/>
+                        <text x="75" y="30" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Gameplay</text>
+                        <text x="75" y="50" text-anchor="middle" fill="#c8e6c9" font-size="8">Input: Game Only</text>
+                        <text x="75" y="62" text-anchor="middle" fill="#c8e6c9" font-size="8">Paused: False</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 205 90 L 280 90" stroke="#667eea" stroke-width="2" marker-end="url(#pauseArrow)"/>
+                    <text x="243" y="82" text-anchor="middle" fill="#667eea" font-size="8">ESC</text>
+                    
+                    <!-- Pause Menu -->
+                    <g transform="translate(285, 55)">
+                        <rect x="0" y="0" width="180" height="70" rx="8" fill="#9C27B0"/>
+                        <text x="90" y="30" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Pause Menu Open</text>
+                        <text x="90" y="50" text-anchor="middle" fill="#e1bee7" font-size="8">Input: UI Only</text>
+                        <text x="90" y="62" text-anchor="middle" fill="#e1bee7" font-size="8">Paused: True</text>
+                    </g>
+                    
+                    <!-- Return arrow -->
+                    <path d="M 375 130 L 375 150 L 130 150 L 130 130" stroke="#667eea" stroke-width="2" fill="none" marker-end="url(#pauseArrow)"/>
+                    <text x="253" y="165" text-anchor="middle" fill="#667eea" font-size="8">Resume / ESC</text>
+                    
+                    <!-- Other options -->
+                    <g transform="translate(520, 55)">
+                        <rect x="0" y="0" width="130" height="30" rx="5" fill="#FF9800"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#fff" font-size="9">Options</text>
+                        
+                        <rect x="0" y="40" width="130" height="30" rx="5" fill="#f44336"/>
+                        <text x="65" y="60" text-anchor="middle" fill="#fff" font-size="9">Quit / Main Menu</text>
+                    </g>
+                    
+                    <path d="M 470 75 L 515 65" stroke="#667eea" stroke-width="1"/>
+                    <path d="M 470 105 L 515 100" stroke="#667eea" stroke-width="1"/>
+                    
+                    <defs>
+                        <marker id="pauseArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Pause menu flow showing state transitions.</em></p>
+
+                <h3>Pause Menu Button Handlers</h3>
+
+                <p>In WBP_PauseMenu, handle button clicks:</p>
+
+                <h4>Resume Button</h4>
+                <pre><code>On Resume Clicked:
+  Get Owning Player → Cast to YourPlayerController
+  Call ClosePauseMenu function</code></pre>
+
+                <h4>Main Menu Button</h4>
+                <pre><code>On MainMenu Clicked:
+  Get Owning Player → Cast to YourPlayerController
+  Call ClosePauseMenu function
+  Open Level: "MainMenu_Level"</code></pre>
+
+                <h4>Quit Button</h4>
+                <pre><code>On Quit Clicked:
+  Quit Game</code></pre>
+
+                <h3>Handling ESC to Close</h3>
+
+                <p>Players expect ESC to close the pause menu. Two approaches:</p>
+
+                <p><strong>Option 1:</strong> Handle in Player Controller (already done if toggle logic is there)</p>
+
+                <p><strong>Option 2:</strong> Handle in Widget with Input Action:</p>
+                <ol>
+                    <li>In widget Graph, search for "Escape" or your pause action</li>
+                    <li>On that input, call the close/resume logic</li>
+                </ol>
+
+                <h3>Confirmation Dialogs</h3>
+
+                <p>For destructive actions (Quit, Return to Main Menu), add confirmation:</p>
+
+                <ol>
+                    <li>Create <code>WBP_ConfirmDialog</code> widget:
+                        <ul>
+                            <li>Text: "Are you sure?"</li>
+                            <li>Button: "Yes" / "Confirm"</li>
+                            <li>Button: "No" / "Cancel"</li>
+                        </ul>
+                    </li>
+                    <li>Add Event Dispatcher: <code>OnConfirmed</code></li>
+                    <li>Add Event Dispatcher: <code>OnCancelled</code></li>
+                    <li>Yes calls OnConfirmed; No calls OnCancelled</li>
+                    <li>Parent binds to dispatchers and handles result</li>
+                </ol>
+
+                <!-- SVG: Confirmation Dialog -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Confirmation Dialog Pattern</text>
+                    
+                    <!-- Background overlay -->
+                    <rect x="100" y="45" width="500" height="110" rx="5" fill="rgba(0,0,0,0.7)"/>
+                    
+                    <!-- Dialog box -->
+                    <g transform="translate(200, 55)">
+                        <rect x="0" y="0" width="300" height="90" rx="8" fill="#3d3d3d" stroke="#667eea"/>
+                        
+                        <text x="150" y="30" text-anchor="middle" fill="#fff" font-size="12">Return to Main Menu?</text>
+                        <text x="150" y="48" text-anchor="middle" fill="#888" font-size="9">Unsaved progress will be lost.</text>
+                        
+                        <!-- Buttons -->
+                        <rect x="40" y="58" width="100" height="25" rx="3" fill="#f44336"/>
+                        <text x="90" y="75" text-anchor="middle" fill="#fff" font-size="9">Yes, Exit</text>
+                        
+                        <rect x="160" y="58" width="100" height="25" rx="3" fill="#4CAF50"/>
+                        <text x="210" y="75" text-anchor="middle" fill="#fff" font-size="9">Cancel</text>
+                    </g>
+                    
+                    <text x="350" y="170" text-anchor="middle" fill="#888" font-size="8">Show confirmation for destructive actions like quitting or losing progress</text>
+                </svg>
+                <p class="caption"><em>Figure: Confirmation dialog prevents accidental data loss.</em></p>
+
+                <h3>Settings/Options Menu</h3>
+
+                <p>Options menus let players customize their experience. Common settings:</p>
+
+                <p><strong>Graphics:</strong></p>
+                <ul>
+                    <li>Resolution (Combo Box)</li>
+                    <li>Quality Preset (Low/Medium/High/Ultra)</li>
+                    <li>Fullscreen/Windowed (Check Box)</li>
+                    <li>VSync (Check Box)</li>
+                </ul>
+
+                <p><strong>Audio:</strong></p>
+                <ul>
+                    <li>Master Volume (Slider)</li>
+                    <li>Music Volume (Slider)</li>
+                    <li>SFX Volume (Slider)</li>
+                </ul>
+
+                <p><strong>Controls:</strong></p>
+                <ul>
+                    <li>Mouse Sensitivity (Slider)</li>
+                    <li>Invert Y (Check Box)</li>
+                    <li>Key Bindings (advanced)</li>
+                </ul>
+
+                <h4>Saving Settings</h4>
+
+                <p>Use the <strong>Game User Settings</strong> system for graphics, or create a custom Save Game for other settings:</p>
+
+                <pre><code>// Get Game User Settings
+Get Game User Settings → Set Fullscreen Mode
+                       → Set Screen Resolution
+                       → Apply Settings
+
+// For custom settings (audio, controls)
+Create Save Game Object → Set values → Save to Slot</code></pre>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Settings Best Practices</h4>
+                    <ul>
+                        <li>Apply changes immediately so players can see the effect</li>
+                        <li>Provide "Apply" and "Cancel" buttons for confirmation</li>
+                        <li>Auto-save on Apply, or revert on Cancel</li>
+                        <li>Include "Reset to Defaults" option</li>
+                        <li>Load saved settings on game start</li>
+                    </ul>
+                </div>
+            </section>
+            <!-- Section 4: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Complete Menu System</h2>
+
+                <p>Let's build a complete menu system with a main menu, pause menu, and a simple options screen. This exercise ties together everything we've learned about menus, input modes, focus, and navigation.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a functional menu system with: a main menu that starts the game, a pause menu accessible during gameplay, an options screen with volume control, and proper keyboard/gamepad navigation throughout. All menus will properly handle input modes and focus.</p>
+                </div>
+
+                <h3>Part 1: Create the Main Menu</h3>
+
+                <h4>Step 1: Create the Widget</h4>
+                <ol>
+                    <li>Create Widget Blueprint: <code>WBP_MainMenu</code></li>
+                    <li>Open it in the Widget Editor</li>
+                </ol>
+
+                <h4>Step 2: Build the Layout</h4>
+                <ol>
+                    <li>The root <strong>Canvas Panel</strong> should already exist</li>
+                    <li>Add <strong>Image</strong> for background:
+                        <ul>
+                            <li>Anchors: Stretch (all corners)</li>
+                            <li>Offsets: All 0</li>
+                            <li>Color: Dark blue (#1a237e) or your preference</li>
+                            <li>Rename: <code>Background</code></li>
+                        </ul>
+                    </li>
+                    <li>Add <strong>Text Block</strong> for title:
+                        <ul>
+                            <li>Anchors: Top-Center</li>
+                            <li>Position Y: 80</li>
+                            <li>Alignment X: 0.5</li>
+                            <li>Text: "ADVENTURE GAME" (or your title)</li>
+                            <li>Font Size: 48</li>
+                            <li>Rename: <code>TitleText</code></li>
+                        </ul>
+                    </li>
+                    <li>Add <strong>Vertical Box</strong> for buttons:
+                        <ul>
+                            <li>Anchors: Center</li>
+                            <li>Alignment: 0.5, 0.5</li>
+                            <li>Rename: <code>ButtonContainer</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 3: Add Menu Buttons</h4>
+                <p>Inside ButtonContainer, add three buttons:</p>
+
+                <ol>
+                    <li><strong>Play Button:</strong>
+                        <ul>
+                            <li>Add Button to ButtonContainer</li>
+                            <li>Add Text child: "Play Game"</li>
+                            <li>Button size: 200 × 50</li>
+                            <li>Padding (Slot): 0, 5, 0, 5 (top/bottom margin)</li>
+                            <li>Style Normal Tint: #667eea</li>
+                            <li>Style Hovered Tint: #8b9cf9</li>
+                            <li>Style Pressed Tint: #5560d4</li>
+                            <li>Rename button: <code>PlayButton</code></li>
+                            <li>Check <strong>Is Variable</strong></li>
+                        </ul>
+                    </li>
+                    <li><strong>Options Button:</strong>
+                        <ul>
+                            <li>Same styling as Play</li>
+                            <li>Text: "Options"</li>
+                            <li>Rename: <code>OptionsButton</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Quit Button:</strong>
+                        <ul>
+                            <li>Same styling as Play</li>
+                            <li>Text: "Quit"</li>
+                            <li>Rename: <code>QuitButton</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Main Menu Structure -->
+                <svg width="100%" height="280" viewBox="0 0 700 280" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">WBP_MainMenu Structure</text>
+                    
+                    <!-- Hierarchy panel -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="220" height="180" rx="5" fill="#2d2d2d" stroke="#555"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Hierarchy</text>
+                        
+                        <text x="15" y="50" fill="#4CAF50" font-size="9">📦 Canvas Panel [Root]</text>
+                        <text x="30" y="70" fill="#888" font-size="8">├─ 🖼️ Background</text>
+                        <text x="30" y="88" fill="#888" font-size="8">├─ 📝 TitleText</text>
+                        <text x="30" y="106" fill="#2196F3" font-size="8">└─ 📐 ButtonContainer</text>
+                        <text x="50" y="124" fill="#FF9800" font-size="8">├─ 🔘 PlayButton</text>
+                        <text x="70" y="140" fill="#666" font-size="7">└─ Text "Play Game"</text>
+                        <text x="50" y="156" fill="#FF9800" font-size="8">├─ 🔘 OptionsButton</text>
+                        <text x="50" y="172" fill="#FF9800" font-size="8">└─ 🔘 QuitButton</text>
+                    </g>
+                    
+                    <!-- Preview -->
+                    <g transform="translate(300, 50)">
+                        <rect x="0" y="0" width="350" height="180" rx="5" fill="#1a237e"/>
+                        <text x="175" y="50" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">ADVENTURE GAME</text>
+                        
+                        <rect x="100" y="75" width="150" height="30" rx="3" fill="#667eea" stroke="#fff" stroke-width="2"/>
+                        <text x="175" y="95" text-anchor="middle" fill="#fff" font-size="10">Play Game</text>
+                        
+                        <rect x="100" y="110" width="150" height="30" rx="3" fill="#667eea"/>
+                        <text x="175" y="130" text-anchor="middle" fill="#fff" font-size="10">Options</text>
+                        
+                        <rect x="100" y="145" width="150" height="30" rx="3" fill="#667eea"/>
+                        <text x="175" y="165" text-anchor="middle" fill="#fff" font-size="10">Quit</text>
+                    </g>
+                    
+                    <text x="475" y="250" text-anchor="middle" fill="#4CAF50" font-size="8">First button has focus (white border)</text>
+                </svg>
+                <p class="caption"><em>Figure: Main menu widget hierarchy and preview.</em></p>
+
+                <h4>Step 4: Add Button Click Events</h4>
+                <p>Switch to <strong>Graph</strong> view:</p>
+
+                <ol>
+                    <li><strong>Play Button Handler:</strong>
+                        <ul>
+                            <li>Select PlayButton in Hierarchy</li>
+                            <li>In Details → Events → On Clicked, click +</li>
+                            <li>In the event handler, add:
+                                <ul>
+                                    <li><code>Open Level</code> node</li>
+                                    <li>Level Name: "GameLevel" (your gameplay level)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>Quit Button Handler:</strong>
+                        <ul>
+                            <li>Create On Clicked event for QuitButton</li>
+                            <li>Add <code>Quit Game</code> node</li>
+                        </ul>
+                    </li>
+                    <li><strong>Options Button:</strong> (We'll complete this after creating options menu)</li>
+                </ol>
+
+                <h4>Step 5: Set Initial Focus</h4>
+                <ol>
+                    <li>In Graph, add <strong>Event Construct</strong></li>
+                    <li>Drag <code>PlayButton</code> from Variables</li>
+                    <li>Add <code>Set Keyboard Focus</code> node</li>
+                    <li>Connect PlayButton to Target</li>
+                </ol>
+
+                <h3>Part 2: Create the Main Menu Level</h3>
+
+                <ol>
+                    <li>Create a new Level: File → New Level → Empty Level</li>
+                    <li>Save as <code>MainMenu_Level</code></li>
+                    <li>Open Level Blueprint (Blueprints → Open Level Blueprint)</li>
+                    <li>Add the following on <strong>Event BeginPlay</strong>:
+                        <ul>
+                            <li><code>Create Widget</code> (Class: WBP_MainMenu)</li>
+                            <li><code>Add to Viewport</code></li>
+                            <li><code>Get Player Controller</code> (index 0)</li>
+                            <li><code>Set Input Mode UI Only</code></li>
+                            <li><code>Set Show Mouse Cursor</code>: True</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Level Blueprint -->
+                <svg width="100%" height="150" viewBox="0 0 750 150" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">MainMenu_Level Blueprint</text>
+                    
+                    <!-- Event BeginPlay -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#c62828"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="8">Event BeginPlay</text>
+                    </g>
+                    
+                    <path d="M 135 75 L 165 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Create Widget -->
+                    <g transform="translate(170, 50)">
+                        <rect x="0" y="0" width="110" height="50" rx="5" fill="#1565C0"/>
+                        <text x="55" y="18" text-anchor="middle" fill="#fff" font-size="8">Create Widget</text>
+                        <text x="55" y="35" text-anchor="middle" fill="#90CAF9" font-size="6">WBP_MainMenu</text>
+                    </g>
+                    
+                    <path d="M 285 75 L 315 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Add to Viewport -->
+                    <g transform="translate(320, 55)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#4CAF50"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="8">Add to Viewport</text>
+                    </g>
+                    
+                    <path d="M 425 75 L 455 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Set Input Mode -->
+                    <g transform="translate(460, 50)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#FF9800"/>
+                        <text x="60" y="18" text-anchor="middle" fill="#fff" font-size="8">Set Input Mode</text>
+                        <text x="60" y="35" text-anchor="middle" fill="#fff3e0" font-size="6">UI Only</text>
+                    </g>
+                    
+                    <path d="M 585 75 L 615 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Show Cursor -->
+                    <g transform="translate(620, 55)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#9C27B0"/>
+                        <text x="50" y="18" text-anchor="middle" fill="#fff" font-size="7">Set Show</text>
+                        <text x="50" y="32" text-anchor="middle" fill="#fff" font-size="7">Mouse Cursor</text>
+                    </g>
+                    
+                    <text x="375" y="125" text-anchor="middle" fill="#888" font-size="8">Get Player Controller (0) feeds into Set Input Mode and Set Show Mouse Cursor</text>
+                </svg>
+                <p class="caption"><em>Figure: Level Blueprint setup for main menu.</em></p>
+
+                <h3>Part 3: Create the Pause Menu</h3>
+
+                <h4>Step 1: Create the Widget</h4>
+                <ol>
+                    <li>Create Widget Blueprint: <code>WBP_PauseMenu</code></li>
+                </ol>
+
+                <h4>Step 2: Build the Layout</h4>
+                <ol>
+                    <li>Add <strong>Image</strong> for overlay:
+                        <ul>
+                            <li>Anchors: Stretch</li>
+                            <li>Color: Black with 0.7 alpha (semi-transparent)</li>
+                            <li>Rename: <code>Overlay</code></li>
+                        </ul>
+                    </li>
+                    <li>Add <strong>Vertical Box</strong> for content:
+                        <ul>
+                            <li>Anchors: Center</li>
+                            <li>Alignment: 0.5, 0.5</li>
+                            <li>Rename: <code>MenuContainer</code></li>
+                        </ul>
+                    </li>
+                    <li>Inside MenuContainer, add:
+                        <ul>
+                            <li><strong>Text Block</strong>: "PAUSED" (Font Size: 36)</li>
+                            <li><strong>Spacer</strong>: Height 30</li>
+                            <li><strong>Button</strong>: "Resume" → <code>ResumeButton</code> (Is Variable ✓)</li>
+                            <li><strong>Button</strong>: "Options" → <code>PauseOptionsButton</code></li>
+                            <li><strong>Button</strong>: "Main Menu" → <code>MainMenuButton</code></li>
+                            <li><strong>Button</strong>: "Quit" → <code>PauseQuitButton</code></li>
+                        </ul>
+                    </li>
+                    <li>Style all buttons consistently (same as main menu)</li>
+                </ol>
+
+                <h4>Step 3: Create Event Dispatcher</h4>
+                <p>The pause menu needs to tell the Player Controller when to close:</p>
+                <ol>
+                    <li>In Graph, go to My Blueprint panel</li>
+                    <li>Under Event Dispatchers, click +</li>
+                    <li>Name it <code>OnResumeClicked</code></li>
+                </ol>
+
+                <h4>Step 4: Add Button Events</h4>
+                <ol>
+                    <li><strong>Resume Button:</strong>
+                        <ul>
+                            <li>On Clicked → Call <code>OnResumeClicked</code> (dispatcher)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Main Menu Button:</strong>
+                        <ul>
+                            <li>On Clicked → <code>Open Level</code>: "MainMenu_Level"</li>
+                        </ul>
+                    </li>
+                    <li><strong>Quit Button:</strong>
+                        <ul>
+                            <li>On Clicked → <code>Quit Game</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 5: Set Initial Focus</h4>
+                <ol>
+                    <li>On Event Construct → Set Keyboard Focus to ResumeButton</li>
+                </ol>
+
+                <h3>Part 4: Set Up Player Controller</h3>
+
+                <ol>
+                    <li>Create (or open) your Player Controller Blueprint: <code>BP_PlayerController</code></li>
+                </ol>
+
+                <h4>Step 1: Add Variables</h4>
+                <ol>
+                    <li><code>PauseMenuRef</code> (Type: WBP_PauseMenu, Object Reference)</li>
+                    <li><code>bIsGamePaused</code> (Type: Boolean, Default: False)</li>
+                </ol>
+
+                <h4>Step 2: Create OpenPauseMenu Function</h4>
+                <ol>
+                    <li>Create new function: <code>OpenPauseMenu</code></li>
+                    <li>Add nodes:
+                        <ul>
+                            <li><code>Create Widget</code> (Class: WBP_PauseMenu, Owning Player: Self)</li>
+                            <li><code>Set PauseMenuRef</code> to return value</li>
+                            <li><code>Add to Viewport</code> (Target: PauseMenuRef)</li>
+                            <li><code>Set Game Paused</code>: True</li>
+                            <li><code>Set Input Mode UI Only</code> (In Widget to Focus: PauseMenuRef)</li>
+                            <li><code>Set Show Mouse Cursor</code>: True</li>
+                            <li><code>Set bIsGamePaused</code>: True</li>
+                            <li>Drag PauseMenuRef → <code>Bind Event to OnResumeClicked</code></li>
+                            <li>Create custom event: <code>HandleResume</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 3: Create ClosePauseMenu Function</h4>
+                <ol>
+                    <li>Create new function: <code>ClosePauseMenu</code></li>
+                    <li>Add nodes:
+                        <ul>
+                            <li><code>Is Valid</code> check on PauseMenuRef</li>
+                            <li>If valid: <code>Remove from Parent</code> (Target: PauseMenuRef)</li>
+                            <li><code>Set PauseMenuRef</code>: None (clear reference)</li>
+                            <li><code>Set Game Paused</code>: False</li>
+                            <li><code>Set Input Mode Game Only</code></li>
+                            <li><code>Set Show Mouse Cursor</code>: False</li>
+                            <li><code>Set bIsGamePaused</code>: False</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 4: Handle HandleResume Event</h4>
+                <ol>
+                    <li>From the HandleResume custom event created earlier</li>
+                    <li>Call <code>ClosePauseMenu</code></li>
+                </ol>
+
+                <h4>Step 5: Handle Pause Input</h4>
+                <ol>
+                    <li>In Event Graph, add input for Escape key (or create Input Action)</li>
+                    <li>On Escape Pressed:
+                        <ul>
+                            <li><code>Branch</code> on bIsGamePaused</li>
+                            <li>True → Call ClosePauseMenu</li>
+                            <li>False → Call OpenPauseMenu</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- SVG: Player Controller Flow -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Player Controller Pause Logic</text>
+                    
+                    <!-- Escape pressed -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#c62828"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="8">Escape Pressed</text>
+                    </g>
+                    
+                    <path d="M 155 75 L 190 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Branch -->
+                    <g transform="translate(195, 55)">
+                        <polygon points="0,20 50,0 50,40" fill="#1565C0"/>
+                        <text x="25" y="23" text-anchor="middle" fill="#fff" font-size="6">Paused?</text>
+                    </g>
+                    
+                    <!-- True path (close) -->
+                    <path d="M 250 60 L 300 45" stroke="#4CAF50" stroke-width="2"/>
+                    <g transform="translate(305, 30)">
+                        <rect x="0" y="0" width="130" height="35" rx="5" fill="#4CAF50"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#fff" font-size="8">ClosePauseMenu</text>
+                        <text x="65" y="28" text-anchor="middle" fill="#c8e6c9" font-size="6">Resume gameplay</text>
+                    </g>
+                    <text x="275" y="45" fill="#4CAF50" font-size="7">True</text>
+                    
+                    <!-- False path (open) -->
+                    <path d="M 250 90 L 300 105" stroke="#f44336" stroke-width="2"/>
+                    <g transform="translate(305, 90)">
+                        <rect x="0" y="0" width="130" height="35" rx="5" fill="#9C27B0"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#fff" font-size="8">OpenPauseMenu</text>
+                        <text x="65" y="28" text-anchor="middle" fill="#e1bee7" font-size="6">Show pause menu</text>
+                    </g>
+                    <text x="275" y="110" fill="#f44336" font-size="7">False</text>
+                    
+                    <!-- Details -->
+                    <g transform="translate(480, 40)">
+                        <rect x="0" y="0" width="280" height="110" rx="5" fill="rgba(102,126,234,0.15)" stroke="#667eea"/>
+                        <text x="140" y="20" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">OpenPauseMenu does:</text>
+                        <text x="15" y="40" fill="#888" font-size="7">• Create WBP_PauseMenu widget</text>
+                        <text x="15" y="55" fill="#888" font-size="7">• Add to Viewport</text>
+                        <text x="15" y="70" fill="#888" font-size="7">• Set Game Paused = True</text>
+                        <text x="15" y="85" fill="#888" font-size="7">• Set Input Mode UI Only</text>
+                        <text x="15" y="100" fill="#888" font-size="7">• Bind to OnResumeClicked</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Player Controller handles pause menu toggle.</em></p>
+
+                <h3>Part 5: Create Simple Options Menu</h3>
+
+                <h4>Step 1: Create the Widget</h4>
+                <ol>
+                    <li>Create Widget Blueprint: <code>WBP_OptionsMenu</code></li>
+                </ol>
+
+                <h4>Step 2: Build the Layout</h4>
+                <ol>
+                    <li>Add <strong>Image</strong> for background (same as main menu or semi-transparent)</li>
+                    <li>Add <strong>Vertical Box</strong> (centered) for content</li>
+                    <li>Inside Vertical Box:
+                        <ul>
+                            <li><strong>Text Block</strong>: "OPTIONS" (title)</li>
+                            <li><strong>Spacer</strong>: Height 20</li>
+                            <li><strong>Horizontal Box</strong>: Volume control
+                                <ul>
+                                    <li>Text Block: "Master Volume"</li>
+                                    <li>Slider: <code>VolumeSlider</code> (Is Variable ✓)</li>
+                                    <li>Text Block: <code>VolumePercent</code> (Is Variable ✓) "100%"</li>
+                                </ul>
+                            </li>
+                            <li><strong>Spacer</strong>: Height 20</li>
+                            <li><strong>Button</strong>: "Back" → <code>BackButton</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 3: Add Event Dispatcher</h4>
+                <ol>
+                    <li>Create Event Dispatcher: <code>OnBackClicked</code></li>
+                </ol>
+
+                <h4>Step 4: Add Slider Logic</h4>
+                <ol>
+                    <li>Select VolumeSlider</li>
+                    <li>In Details → Events → On Value Changed, click +</li>
+                    <li>In the event handler:
+                        <ul>
+                            <li>Get the Value parameter</li>
+                            <li>Multiply by 100, round to integer</li>
+                            <li>Format as text with "%"</li>
+                            <li>Set VolumePercent text</li>
+                            <li>(Optional) Apply to audio: Get Sound Mix → Set Sound Mix Class Override</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 5: Back Button</h4>
+                <ol>
+                    <li>On BackButton Clicked → Call <code>OnBackClicked</code> dispatcher</li>
+                </ol>
+
+                <h3>Part 6: Connect Options to Menus</h3>
+
+                <p>Now connect the Options button in both menus:</p>
+
+                <h4>Main Menu Options Button:</h4>
+                <ol>
+                    <li>In WBP_MainMenu Graph</li>
+                    <li>Create variable: <code>OptionsMenuRef</code> (Type: WBP_OptionsMenu)</li>
+                    <li>On OptionsButton Clicked:
+                        <ul>
+                            <li>Create Widget (WBP_OptionsMenu)</li>
+                            <li>Set OptionsMenuRef</li>
+                            <li>Add to Viewport</li>
+                            <li>Set Self Visibility: Collapsed (hide main menu)</li>
+                            <li>Bind to OnBackClicked → Create custom event "HandleOptionsBack"</li>
+                        </ul>
+                    </li>
+                    <li>On HandleOptionsBack:
+                        <ul>
+                            <li>Remove OptionsMenuRef from Parent</li>
+                            <li>Set Self Visibility: Visible</li>
+                            <li>Set Keyboard Focus to PlayButton</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Part 7: Set Game Mode</h3>
+
+                <ol>
+                    <li>Open Project Settings → Maps & Modes</li>
+                    <li>Set <strong>Default GameMode</strong> to one that uses your BP_PlayerController</li>
+                    <li>Or create a Game Mode Blueprint that specifies BP_PlayerController</li>
+                    <li>Set <strong>Editor Startup Map</strong> to MainMenu_Level</li>
+                    <li>Set <strong>Game Default Map</strong> to MainMenu_Level</li>
+                </ol>
+
+                <h3>Part 8: Test Everything</h3>
+
+                <ol>
+                    <li><strong>Test Main Menu:</strong>
+                        <ul>
+                            <li>Play the MainMenu_Level</li>
+                            <li>Verify mouse cursor is visible</li>
+                            <li>Click buttons to test hover states</li>
+                            <li>Use arrow keys to navigate between buttons</li>
+                            <li>Press Enter to activate focused button</li>
+                            <li>Test Options opens and Back returns</li>
+                            <li>Test Quit exits (in standalone, not editor)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Test Gameplay:</strong>
+                        <ul>
+                            <li>Click Play to start game level</li>
+                            <li>Verify mouse cursor is hidden</li>
+                            <li>Verify character can move (if applicable)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Test Pause Menu:</strong>
+                        <ul>
+                            <li>Press Escape during gameplay</li>
+                            <li>Verify game pauses (movement stops)</li>
+                            <li>Verify mouse cursor appears</li>
+                            <li>Test Resume closes menu and unpauses</li>
+                            <li>Test Main Menu returns to main menu level</li>
+                            <li>Test Escape key closes pause menu</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've built a complete menu system with:</p>
+                    <ul>
+                        <li>Main menu with Play, Options, and Quit buttons</li>
+                        <li>Pause menu with Resume, Options, Main Menu, and Quit</li>
+                        <li>Simple options screen with volume slider</li>
+                        <li>Proper input mode handling (UI Only vs Game Only)</li>
+                        <li>Keyboard/gamepad navigation with focus</li>
+                        <li>Game pause functionality</li>
+                        <li>Menu transitions with Event Dispatchers</li>
+                    </ul>
+                    <p>This foundation can be expanded with more options, confirmation dialogs, and visual polish!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Can't click buttons:</strong></p>
+                    <ul>
+                        <li>Verify Input Mode is set to UI Only</li>
+                        <li>Check that Show Mouse Cursor is True</li>
+                        <li>Ensure buttons aren't blocked by other widgets</li>
+                    </ul>
+                    
+                    <p><strong>Can't use keyboard to navigate:</strong></p>
+                    <ul>
+                        <li>Set Keyboard Focus to the first button</li>
+                        <li>Ensure buttons have Is Focusable checked (default for buttons)</li>
+                    </ul>
+                    
+                    <p><strong>Game doesn't pause:</strong></p>
+                    <ul>
+                        <li>Verify Set Game Paused is being called</li>
+                        <li>Check that the Player Controller is being used</li>
+                    </ul>
+                    
+                    <p><strong>ESC doesn't work:</strong></p>
+                    <ul>
+                        <li>Verify input event is set up in Player Controller</li>
+                        <li>Check that the Game Mode uses your Player Controller</li>
+                    </ul>
+                    
+                    <p><strong>Options menu doesn't return:</strong></p>
+                    <ul>
+                        <li>Verify Event Dispatcher is being called on Back button</li>
+                        <li>Check that parent widget binds to the dispatcher</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Add Menu Animations:</strong> Fade in the main menu on level load, slide buttons in</li>
+                    <li><strong>Add Sound Effects:</strong> Play sounds on button hover and click</li>
+                    <li><strong>Add Confirmation Dialog:</strong> Confirm before quitting or returning to main menu</li>
+                    <li><strong>Add More Settings:</strong> Graphics quality, fullscreen toggle, mouse sensitivity</li>
+                    <li><strong>Save Settings:</strong> Use Save Game to persist options between sessions</li>
+                    <li><strong>Add Loading Screen:</strong> Show a loading widget when transitioning between levels</li>
+                </ol>
+            </section>
+            <!-- Section 5: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned how to create professional menu systems that handle input properly, support multiple input devices, and integrate smoothly with gameplay. Menus are where players spend significant time, so getting them right is essential for a polished game experience.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Input Modes:</strong> Three modes control where input goes—Game Only for gameplay, UI Only for menus, and Game and UI for hybrid situations. Always set the appropriate mode when showing or hiding menus.</p>
+
+                <p><strong>Widget Focus:</strong> Focus determines which widget receives keyboard/gamepad input. Set initial focus when opening menus to enable immediate navigation. Buttons are focusable by default; other widgets can be made focusable as needed.</p>
+
+                <p><strong>Navigation:</strong> UMG automatically handles directional navigation between focusable widgets. Override navigation explicitly when automatic behavior doesn't work well for your layout.</p>
+
+                <p><strong>Game Pause:</strong> Use Set Game Paused to freeze gameplay during pause menus. Remember that UI widgets continue to function while the game is paused.</p>
+
+                <p><strong>Main Menu:</strong> Typically in a dedicated level, displays on BeginPlay, sets Input Mode UI Only. Contains buttons for Play, Options, and Quit with appropriate handlers.</p>
+
+                <p><strong>Pause Menu:</strong> Created and shown during gameplay, toggled with ESC/Start. Requires pausing the game, changing input mode, and showing cursor. Resume button restores gameplay state.</p>
+
+                <p><strong>Event Dispatchers:</strong> Enable child menus (like Options) to communicate back to parent menus. The child calls the dispatcher; the parent binds and handles the response.</p>
+
+                <p><strong>Menu Transitions:</strong> Use visibility changes, Widget Switcher, or create/destroy widgets to move between menu screens. Maintain focus and input state during transitions.</p>
+
+                <h3>Input Mode Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Situation</th>
+                            <th style="padding: 10px; text-align: left;">Input Mode</th>
+                            <th style="padding: 10px; text-align: left;">Cursor</th>
+                            <th style="padding: 10px; text-align: left;">Game Paused</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Normal Gameplay</td>
+                            <td style="padding: 10px;">Game Only</td>
+                            <td style="padding: 10px;">Hidden</td>
+                            <td style="padding: 10px;">No</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Main Menu</td>
+                            <td style="padding: 10px;">UI Only</td>
+                            <td style="padding: 10px;">Visible</td>
+                            <td style="padding: 10px;">N/A</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Pause Menu</td>
+                            <td style="padding: 10px;">UI Only</td>
+                            <td style="padding: 10px;">Visible</td>
+                            <td style="padding: 10px;">Yes</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Inventory (gameplay continues)</td>
+                            <td style="padding: 10px;">Game and UI</td>
+                            <td style="padding: 10px;">Visible</td>
+                            <td style="padding: 10px;">Optional</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">HUD Only</td>
+                            <td style="padding: 10px;">Game Only</td>
+                            <td style="padding: 10px;">Hidden</td>
+                            <td style="padding: 10px;">No</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Menu System Checklist</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">When Opening Menu</th>
+                            <th style="padding: 10px; text-align: left;">When Closing Menu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Create/Show widget</td>
+                            <td style="padding: 10px;">Remove from Parent/Hide widget</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Add to Viewport</td>
+                            <td style="padding: 10px;">Clear widget reference</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Set Input Mode UI Only</td>
+                            <td style="padding: 10px;">Set Input Mode Game Only</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Show Mouse Cursor = True</td>
+                            <td style="padding: 10px;">Show Mouse Cursor = False</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Set Game Paused = True (if pause menu)</td>
+                            <td style="padding: 10px;">Set Game Paused = False</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Set Keyboard Focus to first button</td>
+                            <td style="padding: 10px;">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Always set initial focus:</strong> Enable immediate keyboard/gamepad navigation without requiring a click first</li>
+                    <li><strong>Match input mode to context:</strong> UI Only for menus, Game Only for gameplay—don't leave in wrong state</li>
+                    <li><strong>Handle both mouse and controller:</strong> Test navigation with keyboard, then gamepad—both should work smoothly</li>
+                    <li><strong>Use Event Dispatchers for sub-menus:</strong> Keep menu logic encapsulated; communicate through dispatchers</li>
+                    <li><strong>Add confirmation for destructive actions:</strong> Quit and Return to Main Menu should confirm to prevent accidents</li>
+                    <li><strong>Keep animations short:</strong> 0.2-0.5 seconds max—players see menus repeatedly</li>
+                    <li><strong>Test pause functionality:</strong> Verify game actually freezes—physics, AI, timers should all stop</li>
+                    <li><strong>Clear references when closing:</strong> Set widget references to None after Remove from Parent to prevent stale references</li>
+                    <li><strong>Consider audio:</strong> Add button hover/click sounds; pause music or lower volume during pause menu</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Complete Menu System Architecture</text>
+                    
+                    <!-- Main Menu Level -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="180" height="80" rx="8" fill="#667eea"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Main Menu Level</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#c5cae9" font-size="8">WBP_MainMenu</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#c5cae9" font-size="8">Input: UI Only</text>
+                    </g>
+                    
+                    <!-- Gameplay Level -->
+                    <g transform="translate(310, 55)">
+                        <rect x="0" y="0" width="180" height="80" rx="8" fill="#4CAF50"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Gameplay Level</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#c8e6c9" font-size="8">WBP_PlayerHUD</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#c8e6c9" font-size="8">Input: Game Only</text>
+                    </g>
+                    
+                    <!-- Pause Menu -->
+                    <g transform="translate(570, 55)">
+                        <rect x="0" y="0" width="180" height="80" rx="8" fill="#9C27B0"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Pause Menu</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#e1bee7" font-size="8">WBP_PauseMenu</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#e1bee7" font-size="8">Input: UI Only + Paused</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 235 95 L 305 95" stroke="#667eea" stroke-width="2" marker-end="url(#sumMenuArrow)"/>
+                    <text x="270" y="85" text-anchor="middle" fill="#667eea" font-size="8">Play</text>
+                    
+                    <path d="M 495 95 L 565 95" stroke="#667eea" stroke-width="2" marker-end="url(#sumMenuArrow)"/>
+                    <text x="530" y="85" text-anchor="middle" fill="#667eea" font-size="8">ESC</text>
+                    
+                    <path d="M 660 140 L 660 170 L 400 170 L 400 140" stroke="#4CAF50" stroke-width="2" fill="none" marker-end="url(#sumMenuArrow)"/>
+                    <text x="530" y="185" text-anchor="middle" fill="#4CAF50" font-size="8">Resume</text>
+                    
+                    <path d="M 400 140 L 400 170 L 140 170 L 140 140" stroke="#f44336" stroke-width="2" fill="none" marker-end="url(#sumMenuArrow)"/>
+                    <text x="270" y="185" text-anchor="middle" fill="#f44336" font-size="8">Main Menu</text>
+                    
+                    <!-- Player Controller -->
+                    <g transform="translate(250, 200)">
+                        <rect x="0" y="0" width="300" height="45" rx="5" fill="rgba(102,126,234,0.15)" stroke="#667eea"/>
+                        <text x="150" y="18" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Player Controller</text>
+                        <text x="150" y="35" text-anchor="middle" fill="#666" font-size="8">Manages pause state, input modes, and menu widgets</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="sumMenuArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Complete menu system showing relationships between levels, menus, and the Player Controller.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>With your menu system complete, the next lesson covers <strong>Data Binding and Events</strong> in more depth. You'll learn advanced techniques for connecting UI to game systems, including property binding optimizations, event-based UI updates, and creating truly dynamic interfaces that respond to complex game state changes.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What input mode should you use when displaying a full-screen pause menu?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Game Only</label>
+                            <label><input type="radio" name="q1" value="b"> UI Only</label>
+                            <label><input type="radio" name="q1" value="c"> Game and UI</label>
+                            <label><input type="radio" name="q1" value="d"> No input mode change needed</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — UI Only ensures that input goes to the menu widgets and not to the game. This prevents the player from accidentally moving or shooting while navigating the menu. Combined with Set Game Paused, the game freezes while the menu is open.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why is it important to set keyboard focus when opening a menu?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> It's required for the menu to be visible</label>
+                            <label><input type="radio" name="q2" value="b"> It enables immediate keyboard/gamepad navigation without requiring a click first</label>
+                            <label><input type="radio" name="q2" value="c"> It prevents the game from crashing</label>
+                            <label><input type="radio" name="q2" value="d"> It's only needed for touch screens</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Setting initial focus allows players using keyboard or gamepad to immediately navigate with arrow keys/D-pad without needing to click a button first. This is essential for controller support and accessibility.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What three things should you typically do when closing a pause menu?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Remove widget, Set Input Mode Game Only, Set Game Paused False</label>
+                            <label><input type="radio" name="q3" value="b"> Hide widget, Open new level, Show cursor</label>
+                            <label><input type="radio" name="q3" value="c"> Delete widget, Restart game, Hide cursor</label>
+                            <label><input type="radio" name="q3" value="d"> Nothing—just stop showing the menu</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> — When closing a pause menu: (1) Remove from Parent to hide the widget, (2) Set Input Mode Game Only so the player can control the game again, (3) Set Game Paused False to resume gameplay. Also hide the mouse cursor with Set Show Mouse Cursor False.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>How do sub-menus (like Options) typically communicate back to parent menus?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Direct function calls to the parent</label>
+                            <label><input type="radio" name="q4" value="b"> Global variables</label>
+                            <label><input type="radio" name="q4" value="c"> Event Dispatchers that parents bind to</label>
+                            <label><input type="radio" name="q4" value="d"> They can't—menus are independent</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Event Dispatchers are the proper way for sub-menus to communicate with parents. The Options menu calls OnBackClicked dispatcher; the parent (Main Menu or Pause Menu) binds to it and handles closing the options and restoring focus.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Where is the best place to handle the ESC key for toggling the pause menu?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> In the Pause Menu widget itself</label>
+                            <label><input type="radio" name="q5" value="b"> In the Player Controller</label>
+                            <label><input type="radio" name="q5" value="c"> In the Level Blueprint</label>
+                            <label><input type="radio" name="q5" value="d"> In the HUD widget</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The Player Controller is the best location because it persists throughout gameplay, has access to input, and is responsible for managing the player's UI state. It can track whether the menu is open and toggle appropriately.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What happens if you forget to call Set Game Paused False when closing a pause menu?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> The menu stays visible</label>
+                            <label><input type="radio" name="q6" value="b"> The game remains frozen even though the menu is gone</label>
+                            <label><input type="radio" name="q6" value="c"> The game crashes</label>
+                            <label><input type="radio" name="q6" value="d"> Nothing—it automatically unpauses</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The game state remains paused even after the menu is removed. The player can see the game world but nothing moves—physics, AI, and animations all stay frozen. Always pair Set Game Paused True with a corresponding False.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>Which widgets are focusable by default in UMG?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> All widgets</label>
+                            <label><input type="radio" name="q7" value="b"> Only Text widgets</label>
+                            <label><input type="radio" name="q7" value="c"> Interactive widgets like Button, Check Box, Slider, Editable Text</label>
+                            <label><input type="radio" name="q7" value="d"> Only widgets you explicitly mark as focusable</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Interactive widgets that respond to input (Button, Check Box, Slider, Editable Text) are focusable by default. Display-only widgets like Text Block, Image, and Progress Bar are not focusable by default but can be made focusable in their properties.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m07_l03_hud_elements.html" class="btn">← Previous: HUD Elements</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m07_l05_data_binding_and_events.html" class="btn">Next: Data Binding and Events →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

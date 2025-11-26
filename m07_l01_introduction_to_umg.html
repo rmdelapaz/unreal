@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Introduction to Unreal Motion Graphics (UMG) in Unreal Engine 5. Learn the fundamentals of UI design, Widget Blueprints, and the UMG framework for creating game interfaces.">
+    <meta name="author" content="Practical Ace">
+    <title>Introduction to UMG - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 7: User Interface with UMG</a></li>
+            <li aria-current="page">Lesson 7.1: Introduction to UMG</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>📱 Introduction to UMG</h1>
+                <p class="lead">Every game needs a user interface. Health bars tell players how close they are to death. Inventory screens let them manage their items. Menus guide them through options and settings. Unreal Engine's <strong>Unreal Motion Graphics (UMG)</strong> system provides a powerful, designer-friendly way to create all of these interfaces. In this lesson, you'll learn what UMG is, how it fits into the engine architecture, and how to create your first Widget Blueprint.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what UMG is and its role in Unreal Engine</li>
+                        <li>Understand the Widget Blueprint architecture</li>
+                        <li>Navigate the UMG Designer interface</li>
+                        <li>Create and display a basic Widget Blueprint</li>
+                        <li>Understand the difference between HUD and menu widgets</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 40-50 minutes</p>
+                    <p><strong>Prerequisites:</strong> Module 5 (Introduction to Blueprints)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-is-umg" class="toc-link">What is UMG?</a></li>
+                        <li><a href="#widget-blueprints" class="toc-link">Widget Blueprints</a></li>
+                        <li><a href="#umg-designer" class="toc-link">The UMG Designer</a></li>
+                        <li><a href="#displaying-widgets" class="toc-link">Displaying Widgets</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Create Your First Widget</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What is UMG? -->
+            <section id="what-is-umg" class="lesson-section">
+                <h2>What is UMG?</h2>
+
+                <p><strong>Unreal Motion Graphics (UMG)</strong> is Unreal Engine's built-in UI framework. It provides tools for creating 2D user interfaces that overlay the game view—everything from simple health bars to complex inventory systems to full main menus.</p>
+
+                <h3>What UMG Can Create</h3>
+
+                <p>UMG handles all types of game UI:</p>
+
+                <p><strong>HUD Elements (Heads-Up Display):</strong> Information displayed during gameplay that doesn't block interaction. Health bars, ammo counters, minimaps, crosshairs, objective markers, and status effects.</p>
+
+                <p><strong>Menus:</strong> Full-screen or partial interfaces that pause or change game flow. Main menus, pause menus, settings screens, inventory screens, and dialogue systems.</p>
+
+                <p><strong>In-World UI:</strong> UI elements attached to actors in the 3D world. Name tags above characters, health bars over enemies, interaction prompts near objects.</p>
+
+                <p><strong>Notifications:</strong> Temporary messages that appear and disappear. Achievement popups, damage numbers, pickup confirmations, and tutorial hints.</p>
+
+                <!-- SVG: UMG UI Types -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Types of UI in Games</text>
+                    
+                    <!-- Game view background -->
+                    <rect x="50" y="45" width="700" height="200" rx="5" fill="#2d2d2d" stroke="#555"/>
+                    <text x="400" y="150" text-anchor="middle" fill="#444" font-size="14">[ Game World View ]</text>
+                    
+                    <!-- HUD Elements -->
+                    <g transform="translate(70, 60)">
+                        <!-- Health bar -->
+                        <rect x="0" y="0" width="120" height="20" rx="3" fill="#333" stroke="#f44336"/>
+                        <rect x="2" y="2" width="80" height="16" rx="2" fill="#f44336"/>
+                        <text x="60" y="14" text-anchor="middle" fill="#fff" font-size="8">Health: 80%</text>
+                        
+                        <text x="60" y="35" text-anchor="middle" fill="#f44336" font-size="8">HUD Element</text>
+                    </g>
+                    
+                    <!-- Ammo counter -->
+                    <g transform="translate(620, 200)">
+                        <rect x="0" y="0" width="80" height="30" rx="3" fill="rgba(0,0,0,0.7)"/>
+                        <text x="40" y="12" text-anchor="middle" fill="#FF9800" font-size="8">🔫 AMMO</text>
+                        <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">30 / 120</text>
+                    </g>
+                    
+                    <!-- Crosshair -->
+                    <g transform="translate(380, 130)">
+                        <line x1="0" y1="10" x2="20" y2="10" stroke="#fff" stroke-width="2"/>
+                        <line x1="10" y1="0" x2="10" y2="20" stroke="#fff" stroke-width="2"/>
+                    </g>
+                    
+                    <!-- In-world UI (enemy health) -->
+                    <g transform="translate(550, 100)">
+                        <rect x="0" y="0" width="60" height="8" rx="2" fill="#333"/>
+                        <rect x="1" y="1" width="35" height="6" rx="1" fill="#f44336"/>
+                        <text x="30" y="20" text-anchor="middle" fill="#aaa" font-size="7">Enemy HP</text>
+                        <text x="30" y="32" text-anchor="middle" fill="#4CAF50" font-size="7">In-World UI</text>
+                    </g>
+                    
+                    <!-- Notification -->
+                    <g transform="translate(300, 60)">
+                        <rect x="0" y="0" width="200" height="35" rx="5" fill="rgba(76,175,80,0.9)"/>
+                        <text x="100" y="15" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">🏆 Achievement Unlocked!</text>
+                        <text x="100" y="28" text-anchor="middle" fill="#c8e6c9" font-size="8">First Steps</text>
+                    </g>
+                    
+                    <!-- Menu overlay hint -->
+                    <g transform="translate(70, 200)">
+                        <rect x="0" y="0" width="100" height="25" rx="3" fill="rgba(0,0,0,0.8)"/>
+                        <text x="50" y="16" text-anchor="middle" fill="#888" font-size="8">ESC → Pause Menu</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(50, 260)">
+                        <rect x="0" y="0" width="700" height="30" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <circle cx="80" cy="15" r="6" fill="#f44336"/>
+                        <text x="100" y="18" fill="#aaa" font-size="8">HUD</text>
+                        <circle cx="200" cy="15" r="6" fill="#4CAF50"/>
+                        <text x="220" y="18" fill="#aaa" font-size="8">In-World</text>
+                        <circle cx="340" cy="15" r="6" fill="#2196F3"/>
+                        <text x="360" y="18" fill="#aaa" font-size="8">Menu</text>
+                        <circle cx="460" cy="15" r="6" fill="#FF9800"/>
+                        <text x="480" y="18" fill="#aaa" font-size="8">Notification</text>
+                        <text x="620" y="18" fill="#667eea" font-size="8">All created with UMG</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different types of UI elements, all created using UMG.</em></p>
+
+                <h3>UMG vs. Other UI Systems</h3>
+
+                <p>Before UMG, Unreal used different UI systems. Understanding the history helps clarify what you might encounter:</p>
+
+                <p><strong>UMG (Current):</strong> Blueprint-friendly, visual designer, powerful and flexible. This is what you should use for all new projects.</p>
+
+                <p><strong>Slate (Underlying):</strong> C++ UI framework that UMG is built on. Powerful but complex. Used for editor UI and when UMG isn't enough. You won't need Slate for most game UI.</p>
+
+                <p><strong>HUD Canvas (Legacy):</strong> Old system from UE3 era. Draw commands directly to screen. Still works but UMG is preferred.</p>
+
+                <h3>How UMG Works</h3>
+
+                <p>UMG uses a hierarchy of <strong>Widgets</strong>—individual UI elements that combine to form complete interfaces:</p>
+
+                <ol>
+                    <li><strong>Widget Blueprints</strong> define the structure and logic of UI elements</li>
+                    <li>Widgets are composed of <strong>Panels</strong> (layout containers) and <strong>Common Widgets</strong> (buttons, text, images)</li>
+                    <li>Widget Blueprints are instantiated and added to the <strong>Viewport</strong> at runtime</li>
+                    <li>The <strong>Player Controller</strong> manages what UI is visible and handles input</li>
+                </ol>
+
+                <!-- Mermaid: UMG Architecture -->
+                <pre class="mermaid">
+flowchart TD
+    PC["Player Controller"] -->|"Creates"| WB["Widget Blueprint"]
+    WB -->|"Contains"| P["Panels (Layout)"]
+    WB -->|"Contains"| W["Widgets (Elements)"]
+    P --> CB["Canvas Panel"]
+    P --> VB["Vertical Box"]
+    P --> HB["Horizontal Box"]
+    W --> TXT["Text"]
+    W --> IMG["Image"]
+    W --> BTN["Button"]
+    W --> PB["Progress Bar"]
+    WB -->|"Added to"| VP["Viewport"]
+    VP -->|"Displayed on"| SCR["Screen"]
+    
+    style PC fill:#667eea,color:#fff
+    style WB fill:#4CAF50,color:#fff
+    style VP fill:#FF9800,color:#fff
+    style SCR fill:#2196F3,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: UMG architecture from Player Controller to screen display.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 UMG is Resolution-Independent</h4>
+                    <p>UMG automatically scales UI to different screen resolutions. You design for one resolution, and Unreal handles scaling to others. This is called <strong>DPI Scaling</strong>. You can also use <strong>Anchors</strong> to control how elements reposition on different aspect ratios.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Widget Blueprints -->
+            <section id="widget-blueprints" class="lesson-section">
+                <h2>Widget Blueprints</h2>
+
+                <p>A <strong>Widget Blueprint</strong> is the fundamental building block of UMG. It's a special type of Blueprint that combines visual design with logic, letting you create complete UI elements.</p>
+
+                <h3>Creating a Widget Blueprint</h3>
+
+                <ol>
+                    <li>In Content Browser, right-click</li>
+                    <li>Select <strong>User Interface → Widget Blueprint</strong></li>
+                    <li>Name it with a <code>WBP_</code> prefix (e.g., <code>WBP_MainMenu</code>, <code>WBP_HealthBar</code>)</li>
+                    <li>Double-click to open the Widget Editor</li>
+                </ol>
+
+                <h3>Widget Blueprint Structure</h3>
+
+                <p>Widget Blueprints have two main views:</p>
+
+                <p><strong>Designer:</strong> Visual editor where you arrange UI elements, set properties, and preview appearance. This is where you build the look of your UI.</p>
+
+                <p><strong>Graph:</strong> Blueprint graph where you add logic—responding to button clicks, updating text, playing animations. This is where you add interactivity.</p>
+
+                <p>You switch between them using tabs at the top of the editor.</p>
+
+                <!-- SVG: Widget Blueprint Views -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Widget Blueprint: Two Views</text>
+                    
+                    <!-- Designer View -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="320" height="150" rx="8" fill="#fff" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="30" rx="8" fill="#4CAF50"/>
+                        <text x="160" y="20" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">📐 Designer View</text>
+                        
+                        <!-- Mock UI elements -->
+                        <rect x="20" y="50" width="280" height="80" rx="5" fill="#f5f5f5" stroke="#ddd"/>
+                        <rect x="40" y="65" width="100" height="20" rx="3" fill="#667eea"/>
+                        <text x="90" y="79" text-anchor="middle" fill="#fff" font-size="8">Button</text>
+                        <rect x="160" y="65" width="120" height="15" rx="2" fill="#ddd"/>
+                        <text x="220" y="76" text-anchor="middle" fill="#888" font-size="7">Text Block</text>
+                        <rect x="40" y="100" width="240" height="15" rx="2" fill="#4CAF50"/>
+                        <text x="160" y="110" text-anchor="middle" fill="#fff" font-size="7">Progress Bar</text>
+                        
+                        <text x="160" y="145" text-anchor="middle" fill="#666" font-size="8">Visual layout and properties</text>
+                    </g>
+                    
+                    <!-- Graph View -->
+                    <g transform="translate(430, 50)">
+                        <rect x="0" y="0" width="320" height="150" rx="8" fill="#fff" stroke="#2196F3" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="30" rx="8" fill="#2196F3"/>
+                        <text x="160" y="20" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">📊 Graph View</text>
+                        
+                        <!-- Mock Blueprint nodes -->
+                        <rect x="20" y="50" width="80" height="35" rx="3" fill="#c62828"/>
+                        <text x="60" y="72" text-anchor="middle" fill="#fff" font-size="7">On Clicked</text>
+                        
+                        <line x1="105" y1="67" x2="140" y2="67" stroke="#666" stroke-width="2"/>
+                        
+                        <rect x="145" y="50" width="80" height="35" rx="3" fill="#1565C0"/>
+                        <text x="185" y="72" text-anchor="middle" fill="#fff" font-size="7">Set Text</text>
+                        
+                        <rect x="20" y="100" width="80" height="35" rx="3" fill="#c62828"/>
+                        <text x="60" y="122" text-anchor="middle" fill="#fff" font-size="7">Construct</text>
+                        
+                        <line x1="105" y1="117" x2="140" y2="117" stroke="#666" stroke-width="2"/>
+                        
+                        <rect x="145" y="100" width="100" height="35" rx="3" fill="#4CAF50"/>
+                        <text x="195" y="122" text-anchor="middle" fill="#fff" font-size="7">Play Animation</text>
+                        
+                        <text x="160" y="145" text-anchor="middle" fill="#666" font-size="8">Logic and interactivity</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Designer for visual layout, Graph for logic and events.</em></p>
+
+                <h3>Common Widget Types</h3>
+
+                <p>UMG provides many built-in widgets organized into categories:</p>
+
+                <h4>Panel Widgets (Layout Containers)</h4>
+
+                <p>Panels organize child widgets:</p>
+
+                <ul>
+                    <li><strong>Canvas Panel:</strong> Free positioning with anchors. Most flexible, used for HUDs.</li>
+                    <li><strong>Vertical Box:</strong> Stacks children vertically. Great for lists, menus.</li>
+                    <li><strong>Horizontal Box:</strong> Stacks children horizontally. Great for toolbars, button rows.</li>
+                    <li><strong>Grid Panel:</strong> Arranges children in a grid. Great for inventory slots.</li>
+                    <li><strong>Overlay:</strong> Stacks children on top of each other. Great for layering.</li>
+                    <li><strong>Scale Box:</strong> Scales content to fit available space.</li>
+                    <li><strong>Size Box:</strong> Forces specific dimensions on content.</li>
+                </ul>
+
+                <h4>Common Widgets (UI Elements)</h4>
+
+                <ul>
+                    <li><strong>Text:</strong> Displays text. Can be static or bound to variables.</li>
+                    <li><strong>Image:</strong> Displays a texture or material.</li>
+                    <li><strong>Button:</strong> Clickable element with visual states (normal, hovered, pressed).</li>
+                    <li><strong>Progress Bar:</strong> Shows a value as a filled bar (health, loading).</li>
+                    <li><strong>Slider:</strong> User-adjustable value within a range.</li>
+                    <li><strong>Check Box:</strong> Toggle boolean values.</li>
+                    <li><strong>Text Box:</strong> User text input field.</li>
+                    <li><strong>Combo Box:</strong> Dropdown selection.</li>
+                </ul>
+
+                <!-- SVG: Widget Types -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Common UMG Widgets</text>
+                    
+                    <!-- Panels row -->
+                    <text x="100" y="55" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Panels (Layout)</text>
+                    
+                    <g transform="translate(30, 65)">
+                        <rect x="0" y="0" width="100" height="60" rx="3" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#4CAF50" font-size="8">Canvas Panel</text>
+                        <rect x="10" y="25" width="20" height="15" fill="#666"/>
+                        <rect x="40" y="35" width="30" height="20" fill="#666"/>
+                        <rect x="75" y="20" width="15" height="35" fill="#666"/>
+                    </g>
+                    
+                    <g transform="translate(145, 65)">
+                        <rect x="0" y="0" width="100" height="60" rx="3" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#4CAF50" font-size="8">Vertical Box</text>
+                        <rect x="20" y="22" width="60" height="10" fill="#666"/>
+                        <rect x="20" y="35" width="60" height="10" fill="#666"/>
+                        <rect x="20" y="48" width="60" height="10" fill="#666"/>
+                    </g>
+                    
+                    <g transform="translate(260, 65)">
+                        <rect x="0" y="0" width="100" height="60" rx="3" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#4CAF50" font-size="8">Horizontal Box</text>
+                        <rect x="10" y="28" width="25" height="25" fill="#666"/>
+                        <rect x="38" y="28" width="25" height="25" fill="#666"/>
+                        <rect x="66" y="28" width="25" height="25" fill="#666"/>
+                    </g>
+                    
+                    <g transform="translate(375, 65)">
+                        <rect x="0" y="0" width="100" height="60" rx="3" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#4CAF50" font-size="8">Grid Panel</text>
+                        <rect x="15" y="23" width="18" height="15" fill="#666"/>
+                        <rect x="36" y="23" width="18" height="15" fill="#666"/>
+                        <rect x="57" y="23" width="18" height="15" fill="#666"/>
+                        <rect x="15" y="41" width="18" height="15" fill="#666"/>
+                        <rect x="36" y="41" width="18" height="15" fill="#666"/>
+                        <rect x="57" y="41" width="18" height="15" fill="#666"/>
+                    </g>
+                    
+                    <!-- Common widgets row -->
+                    <text x="100" y="150" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">Common Widgets</text>
+                    
+                    <g transform="translate(30, 160)">
+                        <rect x="0" y="0" width="100" height="50" rx="3" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#2196F3" font-size="8">Text</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#fff" font-size="10">Hello World</text>
+                    </g>
+                    
+                    <g transform="translate(145, 160)">
+                        <rect x="0" y="0" width="100" height="50" rx="3" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#2196F3" font-size="8">Button</text>
+                        <rect x="15" y="25" width="70" height="20" rx="3" fill="#667eea"/>
+                        <text x="50" y="38" text-anchor="middle" fill="#fff" font-size="8">Click Me</text>
+                    </g>
+                    
+                    <g transform="translate(260, 160)">
+                        <rect x="0" y="0" width="100" height="50" rx="3" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#2196F3" font-size="8">Progress Bar</text>
+                        <rect x="10" y="28" width="80" height="15" rx="2" fill="#444"/>
+                        <rect x="10" y="28" width="55" height="15" rx="2" fill="#4CAF50"/>
+                    </g>
+                    
+                    <g transform="translate(375, 160)">
+                        <rect x="0" y="0" width="100" height="50" rx="3" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#2196F3" font-size="8">Image</text>
+                        <rect x="25" y="22" width="50" height="25" fill="#9C27B0" rx="2"/>
+                        <text x="50" y="38" text-anchor="middle" fill="#fff" font-size="7">🖼️</text>
+                    </g>
+                    
+                    <g transform="translate(490, 160)">
+                        <rect x="0" y="0" width="100" height="50" rx="3" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#2196F3" font-size="8">Slider</text>
+                        <rect x="10" y="32" width="80" height="4" rx="2" fill="#666"/>
+                        <circle cx="55" cy="34" r="8" fill="#FF9800"/>
+                    </g>
+                    
+                    <g transform="translate(605, 160)">
+                        <rect x="0" y="0" width="100" height="50" rx="3" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="50" y="15" text-anchor="middle" fill="#2196F3" font-size="8">Check Box</text>
+                        <rect x="30" y="25" width="18" height="18" rx="2" fill="#444" stroke="#888"/>
+                        <text x="35" y="39" fill="#4CAF50" font-size="12">✓</text>
+                        <text x="65" y="38" fill="#888" font-size="8">On</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <text x="400" y="250" text-anchor="middle" fill="#888" font-size="9">Panels contain widgets | Widgets display content | Both combine to create UI</text>
+                </svg>
+                <p class="caption"><em>Figure: Panel widgets for layout, common widgets for content.</em></p>
+
+                <h3>Widget Hierarchy</h3>
+
+                <p>Widgets form a parent-child hierarchy. The hierarchy determines:</p>
+
+                <ul>
+                    <li><strong>Layout:</strong> Child widgets are positioned relative to their parent panel</li>
+                    <li><strong>Rendering Order:</strong> Later children render on top of earlier ones</li>
+                    <li><strong>Input:</strong> Events propagate through the hierarchy</li>
+                </ul>
+
+                <p>A typical Widget Blueprint might have:</p>
+
+                <pre><code>Canvas Panel (root)
+├── Image (background)
+├── Vertical Box
+│   ├── Text (title)
+│   └── Horizontal Box
+│       ├── Button (play)
+│       └── Button (quit)
+└── Image (logo)</code></pre>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Root Widget Requirement</h4>
+                    <p>Every Widget Blueprint needs a root widget—usually a panel. If you don't add one, you can only place a single widget. For flexibility, start with a Canvas Panel as your root, then add other widgets inside it.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: The UMG Designer -->
+            <section id="umg-designer" class="lesson-section">
+                <h2>The UMG Designer</h2>
+
+                <p>The UMG Designer is where you visually create your UI. It provides a WYSIWYG (What You See Is What You Get) editing experience similar to tools like Figma or Photoshop.</p>
+
+                <h3>Designer Interface Overview</h3>
+
+                <p>When you open a Widget Blueprint, the Designer view shows several panels:</p>
+
+                <p><strong>Palette (Left):</strong> Lists all available widget types. Drag widgets from here into the canvas or hierarchy.</p>
+
+                <p><strong>Hierarchy (Left):</strong> Shows the widget tree structure. Select, reorder, and reparent widgets here.</p>
+
+                <p><strong>Designer Canvas (Center):</strong> Visual preview of your UI. Select and manipulate widgets directly.</p>
+
+                <p><strong>Details (Right):</strong> Properties of the selected widget. Appearance, layout, behavior settings.</p>
+
+                <p><strong>Animations (Bottom):</strong> UI animation timeline. Create and edit widget animations.</p>
+
+                <!-- SVG: Designer Interface -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">UMG Designer Interface</text>
+                    
+                    <!-- Left panel - Palette/Hierarchy -->
+                    <g transform="translate(20, 45)">
+                        <rect x="0" y="0" width="150" height="220" rx="3" fill="#2d2d2d" stroke="#555"/>
+                        <rect x="0" y="0" width="150" height="25" fill="#3d3d3d"/>
+                        <text x="75" y="17" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Palette / Hierarchy</text>
+                        
+                        <text x="10" y="45" fill="#888" font-size="8">▼ Panel</text>
+                        <text x="20" y="60" fill="#aaa" font-size="7">Canvas Panel</text>
+                        <text x="20" y="73" fill="#aaa" font-size="7">Vertical Box</text>
+                        <text x="10" y="93" fill="#888" font-size="8">▼ Common</text>
+                        <text x="20" y="108" fill="#aaa" font-size="7">Text</text>
+                        <text x="20" y="121" fill="#aaa" font-size="7">Button</text>
+                        <text x="20" y="134" fill="#aaa" font-size="7">Image</text>
+                        
+                        <line x1="5" y1="150" x2="145" y2="150" stroke="#555"/>
+                        <text x="10" y="168" fill="#667eea" font-size="8">▼ [Root]</text>
+                        <text x="25" y="183" fill="#aaa" font-size="7">├─ Background</text>
+                        <text x="25" y="198" fill="#aaa" font-size="7">├─ TitleText</text>
+                        <text x="25" y="213" fill="#aaa" font-size="7">└─ PlayButton</text>
+                    </g>
+                    
+                    <!-- Center - Canvas -->
+                    <g transform="translate(185, 45)">
+                        <rect x="0" y="0" width="380" height="220" rx="3" fill="#252525" stroke="#555"/>
+                        <rect x="0" y="0" width="380" height="25" fill="#3d3d3d"/>
+                        <text x="190" y="17" text-anchor="middle" fill="#2196F3" font-size="9" font-weight="bold">Designer Canvas</text>
+                        
+                        <!-- Preview area -->
+                        <rect x="40" y="45" width="300" height="160" fill="#1a1a1a" stroke="#444"/>
+                        
+                        <!-- Sample UI in preview -->
+                        <rect x="60" y="65" width="260" height="120" rx="5" fill="#333"/>
+                        <text x="190" y="95" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">My Game</text>
+                        <rect x="130" y="115" width="120" height="30" rx="5" fill="#667eea" stroke="#fff" stroke-width="2"/>
+                        <text x="190" y="135" text-anchor="middle" fill="#fff" font-size="10">Play</text>
+                        <rect x="130" y="155" width="120" height="25" rx="3" fill="#444"/>
+                        <text x="190" y="172" text-anchor="middle" fill="#aaa" font-size="9">Quit</text>
+                        
+                        <!-- Selection indicator -->
+                        <rect x="128" y="113" width="124" height="34" fill="none" stroke="#4CAF50" stroke-width="2" stroke-dasharray="4,2"/>
+                    </g>
+                    
+                    <!-- Right panel - Details -->
+                    <g transform="translate(580, 45)">
+                        <rect x="0" y="0" width="180" height="220" rx="3" fill="#2d2d2d" stroke="#555"/>
+                        <rect x="0" y="0" width="180" height="25" fill="#3d3d3d"/>
+                        <text x="90" y="17" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">Details</text>
+                        
+                        <text x="10" y="45" fill="#4CAF50" font-size="8">PlayButton (Button)</text>
+                        
+                        <text x="10" y="65" fill="#888" font-size="7">▼ Slot</text>
+                        <text x="20" y="80" fill="#aaa" font-size="6">Anchors: Center</text>
+                        <text x="20" y="92" fill="#aaa" font-size="6">Position: 0, 50</text>
+                        
+                        <text x="10" y="112" fill="#888" font-size="7">▼ Appearance</text>
+                        <text x="20" y="127" fill="#aaa" font-size="6">Style: Default</text>
+                        <text x="20" y="139" fill="#aaa" font-size="6">Color: #667eea</text>
+                        
+                        <text x="10" y="159" fill="#888" font-size="7">▼ Behavior</text>
+                        <text x="20" y="174" fill="#aaa" font-size="6">Is Enabled: ☑</text>
+                        <text x="20" y="186" fill="#aaa" font-size="6">Tool Tip Text:</text>
+                        
+                        <text x="10" y="206" fill="#888" font-size="7">▼ Events</text>
+                        <text x="20" y="218" fill="#4CAF50" font-size="6">On Clicked +</text>
+                    </g>
+                    
+                    <!-- Labels -->
+                    <text x="95" y="280" text-anchor="middle" fill="#4CAF50" font-size="8">Widget palette &</text>
+                    <text x="95" y="292" text-anchor="middle" fill="#4CAF50" font-size="8">hierarchy tree</text>
+                    <text x="375" y="280" text-anchor="middle" fill="#2196F3" font-size="8">Visual preview &</text>
+                    <text x="375" y="292" text-anchor="middle" fill="#2196F3" font-size="8">direct manipulation</text>
+                    <text x="670" y="280" text-anchor="middle" fill="#FF9800" font-size="8">Selected widget</text>
+                    <text x="670" y="292" text-anchor="middle" fill="#FF9800" font-size="8">properties</text>
+                </svg>
+                <p class="caption"><em>Figure: The UMG Designer interface with Palette, Canvas, and Details panels.</em></p>
+
+                <h3>Working with Anchors</h3>
+
+                <p><strong>Anchors</strong> determine how a widget positions itself relative to its parent, especially when the screen resizes. They're crucial for responsive UI.</p>
+
+                <p>Anchors are shown as a flower-like icon in the canvas. Each petal represents an anchor point:</p>
+
+                <ul>
+                    <li><strong>Top-Left:</strong> Widget stays fixed distance from top-left corner</li>
+                    <li><strong>Top-Center:</strong> Widget stays centered horizontally, fixed from top</li>
+                    <li><strong>Center:</strong> Widget stays centered both horizontally and vertically</li>
+                    <li><strong>Stretch:</strong> Widget stretches to fill the parent</li>
+                </ul>
+
+                <!-- SVG: Anchor Presets -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Common Anchor Presets</text>
+                    
+                    <!-- Top-Left -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="3" fill="#fff" stroke="#ddd"/>
+                        <rect x="5" y="5" width="40" height="25" rx="2" fill="#667eea"/>
+                        <circle cx="5" cy="5" r="4" fill="#4CAF50"/>
+                        <text x="60" y="115" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Top-Left</text>
+                        <text x="60" y="130" text-anchor="middle" fill="#666" font-size="7">HUD corners</text>
+                    </g>
+                    
+                    <!-- Center -->
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="3" fill="#fff" stroke="#ddd"/>
+                        <rect x="40" y="27" width="40" height="25" rx="2" fill="#667eea"/>
+                        <circle cx="60" cy="40" r="4" fill="#4CAF50"/>
+                        <text x="60" y="115" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Center</text>
+                        <text x="60" y="130" text-anchor="middle" fill="#666" font-size="7">Menus, popups</text>
+                    </g>
+                    
+                    <!-- Bottom-Center -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="3" fill="#fff" stroke="#ddd"/>
+                        <rect x="40" y="50" width="40" height="25" rx="2" fill="#667eea"/>
+                        <circle cx="60" cy="75" r="4" fill="#4CAF50"/>
+                        <text x="60" y="115" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Bottom-Center</text>
+                        <text x="60" y="130" text-anchor="middle" fill="#666" font-size="7">Action bars</text>
+                    </g>
+                    
+                    <!-- Stretch -->
+                    <g transform="translate(500, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="3" fill="#fff" stroke="#ddd"/>
+                        <rect x="5" y="5" width="110" height="70" rx="2" fill="#667eea" opacity="0.5"/>
+                        <circle cx="5" cy="5" r="3" fill="#4CAF50"/>
+                        <circle cx="115" cy="5" r="3" fill="#4CAF50"/>
+                        <circle cx="5" cy="75" r="3" fill="#4CAF50"/>
+                        <circle cx="115" cy="75" r="3" fill="#4CAF50"/>
+                        <text x="60" y="115" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Stretch</text>
+                        <text x="60" y="130" text-anchor="middle" fill="#666" font-size="7">Backgrounds</text>
+                    </g>
+                    
+                    <text x="350" y="170" text-anchor="middle" fill="#667eea" font-size="9">Green dots show anchor positions • Widget positions relative to anchors</text>
+                </svg>
+                <p class="caption"><em>Figure: Anchor presets determine how widgets respond to screen size changes.</em></p>
+
+                <h3>Designer Keyboard Shortcuts</h3>
+
+                <p>Speed up your workflow with these shortcuts:</p>
+
+                <ul>
+                    <li><strong>Ctrl+C / Ctrl+V:</strong> Copy and paste widgets</li>
+                    <li><strong>Delete:</strong> Remove selected widget</li>
+                    <li><strong>Ctrl+D:</strong> Duplicate widget</li>
+                    <li><strong>Arrow Keys:</strong> Nudge selected widget</li>
+                    <li><strong>Ctrl+Arrow:</strong> Larger nudge</li>
+                    <li><strong>F2:</strong> Rename selected widget</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Naming Convention</h4>
+                    <p>Name your widgets descriptively in the Hierarchy panel. Instead of "TextBlock_0", use "TitleText" or "HealthLabel". This makes your Blueprint graph much easier to work with later.</p>
+                </div>
+            </section>
+            <!-- Section 4: Displaying Widgets -->
+            <section id="displaying-widgets" class="lesson-section">
+                <h2>Displaying Widgets</h2>
+
+                <p>Creating a Widget Blueprint is just the first step—you also need to display it on screen. UMG provides several ways to show widgets, each suited to different use cases.</p>
+
+                <h3>Add to Viewport</h3>
+
+                <p>The most common way to display a widget is adding it to the <strong>Viewport</strong>—the 2D layer that overlays the game view. Viewport widgets are screen-space, meaning they stay fixed on screen regardless of camera movement.</p>
+
+                <p><strong>Basic Steps:</strong></p>
+                <ol>
+                    <li>Create an instance of the Widget Blueprint</li>
+                    <li>Add it to the viewport</li>
+                    <li>Optionally store a reference to manipulate it later</li>
+                </ol>
+
+                <p>In Blueprint, this looks like:</p>
+
+                <ol>
+                    <li><code>Create Widget</code> node — Select your Widget Blueprint class, specify owning player</li>
+                    <li><code>Add to Viewport</code> node — Displays the widget on screen</li>
+                    <li>Store the return value in a variable for later access</li>
+                </ol>
+
+                <!-- SVG: Add to Viewport Blueprint -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Adding Widget to Viewport</text>
+                    
+                    <!-- Event -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#c62828"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9">Event BeginPlay</text>
+                    </g>
+                    
+                    <path d="M 135 75 L 165 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Create Widget -->
+                    <g transform="translate(170, 50)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#1565C0"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Create Widget</text>
+                        <text x="65" y="35" text-anchor="middle" fill="#90CAF9" font-size="7">Class: WBP_HUD</text>
+                        <text x="65" y="47" text-anchor="middle" fill="#90CAF9" font-size="7">Owner: Self</text>
+                    </g>
+                    
+                    <path d="M 305 75 L 335 75" stroke="#fff" stroke-width="2"/>
+                    <path d="M 305 90 L 335 90" stroke="#2196F3" stroke-width="2"/>
+                    
+                    <!-- Add to Viewport -->
+                    <g transform="translate(340, 50)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Add to Viewport</text>
+                        <text x="65" y="35" text-anchor="middle" fill="#c8e6c9" font-size="7">Target: Widget</text>
+                        <text x="65" y="47" text-anchor="middle" fill="#c8e6c9" font-size="7">Z-Order: 0</text>
+                    </g>
+                    
+                    <path d="M 475 75 L 505 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Set Variable -->
+                    <g transform="translate(510, 55)">
+                        <rect x="0" y="0" width="130" height="40" rx="5" fill="#9C27B0"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Set HUD Reference</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#e1bee7" font-size="7">(Store for later)</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <g transform="translate(100, 120)">
+                        <rect x="0" y="0" width="500" height="40" rx="5" fill="rgba(102,126,234,0.15)" stroke="#667eea"/>
+                        <text x="250" y="17" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">Where to put this code?</text>
+                        <text x="250" y="32" text-anchor="middle" fill="#888" font-size="8">Player Controller BeginPlay (for HUD) | Level Blueprint (for level-specific UI) | Game Mode (for game-wide UI)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Creating and displaying a widget in Blueprint.</em></p>
+
+                <h3>Where to Create Widgets</h3>
+
+                <p>The location of your widget creation code matters:</p>
+
+                <p><strong>Player Controller:</strong> Best for HUD elements that persist throughout gameplay. The Player Controller exists as long as the player is in the game, making it ideal for health bars, ammo counters, and similar persistent UI.</p>
+
+                <p><strong>Character/Pawn:</strong> Can work but be careful—if the character respawns, the widget might be duplicated or lost. Better to use Player Controller.</p>
+
+                <p><strong>Level Blueprint:</strong> Good for level-specific UI like tutorials or cutscene elements that only appear in certain levels.</p>
+
+                <p><strong>Game Mode:</strong> Good for game-wide UI managers, though Game Mode only exists on the server in multiplayer.</p>
+
+                <p><strong>Widget itself:</strong> Widgets can create other widgets. A main menu might create a settings submenu when a button is clicked.</p>
+
+                <h3>Z-Order (Layer Order)</h3>
+
+                <p>When multiple widgets are on screen, <strong>Z-Order</strong> determines which appears on top. Higher Z-Order values render on top of lower ones.</p>
+
+                <p>The <code>Add to Viewport</code> node has an optional Z-Order input. Common conventions:</p>
+
+                <ul>
+                    <li><strong>0-10:</strong> Background UI, world markers</li>
+                    <li><strong>10-50:</strong> Normal HUD elements</li>
+                    <li><strong>50-100:</strong> Menus, overlays</li>
+                    <li><strong>100+:</strong> Popups, tooltips, critical alerts</li>
+                </ul>
+
+                <h3>Removing Widgets</h3>
+
+                <p>To hide or remove a widget:</p>
+
+                <p><strong>Remove from Parent:</strong> Completely removes the widget from the viewport. The widget instance still exists if you have a reference, but it's not visible. Call <code>Add to Viewport</code> again to show it.</p>
+
+                <p><strong>Set Visibility:</strong> Hides the widget without removing it. Options include Visible, Hidden (invisible but takes up space), Collapsed (invisible and takes no space), and Hit Test Invisible (visible but doesn't receive input).</p>
+
+                <!-- SVG: Visibility States -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Widget Visibility States</text>
+                    
+                    <!-- Visible -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="5" fill="#fff" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="20" y="15" width="90" height="30" rx="3" fill="#4CAF50"/>
+                        <text x="65" y="35" text-anchor="middle" fill="#fff" font-size="9">Button</text>
+                        <text x="65" y="90" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Visible</text>
+                        <text x="65" y="105" text-anchor="middle" fill="#666" font-size="7">Shows, receives input</text>
+                    </g>
+                    
+                    <!-- Hidden -->
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="5" fill="#fff" stroke="#FF9800" stroke-width="2" stroke-dasharray="5,3"/>
+                        <rect x="20" y="15" width="90" height="30" rx="3" fill="none" stroke="#FF9800" stroke-dasharray="3,2"/>
+                        <text x="65" y="35" text-anchor="middle" fill="#FF9800" font-size="9" opacity="0.5">Button</text>
+                        <text x="65" y="90" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">Hidden</text>
+                        <text x="65" y="105" text-anchor="middle" fill="#666" font-size="7">Invisible, keeps space</text>
+                    </g>
+                    
+                    <!-- Collapsed -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="5" fill="#fff" stroke="#f44336" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="65" y="45" text-anchor="middle" fill="#f44336" font-size="20">∅</text>
+                        <text x="65" y="90" text-anchor="middle" fill="#f44336" font-size="9" font-weight="bold">Collapsed</text>
+                        <text x="65" y="105" text-anchor="middle" fill="#666" font-size="7">Invisible, no space</text>
+                    </g>
+                    
+                    <!-- Hit Test Invisible -->
+                    <g transform="translate(500, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="5" fill="#fff" stroke="#9C27B0" stroke-width="2"/>
+                        <rect x="20" y="15" width="90" height="30" rx="3" fill="#9C27B0" opacity="0.6"/>
+                        <text x="65" y="35" text-anchor="middle" fill="#fff" font-size="9">Button</text>
+                        <text x="65" y="55" text-anchor="middle" fill="#9C27B0" font-size="7">🚫 clicks</text>
+                        <text x="65" y="90" text-anchor="middle" fill="#9C27B0" font-size="9" font-weight="bold">Hit Test Invisible</text>
+                        <text x="65" y="105" text-anchor="middle" fill="#666" font-size="7">Shows, no input</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different visibility states affect rendering and input differently.</em></p>
+
+                <h3>Widget Components (3D World UI)</h3>
+
+                <p>Sometimes you want UI attached to objects in the 3D world—health bars above enemies, name tags over players, or interaction prompts near objects. <strong>Widget Components</strong> make this possible.</p>
+
+                <p>A Widget Component is an Actor Component that renders a Widget Blueprint in 3D space. To use one:</p>
+
+                <ol>
+                    <li>Add a <strong>Widget</strong> component to your Actor</li>
+                    <li>In Details, set the <strong>Widget Class</strong> to your Widget Blueprint</li>
+                    <li>Configure <strong>Draw Size</strong> (world units)</li>
+                    <li>Set <strong>Space</strong> to World (3D positioned) or Screen (always faces camera)</li>
+                </ol>
+
+                <p><strong>World Space:</strong> The widget exists in 3D space. It can be occluded by objects, scales with distance, and has a fixed orientation unless you update it.</p>
+
+                <p><strong>Screen Space:</strong> The widget always faces the camera (billboarding). Good for name tags and health bars that should always be readable.</p>
+
+                <!-- SVG: Widget Component -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Widget Component: In-World UI</text>
+                    
+                    <!-- World example -->
+                    <g transform="translate(80, 50)">
+                        <text x="100" y="15" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">World Space</text>
+                        
+                        <!-- Enemy -->
+                        <rect x="70" y="60" width="60" height="80" rx="5" fill="#f44336"/>
+                        <text x="100" y="105" text-anchor="middle" fill="#fff" font-size="9">Enemy</text>
+                        
+                        <!-- Health bar in world (angled) -->
+                        <g transform="translate(60, 35) rotate(-15)">
+                            <rect x="0" y="0" width="80" height="12" rx="2" fill="#333"/>
+                            <rect x="1" y="1" width="50" height="10" rx="1" fill="#f44336"/>
+                        </g>
+                        
+                        <text x="100" y="160" text-anchor="middle" fill="#888" font-size="7">Widget has 3D position/rotation</text>
+                    </g>
+                    
+                    <!-- Screen example -->
+                    <g transform="translate(420, 50)">
+                        <text x="100" y="15" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">Screen Space</text>
+                        
+                        <!-- Player -->
+                        <rect x="70" y="60" width="60" height="80" rx="5" fill="#2196F3"/>
+                        <text x="100" y="105" text-anchor="middle" fill="#fff" font-size="9">Player</text>
+                        
+                        <!-- Name tag (always facing camera) -->
+                        <rect x="55" y="30" width="90" height="22" rx="3" fill="rgba(0,0,0,0.8)"/>
+                        <text x="100" y="45" text-anchor="middle" fill="#fff" font-size="9">PlayerName</text>
+                        
+                        <text x="100" y="160" text-anchor="middle" fill="#888" font-size="7">Widget always faces camera</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <text x="350" y="185" text-anchor="middle" fill="#667eea" font-size="8">Widget Components let you attach UI directly to actors in the world</text>
+                </svg>
+                <p class="caption"><em>Figure: World Space vs Screen Space widget components.</em></p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Widget Component Performance</h4>
+                    <p>Widget Components are more expensive than viewport widgets. Each one requires a render target. For many in-world UI elements (like damage numbers or lots of enemy health bars), consider using a single viewport widget that calculates screen positions instead.</p>
+                </div>
+
+                <h3>Input Mode</h3>
+
+                <p>When showing menus, you often need to change how input is handled—should clicks go to the UI or the game?</p>
+
+                <p><strong>Set Input Mode Game Only:</strong> Input goes to the game (movement, shooting). Mouse cursor hidden. Use for gameplay.</p>
+
+                <p><strong>Set Input Mode UI Only:</strong> Input goes only to UI widgets. Mouse cursor shown. Use for full-screen menus.</p>
+
+                <p><strong>Set Input Mode Game and UI:</strong> Input can go to both. Mouse cursor can be shown or hidden. Use for HUD elements that need clicks while playing.</p>
+
+                <p>These are called on the <strong>Player Controller</strong>:</p>
+
+                <pre><code>// In Player Controller Blueprint
+Set Input Mode UI Only
+Set Show Mouse Cursor = True</code></pre>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Input Mode Checklist</h4>
+                    <p>When opening a menu:</p>
+                    <ul>
+                        <li>Set Input Mode UI Only (or Game and UI)</li>
+                        <li>Set Show Mouse Cursor = True</li>
+                        <li>Optionally pause the game (Set Game Paused)</li>
+                    </ul>
+                    <p>When closing a menu:</p>
+                    <ul>
+                        <li>Set Input Mode Game Only</li>
+                        <li>Set Show Mouse Cursor = False</li>
+                        <li>Unpause if paused</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Create Your First Widget</h2>
+
+                <p>Let's create a simple HUD widget that displays the player's health. This exercise covers widget creation, adding elements, and displaying the widget through the Player Controller.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a HUD widget showing: a health label, a health bar, and a health percentage. Display it when the game starts. This covers the complete widget workflow from creation to display.</p>
+                </div>
+
+                <h3>Step 1: Create the Widget Blueprint</h3>
+
+                <ol>
+                    <li>In Content Browser, right-click → <strong>User Interface → Widget Blueprint</strong></li>
+                    <li>Name it <code>WBP_PlayerHUD</code></li>
+                    <li>Double-click to open the Widget Editor</li>
+                </ol>
+
+                <h3>Step 2: Set Up the Root Panel</h3>
+
+                <ol>
+                    <li>In the Palette panel, find <strong>Canvas Panel</strong></li>
+                    <li>Drag it into the Hierarchy or onto the canvas</li>
+                    <li>This becomes your root widget—all other widgets go inside it</li>
+                </ol>
+
+                <h3>Step 3: Add a Health Bar Container</h3>
+
+                <p>We'll use a Vertical Box to stack our health elements:</p>
+
+                <ol>
+                    <li>From Palette, drag <strong>Vertical Box</strong> into the Canvas Panel</li>
+                    <li>With the Vertical Box selected, in the Details panel:
+                        <ul>
+                            <li>Set <strong>Anchors</strong> to Top-Left (click the anchor preset in Slot section)</li>
+                            <li>Set <strong>Position X:</strong> 50</li>
+                            <li>Set <strong>Position Y:</strong> 50</li>
+                            <li>Set <strong>Size X:</strong> 200</li>
+                            <li>Set <strong>Size Y:</strong> 60</li>
+                        </ul>
+                    </li>
+                    <li>Rename it to <code>HealthContainer</code> in the Hierarchy (F2 or right-click → Rename)</li>
+                </ol>
+
+                <h3>Step 4: Add the Health Label</h3>
+
+                <ol>
+                    <li>Drag a <strong>Text</strong> widget into the HealthContainer (Vertical Box)</li>
+                    <li>In Details:
+                        <ul>
+                            <li>Set <strong>Text:</strong> "HEALTH"</li>
+                            <li>Under Appearance, set <strong>Font Size:</strong> 16</li>
+                            <li>Set <strong>Color:</strong> White</li>
+                        </ul>
+                    </li>
+                    <li>Rename to <code>HealthLabel</code></li>
+                </ol>
+
+                <h3>Step 5: Add the Progress Bar</h3>
+
+                <ol>
+                    <li>Drag a <strong>Progress Bar</strong> into the HealthContainer (below the text)</li>
+                    <li>In Details:
+                        <ul>
+                            <li>Set <strong>Percent:</strong> 0.75 (for preview—we'll bind this later)</li>
+                            <li>Under Appearance → Style → Fill Color and Opacity: Set to Red</li>
+                            <li>Under Slot → Size: Check "Fill" and set Fill to 1.0</li>
+                        </ul>
+                    </li>
+                    <li>Rename to <code>HealthBar</code></li>
+                </ol>
+
+                <h3>Step 6: Add Health Percentage Text</h3>
+
+                <ol>
+                    <li>Drag another <strong>Text</strong> widget into the HealthContainer</li>
+                    <li>In Details:
+                        <ul>
+                            <li>Set <strong>Text:</strong> "75%" (placeholder)</li>
+                            <li>Set <strong>Font Size:</strong> 14</li>
+                            <li>Set <strong>Justification:</strong> Right</li>
+                        </ul>
+                    </li>
+                    <li>Rename to <code>HealthPercent</code></li>
+                </ol>
+
+                <!-- SVG: Widget Hierarchy -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">WBP_PlayerHUD Structure</text>
+                    
+                    <!-- Hierarchy panel -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="130" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Hierarchy</text>
+                        
+                        <text x="15" y="50" fill="#4CAF50" font-size="9">📦 Canvas Panel [Root]</text>
+                        <text x="30" y="70" fill="#2196F3" font-size="9">└─ 📐 HealthContainer</text>
+                        <text x="50" y="90" fill="#aaa" font-size="8">├─ 📝 HealthLabel</text>
+                        <text x="50" y="107" fill="#aaa" font-size="8">├─ 📊 HealthBar</text>
+                        <text x="50" y="124" fill="#aaa" font-size="8">└─ 📝 HealthPercent</text>
+                    </g>
+                    
+                    <!-- Preview -->
+                    <g transform="translate(300, 50)">
+                        <rect x="0" y="0" width="350" height="130" rx="5" fill="#1a1a1a" stroke="#555"/>
+                        <text x="175" y="22" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Preview (Top-Left Corner)</text>
+                        
+                        <!-- Game view mockup -->
+                        <rect x="10" y="35" width="330" height="85" fill="#252525"/>
+                        
+                        <!-- Health widget -->
+                        <g transform="translate(25, 45)">
+                            <text x="0" y="12" fill="#fff" font-size="10" font-weight="bold">HEALTH</text>
+                            <rect x="0" y="18" width="150" height="20" rx="3" fill="#444"/>
+                            <rect x="0" y="18" width="112" height="20" rx="3" fill="#f44336"/>
+                            <text x="150" y="50" text-anchor="end" fill="#aaa" font-size="9">75%</text>
+                        </g>
+                        
+                        <!-- Anchor indicator -->
+                        <circle cx="20" cy="40" r="5" fill="#4CAF50"/>
+                        <text x="30" y="43" fill="#4CAF50" font-size="6">Anchor</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Widget hierarchy and preview of the health HUD.</em></p>
+
+                <h3>Step 7: Compile and Save</h3>
+
+                <ol>
+                    <li>Click <strong>Compile</strong> in the toolbar</li>
+                    <li>Click <strong>Save</strong></li>
+                </ol>
+
+                <h3>Step 8: Display from Player Controller</h3>
+
+                <p>Now we need to display the widget. Open your Player Controller Blueprint (or create one if you don't have it):</p>
+
+                <ol>
+                    <li>Open your Player Controller Blueprint</li>
+                    <li>In Event Graph, find or add <strong>Event BeginPlay</strong></li>
+                    <li>Drag from the execution pin and add <code>Create Widget</code></li>
+                    <li>In the Create Widget node:
+                        <ul>
+                            <li>Set <strong>Class</strong> to <code>WBP_PlayerHUD</code></li>
+                            <li>Set <strong>Owning Player</strong> to Self</li>
+                        </ul>
+                    </li>
+                    <li>From the Return Value pin, drag and add <code>Add to Viewport</code></li>
+                    <li>Optionally, promote the Return Value to a variable named <code>HUDWidget</code></li>
+                </ol>
+
+                <h3>Step 9: Test</h3>
+
+                <ol>
+                    <li>Make sure your Game Mode uses your Player Controller (Project Settings → Maps & Modes, or set in World Settings)</li>
+                    <li>Press <strong>Play</strong></li>
+                    <li>You should see your health HUD in the top-left corner!</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've created your first UMG widget and displayed it in-game! You've learned:</p>
+                    <ul>
+                        <li>Creating Widget Blueprints</li>
+                        <li>Using panels (Canvas Panel, Vertical Box) for layout</li>
+                        <li>Adding common widgets (Text, Progress Bar)</li>
+                        <li>Setting anchors for screen positioning</li>
+                        <li>Displaying widgets via Player Controller</li>
+                    </ul>
+                    <p>In the next lesson, you'll learn how to bind the health bar to actual player data so it updates dynamically!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Widget doesn't appear:</strong></p>
+                    <ul>
+                        <li>Make sure your Player Controller is being used (check Game Mode)</li>
+                        <li>Verify the Create Widget class is set correctly</li>
+                        <li>Check that Add to Viewport is connected</li>
+                    </ul>
+                    
+                    <p><strong>Widget appears but is empty:</strong></p>
+                    <ul>
+                        <li>You need a root panel (Canvas Panel) to hold other widgets</li>
+                        <li>Make sure widgets are children of the Canvas Panel, not siblings</li>
+                    </ul>
+                    
+                    <p><strong>Widget is in wrong position:</strong></p>
+                    <ul>
+                        <li>Check anchor settings—Top-Left anchor keeps it in the corner</li>
+                        <li>Verify Position X/Y values in the Details panel</li>
+                    </ul>
+                    
+                    <p><strong>Can't see progress bar fill:</strong></p>
+                    <ul>
+                        <li>Set Percent to a value greater than 0 (e.g., 0.75)</li>
+                        <li>Make sure Fill Color has visible alpha (not transparent)</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Add Ammo Counter:</strong> Create a second Vertical Box in the top-right corner with ammo text</li>
+                    <li><strong>Style the Health Bar:</strong> Add a border image behind the progress bar for a nicer look</li>
+                    <li><strong>Add Player Name:</strong> Display a player name text at the top center of the screen</li>
+                    <li><strong>Multiple Anchors:</strong> Try anchoring different elements to different screen corners</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've been introduced to Unreal Motion Graphics (UMG)—Unreal Engine's powerful system for creating user interfaces. From understanding what UMG can create to building and displaying your first widget, you now have the foundation for all game UI development.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>UMG Overview:</strong> UMG creates all types of game UI—HUD elements, menus, in-world UI, and notifications. It's built on the Slate framework but provides a designer-friendly, Blueprint-compatible interface.</p>
+
+                <p><strong>Widget Blueprints:</strong> The fundamental building blocks of UMG. Each Widget Blueprint has a Designer view for visual layout and a Graph view for logic. Widgets combine panels (layout containers) with common widgets (buttons, text, images).</p>
+
+                <p><strong>Widget Types:</strong> Panels like Canvas Panel, Vertical Box, and Horizontal Box organize layout. Common widgets like Text, Button, Image, and Progress Bar provide content. Widgets form parent-child hierarchies.</p>
+
+                <p><strong>The UMG Designer:</strong> Visual editor with Palette (widget types), Hierarchy (widget tree), Canvas (preview), and Details (properties). Anchors control how widgets respond to different screen sizes.</p>
+
+                <p><strong>Displaying Widgets:</strong> Use Create Widget to instantiate, Add to Viewport to display. Player Controller is the best location for persistent HUD. Z-Order controls layering. Visibility states control showing/hiding.</p>
+
+                <p><strong>Widget Components:</strong> For in-world UI attached to actors. World Space widgets exist in 3D; Screen Space widgets always face the camera. More expensive than viewport widgets.</p>
+
+                <p><strong>Input Mode:</strong> Controls whether input goes to game, UI, or both. Set appropriately when opening/closing menus.</p>
+
+                <h3>UMG Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Task</th>
+                            <th style="padding: 10px; text-align: left;">Method</th>
+                            <th style="padding: 10px; text-align: left;">Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Create UI layout</td>
+                            <td style="padding: 10px;">Widget Blueprint Designer</td>
+                            <td style="padding: 10px;">Content Browser → Widget BP</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Add UI logic</td>
+                            <td style="padding: 10px;">Widget Blueprint Graph</td>
+                            <td style="padding: 10px;">Graph tab in Widget Editor</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Show HUD</td>
+                            <td style="padding: 10px;">Create Widget + Add to Viewport</td>
+                            <td style="padding: 10px;">Player Controller BeginPlay</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Show menu</td>
+                            <td style="padding: 10px;">Create Widget + Add to Viewport + Set Input Mode UI</td>
+                            <td style="padding: 10px;">Player Controller or Widget</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Hide widget</td>
+                            <td style="padding: 10px;">Remove from Parent or Set Visibility</td>
+                            <td style="padding: 10px;">Any Blueprint with reference</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">In-world UI</td>
+                            <td style="padding: 10px;">Widget Component on Actor</td>
+                            <td style="padding: 10px;">Actor Components panel</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Common Panel Widgets</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Panel</th>
+                            <th style="padding: 10px; text-align: left;">Use Case</th>
+                            <th style="padding: 10px; text-align: left;">Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Canvas Panel</td>
+                            <td style="padding: 10px;">Free positioning with anchors</td>
+                            <td style="padding: 10px;">HUD root, complex layouts</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Vertical Box</td>
+                            <td style="padding: 10px;">Stack items top to bottom</td>
+                            <td style="padding: 10px;">Menu options, stat lists</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Horizontal Box</td>
+                            <td style="padding: 10px;">Stack items left to right</td>
+                            <td style="padding: 10px;">Toolbars, button rows</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Grid Panel</td>
+                            <td style="padding: 10px;">Arrange in rows and columns</td>
+                            <td style="padding: 10px;">Inventory slots, keyboards</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Overlay</td>
+                            <td style="padding: 10px;">Stack widgets on top of each other</td>
+                            <td style="padding: 10px;">Icons with badges, layered elements</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Start with Canvas Panel:</strong> Use it as your root widget for maximum flexibility</li>
+                    <li><strong>Name your widgets:</strong> Rename from defaults like "TextBlock_0" to meaningful names like "HealthLabel"</li>
+                    <li><strong>Use anchors:</strong> Set appropriate anchors so UI scales and positions correctly on different screens</li>
+                    <li><strong>Store widget references:</strong> Keep references to widgets you need to update or remove later</li>
+                    <li><strong>Create widgets in Player Controller:</strong> For persistent HUD that survives level changes</li>
+                    <li><strong>Manage input mode:</strong> Always set input mode appropriately when showing/hiding menus</li>
+                    <li><strong>Use visibility over remove:</strong> For frequently toggled UI, Set Visibility is more efficient than removing and recreating</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">UMG Workflow Overview</text>
+                    
+                    <!-- Step 1: Create -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">1. Create</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#666" font-size="8">Widget Blueprint</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#888" font-size="7">Content Browser</text>
+                    </g>
+                    
+                    <path d="M 195 90 L 235 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumUmgArrow)"/>
+                    
+                    <!-- Step 2: Design -->
+                    <g transform="translate(240, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">2. Design</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#666" font-size="8">Add panels + widgets</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#888" font-size="7">Designer View</text>
+                    </g>
+                    
+                    <path d="M 385 90 L 425 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumUmgArrow)"/>
+                    
+                    <!-- Step 3: Logic -->
+                    <g transform="translate(430, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">3. Add Logic</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#666" font-size="8">Events + bindings</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#888" font-size="7">Graph View</text>
+                    </g>
+                    
+                    <path d="M 575 90 L 615 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumUmgArrow)"/>
+                    
+                    <!-- Step 4: Display -->
+                    <g transform="translate(620, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#f3e5f5" stroke="#9C27B0"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#7B1FA2" font-size="10" font-weight="bold">4. Display</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#666" font-size="8">Add to Viewport</text>
+                        <text x="70" y="60" text-anchor="middle" fill="#888" font-size="7">Player Controller</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(250, 145)">
+                        <rect x="0" y="0" width="300" height="40" rx="5" fill="#667eea"/>
+                        <text x="150" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">🎮 UI Displayed In-Game!</text>
+                    </g>
+                    
+                    <path d="M 690 130 Q 690 165 555 165" stroke="#667eea" stroke-width="2" marker-end="url(#sumUmgArrow)"/>
+                    
+                    <defs>
+                        <marker id="sumUmgArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The complete UMG workflow from creation to display.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you understand the basics of UMG and can create simple widgets, the next lesson dives deeper into <strong>Creating Widgets</strong>. You'll learn about more widget types, styling options, and how to create reusable widget components. We'll also cover binding—connecting your UI to game data so health bars actually reflect player health!</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What does UMG stand for?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Unreal Material Graphics</label>
+                            <label><input type="radio" name="q1" value="b"> Unreal Motion Graphics</label>
+                            <label><input type="radio" name="q1" value="c"> Universal Menu Generator</label>
+                            <label><input type="radio" name="q1" value="d"> Unreal Mesh Graphics</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — UMG stands for Unreal Motion Graphics. It's Unreal Engine's built-in UI framework for creating all types of user interfaces, from HUD elements to full menus.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What are the two main views in a Widget Blueprint?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Scene and Components</label>
+                            <label><input type="radio" name="q2" value="b"> Designer and Graph</label>
+                            <label><input type="radio" name="q2" value="c"> Canvas and Properties</label>
+                            <label><input type="radio" name="q2" value="d"> Layout and Animation</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Widget Blueprints have a Designer view for visual layout (arranging widgets, setting properties) and a Graph view for logic (responding to events, updating data). You switch between them using tabs.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>Which panel widget would you use to stack menu buttons vertically?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Canvas Panel</label>
+                            <label><input type="radio" name="q3" value="b"> Horizontal Box</label>
+                            <label><input type="radio" name="q3" value="c"> Vertical Box</label>
+                            <label><input type="radio" name="q3" value="d"> Grid Panel</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Vertical Box stacks child widgets from top to bottom, making it perfect for menu options, lists, and any vertically arranged content. Horizontal Box does the same but left to right.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What do anchors control in UMG?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> The color of widgets</label>
+                            <label><input type="radio" name="q4" value="b"> How widgets position relative to their parent when the screen resizes</label>
+                            <label><input type="radio" name="q4" value="c"> The order widgets are rendered</label>
+                            <label><input type="radio" name="q4" value="d"> Whether widgets receive input</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Anchors determine how a widget positions itself relative to its parent, especially when the screen size changes. A top-left anchor keeps the widget fixed distance from the top-left corner; a center anchor keeps it centered.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What is the recommended location to create and display a persistent HUD widget?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Level Blueprint</label>
+                            <label><input type="radio" name="q5" value="b"> Character Blueprint</label>
+                            <label><input type="radio" name="q5" value="c"> Player Controller</label>
+                            <label><input type="radio" name="q5" value="d"> Game Instance</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — The Player Controller is the best location for persistent HUD elements. It exists as long as the player is in the game and survives character respawns, making it ideal for health bars, ammo counters, and similar persistent UI.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What should you do when opening a full-screen menu that requires mouse interaction?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Just add the widget to viewport</label>
+                            <label><input type="radio" name="q6" value="b"> Set Input Mode to UI Only and show mouse cursor</label>
+                            <label><input type="radio" name="q6" value="c"> Remove all other widgets first</label>
+                            <label><input type="radio" name="q6" value="d"> Create a Widget Component</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — When opening a menu, you should Set Input Mode UI Only (so clicks go to the UI, not the game) and Set Show Mouse Cursor to True. When closing the menu, reverse these settings to return to gameplay.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>What is the difference between "Hidden" and "Collapsed" visibility states?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> There is no difference</label>
+                            <label><input type="radio" name="q7" value="b"> Hidden still takes up layout space; Collapsed does not</label>
+                            <label><input type="radio" name="q7" value="c"> Collapsed still receives input; Hidden does not</label>
+                            <label><input type="radio" name="q7" value="d"> Hidden removes the widget; Collapsed just hides it</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Hidden makes the widget invisible but it still occupies space in the layout (other widgets position as if it's there). Collapsed makes the widget invisible AND removes it from the layout (other widgets fill in the space).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m06_l05_interactable_objects.html" class="btn">← Previous: Interactable Objects</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m07_l02_creating_widgets.html" class="btn">Next: Creating Widgets →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

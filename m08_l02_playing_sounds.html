@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn to play sounds in Unreal Engine 5. Master Play Sound 2D, Play Sound at Location, and Audio Components for triggering audio from Blueprints.">
+    <meta name="author" content="Practical Ace">
+    <title>Playing Sounds - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 8: Audio Basics</a></li>
+            <li aria-current="page">Lesson 8.2: Playing Sounds</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎵 Playing Sounds</h1>
+                <p class="lead">Now that you understand audio assets, it's time to make some noise! This lesson teaches you how to trigger sounds from Blueprints—whether it's a UI click, a gunshot at a specific location, or an ambient sound attached to an actor. You'll learn the right tool for each situation.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Use Play Sound 2D for UI and non-positional audio</li>
+                        <li>Use Play Sound at Location for 3D positioned sounds</li>
+                        <li>Add Audio Components to actors for persistent sounds</li>
+                        <li>Control audio playback from Blueprints</li>
+                        <li>Choose the right playback method for each use case</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 30-40 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 8.1 (Sound in Unreal)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#play-sound-2d" class="toc-link">Play Sound 2D</a></li>
+                        <li><a href="#play-sound-location" class="toc-link">Play Sound at Location</a></li>
+                        <li><a href="#audio-components" class="toc-link">Audio Components</a></li>
+                        <li><a href="#choosing-method" class="toc-link">Choosing the Right Method</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Play Sound 2D -->
+            <section id="play-sound-2d" class="lesson-section">
+                <h2>Play Sound 2D</h2>
+
+                <p>Play Sound 2D is the simplest way to play audio. It plays a sound without any 3D positioning—the audio comes through at full volume regardless of where anything is in the world. Perfect for sounds that exist "outside" the game space.</p>
+
+                <h3>When to Use Play Sound 2D</h3>
+
+                <ul>
+                    <li><strong>UI sounds:</strong> Button clicks, menu navigation, notifications</li>
+                    <li><strong>Music:</strong> Background music, victory/defeat stingers</li>
+                    <li><strong>Voice-over:</strong> Narrator, tutorial instructions</li>
+                    <li><strong>System sounds:</strong> Achievement unlocked, save complete</li>
+                    <li><strong>Non-diegetic audio:</strong> Sounds the player hears but characters don't</li>
+                </ul>
+
+                <h3>Using Play Sound 2D in Blueprints</h3>
+
+                <p>The node is straightforward:</p>
+
+                <ol>
+                    <li>In any Blueprint, right-click and search for <strong>Play Sound 2D</strong></li>
+                    <li>Connect the execution pin to your trigger event</li>
+                    <li>Set the <strong>Sound</strong> input to your Sound Wave, Sound Cue, or MetaSound</li>
+                    <li>Optionally adjust <strong>Volume Multiplier</strong> and <strong>Pitch Multiplier</strong></li>
+                </ol>
+
+                <h3>Node Parameters</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Type</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sound</td>
+                            <td style="padding: 10px;">USoundBase</td>
+                            <td style="padding: 10px;">The sound to play (Wave, Cue, or MetaSound)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Volume Multiplier</td>
+                            <td style="padding: 10px;">Float</td>
+                            <td style="padding: 10px;">Scales the sound's volume (default 1.0)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Pitch Multiplier</td>
+                            <td style="padding: 10px;">Float</td>
+                            <td style="padding: 10px;">Scales the pitch/speed (default 1.0)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Start Time</td>
+                            <td style="padding: 10px;">Float</td>
+                            <td style="padding: 10px;">Time offset to start playback (seconds)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Concurrency Settings</td>
+                            <td style="padding: 10px;">Object</td>
+                            <td style="padding: 10px;">Override concurrency behavior (advanced)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Play Sound 2D Node -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Play Sound 2D Blueprint Node</text>
+                    
+                    <!-- Trigger event -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#c62828"/>
+                        <text x="70" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">On Button Clicked</text>
+                        <text x="70" y="38" text-anchor="middle" fill="#ffcdd2" font-size="8">(UI Event)</text>
+                        <circle cx="140" cy="25" r="6" fill="#fff"/>
+                    </g>
+                    
+                    <!-- Connection -->
+                    <path d="M 196 85 L 250 85" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Play Sound 2D node -->
+                    <g transform="translate(250, 50)">
+                        <rect x="0" y="0" width="180" height="80" rx="5" fill="#1565C0"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Play Sound 2D</text>
+                        
+                        <!-- Input pins -->
+                        <circle cx="0" cy="35" r="5" fill="#fff"/>
+                        <text x="15" y="38" fill="#90CAF9" font-size="8">Exec</text>
+                        
+                        <circle cx="0" cy="55" r="5" fill="#4CAF50"/>
+                        <text x="15" y="58" fill="#90CAF9" font-size="8">Sound: SW_UI_Click</text>
+                        
+                        <text x="15" y="73" fill="#90CAF9" font-size="7">Volume: 1.0  Pitch: 1.0</text>
+                        
+                        <!-- Output pin -->
+                        <circle cx="180" cy="35" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <!-- Result note -->
+                    <g transform="translate(480, 70)">
+                        <rect x="0" y="0" width="160" height="40" rx="5" fill="rgba(76,175,80,0.2)" stroke="#4CAF50"/>
+                        <text x="80" y="17" text-anchor="middle" fill="#4CAF50" font-size="8" font-weight="bold">Result</text>
+                        <text x="80" y="32" text-anchor="middle" fill="#4CAF50" font-size="7">Sound plays immediately</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <text x="350" y="160" text-anchor="middle" fill="#888" font-size="9">2D audio: Same volume everywhere, no spatialization</text>
+                </svg>
+                <p class="caption"><em>Figure: Play Sound 2D triggered by a button click event.</em></p>
+
+                <h3>Example: UI Button Click Sound</h3>
+
+                <p>In a Widget Blueprint:</p>
+
+                <ol>
+                    <li>Select your Button widget</li>
+                    <li>In Details, scroll to Events → click <strong>+</strong> next to On Clicked</li>
+                    <li>In the Event Graph, drag from the On Clicked event</li>
+                    <li>Add <strong>Play Sound 2D</strong> node</li>
+                    <li>Set Sound to your UI click sound</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Fire and Forget</h4>
+                    <p>Play Sound 2D is "fire and forget"—you trigger it and it plays to completion. You don't get a reference to control it later. If you need to stop, pause, or modify a playing sound, use an Audio Component instead.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Play Sound at Location -->
+            <section id="play-sound-location" class="lesson-section">
+                <h2>Play Sound at Location</h2>
+
+                <p>Play Sound at Location spawns a 3D sound at a specific world position. The sound is spatialized—volume and panning change based on the listener's position relative to where the sound was spawned. This is ideal for one-shot effects in the game world.</p>
+
+                <h3>When to Use Play Sound at Location</h3>
+
+                <ul>
+                    <li><strong>Explosions:</strong> Sound at the explosion point</li>
+                    <li><strong>Gunshots:</strong> Sound at the weapon's muzzle</li>
+                    <li><strong>Footsteps:</strong> Sound at the character's feet</li>
+                    <li><strong>Impacts:</strong> Bullet hits, object collisions</li>
+                    <li><strong>Pickups:</strong> Item collection sounds</li>
+                    <li><strong>One-shot environmental:</strong> Door slam, switch flip</li>
+                </ul>
+
+                <h3>Using Play Sound at Location</h3>
+
+                <ol>
+                    <li>Right-click in Blueprint and search for <strong>Play Sound at Location</strong></li>
+                    <li>Connect the execution pin to your trigger</li>
+                    <li>Set the <strong>Sound</strong> input</li>
+                    <li>Provide a <strong>Location</strong> vector (world space position)</li>
+                    <li>Optionally set <strong>Rotation</strong> for directional sounds</li>
+                </ol>
+
+                <h3>Node Parameters</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Type</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sound</td>
+                            <td style="padding: 10px;">USoundBase</td>
+                            <td style="padding: 10px;">The sound to play</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Location</td>
+                            <td style="padding: 10px;">Vector</td>
+                            <td style="padding: 10px;">World position to spawn the sound</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Rotation</td>
+                            <td style="padding: 10px;">Rotator</td>
+                            <td style="padding: 10px;">Orientation (for directional sounds)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Volume Multiplier</td>
+                            <td style="padding: 10px;">Float</td>
+                            <td style="padding: 10px;">Scales volume (default 1.0)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Pitch Multiplier</td>
+                            <td style="padding: 10px;">Float</td>
+                            <td style="padding: 10px;">Scales pitch (default 1.0)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Start Time</td>
+                            <td style="padding: 10px;">Float</td>
+                            <td style="padding: 10px;">Offset into the sound</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Attenuation Settings</td>
+                            <td style="padding: 10px;">Object</td>
+                            <td style="padding: 10px;">Override attenuation (or use sound's default)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Play Sound at Location -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Play Sound at Location Example</text>
+                    
+                    <!-- Get Actor Location -->
+                    <g transform="translate(30, 60)">
+                        <rect x="0" y="0" width="140" height="45" rx="5" fill="#4CAF50"/>
+                        <text x="70" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Get Actor Location</text>
+                        <text x="70" y="35" text-anchor="middle" fill="#c8e6c9" font-size="7">(Self)</text>
+                        <circle cx="140" cy="22" r="5" fill="#FFD700"/>
+                    </g>
+                    
+                    <!-- Play Sound at Location node -->
+                    <g transform="translate(220, 50)">
+                        <rect x="0" y="0" width="220" height="110" rx="5" fill="#1565C0"/>
+                        <text x="110" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Play Sound at Location</text>
+                        
+                        <!-- Input pins -->
+                        <circle cx="0" cy="40" r="5" fill="#fff"/>
+                        <text x="15" y="43" fill="#90CAF9" font-size="8">Exec</text>
+                        
+                        <circle cx="0" cy="58" r="5" fill="#4CAF50"/>
+                        <text x="15" y="61" fill="#90CAF9" font-size="8">Sound: SC_Explosion</text>
+                        
+                        <circle cx="0" cy="76" r="5" fill="#FFD700"/>
+                        <text x="15" y="79" fill="#90CAF9" font-size="8">Location ←</text>
+                        
+                        <text x="15" y="95" fill="#64B5F6" font-size="7">Attenuation: SA_Explosion</text>
+                        
+                        <!-- Output pin -->
+                        <circle cx="220" cy="40" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <!-- Connection from location -->
+                    <path d="M 175 82 L 215 126" stroke="#FFD700" stroke-width="2"/>
+                    
+                    <!-- World visualization -->
+                    <g transform="translate(500, 55)">
+                        <rect x="0" y="0" width="260" height="130" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="130" y="18" text-anchor="middle" fill="#667eea" font-size="9">World Space</text>
+                        
+                        <!-- Player -->
+                        <circle cx="60" cy="80" r="15" fill="#2196F3"/>
+                        <text x="60" y="84" text-anchor="middle" fill="#fff" font-size="8">P</text>
+                        <text x="60" y="110" text-anchor="middle" fill="#888" font-size="7">Listener</text>
+                        
+                        <!-- Sound source -->
+                        <circle cx="180" cy="60" r="12" fill="#FF9800"/>
+                        <text x="180" y="64" text-anchor="middle" fill="#fff" font-size="8">💥</text>
+                        
+                        <!-- Attenuation rings -->
+                        <circle cx="180" cy="60" r="25" fill="none" stroke="#FF9800" stroke-dasharray="3,2" opacity="0.6"/>
+                        <circle cx="180" cy="60" r="45" fill="none" stroke="#FF9800" stroke-dasharray="3,2" opacity="0.3"/>
+                        
+                        <!-- Direction indicator -->
+                        <path d="M 75 80 L 140 65" stroke="#4CAF50" stroke-width="2" stroke-dasharray="4,2"/>
+                        
+                        <text x="130" y="125" text-anchor="middle" fill="#888" font-size="7">Sound spawns at explosion location</text>
+                    </g>
+                    
+                    <text x="400" y="200" text-anchor="middle" fill="#888" font-size="9">3D audio: Volume/panning based on listener position relative to sound location</text>
+                </svg>
+                <p class="caption"><em>Figure: Play Sound at Location spawns 3D audio at a world position.</em></p>
+
+                <h3>Getting the Location</h3>
+
+                <p>Common ways to get the location for your sound:</p>
+
+                <p><strong>Actor's Location:</strong></p>
+                <pre><code>Get Actor Location → Play Sound at Location</code></pre>
+
+                <p><strong>Component's Location:</strong></p>
+                <pre><code>Get World Location (Component) → Play Sound at Location</code></pre>
+
+                <p><strong>Hit Result Location:</strong></p>
+                <pre><code>Line Trace → Break Hit Result → Impact Point → Play Sound at Location</code></pre>
+
+                <p><strong>Spawn Location:</strong></p>
+                <pre><code>Spawn Actor → Get Actor Location → Play Sound at Location</code></pre>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Attenuation Required</h4>
+                    <p>For 3D sounds to work properly, the sound needs attenuation settings. Either set them on the Sound Wave/Cue asset, or pass a Sound Attenuation asset to the node's Attenuation Settings parameter. Without attenuation, the sound won't fade with distance.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Audio Components -->
+            <section id="audio-components" class="lesson-section">
+                <h2>Audio Components</h2>
+
+                <p>Audio Components are the most versatile way to play sounds. Unlike the "fire and forget" nodes, Audio Components give you a persistent reference to control playback—play, stop, pause, adjust volume, and more. They're attached to actors and move with them.</p>
+
+                <h3>When to Use Audio Components</h3>
+
+                <ul>
+                    <li><strong>Looping sounds:</strong> Engine hum, ambient fire, machinery</li>
+                    <li><strong>Controllable audio:</strong> Music that needs to stop/fade</li>
+                    <li><strong>Moving sound sources:</strong> Vehicle engine, flying projectile</li>
+                    <li><strong>Sounds needing runtime adjustment:</strong> Volume/pitch changes</li>
+                    <li><strong>Persistent environmental audio:</strong> Waterfall, torch, air conditioner</li>
+                </ul>
+
+                <h3>Adding an Audio Component</h3>
+
+                <p><strong>In the Editor (Static):</strong></p>
+                <ol>
+                    <li>Select an Actor in the level or open an Actor Blueprint</li>
+                    <li>In Components panel, click <strong>Add</strong></li>
+                    <li>Search for and add <strong>Audio</strong></li>
+                    <li>Configure in Details panel:
+                        <ul>
+                            <li>Set <strong>Sound</strong> to your audio asset</li>
+                            <li>Enable <strong>Auto Activate</strong> if it should play on spawn</li>
+                            <li>Set <strong>Attenuation Settings</strong> for 3D behavior</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p><strong>In Blueprints (Dynamic):</strong></p>
+                <ol>
+                    <li>Use <strong>Spawn Sound 2D</strong> or <strong>Spawn Sound at Location</strong></li>
+                    <li>These return an Audio Component reference</li>
+                    <li>Store the reference to control later</li>
+                </ol>
+
+                <h3>Audio Component Properties</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Property</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sound</td>
+                            <td style="padding: 10px;">The sound asset to play</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Auto Activate</td>
+                            <td style="padding: 10px;">Play automatically when spawned/level starts</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Is UI Sound</td>
+                            <td style="padding: 10px;">Play as 2D (ignores listener position)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Volume Multiplier</td>
+                            <td style="padding: 10px;">Scale the base volume</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Pitch Multiplier</td>
+                            <td style="padding: 10px;">Scale the base pitch</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Attenuation Settings</td>
+                            <td style="padding: 10px;">Override 3D behavior</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Attenuation Overrides</td>
+                            <td style="padding: 10px;">Per-instance attenuation tweaks</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Audio Component Setup -->
+                <svg width="100%" height="220" viewBox="0 0 750 220" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="375" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Audio Component on Actor</text>
+                    
+                    <!-- Actor hierarchy -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="200" height="140" rx="8" fill="#667eea"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">BP_Torch (Actor)</text>
+                        
+                        <rect x="15" y="35" width="170" height="25" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <text x="100" y="52" text-anchor="middle" fill="#fff" font-size="8">📦 Static Mesh (Torch model)</text>
+                        
+                        <rect x="15" y="65" width="170" height="25" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <text x="100" y="82" text-anchor="middle" fill="#fff" font-size="8">🔥 Particle System (Fire)</text>
+                        
+                        <rect x="15" y="95" width="170" height="25" rx="3" fill="#4CAF50"/>
+                        <text x="100" y="112" text-anchor="middle" fill="#fff" font-size="8">🔊 Audio Component</text>
+                        
+                        <text x="100" y="135" text-anchor="middle" fill="#c5cae9" font-size="7">Moves with actor</text>
+                    </g>
+                    
+                    <!-- Details panel -->
+                    <g transform="translate(300, 55)">
+                        <rect x="0" y="0" width="220" height="140" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="110" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Audio Component Details</text>
+                        
+                        <text x="15" y="42" fill="#4CAF50" font-size="8">Sound: SC_FireLoop</text>
+                        <text x="15" y="58" fill="#4CAF50" font-size="8">Auto Activate: ✓</text>
+                        <text x="15" y="74" fill="#4CAF50" font-size="8">Is UI Sound: ✗</text>
+                        <text x="15" y="90" fill="#FF9800" font-size="8">Volume: 1.0</text>
+                        <text x="15" y="106" fill="#FF9800" font-size="8">Pitch: 1.0</text>
+                        <text x="15" y="122" fill="#2196F3" font-size="8">Attenuation: SA_Fire</text>
+                    </g>
+                    
+                    <!-- World representation -->
+                    <g transform="translate(560, 55)">
+                        <rect x="0" y="0" width="150" height="140" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#667eea" font-size="8">In World</text>
+                        
+                        <!-- Torch with sound -->
+                        <rect x="55" y="40" width="40" height="60" rx="3" fill="#8B4513"/>
+                        <ellipse cx="75" cy="35" rx="20" ry="15" fill="#FF6600"/>
+                        
+                        <!-- Sound waves -->
+                        <circle cx="75" cy="55" r="20" fill="none" stroke="#4CAF50" stroke-dasharray="3,2" opacity="0.6"/>
+                        <circle cx="75" cy="55" r="35" fill="none" stroke="#4CAF50" stroke-dasharray="3,2" opacity="0.4"/>
+                        <circle cx="75" cy="55" r="50" fill="none" stroke="#4CAF50" stroke-dasharray="3,2" opacity="0.2"/>
+                        
+                        <text x="75" y="130" text-anchor="middle" fill="#888" font-size="7">Looping fire sound</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Audio Component attached to a torch actor for persistent fire sound.</em></p>
+
+                <h3>Controlling Audio Components</h3>
+
+                <p>Audio Components provide functions for runtime control:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Function</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Play</td>
+                            <td style="padding: 10px;">Start or resume playback</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Stop</td>
+                            <td style="padding: 10px;">Stop playback immediately</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Set Paused</td>
+                            <td style="padding: 10px;">Pause/unpause (retains position)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Is Playing</td>
+                            <td style="padding: 10px;">Check if currently playing</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Set Volume Multiplier</td>
+                            <td style="padding: 10px;">Change volume at runtime</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Set Pitch Multiplier</td>
+                            <td style="padding: 10px;">Change pitch at runtime</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Set Sound</td>
+                            <td style="padding: 10px;">Change the sound asset</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Fade In / Fade Out</td>
+                            <td style="padding: 10px;">Gradual volume changes</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Adjust Volume</td>
+                            <td style="padding: 10px;">Fade to target volume over time</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Example: Fading Music</h3>
+
+                <pre><code>// In Level Blueprint or Game Mode
+// Store reference to music Audio Component
+
+// To fade out music over 2 seconds:
+MusicComponent → Fade Out (Fade Out Duration: 2.0, Fade Volume Level: 0.0)
+
+// To fade in music over 1 second:
+MusicComponent → Fade In (Fade In Duration: 1.0, Fade Volume Level: 1.0)</code></pre>
+
+                <!-- Mermaid: Audio Component Lifecycle -->
+                <pre class="mermaid">
+flowchart LR
+    A[Spawn Actor] --> B{Auto Activate?}
+    B -->|Yes| C[Playing]
+    B -->|No| D[Stopped]
+    D -->|Play| C
+    C -->|Stop| D
+    C -->|Set Paused true| E[Paused]
+    E -->|Set Paused false| C
+    C -->|Fade Out| F[Fading Out]
+    F --> D
+    D -->|Fade In| G[Fading In]
+    G --> C
+    
+    style C fill:#4CAF50,color:#fff
+    style D fill:#666,color:#fff
+    style E fill:#FF9800,color:#fff
+</pre>
+                <p class="caption"><em>Figure: Audio Component state transitions.</em></p>
+            </section>
+
+            <!-- Section 4: Choosing the Right Method -->
+            <section id="choosing-method" class="lesson-section">
+                <h2>Choosing the Right Method</h2>
+
+                <p>With three ways to play sounds, choosing the right one ensures clean code and optimal performance.</p>
+
+                <h3>Quick Decision Guide</h3>
+
+                <!-- SVG: Decision Guide -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Sound Playback Decision Guide</text>
+                    
+                    <!-- Question 1 -->
+                    <g transform="translate(300, 50)">
+                        <rect x="0" y="0" width="200" height="40" rx="5" fill="#667eea"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="9">Need 3D positioning?</text>
+                    </g>
+                    
+                    <!-- No branch - 2D -->
+                    <path d="M 300 70 L 150 110" stroke="#f44336" stroke-width="2"/>
+                    <text x="200" y="85" fill="#f44336" font-size="9">No</text>
+                    
+                    <g transform="translate(50, 110)">
+                        <rect x="0" y="0" width="200" height="50" rx="5" fill="#2196F3"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Play Sound 2D</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#BBDEFB" font-size="7">UI, Music, Voice-over</text>
+                    </g>
+                    
+                    <!-- Yes branch -->
+                    <path d="M 500 70 L 600 110" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="560" y="85" fill="#4CAF50" font-size="9">Yes</text>
+                    
+                    <!-- Question 2 -->
+                    <g transform="translate(500, 110)">
+                        <rect x="0" y="0" width="200" height="40" rx="5" fill="#667eea"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="9">Need to control playback?</text>
+                    </g>
+                    
+                    <!-- No - one shot -->
+                    <path d="M 500 130 L 350 180" stroke="#f44336" stroke-width="2"/>
+                    <text x="400" y="150" fill="#f44336" font-size="9">No</text>
+                    
+                    <g transform="translate(200, 180)">
+                        <rect x="0" y="0" width="200" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Play Sound at Location</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#C8E6C9" font-size="7">One-shot: Gunshots, Impacts</text>
+                    </g>
+                    
+                    <!-- Yes - controllable -->
+                    <path d="M 700 130 L 700 180" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="715" y="155" fill="#4CAF50" font-size="9">Yes</text>
+                    
+                    <g transform="translate(550, 180)">
+                        <rect x="0" y="0" width="200" height="50" rx="5" fill="#9C27B0"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Audio Component</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#E1BEE7" font-size="7">Loops, Fades, Moving sources</text>
+                    </g>
+                    
+                    <!-- Summary boxes -->
+                    <g transform="translate(50, 250)">
+                        <rect x="0" y="0" width="220" height="35" rx="3" fill="rgba(33,150,243,0.1)" stroke="#2196F3"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#1565C0" font-size="8">🎵 2D: Button clicks, BGM</text>
+                    </g>
+                    
+                    <g transform="translate(290, 250)">
+                        <rect x="0" y="0" width="220" height="35" rx="3" fill="rgba(76,175,80,0.1)" stroke="#4CAF50"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#2E7D32" font-size="8">💥 Location: Explosions, Footsteps</text>
+                    </g>
+                    
+                    <g transform="translate(530, 250)">
+                        <rect x="0" y="0" width="220" height="35" rx="3" fill="rgba(156,39,176,0.1)" stroke="#9C27B0"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#7B1FA2" font-size="8">🔊 Component: Engines, Ambient</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Decision tree for choosing the right playback method.</em></p>
+
+                <h3>Comparison Table</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Feature</th>
+                            <th style="padding: 10px; text-align: left;">Play Sound 2D</th>
+                            <th style="padding: 10px; text-align: left;">Play Sound at Location</th>
+                            <th style="padding: 10px; text-align: left;">Audio Component</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">3D Positioning</td>
+                            <td style="padding: 10px;">❌ No</td>
+                            <td style="padding: 10px;">✅ Yes</td>
+                            <td style="padding: 10px;">✅ Yes (optional)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Control After Play</td>
+                            <td style="padding: 10px;">❌ No</td>
+                            <td style="padding: 10px;">❌ No</td>
+                            <td style="padding: 10px;">✅ Yes</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Moves with Actor</td>
+                            <td style="padding: 10px;">N/A</td>
+                            <td style="padding: 10px;">❌ No (static)</td>
+                            <td style="padding: 10px;">✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Looping</td>
+                            <td style="padding: 10px;">⚠️ Limited</td>
+                            <td style="padding: 10px;">⚠️ Limited</td>
+                            <td style="padding: 10px;">✅ Full support</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Best For</td>
+                            <td style="padding: 10px;">UI, Music</td>
+                            <td style="padding: 10px;">One-shot SFX</td>
+                            <td style="padding: 10px;">Persistent audio</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Setup Complexity</td>
+                            <td style="padding: 10px;">Minimal</td>
+                            <td style="padding: 10px;">Minimal</td>
+                            <td style="padding: 10px;">Moderate</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Common Patterns</h3>
+
+                <p><strong>Pattern 1: UI Feedback</strong></p>
+                <pre><code>Button OnClicked → Play Sound 2D (UI Click)</code></pre>
+
+                <p><strong>Pattern 2: Weapon Fire</strong></p>
+                <pre><code>Fire Weapon → Get Muzzle Location → Play Sound at Location (Gunshot)</code></pre>
+
+                <p><strong>Pattern 3: Character Footsteps</strong></p>
+                <pre><code>Animation Notify → Get Foot Bone Location → Play Sound at Location (Footstep Cue)</code></pre>
+
+                <p><strong>Pattern 4: Vehicle Engine</strong></p>
+                <pre><code>Vehicle Blueprint:
+  - Audio Component (Engine Sound)
+  - On Tick: Set Pitch based on RPM</code></pre>
+
+                <p><strong>Pattern 5: Background Music</strong></p>
+                <pre><code>Game Mode Begin Play:
+  - Spawn Sound 2D (Music) → Store Reference
+  - On Level Complete: Fade Out → Play Victory Sting</code></pre>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Best Practice</h4>
+                    <p>Start with the simplest option that meets your needs. Use Play Sound 2D for UI, Play Sound at Location for one-shots, and only reach for Audio Components when you need control or persistence. This keeps your Blueprints clean and performant.</p>
+                </div>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Adding Sound Effects to Interactions</h2>
+
+                <p>Let's wire up audio to gameplay events. You'll add UI sounds, interaction sounds, and environmental audio using all three playback methods. This exercise builds on what you created in Lesson 8.1.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Add sound effects to a button click (2D), an item pickup (3D at location), and a looping fire torch (Audio Component). You'll practice choosing the right method for each situation.</p>
+                </div>
+
+                <h3>Prerequisites</h3>
+
+                <p>Before starting, ensure you have:</p>
+                <ul>
+                    <li>Sound assets from Lesson 8.1 (or import new ones)</li>
+                    <li>A playable level with a character</li>
+                    <li>Basic knowledge of Widget Blueprints (from Module 7)</li>
+                </ul>
+
+                <h3>Part 1: UI Button Click Sound (Play Sound 2D)</h3>
+
+                <h4>Step 1: Create a Simple UI Widget</h4>
+                <ol>
+                    <li>Right-click in Content Browser → <strong>User Interface → Widget Blueprint</strong></li>
+                    <li>Name it <code>WBP_TestMenu</code></li>
+                    <li>Open the widget and add a <strong>Button</strong> to the canvas</li>
+                    <li>Add a <strong>Text Block</strong> inside the button with text "Click Me"</li>
+                    <li>Name the button <code>TestButton</code></li>
+                </ol>
+
+                <h4>Step 2: Add Click Event</h4>
+                <ol>
+                    <li>Select the TestButton</li>
+                    <li>In Details panel, scroll to Events</li>
+                    <li>Click the <strong>+</strong> next to <strong>On Clicked</strong></li>
+                    <li>This creates an event node in the Event Graph</li>
+                </ol>
+
+                <h4>Step 3: Play Sound on Click</h4>
+                <ol>
+                    <li>In the Event Graph, drag from <strong>On Clicked (TestButton)</strong></li>
+                    <li>Search for and add <strong>Play Sound 2D</strong></li>
+                    <li>Click the dropdown next to <strong>Sound</strong></li>
+                    <li>Select your UI click sound (e.g., <code>SW_UI_Click</code>)</li>
+                </ol>
+
+                <h4>Step 4: Display the Widget</h4>
+                <ol>
+                    <li>Open your Player Controller or Level Blueprint</li>
+                    <li>On <strong>Event BeginPlay</strong>:
+                        <ul>
+                            <li>Add <strong>Create Widget</strong> node</li>
+                            <li>Set Class to <code>WBP_TestMenu</code></li>
+                            <li>Add <strong>Add to Viewport</strong></li>
+                        </ul>
+                    </li>
+                    <li>Add <strong>Set Input Mode UI Only</strong> and <strong>Set Show Mouse Cursor</strong> (True)</li>
+                </ol>
+
+                <h4>Step 5: Test</h4>
+                <ol>
+                    <li>Play the level</li>
+                    <li>Click the button</li>
+                    <li>You should hear the UI click sound</li>
+                </ol>
+
+                <!-- SVG: UI Sound Setup -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">UI Button Click Sound</text>
+                    
+                    <!-- Event node -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="150" height="50" rx="5" fill="#c62828"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">On Clicked</text>
+                        <text x="75" y="38" text-anchor="middle" fill="#ffcdd2" font-size="8">(TestButton)</text>
+                        <circle cx="150" cy="25" r="6" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 206 80 L 270 80" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Play Sound 2D -->
+                    <g transform="translate(270, 50)">
+                        <rect x="0" y="0" width="170" height="60" rx="5" fill="#1565C0"/>
+                        <text x="85" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Play Sound 2D</text>
+                        <circle cx="0" cy="30" r="5" fill="#fff"/>
+                        <text x="15" y="38" fill="#90CAF9" font-size="8">Sound: SW_UI_Click</text>
+                        <text x="15" y="52" fill="#64B5F6" font-size="7">Volume: 1.0</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(490, 55)">
+                        <rect x="0" y="0" width="160" height="50" rx="5" fill="rgba(76,175,80,0.2)" stroke="#4CAF50"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Result</text>
+                        <text x="80" y="38" text-anchor="middle" fill="#4CAF50" font-size="8">🔊 Click sound plays</text>
+                    </g>
+                    
+                    <text x="350" y="150" text-anchor="middle" fill="#888" font-size="9">2D audio plays at same volume regardless of player position</text>
+                </svg>
+                <p class="caption"><em>Figure: Simple UI click sound using Play Sound 2D.</em></p>
+
+                <h3>Part 2: Item Pickup Sound (Play Sound at Location)</h3>
+
+                <h4>Step 6: Create Pickup Actor</h4>
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Blueprint Class → Actor</strong></li>
+                    <li>Name it <code>BP_PickupItem</code></li>
+                    <li>Open it and add components:
+                        <ul>
+                            <li><strong>Static Mesh</strong> (any visible mesh, like a cube or sphere)</li>
+                            <li><strong>Sphere Collision</strong> (for overlap detection)</li>
+                        </ul>
+                    </li>
+                    <li>Set Sphere Collision radius to 100</li>
+                    <li>Set collision to <strong>OverlapAllDynamic</strong></li>
+                </ol>
+
+                <h4>Step 7: Add Overlap Event</h4>
+                <ol>
+                    <li>Select the Sphere Collision component</li>
+                    <li>In Details, scroll to Events</li>
+                    <li>Click <strong>+</strong> next to <strong>On Component Begin Overlap</strong></li>
+                </ol>
+
+                <h4>Step 8: Check for Player and Play Sound</h4>
+                <ol>
+                    <li>From the overlap event, add <strong>Cast to</strong> your Character class</li>
+                    <li>Connect <strong>Other Actor</strong> to the Cast object pin</li>
+                    <li>From Cast success:
+                        <ul>
+                            <li>Add <strong>Get Actor Location</strong> (Self)</li>
+                            <li>Add <strong>Play Sound at Location</strong></li>
+                            <li>Set Sound to a pickup sound (create one or use existing)</li>
+                            <li>Connect location</li>
+                        </ul>
+                    </li>
+                    <li>After Play Sound at Location, add <strong>Destroy Actor</strong></li>
+                </ol>
+
+                <h4>Step 9: Configure Attenuation</h4>
+                <ol>
+                    <li>The pickup sound needs attenuation to work in 3D</li>
+                    <li>Either:
+                        <ul>
+                            <li>Set attenuation on the Sound Wave/Cue asset, OR</li>
+                            <li>Create a Sound Attenuation asset and pass it to the node</li>
+                        </ul>
+                    </li>
+                    <li>For the node: expand <strong>Attenuation Settings</strong> and select your attenuation asset</li>
+                </ol>
+
+                <h4>Step 10: Test Pickup</h4>
+                <ol>
+                    <li>Place several <code>BP_PickupItem</code> actors in your level</li>
+                    <li>Play the level</li>
+                    <li>Walk into a pickup</li>
+                    <li>Sound should play at the pickup's location, then it disappears</li>
+                    <li>Test from different distances to hear attenuation</li>
+                </ol>
+
+                <!-- SVG: Pickup Sound Setup -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Item Pickup Sound Blueprint</text>
+                    
+                    <!-- Overlap event -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="130" height="55" rx="5" fill="#c62828"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">On Component</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Begin Overlap</text>
+                        <text x="65" y="48" text-anchor="middle" fill="#ffcdd2" font-size="7">Other Actor →</text>
+                        <circle cx="130" cy="27" r="5" fill="#fff"/>
+                        <circle cx="130" cy="45" r="5" fill="#2196F3"/>
+                    </g>
+                    
+                    <path d="M 165 82 L 195 82" stroke="#fff" stroke-width="2"/>
+                    <path d="M 165 100 L 195 117" stroke="#2196F3" stroke-width="2"/>
+                    
+                    <!-- Cast node -->
+                    <g transform="translate(195, 60)">
+                        <rect x="0" y="0" width="120" height="70" rx="5" fill="#4CAF50"/>
+                        <text x="60" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Cast To</text>
+                        <text x="60" y="32" text-anchor="middle" fill="#c8e6c9" font-size="7">BP_Character</text>
+                        <circle cx="0" cy="22" r="4" fill="#fff"/>
+                        <circle cx="0" cy="57" r="4" fill="#2196F3"/>
+                        <circle cx="120" cy="22" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 320 82 L 350 82" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Get Actor Location -->
+                    <g transform="translate(350, 55)">
+                        <rect x="0" y="0" width="110" height="40" rx="5" fill="#667eea"/>
+                        <text x="55" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Get Actor</text>
+                        <text x="55" y="30" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Location</text>
+                        <circle cx="110" cy="20" r="5" fill="#FFD700"/>
+                    </g>
+                    
+                    <!-- Play Sound at Location -->
+                    <g transform="translate(350, 110)">
+                        <rect x="0" y="0" width="160" height="70" rx="5" fill="#1565C0"/>
+                        <text x="80" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Play Sound at Location</text>
+                        <circle cx="0" cy="30" r="4" fill="#fff"/>
+                        <text x="15" y="38" fill="#90CAF9" font-size="7">Sound: SC_Pickup</text>
+                        <circle cx="0" cy="50" r="4" fill="#FFD700"/>
+                        <text x="15" y="55" fill="#90CAF9" font-size="7">Location ←</text>
+                        <circle cx="160" cy="30" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <!-- Connection from location -->
+                    <path d="M 465 75 L 465 95 L 345 160" stroke="#FFD700" stroke-width="2"/>
+                    <path d="M 320 82 L 345 140" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Destroy Actor -->
+                    <g transform="translate(560, 120)">
+                        <rect x="0" y="0" width="120" height="45" rx="5" fill="#f44336"/>
+                        <text x="60" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Destroy Actor</text>
+                        <text x="60" y="35" text-anchor="middle" fill="#ffcdd2" font-size="7">(Self)</text>
+                        <circle cx="0" cy="22" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 515 140 L 555 142" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Note -->
+                    <text x="400" y="200" text-anchor="middle" fill="#888" font-size="9">Sound plays at pickup location, audible based on player distance</text>
+                </svg>
+                <p class="caption"><em>Figure: Pickup item plays 3D sound at its location before being destroyed.</em></p>
+
+                <h3>Part 3: Looping Torch Sound (Audio Component)</h3>
+
+                <h4>Step 11: Create Torch Actor</h4>
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Blueprint Class → Actor</strong></li>
+                    <li>Name it <code>BP_Torch</code></li>
+                    <li>Open it and add components:
+                        <ul>
+                            <li><strong>Static Mesh</strong> (torch or cylinder shape)</li>
+                            <li><strong>Point Light</strong> (orange/yellow, flicker optional)</li>
+                            <li><strong>Audio</strong> component</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 12: Configure Audio Component</h4>
+                <ol>
+                    <li>Select the Audio component</li>
+                    <li>In Details panel, configure:
+                        <ul>
+                            <li><strong>Sound:</strong> Your fire/torch loop sound</li>
+                            <li><strong>Auto Activate:</strong> ✓ (checked)</li>
+                            <li><strong>Is UI Sound:</strong> ✗ (unchecked — we want 3D)</li>
+                            <li><strong>Volume Multiplier:</strong> 1.0</li>
+                            <li><strong>Attenuation Settings:</strong> Select your fire attenuation asset</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 13: Create Fire Sound Attenuation</h4>
+                <p>If you don't have a fire attenuation asset:</p>
+                <ol>
+                    <li>Right-click → <strong>Sounds → Sound Attenuation</strong></li>
+                    <li>Name it <code>SA_Fire</code></li>
+                    <li>Configure:
+                        <ul>
+                            <li><strong>Inner Radius:</strong> 50 (close to hear full volume)</li>
+                            <li><strong>Falloff Distance:</strong> 800 (audible from moderate distance)</li>
+                            <li><strong>Attenuation Function:</strong> Natural Sound</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 14: Test the Torch</h4>
+                <ol>
+                    <li>Place <code>BP_Torch</code> actors in your level</li>
+                    <li>Play the level</li>
+                    <li>Walk toward a torch — fire sound gets louder</li>
+                    <li>Walk away — sound fades</li>
+                    <li>Walk around it — sound pans left/right</li>
+                </ol>
+
+                <h3>Part 4: Controllable Torch (Toggle Sound)</h3>
+
+                <h4>Step 15: Add Toggle Functionality</h4>
+                <ol>
+                    <li>Open <code>BP_Torch</code></li>
+                    <li>Add a variable: <code>bIsLit</code> (Boolean, default True)</li>
+                    <li>Create a custom event: <code>ToggleTorch</code></li>
+                </ol>
+
+                <h4>Step 16: Implement Toggle Logic</h4>
+                <ol>
+                    <li>In the ToggleTorch event:
+                        <ul>
+                            <li>Add <strong>Flip Flop</strong> node</li>
+                            <li>On A (turning off):
+                                <ul>
+                                    <li>Set bIsLit = False</li>
+                                    <li>Audio Component → <strong>Stop</strong></li>
+                                    <li>Point Light → <strong>Set Visibility</strong> (False)</li>
+                                </ul>
+                            </li>
+                            <li>On B (turning on):
+                                <ul>
+                                    <li>Set bIsLit = True</li>
+                                    <li>Audio Component → <strong>Play</strong></li>
+                                    <li>Point Light → <strong>Set Visibility</strong> (True)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 17: Trigger from Player Interaction</h4>
+                <ol>
+                    <li>Add a <strong>Box Collision</strong> component to the torch (interaction zone)</li>
+                    <li>In your Character Blueprint, add input for "Interact" (E key)</li>
+                    <li>On interact:
+                        <ul>
+                            <li>Line trace forward from camera</li>
+                            <li>If hit actor is BP_Torch → Call ToggleTorch</li>
+                        </ul>
+                    </li>
+                    <li>Or use a simpler overlap approach for this exercise</li>
+                </ol>
+
+                <!-- SVG: Toggle Torch Audio -->
+                <svg width="100%" height="200" viewBox="0 0 750 200" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Toggle Torch Audio Control</text>
+                    
+                    <!-- Event -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#c62828"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">ToggleTorch</text>
+                        <circle cx="120" cy="20" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <path d="M 155 75 L 185 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Flip Flop -->
+                    <g transform="translate(185, 50)">
+                        <rect x="0" y="0" width="100" height="70" rx="5" fill="#FF9800"/>
+                        <text x="50" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Flip Flop</text>
+                        <circle cx="0" cy="25" r="4" fill="#fff"/>
+                        <text x="15" y="40" fill="#fff3e0" font-size="7">A →</text>
+                        <text x="15" y="55" fill="#fff3e0" font-size="7">B →</text>
+                        <circle cx="100" cy="35" r="4" fill="#fff"/>
+                        <circle cx="100" cy="50" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <!-- A branch (turn off) -->
+                    <path d="M 290 85 L 330 70" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(330, 45)">
+                        <rect x="0" y="0" width="170" height="50" rx="5" fill="#f44336"/>
+                        <text x="85" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Turn Off</text>
+                        <text x="85" y="33" text-anchor="middle" fill="#ffcdd2" font-size="7">Audio → Stop</text>
+                        <text x="85" y="45" text-anchor="middle" fill="#ffcdd2" font-size="7">Light → Hidden</text>
+                    </g>
+                    
+                    <!-- B branch (turn on) -->
+                    <path d="M 290 100 L 330 120" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(330, 105)">
+                        <rect x="0" y="0" width="170" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="85" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Turn On</text>
+                        <text x="85" y="33" text-anchor="middle" fill="#c8e6c9" font-size="7">Audio → Play</text>
+                        <text x="85" y="45" text-anchor="middle" fill="#c8e6c9" font-size="7">Light → Visible</text>
+                    </g>
+                    
+                    <!-- Visual representation -->
+                    <g transform="translate(550, 55)">
+                        <rect x="0" y="0" width="160" height="100" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="80" y="18" text-anchor="middle" fill="#667eea" font-size="8">Result</text>
+                        
+                        <!-- Lit torch -->
+                        <rect x="25" y="40" width="20" height="40" rx="2" fill="#8B4513"/>
+                        <ellipse cx="35" cy="35" rx="12" ry="10" fill="#FF6600"/>
+                        <text x="35" y="90" text-anchor="middle" fill="#4CAF50" font-size="7">🔊 ON</text>
+                        
+                        <!-- Unlit torch -->
+                        <rect x="95" y="40" width="20" height="40" rx="2" fill="#5D4037"/>
+                        <ellipse cx="105" cy="35" rx="12" ry="10" fill="#444" opacity="0.3"/>
+                        <text x="105" y="90" text-anchor="middle" fill="#f44336" font-size="7">🔇 OFF</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Audio Component controlled by toggle event.</em></p>
+
+                <h3>Part 5: Bonus - Fade Music on Pause</h3>
+
+                <h4>Step 18: Set Up Background Music</h4>
+                <ol>
+                    <li>In your Player Controller or Game Mode</li>
+                    <li>Add a variable: <code>MusicComponent</code> (Audio Component reference)</li>
+                    <li>On Begin Play:
+                        <ul>
+                            <li><strong>Spawn Sound 2D</strong> with your music track</li>
+                            <li>Store the returned Audio Component in MusicComponent</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 19: Fade on Pause</h4>
+                <ol>
+                    <li>When opening pause menu:
+                        <ul>
+                            <li>MusicComponent → <strong>Set Volume Multiplier</strong> (0.3) for quick duck</li>
+                            <li>Or use <strong>Adjust Volume</strong> (Target: 0.3, Duration: 0.5) for fade</li>
+                        </ul>
+                    </li>
+                    <li>When closing pause menu:
+                        <ul>
+                            <li>MusicComponent → <strong>Set Volume Multiplier</strong> (1.0)</li>
+                            <li>Or <strong>Adjust Volume</strong> (Target: 1.0, Duration: 0.5)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've implemented:</p>
+                    <ul>
+                        <li><strong>Play Sound 2D:</strong> UI button click feedback</li>
+                        <li><strong>Play Sound at Location:</strong> 3D pickup collection sound</li>
+                        <li><strong>Audio Component:</strong> Persistent looping torch fire</li>
+                        <li><strong>Audio Control:</strong> Toggle and volume adjustment</li>
+                    </ul>
+                    <p>These patterns cover the majority of sound playback needs in games!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>No sound plays at all:</strong></p>
+                    <ul>
+                        <li>Check that Sound asset is assigned</li>
+                        <li>Verify the sound file imported correctly</li>
+                        <li>Check master volume in Windows/system</li>
+                        <li>Check Sound Class isn't muted</li>
+                    </ul>
+                    
+                    <p><strong>3D sound doesn't attenuate:</strong></p>
+                    <ul>
+                        <li>Ensure Attenuation Settings are assigned</li>
+                        <li>Verify the sound is Mono (stereo won't spatialize)</li>
+                        <li>Check Falloff Distance is appropriate for your level scale</li>
+                    </ul>
+                    
+                    <p><strong>Audio Component doesn't play:</strong></p>
+                    <ul>
+                        <li>Check Auto Activate is enabled, OR</li>
+                        <li>Call Play explicitly in BeginPlay</li>
+                        <li>Verify the component isn't being stopped elsewhere</li>
+                    </ul>
+                    
+                    <p><strong>Sound plays but is too quiet/loud:</strong></p>
+                    <ul>
+                        <li>Adjust Volume Multiplier on the node/component</li>
+                        <li>Check the Sound Wave's base volume</li>
+                        <li>Verify Sound Class volume settings</li>
+                    </ul>
+                    
+                    <p><strong>Looping sound doesn't loop:</strong></p>
+                    <ul>
+                        <li>Enable looping in the Sound Wave asset, OR</li>
+                        <li>Use a Sound Cue with Looping node</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Footstep Sounds:</strong> Add footstep sounds to your character using Animation Notifies</li>
+                    <li><strong>Random Pitch:</strong> Use your randomized footstep Sound Cue from Lesson 8.1</li>
+                    <li><strong>Weapon Sounds:</strong> Add fire and reload sounds to a weapon Blueprint</li>
+                    <li><strong>Door Sounds:</strong> Play open/close sounds on an interactable door</li>
+                    <li><strong>Health Pickup:</strong> Play a healing sound when collecting health</li>
+                    <li><strong>Low Health Warning:</strong> Play a looping heartbeat when health is critical</li>
+                    <li><strong>Menu Music:</strong> Different music for main menu vs gameplay</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned the three primary methods for playing sounds in Unreal Engine. Choosing the right method for each situation keeps your audio code clean and your game performant.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Play Sound 2D:</strong> The simplest method—plays audio without 3D positioning. Same volume everywhere, no panning or distance attenuation. Use for UI sounds, music, voice-over, and any audio that exists "outside" the game world. Fire-and-forget with no playback control.</p>
+
+                <p><strong>Play Sound at Location:</strong> Spawns a 3D sound at a specific world position. Volume and panning change based on listener position. Requires mono audio and attenuation settings for proper spatialization. Use for one-shot effects like explosions, gunshots, and impacts. Also fire-and-forget.</p>
+
+                <p><strong>Audio Components:</strong> The most versatile option—attach to actors for persistent, controllable audio. Supports play, stop, pause, fade, and runtime volume/pitch adjustment. Moves with the owning actor. Use for looping sounds, moving sound sources, and any audio needing runtime control.</p>
+
+                <p><strong>Choosing the Right Method:</strong> Start with the simplest option that meets your needs. 2D for non-positional audio, Location for one-shots in the world, Components for everything that needs persistence or control.</p>
+
+                <h3>Method Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Method</th>
+                            <th style="padding: 10px; text-align: left;">3D</th>
+                            <th style="padding: 10px; text-align: left;">Control</th>
+                            <th style="padding: 10px; text-align: left;">Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Play Sound 2D</td>
+                            <td style="padding: 10px;">❌</td>
+                            <td style="padding: 10px;">❌</td>
+                            <td style="padding: 10px;">UI, Music, Voice-over</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Play Sound at Location</td>
+                            <td style="padding: 10px;">✅</td>
+                            <td style="padding: 10px;">❌</td>
+                            <td style="padding: 10px;">Explosions, Gunshots, Pickups</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Audio Component</td>
+                            <td style="padding: 10px;">✅</td>
+                            <td style="padding: 10px;">✅</td>
+                            <td style="padding: 10px;">Loops, Engines, Ambient, Fades</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Audio Component Functions</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Function</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Play</td>
+                            <td style="padding: 10px;">Start or resume playback</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Stop</td>
+                            <td style="padding: 10px;">Stop playback immediately</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Set Paused</td>
+                            <td style="padding: 10px;">Pause without losing position</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Is Playing</td>
+                            <td style="padding: 10px;">Check playback state</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Set Volume/Pitch Multiplier</td>
+                            <td style="padding: 10px;">Instant value change</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Fade In / Fade Out</td>
+                            <td style="padding: 10px;">Gradual volume transitions</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Adjust Volume</td>
+                            <td style="padding: 10px;">Fade to target over duration</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Common Patterns</h3>
+
+                <p><strong>UI Feedback:</strong> Button Click → Play Sound 2D</p>
+                <p><strong>Weapon Fire:</strong> Get Muzzle Location → Play Sound at Location</p>
+                <p><strong>Item Pickup:</strong> Get Actor Location → Play Sound at Location → Destroy Actor</p>
+                <p><strong>Environmental Loop:</strong> Actor with Audio Component (Auto Activate, Looping)</p>
+                <p><strong>Vehicle Engine:</strong> Audio Component + Tick → Set Pitch based on speed/RPM</p>
+                <p><strong>Music Control:</strong> Spawn Sound 2D → Store Reference → Fade In/Out as needed</p>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Use the simplest method:</strong> Don't use Audio Components when Play Sound 2D would suffice</li>
+                    <li><strong>Mono for 3D:</strong> Always use mono audio files for spatialized sounds</li>
+                    <li><strong>Configure attenuation:</strong> 3D sounds need attenuation settings to fade with distance</li>
+                    <li><strong>Store references:</strong> If you need to control audio later, keep the Audio Component reference</li>
+                    <li><strong>Clean up:</strong> Stop looping sounds when their owning actor is destroyed</li>
+                    <li><strong>Use Sound Cues:</strong> For variation, layer through a Sound Cue rather than multiple nodes</li>
+                    <li><strong>Test in-game:</strong> Audio behavior can differ between editor preview and actual gameplay</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Sound Playback Methods Summary</text>
+                    
+                    <!-- Play Sound 2D -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="200" height="80" rx="8" fill="#2196F3"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Play Sound 2D</text>
+                        <text x="100" y="42" text-anchor="middle" fill="#BBDEFB" font-size="8">Non-positional</text>
+                        <text x="100" y="58" text-anchor="middle" fill="#BBDEFB" font-size="8">Fire and forget</text>
+                        <text x="100" y="74" text-anchor="middle" fill="#fff" font-size="8">🎵 UI • Music • VO</text>
+                    </g>
+                    
+                    <!-- Play Sound at Location -->
+                    <g transform="translate(300, 55)">
+                        <rect x="0" y="0" width="200" height="80" rx="8" fill="#4CAF50"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Play Sound at Location</text>
+                        <text x="100" y="42" text-anchor="middle" fill="#C8E6C9" font-size="8">3D positioned</text>
+                        <text x="100" y="58" text-anchor="middle" fill="#C8E6C9" font-size="8">One-shot, static</text>
+                        <text x="100" y="74" text-anchor="middle" fill="#fff" font-size="8">💥 Explosions • Impacts</text>
+                    </g>
+                    
+                    <!-- Audio Component -->
+                    <g transform="translate(550, 55)">
+                        <rect x="0" y="0" width="200" height="80" rx="8" fill="#9C27B0"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Audio Component</text>
+                        <text x="100" y="42" text-anchor="middle" fill="#E1BEE7" font-size="8">3D, moves with actor</text>
+                        <text x="100" y="58" text-anchor="middle" fill="#E1BEE7" font-size="8">Full playback control</text>
+                        <text x="100" y="74" text-anchor="middle" fill="#fff" font-size="8">🔊 Loops • Engines • Fades</text>
+                    </g>
+                    
+                    <!-- Decision flow -->
+                    <g transform="translate(150, 155)">
+                        <rect x="0" y="0" width="500" height="60" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="250" y="20" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Decision Process</text>
+                        <text x="250" y="40" text-anchor="middle" fill="#666" font-size="9">Need 3D? → No: 2D | Yes → Need control? → No: Location | Yes: Component</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Three methods for different audio playback scenarios.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you can trigger sounds from Blueprints, the next lesson covers <strong>Ambient Audio</strong>. You'll learn about Ambient Sound actors for easy level audio, Audio Volumes for reverb zones, and strategies for creating immersive environmental soundscapes.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Which playback method should you use for a UI button click sound?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Play Sound at Location</label>
+                            <label><input type="radio" name="q1" value="b"> Play Sound 2D</label>
+                            <label><input type="radio" name="q1" value="c"> Audio Component</label>
+                            <label><input type="radio" name="q1" value="d"> Ambient Sound Actor</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Play Sound 2D is perfect for UI sounds because they don't need 3D positioning. The click should sound the same regardless of where the player is in the world.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What is required for Play Sound at Location to properly spatialize audio?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> A stereo audio file</label>
+                            <label><input type="radio" name="q2" value="b"> A mono audio file and attenuation settings</label>
+                            <label><input type="radio" name="q2" value="c"> An Audio Component reference</label>
+                            <label><input type="radio" name="q2" value="d"> A Sound Mix asset</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — 3D spatialization requires mono audio (stereo has fixed channels that can't pan correctly) and attenuation settings to control how the sound fades with distance.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>When should you use an Audio Component instead of Play Sound at Location?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> For any 3D sound</label>
+                            <label><input type="radio" name="q3" value="b"> Only for music</label>
+                            <label><input type="radio" name="q3" value="c"> When you need to control playback (stop, pause, fade) or the sound should move with an actor</label>
+                            <label><input type="radio" name="q3" value="d"> Never—Play Sound at Location is always better</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Audio Components are necessary when you need runtime control (stop, pause, volume adjustment, fading) or when the sound source moves (like a vehicle engine). For simple one-shot effects at a fixed location, Play Sound at Location is simpler and sufficient.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What does the "Auto Activate" property do on an Audio Component?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Automatically adjusts volume based on distance</label>
+                            <label><input type="radio" name="q4" value="b"> Starts playing automatically when the component is spawned or the level begins</label>
+                            <label><input type="radio" name="q4" value="c"> Automatically loops the sound</label>
+                            <label><input type="radio" name="q4" value="d"> Automatically destroys the actor when the sound ends</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Auto Activate causes the Audio Component to start playing immediately when it's created (spawned) or when the level begins. Without this enabled, you must call Play() explicitly to start the sound.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>How do you gradually reduce an Audio Component's volume over time?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Use Set Volume Multiplier repeatedly in a loop</label>
+                            <label><input type="radio" name="q5" value="b"> Use Fade Out or Adjust Volume with a duration</label>
+                            <label><input type="radio" name="q5" value="c"> Modify the Sound Wave asset at runtime</label>
+                            <label><input type="radio" name="q5" value="d"> This isn't possible in Unreal</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Use Fade Out (fades to zero and optionally stops) or Adjust Volume (fades to any target level) with a specified duration. These handle the interpolation automatically without needing manual loops.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>Which is the correct pattern for playing a sound when an item is picked up?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Play Sound 2D → Destroy Actor</label>
+                            <label><input type="radio" name="q6" value="b"> Get Item Location → Play Sound at Location → Destroy Actor</label>
+                            <label><input type="radio" name="q6" value="c"> Add Audio Component → Play → Destroy Actor</label>
+                            <label><input type="radio" name="q6" value="d"> Create Sound Cue → Play Sound at Location</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Get the item's location, play the 3D sound at that position, then destroy the actor. The sound continues playing even after the actor is destroyed because Play Sound at Location spawns an independent sound instance.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>What happens to a sound started with Play Sound at Location when the triggering actor is destroyed?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> The sound stops immediately</label>
+                            <label><input type="radio" name="q7" value="b"> The sound continues playing to completion at the spawned location</label>
+                            <label><input type="radio" name="q7" value="c"> The sound moves to the world origin</label>
+                            <label><input type="radio" name="q7" value="d"> The engine crashes</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Play Sound at Location spawns an independent sound instance in the world. It's not attached to any actor, so destroying the actor that triggered it has no effect on the sound. The sound plays to completion at its spawned location.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m08_l01_sound_in_unreal.html" class="btn">← Previous: Sound in Unreal</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m08_l03_ambient_audio.html" class="btn">Next: Ambient Audio →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

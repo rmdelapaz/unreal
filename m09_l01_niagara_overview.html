@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn Niagara VFX system in Unreal Engine 5. Understand particle system architecture, emitters, modules, and the Niagara editor interface.">
+    <meta name="author" content="Practical Ace">
+    <title>Niagara Overview - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 9: Particles and VFX</a></li>
+            <li aria-current="page">Lesson 9.1: Niagara Overview</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>✨ Niagara Overview</h1>
+                <p class="lead">Visual effects bring games to life—explosions, magic spells, fire, smoke, rain, and countless other phenomena that make worlds feel dynamic and reactive. Unreal Engine 5's Niagara system is a powerful, flexible VFX tool that lets you create everything from simple sparks to complex simulations. This lesson introduces Niagara's architecture and prepares you to build your own effects.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Understand Niagara's role in Unreal Engine's VFX pipeline</li>
+                        <li>Explain the System, Emitter, and Module hierarchy</li>
+                        <li>Navigate the Niagara editor interface</li>
+                        <li>Identify when to use Niagara vs. other VFX approaches</li>
+                        <li>Recognize common particle effect types and their uses</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 25-35 minutes</p>
+                    <p><strong>Prerequisites:</strong> Basic familiarity with the Unreal Editor</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-is-niagara" class="toc-link">What is Niagara?</a></li>
+                        <li><a href="#system-architecture" class="toc-link">System Architecture</a></li>
+                        <li><a href="#niagara-editor" class="toc-link">The Niagara Editor</a></li>
+                        <li><a href="#common-effects" class="toc-link">Common Effect Types</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What is Niagara? -->
+            <section id="what-is-niagara" class="lesson-section">
+                <h2>What is Niagara?</h2>
+
+                <p>Niagara is Unreal Engine's next-generation visual effects system. It replaced the older Cascade system with a more powerful, flexible, and performant approach to creating particle effects. If you want fire, smoke, sparks, magic, weather, or any dynamic visual phenomenon in your game, Niagara is the tool.</p>
+
+                <h3>Why Niagara?</h3>
+
+                <p>Niagara offers significant advantages over previous particle systems:</p>
+
+                <ul>
+                    <li><strong>Node-based and modular:</strong> Build effects by combining reusable modules</li>
+                    <li><strong>Data-driven:</strong> Full control over every particle attribute</li>
+                    <li><strong>GPU simulation:</strong> Millions of particles with excellent performance</li>
+                    <li><strong>Programmable:</strong> Custom expressions and HLSL for advanced effects</li>
+                    <li><strong>Event-driven:</strong> Particles can trigger other particles or game events</li>
+                    <li><strong>Simulation stages:</strong> Control exactly when and how particles update</li>
+                </ul>
+
+                <h3>Niagara vs. Cascade</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Feature</th>
+                            <th style="padding: 10px; text-align: left;">Cascade (Legacy)</th>
+                            <th style="padding: 10px; text-align: left;">Niagara</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Architecture</td>
+                            <td style="padding: 10px;">Fixed modules</td>
+                            <td style="padding: 10px;">Fully modular, stackable</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">GPU Particles</td>
+                            <td style="padding: 10px;">Limited support</td>
+                            <td style="padding: 10px;">Full GPU simulation</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Customization</td>
+                            <td style="padding: 10px;">Preset parameters</td>
+                            <td style="padding: 10px;">Custom modules, expressions</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Data Access</td>
+                            <td style="padding: 10px;">Limited</td>
+                            <td style="padding: 10px;">Read any attribute, any particle</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Events</td>
+                            <td style="padding: 10px;">Basic</td>
+                            <td style="padding: 10px;">Full event system</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Learning Curve</td>
+                            <td style="padding: 10px;">Lower</td>
+                            <td style="padding: 10px;">Higher (but more powerful)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Status in UE5</td>
+                            <td style="padding: 10px;">Deprecated</td>
+                            <td style="padding: 10px;">Primary VFX system</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Focus on Niagara</h4>
+                    <p>Cascade is deprecated in UE5 and may be removed in future versions. All new VFX work should use Niagara. If you encounter legacy Cascade effects, Epic provides migration tools, but learning Niagara from the start is the right approach.</p>
+                </div>
+
+                <h3>What Can Niagara Create?</h3>
+
+                <p>Niagara handles a vast range of visual effects:</p>
+
+                <ul>
+                    <li><strong>Environmental:</strong> Rain, snow, fog, dust, leaves, fireflies</li>
+                    <li><strong>Fire and smoke:</strong> Campfires, explosions, chimneys, torches</li>
+                    <li><strong>Magic and abilities:</strong> Spell effects, auras, energy beams</li>
+                    <li><strong>Impacts:</strong> Bullet hits, footstep dust, splashes</li>
+                    <li><strong>UI effects:</strong> Sparkles, highlights, transitions</li>
+                    <li><strong>Destruction:</strong> Debris, sparks, shrapnel</li>
+                    <li><strong>Fluid simulation:</strong> Water splashes, blood, slime</li>
+                    <li><strong>Crowds:</strong> Flocking birds, swarming insects, schools of fish</li>
+                </ul>
+
+                <!-- SVG: Niagara Capabilities -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Niagara Effect Categories</text>
+                    
+                    <!-- Categories -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="130" height="60" rx="8" fill="#FF6600"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🔥 Fire/Smoke</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#ffe0b2" font-size="8">Explosions, flames</text>
+                    </g>
+                    
+                    <g transform="translate(200, 55)">
+                        <rect x="0" y="0" width="130" height="60" rx="8" fill="#2196F3"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🌧️ Weather</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#bbdefb" font-size="8">Rain, snow, fog</text>
+                    </g>
+                    
+                    <g transform="translate(350, 55)">
+                        <rect x="0" y="0" width="130" height="60" rx="8" fill="#9C27B0"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">✨ Magic</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#e1bee7" font-size="8">Spells, auras</text>
+                    </g>
+                    
+                    <g transform="translate(500, 55)">
+                        <rect x="0" y="0" width="130" height="60" rx="8" fill="#4CAF50"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🌿 Nature</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#c8e6c9" font-size="8">Leaves, dust, bugs</text>
+                    </g>
+                    
+                    <g transform="translate(650, 55)">
+                        <rect x="0" y="0" width="100" height="60" rx="8" fill="#f44336"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">💥 Impact</text>
+                        <text x="50" y="45" text-anchor="middle" fill="#ffcdd2" font-size="8">Hits, debris</text>
+                    </g>
+                    
+                    <!-- Bottom row -->
+                    <g transform="translate(125, 130)">
+                        <rect x="0" y="0" width="130" height="50" rx="8" fill="#607D8B"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">💧 Fluids</text>
+                        <text x="65" y="38" text-anchor="middle" fill="#cfd8dc" font-size="8">Water, blood</text>
+                    </g>
+                    
+                    <g transform="translate(275, 130)">
+                        <rect x="0" y="0" width="130" height="50" rx="8" fill="#795548"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🏚️ Destruction</text>
+                        <text x="65" y="38" text-anchor="middle" fill="#d7ccc8" font-size="8">Rubble, sparks</text>
+                    </g>
+                    
+                    <g transform="translate(425, 130)">
+                        <rect x="0" y="0" width="130" height="50" rx="8" fill="#00BCD4"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🖥️ UI Effects</text>
+                        <text x="65" y="38" text-anchor="middle" fill="#b2ebf2" font-size="8">Highlights, trails</text>
+                    </g>
+                    
+                    <g transform="translate(575, 130)">
+                        <rect x="0" y="0" width="130" height="50" rx="8" fill="#FFC107"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">🐦 Crowds</text>
+                        <text x="65" y="38" text-anchor="middle" fill="#5d4037" font-size="8">Birds, fish, swarms</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Niagara can create virtually any particle-based visual effect.</em></p>
+            </section>
+
+            <!-- Section 2: System Architecture -->
+            <section id="system-architecture" class="lesson-section">
+                <h2>System Architecture</h2>
+
+                <p>Understanding Niagara's hierarchy is essential for creating and organizing effects. The system uses a three-level structure: Systems contain Emitters, and Emitters contain Modules.</p>
+
+                <h3>The Hierarchy</h3>
+
+                <p><strong>Niagara System:</strong></p>
+                <ul>
+                    <li>The top-level asset you place in the world</li>
+                    <li>Can contain multiple emitters</li>
+                    <li>Controls overall timing, looping, and playback</li>
+                    <li>Examples: A complete explosion (fire + smoke + sparks), a weather system (rain + fog)</li>
+                </ul>
+
+                <p><strong>Emitter:</strong></p>
+                <ul>
+                    <li>A single particle generator within a system</li>
+                    <li>Defines one "type" of particle (fire, smoke, sparks)</li>
+                    <li>Contains modules that control particle behavior</li>
+                    <li>Can be reused across multiple systems</li>
+                </ul>
+
+                <p><strong>Module:</strong></p>
+                <ul>
+                    <li>A self-contained behavior or calculation</li>
+                    <li>Plugs into emitters at specific stages</li>
+                    <li>Examples: Spawn Rate, Initial Velocity, Color Over Life, Gravity</li>
+                    <li>Can be built-in, downloaded, or custom-created</li>
+                </ul>
+
+                <!-- SVG: Niagara Hierarchy -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Niagara Hierarchy: System → Emitter → Module</text>
+                    
+                    <!-- System -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="700" height="210" rx="10" fill="#667eea" opacity="0.2" stroke="#667eea" stroke-width="3"/>
+                        <text x="20" y="25" fill="#667eea" font-size="12" font-weight="bold">Niagara System: NS_Explosion</text>
+                        
+                        <!-- Emitter 1 -->
+                        <g transform="translate(20, 40)">
+                            <rect x="0" y="0" width="200" height="150" rx="8" fill="#4CAF50" opacity="0.3" stroke="#4CAF50" stroke-width="2"/>
+                            <text x="100" y="22" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Emitter: Fire</text>
+                            
+                            <!-- Modules -->
+                            <rect x="10" y="35" width="180" height="25" rx="4" fill="#4CAF50"/>
+                            <text x="100" y="52" text-anchor="middle" fill="#fff" font-size="8">Spawn Rate: 50/sec</text>
+                            
+                            <rect x="10" y="65" width="180" height="25" rx="4" fill="#4CAF50"/>
+                            <text x="100" y="82" text-anchor="middle" fill="#fff" font-size="8">Initial Velocity: Upward</text>
+                            
+                            <rect x="10" y="95" width="180" height="25" rx="4" fill="#4CAF50"/>
+                            <text x="100" y="112" text-anchor="middle" fill="#fff" font-size="8">Color: Orange → Red</text>
+                            
+                            <rect x="10" y="125" width="180" height="20" rx="4" fill="#81C784"/>
+                            <text x="100" y="139" text-anchor="middle" fill="#fff" font-size="7">+ More modules...</text>
+                        </g>
+                        
+                        <!-- Emitter 2 -->
+                        <g transform="translate(240, 40)">
+                            <rect x="0" y="0" width="200" height="150" rx="8" fill="#607D8B" opacity="0.3" stroke="#607D8B" stroke-width="2"/>
+                            <text x="100" y="22" text-anchor="middle" fill="#37474F" font-size="10" font-weight="bold">Emitter: Smoke</text>
+                            
+                            <rect x="10" y="35" width="180" height="25" rx="4" fill="#607D8B"/>
+                            <text x="100" y="52" text-anchor="middle" fill="#fff" font-size="8">Spawn Rate: 20/sec</text>
+                            
+                            <rect x="10" y="65" width="180" height="25" rx="4" fill="#607D8B"/>
+                            <text x="100" y="82" text-anchor="middle" fill="#fff" font-size="8">Scale Over Life: Grow</text>
+                            
+                            <rect x="10" y="95" width="180" height="25" rx="4" fill="#607D8B"/>
+                            <text x="100" y="112" text-anchor="middle" fill="#fff" font-size="8">Color: Gray → Transparent</text>
+                            
+                            <rect x="10" y="125" width="180" height="20" rx="4" fill="#90A4AE"/>
+                            <text x="100" y="139" text-anchor="middle" fill="#fff" font-size="7">+ More modules...</text>
+                        </g>
+                        
+                        <!-- Emitter 3 -->
+                        <g transform="translate(460, 40)">
+                            <rect x="0" y="0" width="200" height="150" rx="8" fill="#FF9800" opacity="0.3" stroke="#FF9800" stroke-width="2"/>
+                            <text x="100" y="22" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Emitter: Sparks</text>
+                            
+                            <rect x="10" y="35" width="180" height="25" rx="4" fill="#FF9800"/>
+                            <text x="100" y="52" text-anchor="middle" fill="#fff" font-size="8">Spawn Burst: 100</text>
+                            
+                            <rect x="10" y="65" width="180" height="25" rx="4" fill="#FF9800"/>
+                            <text x="100" y="82" text-anchor="middle" fill="#fff" font-size="8">Gravity: -980</text>
+                            
+                            <rect x="10" y="95" width="180" height="25" rx="4" fill="#FF9800"/>
+                            <text x="100" y="112" text-anchor="middle" fill="#fff" font-size="8">Collision: Bounce</text>
+                            
+                            <rect x="10" y="125" width="180" height="20" rx="4" fill="#FFB74D"/>
+                            <text x="100" y="139" text-anchor="middle" fill="#fff" font-size="7">+ More modules...</text>
+                        </g>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: A Niagara System contains multiple Emitters, each with stacked Modules.</em></p>
+
+                <h3>Emitter Stages</h3>
+
+                <p>Within each emitter, modules are organized into stages that execute in order:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Stage</th>
+                            <th style="padding: 10px; text-align: left;">When It Runs</th>
+                            <th style="padding: 10px; text-align: left;">Example Modules</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Emitter Spawn</td>
+                            <td style="padding: 10px;">Once when emitter starts</td>
+                            <td style="padding: 10px;">Initialize emitter variables</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Emitter Update</td>
+                            <td style="padding: 10px;">Every frame for the emitter</td>
+                            <td style="padding: 10px;">Spawn Rate, Emitter lifetime</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Particle Spawn</td>
+                            <td style="padding: 10px;">Once per particle, when born</td>
+                            <td style="padding: 10px;">Initial Position, Velocity, Size, Color</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Every frame, per particle</td>
+                            <td style="padding: 10px;">Gravity, Drag, Color Over Life, Scale Over Life</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Render</td>
+                            <td style="padding: 10px;">When drawing particles</td>
+                            <td style="padding: 10px;">Sprite Renderer, Mesh Renderer, Ribbon</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Mermaid: Execution Flow -->
+                <pre class="mermaid">
+flowchart TD
+    A[System Spawns] --> B[Emitter Spawn]
+    B --> C[Emitter Update Loop]
+    C --> D{Spawn Particles?}
+    D -->|Yes| E[Particle Spawn]
+    D -->|No| F[Particle Update]
+    E --> F
+    F --> G[Render]
+    G --> C
+    
+    style A fill:#667eea,color:#fff
+    style B fill:#2196F3,color:#fff
+    style C fill:#4CAF50,color:#fff
+    style E fill:#FF9800,color:#fff
+    style F fill:#9C27B0,color:#fff
+    style G fill:#f44336,color:#fff
+</pre>
+                <p class="caption"><em>Figure: Niagara execution flow through stages.</em></p>
+
+                <h3>Simulation Targets</h3>
+
+                <p>Niagara can simulate particles on either CPU or GPU:</p>
+
+                <p><strong>CPU Simulation:</strong></p>
+                <ul>
+                    <li>Default for most emitters</li>
+                    <li>Easier to debug</li>
+                    <li>Better for effects with complex logic</li>
+                    <li>Can interact with game code more easily</li>
+                    <li>Limited particle counts (thousands)</li>
+                </ul>
+
+                <p><strong>GPU Simulation:</strong></p>
+                <ul>
+                    <li>Massive particle counts (millions)</li>
+                    <li>Better performance for simple particles</li>
+                    <li>Required for some advanced features</li>
+                    <li>Less flexible for CPU-side interactions</li>
+                    <li>Set in emitter properties</li>
+                </ul>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Start with CPU</h4>
+                    <p>For learning, start with CPU simulation. It's easier to understand and debug. Switch to GPU when you need massive particle counts or hit performance limits. Many professional effects use CPU simulation perfectly fine.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: The Niagara Editor -->
+            <section id="niagara-editor" class="lesson-section">
+                <h2>The Niagara Editor</h2>
+
+                <p>The Niagara editor is where you build and modify particle effects. It has a unique interface compared to other Unreal editors, so let's get familiar with its layout.</p>
+
+                <h3>Opening the Editor</h3>
+
+                <ol>
+                    <li>Right-click in Content Browser</li>
+                    <li>Select <strong>FX → Niagara System</strong></li>
+                    <li>Choose a template or start from empty</li>
+                    <li>Double-click the created asset to open the editor</li>
+                </ol>
+
+                <h3>Editor Panels</h3>
+
+                <!-- SVG: Niagara Editor Layout -->
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Niagara Editor Interface</text>
+                    
+                    <!-- Toolbar -->
+                    <g transform="translate(50, 45)">
+                        <rect x="0" y="0" width="700" height="30" rx="3" fill="#3d3d3d" stroke="#555"/>
+                        <text x="350" y="20" text-anchor="middle" fill="#888" font-size="9">Toolbar: Compile, Save, Apply, Simulation Controls</text>
+                    </g>
+                    
+                    <!-- Main layout -->
+                    <g transform="translate(50, 85)">
+                        <!-- System Overview (left) -->
+                        <rect x="0" y="0" width="180" height="200" rx="5" fill="#1565C0" stroke="#2196F3" stroke-width="2"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">System Overview</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#90CAF9" font-size="8">📋 Emitter list</text>
+                        <text x="90" y="65" text-anchor="middle" fill="#90CAF9" font-size="8">Add/remove emitters</text>
+                        <text x="90" y="85" text-anchor="middle" fill="#90CAF9" font-size="8">Reorder emitters</text>
+                        <text x="90" y="105" text-anchor="middle" fill="#90CAF9" font-size="8">Enable/disable</text>
+                        
+                        <rect x="10" y="120" width="160" height="25" rx="3" fill="#4CAF50"/>
+                        <text x="90" y="137" text-anchor="middle" fill="#fff" font-size="8">✨ Emitter_Fire</text>
+                        <rect x="10" y="150" width="160" height="25" rx="3" fill="#607D8B"/>
+                        <text x="90" y="167" text-anchor="middle" fill="#fff" font-size="8">💨 Emitter_Smoke</text>
+                        <rect x="10" y="180" width="160" height="15" rx="3" fill="#444"/>
+                        <text x="90" y="191" text-anchor="middle" fill="#888" font-size="7">+ Add Emitter</text>
+                    </g>
+                    
+                    <!-- Viewport (center) -->
+                    <g transform="translate(240, 85)">
+                        <rect x="0" y="0" width="260" height="200" rx="5" fill="#1e1e1e" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="130" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Preview Viewport</text>
+                        
+                        <!-- Particle preview representation -->
+                        <circle cx="130" cy="110" r="40" fill="rgba(255,102,0,0.3)"/>
+                        <circle cx="130" cy="100" r="25" fill="rgba(255,102,0,0.5)"/>
+                        <circle cx="130" cy="90" r="15" fill="#FF6600"/>
+                        
+                        <!-- Sparks -->
+                        <circle cx="100" cy="130" r="3" fill="#FFD700"/>
+                        <circle cx="150" cy="125" r="2" fill="#FFD700"/>
+                        <circle cx="115" cy="140" r="2" fill="#FFD700"/>
+                        <circle cx="160" cy="135" r="3" fill="#FFD700"/>
+                        
+                        <text x="130" y="180" text-anchor="middle" fill="#4CAF50" font-size="8">Real-time preview</text>
+                        <text x="130" y="195" text-anchor="middle" fill="#888" font-size="7">Rotate, zoom, scrub timeline</text>
+                    </g>
+                    
+                    <!-- Selection Panel (right) -->
+                    <g transform="translate(510, 85)">
+                        <rect x="0" y="0" width="240" height="200" rx="5" fill="#3d3d3d" stroke="#FF9800" stroke-width="2"/>
+                        <text x="120" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Selection Panel</text>
+                        <text x="120" y="40" text-anchor="middle" fill="#FFB74D" font-size="8">Module details & parameters</text>
+                        
+                        <rect x="10" y="55" width="220" height="30" rx="3" fill="#444"/>
+                        <text x="20" y="75" fill="#4CAF50" font-size="8">Spawn Rate</text>
+                        <text x="180" y="75" fill="#fff" font-size="8">50.0</text>
+                        
+                        <rect x="10" y="90" width="220" height="30" rx="3" fill="#444"/>
+                        <text x="20" y="110" fill="#4CAF50" font-size="8">Lifetime</text>
+                        <text x="180" y="110" fill="#fff" font-size="8">2.0 sec</text>
+                        
+                        <rect x="10" y="125" width="220" height="30" rx="3" fill="#444"/>
+                        <text x="20" y="145" fill="#4CAF50" font-size="8">Initial Velocity</text>
+                        <text x="150" y="145" fill="#fff" font-size="8">(0, 0, 100)</text>
+                        
+                        <rect x="10" y="160" width="220" height="30" rx="3" fill="#444"/>
+                        <text x="20" y="180" fill="#4CAF50" font-size="8">Color</text>
+                        <rect x="150" y="168" width="40" height="15" rx="2" fill="#FF6600"/>
+                    </g>
+                    
+                    <!-- Timeline (bottom) -->
+                    <g transform="translate(50, 295)">
+                        <rect x="0" y="0" width="700" height="20" rx="3" fill="#333" stroke="#555"/>
+                        <text x="350" y="14" text-anchor="middle" fill="#888" font-size="8">Timeline: Scrub, loop, playback controls</text>
+                        <rect x="100" y="5" width="200" height="10" rx="2" fill="#667eea"/>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Niagara editor interface with key panels labeled.</em></p>
+
+                <h3>Key Panels Explained</h3>
+
+                <p><strong>System Overview (Left):</strong></p>
+                <ul>
+                    <li>Shows all emitters in the system</li>
+                    <li>Add new emitters with the + button</li>
+                    <li>Click an emitter to see its modules</li>
+                    <li>Drag to reorder render priority</li>
+                </ul>
+
+                <p><strong>Preview Viewport (Center):</strong></p>
+                <ul>
+                    <li>Real-time visualization of your effect</li>
+                    <li>Rotate view with right-click drag</li>
+                    <li>Zoom with scroll wheel</li>
+                    <li>Reset with the Home key</li>
+                </ul>
+
+                <p><strong>Selection Panel (Right):</strong></p>
+                <ul>
+                    <li>Shows parameters for selected module</li>
+                    <li>Edit values, curves, colors</li>
+                    <li>Most of your tweaking happens here</li>
+                </ul>
+
+                <p><strong>Timeline (Bottom):</strong></p>
+                <ul>
+                    <li>Scrub through the effect's lifetime</li>
+                    <li>Play, pause, loop controls</li>
+                    <li>Useful for timing adjustments</li>
+                </ul>
+
+                <h3>Adding Modules</h3>
+
+                <p>To add behavior to an emitter:</p>
+                <ol>
+                    <li>Select the emitter in System Overview</li>
+                    <li>Click the <strong>+</strong> button next to a stage (Particle Spawn, Particle Update, etc.)</li>
+                    <li>Browse or search for modules</li>
+                    <li>Click to add the module</li>
+                    <li>Configure parameters in the Selection Panel</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Module Search Tip</h4>
+                    <p>The module browser can be overwhelming. Use the search bar! Type "velocity" to find velocity modules, "color" for color modules, "spawn" for spawn modules. Most common operations have intuitively named modules.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Common Effect Types -->
+            <section id="common-effects" class="lesson-section">
+                <h2>Common Effect Types</h2>
+
+                <p>Before diving into creating effects, it helps to understand the common patterns and what makes them work. Most effects are variations of a few fundamental types.</p>
+
+                <h3>Effect Patterns</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Pattern</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                            <th style="padding: 10px; text-align: left;">Examples</th>
+                            <th style="padding: 10px; text-align: left;">Key Modules</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Continuous Stream</td>
+                            <td style="padding: 10px;">Constant spawn rate, particles live and die</td>
+                            <td style="padding: 10px;">Fire, smoke, fountain</td>
+                            <td style="padding: 10px;">Spawn Rate, Lifetime, Velocity</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Burst</td>
+                            <td style="padding: 10px;">Many particles at once, then nothing</td>
+                            <td style="padding: 10px;">Explosion, muzzle flash, impact</td>
+                            <td style="padding: 10px;">Spawn Burst, Initial Velocity Range</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Trail/Ribbon</td>
+                            <td style="padding: 10px;">Connected particles forming lines</td>
+                            <td style="padding: 10px;">Sword swipe, magic trail, smoke trail</td>
+                            <td style="padding: 10px;">Ribbon Renderer, Spawn Per Unit</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Mesh Particles</td>
+                            <td style="padding: 10px;">3D meshes instead of sprites</td>
+                            <td style="padding: 10px;">Debris, leaves, shrapnel</td>
+                            <td style="padding: 10px;">Mesh Renderer, Rotation</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">GPU Simulation</td>
+                            <td style="padding: 10px;">Massive particle counts</td>
+                            <td style="padding: 10px;">Rain, snow, grass, crowds</td>
+                            <td style="padding: 10px;">GPU Sim Target, Simple behaviors</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Renderer Types</h3>
+
+                <p>How particles appear depends on the renderer:</p>
+
+                <p><strong>Sprite Renderer:</strong></p>
+                <ul>
+                    <li>Billboard quads that face the camera</li>
+                    <li>Most common renderer type</li>
+                    <li>Uses textures/materials for appearance</li>
+                    <li>Good for: fire, smoke, sparks, dust</li>
+                </ul>
+
+                <p><strong>Mesh Renderer:</strong></p>
+                <ul>
+                    <li>Full 3D meshes as particles</li>
+                    <li>More expensive but more realistic</li>
+                    <li>Good for: debris, leaves, rocks, objects</li>
+                </ul>
+
+                <p><strong>Ribbon Renderer:</strong></p>
+                <ul>
+                    <li>Connects particles into continuous strips</li>
+                    <li>Creates trail effects</li>
+                    <li>Good for: sword trails, magic lines, vehicle tracks</li>
+                </ul>
+
+                <p><strong>Light Renderer:</strong></p>
+                <ul>
+                    <li>Particles emit dynamic light</li>
+                    <li>Performance-intensive</li>
+                    <li>Good for: sparks, fire glow, magic effects</li>
+                </ul>
+
+                <!-- SVG: Renderer Types -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Niagara Renderer Types</text>
+                    
+                    <!-- Sprite -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="160" height="110" rx="8" fill="#2d2d2d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Sprite</text>
+                        
+                        <!-- Billboard squares -->
+                        <rect x="40" y="40" width="30" height="30" fill="#FF6600" opacity="0.8" transform="rotate(10, 55, 55)"/>
+                        <rect x="70" y="50" width="25" height="25" fill="#FF6600" opacity="0.6" transform="rotate(-5, 82, 62)"/>
+                        <rect x="55" y="65" width="20" height="20" fill="#FF6600" opacity="0.4"/>
+                        
+                        <text x="80" y="100" text-anchor="middle" fill="#888" font-size="8">Camera-facing quads</text>
+                    </g>
+                    
+                    <!-- Mesh -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="160" height="110" rx="8" fill="#2d2d2d" stroke="#2196F3" stroke-width="2"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">Mesh</text>
+                        
+                        <!-- 3D mesh representations -->
+                        <polygon points="60,75 75,45 90,75" fill="#8B4513" stroke="#5D4037"/>
+                        <polygon points="85,80 95,55 105,80" fill="#8B4513" stroke="#5D4037" transform="rotate(15, 95, 67)"/>
+                        <polygon points="45,85 55,60 65,85" fill="#8B4513" stroke="#5D4037" transform="rotate(-10, 55, 72)"/>
+                        
+                        <text x="80" y="100" text-anchor="middle" fill="#888" font-size="8">3D objects</text>
+                    </g>
+                    
+                    <!-- Ribbon -->
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="160" height="110" rx="8" fill="#2d2d2d" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#9C27B0" font-size="10" font-weight="bold">Ribbon</text>
+                        
+                        <!-- Ribbon trail -->
+                        <path d="M 30 70 Q 60 40, 90 60 Q 120 80, 130 50" fill="none" stroke="#E040FB" stroke-width="12" opacity="0.7" stroke-linecap="round"/>
+                        <path d="M 30 70 Q 60 40, 90 60 Q 120 80, 130 50" fill="none" stroke="#E040FB" stroke-width="6" opacity="0.9" stroke-linecap="round"/>
+                        
+                        <text x="80" y="100" text-anchor="middle" fill="#888" font-size="8">Connected trails</text>
+                    </g>
+                    
+                    <!-- Light -->
+                    <g transform="translate(590, 50)">
+                        <rect x="0" y="0" width="160" height="110" rx="8" fill="#2d2d2d" stroke="#FFC107" stroke-width="2"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#FFC107" font-size="10" font-weight="bold">Light</text>
+                        
+                        <!-- Light glow -->
+                        <circle cx="80" cy="60" r="25" fill="#FFC107" opacity="0.2"/>
+                        <circle cx="80" cy="60" r="15" fill="#FFC107" opacity="0.4"/>
+                        <circle cx="80" cy="60" r="8" fill="#FFC107" opacity="0.8"/>
+                        <circle cx="80" cy="60" r="4" fill="#fff"/>
+                        
+                        <text x="80" y="100" text-anchor="middle" fill="#888" font-size="8">Dynamic lights</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Four main renderer types for different visual needs.</em></p>
+
+                <h3>Essential Modules to Know</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Module</th>
+                            <th style="padding: 10px; text-align: left;">Stage</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Spawn Rate</td>
+                            <td style="padding: 10px;">Emitter Update</td>
+                            <td style="padding: 10px;">How many particles per second</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Spawn Burst Instantaneous</td>
+                            <td style="padding: 10px;">Emitter Update</td>
+                            <td style="padding: 10px;">Spawn many at once</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Initialize Particle</td>
+                            <td style="padding: 10px;">Particle Spawn</td>
+                            <td style="padding: 10px;">Set initial lifetime, mass, size</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Add Velocity</td>
+                            <td style="padding: 10px;">Particle Spawn</td>
+                            <td style="padding: 10px;">Initial movement direction/speed</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Gravity Force</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Pull particles down (or up)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Drag</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Slow particles over time</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Scale Color</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Change color over lifetime</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Scale Sprite Size</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Grow or shrink over lifetime</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sprite Renderer</td>
+                            <td style="padding: 10px;">Render</td>
+                            <td style="padding: 10px;">Draw as billboard sprites</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Templates Are Your Friend</h4>
+                    <p>When creating a new Niagara System, choose a template that's close to what you want. Templates come pre-configured with appropriate modules. It's much easier to modify an existing effect than build from scratch.</p>
+                </div>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Exploring Niagara</h2>
+
+                <p>Let's get hands-on with the Niagara editor. You'll create a system from a template, explore its structure, and make basic modifications to understand how the pieces fit together.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a Niagara System from a template, examine its emitter structure, modify key parameters, and preview the results in real-time. This builds familiarity with the editor before creating effects from scratch.</p>
+                </div>
+
+                <h3>Part 1: Create a Niagara System</h3>
+
+                <h4>Step 1: Create New System</h4>
+                <ol>
+                    <li>In Content Browser, navigate to or create a folder: <code>VFX</code></li>
+                    <li>Right-click → <strong>FX → Niagara System</strong></li>
+                    <li>In the wizard, select <strong>New system from selected emitter(s)</strong></li>
+                    <li>Click <strong>Next</strong></li>
+                </ol>
+
+                <h4>Step 2: Choose a Template Emitter</h4>
+                <ol>
+                    <li>In the emitter browser, expand <strong>Templates</strong></li>
+                    <li>Find and select <strong>Fountain</strong> (simple upward spray)</li>
+                    <li>Click the <strong>+</strong> to add it</li>
+                    <li>Click <strong>Finish</strong></li>
+                    <li>Name it <code>NS_TestFountain</code></li>
+                </ol>
+
+                <h4>Step 3: Open the Editor</h4>
+                <ol>
+                    <li>Double-click <code>NS_TestFountain</code> to open the Niagara editor</li>
+                    <li>The preview viewport shows particles spraying upward</li>
+                    <li>Use right-click drag to rotate the view</li>
+                    <li>Scroll to zoom in/out</li>
+                </ol>
+
+                <!-- SVG: Creating System -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Creating a Niagara System</text>
+                    
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#667eea"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Right-click</text>
+                        <text x="70" y="38" text-anchor="middle" fill="#c5cae9" font-size="8">FX → Niagara System</text>
+                    </g>
+                    
+                    <path d="M 195 75 L 230 75" stroke="#fff" stroke-width="2" marker-end="url(#createArrow)"/>
+                    
+                    <g transform="translate(240, 50)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Select Template</text>
+                        <text x="70" y="38" text-anchor="middle" fill="#c8e6c9" font-size="8">Fountain emitter</text>
+                    </g>
+                    
+                    <path d="M 385 75 L 420 75" stroke="#fff" stroke-width="2" marker-end="url(#createArrow)"/>
+                    
+                    <g transform="translate(430, 50)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#FF9800"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Name & Create</text>
+                        <text x="70" y="38" text-anchor="middle" fill="#fff3e0" font-size="8">NS_TestFountain</text>
+                    </g>
+                    
+                    <text x="350" y="130" text-anchor="middle" fill="#888" font-size="9">Double-click the asset to open the Niagara editor</text>
+                    
+                    <defs>
+                        <marker id="createArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#fff"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Steps to create a new Niagara System from template.</em></p>
+
+                <h3>Part 2: Explore the Structure</h3>
+
+                <h4>Step 4: Examine the System Overview</h4>
+                <ol>
+                    <li>Look at the <strong>System Overview</strong> panel (left side)</li>
+                    <li>You should see one emitter: <strong>Fountain</strong></li>
+                    <li>Click the emitter name to select it</li>
+                    <li>Notice the module stack that appears</li>
+                </ol>
+
+                <h4>Step 5: Identify the Stages</h4>
+                <p>With the emitter selected, find these stages in the stack:</p>
+                <ul>
+                    <li><strong>Emitter Spawn:</strong> Runs once when emitter starts</li>
+                    <li><strong>Emitter Update:</strong> Look for <em>Spawn Rate</em> here</li>
+                    <li><strong>Particle Spawn:</strong> Look for <em>Initialize Particle</em>, <em>Add Velocity</em></li>
+                    <li><strong>Particle Update:</strong> Look for <em>Gravity Force</em>, <em>Drag</em></li>
+                    <li><strong>Render:</strong> Look for <em>Sprite Renderer</em></li>
+                </ul>
+
+                <h4>Step 6: Click Through Modules</h4>
+                <ol>
+                    <li>Click on <strong>Spawn Rate</strong> in Emitter Update</li>
+                    <li>The Selection Panel (right) shows its parameters</li>
+                    <li>Note the <strong>Spawn Rate</strong> value</li>
+                    <li>Click on other modules to see their parameters</li>
+                </ol>
+
+                <h3>Part 3: Modify Basic Parameters</h3>
+
+                <h4>Step 7: Change Spawn Rate</h4>
+                <ol>
+                    <li>Select the <strong>Spawn Rate</strong> module</li>
+                    <li>In Selection Panel, find <strong>Spawn Rate</strong> parameter</li>
+                    <li>Change the value from default to <code>100</code></li>
+                    <li>Watch the preview—more particles should appear</li>
+                    <li>Try <code>20</code> for fewer particles</li>
+                    <li>Set it back to <code>50</code> for now</li>
+                </ol>
+
+                <h4>Step 8: Adjust Velocity</h4>
+                <ol>
+                    <li>Find <strong>Add Velocity</strong> in Particle Spawn</li>
+                    <li>Select it and look at the parameters</li>
+                    <li>Find the velocity vector (usually Z is up)</li>
+                    <li>Increase the Z value to make particles spray higher</li>
+                    <li>Decrease it for a lower fountain</li>
+                    <li>Try adding X or Y values for angled spray</li>
+                </ol>
+
+                <h4>Step 9: Modify Gravity</h4>
+                <ol>
+                    <li>Find <strong>Gravity Force</strong> in Particle Update</li>
+                    <li>Select it—note the gravity vector (negative Z = down)</li>
+                    <li>Reduce the magnitude for slower falling</li>
+                    <li>Set to 0 for floating particles</li>
+                    <li>Set to positive for particles that fall upward</li>
+                    <li>Reset to default gravity (~-980)</li>
+                </ol>
+
+                <!-- SVG: Parameter Modification -->
+                <svg width="100%" height="200" viewBox="0 0 750 200" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Modifying Key Parameters</text>
+                    
+                    <!-- Spawn Rate -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="60" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Spawn Rate</text>
+                        <text x="20" y="42" fill="#888" font-size="8">Value:</text>
+                        <rect x="60" y="30" width="60" height="20" rx="3" fill="#444"/>
+                        <text x="90" y="45" text-anchor="middle" fill="#fff" font-size="10">50</text>
+                        <text x="140" y="45" fill="#888" font-size="8">/sec</text>
+                    </g>
+                    
+                    <!-- Velocity -->
+                    <g transform="translate(275, 50)">
+                        <rect x="0" y="0" width="200" height="60" rx="5" fill="#3d3d3d" stroke="#2196F3" stroke-width="2"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">Initial Velocity</text>
+                        <text x="20" y="42" fill="#888" font-size="8">Z:</text>
+                        <rect x="40" y="30" width="50" height="20" rx="3" fill="#444"/>
+                        <text x="65" y="45" text-anchor="middle" fill="#fff" font-size="10">200</text>
+                        <text x="100" y="45" fill="#4CAF50" font-size="8">↑ Higher</text>
+                    </g>
+                    
+                    <!-- Gravity -->
+                    <g transform="translate(500, 50)">
+                        <rect x="0" y="0" width="200" height="60" rx="5" fill="#3d3d3d" stroke="#FF9800" stroke-width="2"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Gravity</text>
+                        <text x="20" y="42" fill="#888" font-size="8">Z:</text>
+                        <rect x="40" y="30" width="60" height="20" rx="3" fill="#444"/>
+                        <text x="70" y="45" text-anchor="middle" fill="#fff" font-size="10">-980</text>
+                        <text x="115" y="45" fill="#f44336" font-size="8">↓ Down</text>
+                    </g>
+                    
+                    <!-- Preview representations -->
+                    <g transform="translate(100, 130)">
+                        <text x="50" y="15" text-anchor="middle" fill="#4CAF50" font-size="8">More particles</text>
+                        <circle cx="30" cy="40" r="3" fill="#FF6600"/>
+                        <circle cx="50" cy="35" r="3" fill="#FF6600"/>
+                        <circle cx="70" cy="42" r="3" fill="#FF6600"/>
+                        <circle cx="40" cy="50" r="3" fill="#FF6600"/>
+                        <circle cx="60" cy="48" r="3" fill="#FF6600"/>
+                    </g>
+                    
+                    <g transform="translate(325, 130)">
+                        <text x="50" y="15" text-anchor="middle" fill="#2196F3" font-size="8">Higher spray</text>
+                        <path d="M 50 55 L 50 25" stroke="#FF6600" stroke-width="2" marker-end="url(#velArrow)"/>
+                    </g>
+                    
+                    <g transform="translate(550, 130)">
+                        <text x="50" y="15" text-anchor="middle" fill="#FF9800" font-size="8">Falls down</text>
+                        <path d="M 50 25 Q 55 40, 45 55" stroke="#FF6600" stroke-width="2" fill="none"/>
+                    </g>
+                    
+                    <defs>
+                        <marker id="velArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#FF6600"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Key parameters that dramatically change fountain behavior.</em></p>
+
+                <h3>Part 4: Modify Appearance</h3>
+
+                <h4>Step 10: Change Particle Size</h4>
+                <ol>
+                    <li>Find <strong>Initialize Particle</strong> in Particle Spawn</li>
+                    <li>Look for <strong>Sprite Size</strong> or <strong>Uniform Sprite Size</strong></li>
+                    <li>Increase the value for larger particles</li>
+                    <li>Decrease for smaller, finer particles</li>
+                </ol>
+
+                <h4>Step 11: Adjust Color</h4>
+                <ol>
+                    <li>Look for a color module (may be in Initialize Particle or a separate Scale Color)</li>
+                    <li>Click the color swatch to open the color picker</li>
+                    <li>Change to a different color</li>
+                    <li>If there's a <strong>Scale Color</strong> module with a curve, click it to edit the color over lifetime</li>
+                </ol>
+
+                <h4>Step 12: Modify Lifetime</h4>
+                <ol>
+                    <li>In <strong>Initialize Particle</strong>, find <strong>Lifetime</strong></li>
+                    <li>Increase for longer-lived particles (more visible trail)</li>
+                    <li>Decrease for shorter bursts</li>
+                    <li>Try values between 0.5 and 3.0 seconds</li>
+                </ol>
+
+                <h3>Part 5: Place in Level</h3>
+
+                <h4>Step 13: Add to Level</h4>
+                <ol>
+                    <li>Save your Niagara System (Ctrl+S)</li>
+                    <li>Go to your level viewport</li>
+                    <li>Drag <code>NS_TestFountain</code> from Content Browser into the level</li>
+                    <li>Position it where you want the fountain</li>
+                    <li>The effect should play automatically in the editor</li>
+                </ol>
+
+                <h4>Step 14: Test in PIE</h4>
+                <ol>
+                    <li>Press <strong>Play</strong> to test in Play In Editor</li>
+                    <li>Walk around the fountain</li>
+                    <li>Observe how it looks from different angles</li>
+                    <li>Stop play and adjust parameters if needed</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've successfully:</p>
+                    <ul>
+                        <li>Created a Niagara System from a template</li>
+                        <li>Explored the System, Emitter, Module hierarchy</li>
+                        <li>Modified spawn rate, velocity, and gravity</li>
+                        <li>Adjusted appearance (size, color, lifetime)</li>
+                        <li>Placed and tested the effect in a level</li>
+                    </ul>
+                    <p>You now understand how Niagara organizes effects and how to make basic modifications!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>No particles visible:</strong></p>
+                    <ul>
+                        <li>Check Spawn Rate isn't 0</li>
+                        <li>Verify the emitter is enabled (checkbox in System Overview)</li>
+                        <li>Make sure there's a renderer (Sprite Renderer in Render stage)</li>
+                        <li>Check particle size isn't too small</li>
+                    </ul>
+                    
+                    <p><strong>Particles don't move:</strong></p>
+                    <ul>
+                        <li>Check velocity values aren't all 0</li>
+                        <li>Verify Solve Forces and Velocity module exists in Particle Update</li>
+                    </ul>
+                    
+                    <p><strong>Effect doesn't play in level:</strong></p>
+                    <ul>
+                        <li>Select the Niagara System actor in the level</li>
+                        <li>In Details, ensure Auto Activate is checked</li>
+                        <li>Compile the Niagara System if you made changes</li>
+                    </ul>
+                    
+                    <p><strong>Editor preview is black:</strong></p>
+                    <ul>
+                        <li>Click the viewport and press Home to reset view</li>
+                        <li>Check that the preview isn't paused (timeline controls)</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Fire Template:</strong> Create a new system using the Fire template, explore its structure</li>
+                    <li><strong>Smoke Addition:</strong> Add a second emitter (smoke) to your fountain system</li>
+                    <li><strong>Burst Effect:</strong> Create a system using Spawn Burst instead of Spawn Rate</li>
+                    <li><strong>Color Gradient:</strong> Make particles change from yellow to red over their lifetime</li>
+                    <li><strong>Size Variation:</strong> Add randomness to initial particle size</li>
+                    <li><strong>Try GPU Sim:</strong> Change the emitter to GPU simulation and increase particle count to 10,000</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've been introduced to Niagara, Unreal Engine 5's powerful visual effects system. Understanding the fundamentals of how Niagara organizes and processes particles prepares you to create your own effects in the following lessons.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Niagara Overview:</strong> Niagara is UE5's primary VFX system, replacing the deprecated Cascade. It offers modular design, GPU simulation, full data access, and extensive customization. Use it for any particle-based visual effect—fire, smoke, magic, weather, impacts, and more.</p>
+
+                <p><strong>Three-Level Hierarchy:</strong> Niagara organizes effects into Systems (top-level assets placed in world), Emitters (individual particle generators), and Modules (self-contained behaviors). A single system can contain multiple emitters working together.</p>
+
+                <p><strong>Emitter Stages:</strong> Modules execute in specific stages: Emitter Spawn (once at start), Emitter Update (every frame), Particle Spawn (when particles born), Particle Update (every frame per particle), and Render (drawing). Understanding stages helps you place modules correctly.</p>
+
+                <p><strong>Renderer Types:</strong> Sprite (camera-facing quads), Mesh (3D objects), Ribbon (connected trails), and Light (dynamic lights). Choose based on the visual you need.</p>
+
+                <p><strong>Templates:</strong> Starting from templates is the fastest way to learn. Templates come pre-configured with appropriate modules—modify them rather than building from scratch.</p>
+
+                <h3>Niagara Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Concept</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Niagara System</td>
+                            <td style="padding: 10px;">Top-level asset, contains emitters, placed in world</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Emitter</td>
+                            <td style="padding: 10px;">Single particle type, contains modules, reusable</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Module</td>
+                            <td style="padding: 10px;">Self-contained behavior (spawn, velocity, gravity, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">CPU Simulation</td>
+                            <td style="padding: 10px;">Default, easier debug, limited count (thousands)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">GPU Simulation</td>
+                            <td style="padding: 10px;">Massive counts (millions), better performance</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Essential Modules Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Module</th>
+                            <th style="padding: 10px; text-align: left;">Stage</th>
+                            <th style="padding: 10px; text-align: left;">What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Spawn Rate</td>
+                            <td style="padding: 10px;">Emitter Update</td>
+                            <td style="padding: 10px;">Particles per second</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Spawn Burst</td>
+                            <td style="padding: 10px;">Emitter Update</td>
+                            <td style="padding: 10px;">Many particles at once</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Initialize Particle</td>
+                            <td style="padding: 10px;">Particle Spawn</td>
+                            <td style="padding: 10px;">Lifetime, size, mass</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Add Velocity</td>
+                            <td style="padding: 10px;">Particle Spawn</td>
+                            <td style="padding: 10px;">Initial movement</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Gravity Force</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Pulls particles down</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Scale Color</td>
+                            <td style="padding: 10px;">Particle Update</td>
+                            <td style="padding: 10px;">Color over lifetime</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sprite Renderer</td>
+                            <td style="padding: 10px;">Render</td>
+                            <td style="padding: 10px;">Draw as billboards</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Start with templates:</strong> Don't build from scratch until you understand the basics</li>
+                    <li><strong>Use CPU simulation first:</strong> Easier to learn and debug</li>
+                    <li><strong>Organize with folders:</strong> Keep VFX assets in a dedicated folder</li>
+                    <li><strong>Name clearly:</strong> Use NS_ prefix for systems, give emitters descriptive names</li>
+                    <li><strong>Preview constantly:</strong> Make small changes and observe results</li>
+                    <li><strong>Reuse emitters:</strong> Build a library of common effects to combine</li>
+                    <li><strong>Test in-game:</strong> Editor preview differs from actual gameplay</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Niagara System Structure Overview</text>
+                    
+                    <!-- System box -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="700" height="150" rx="10" fill="#667eea" opacity="0.15" stroke="#667eea" stroke-width="3"/>
+                        <text x="20" y="25" fill="#667eea" font-size="11" font-weight="bold">NS_Effect (System)</text>
+                        
+                        <!-- Emitters -->
+                        <g transform="translate(20, 40)">
+                            <rect x="0" y="0" width="200" height="95" rx="6" fill="#4CAF50" opacity="0.2" stroke="#4CAF50" stroke-width="2"/>
+                            <text x="100" y="18" text-anchor="middle" fill="#2E7D32" font-size="9" font-weight="bold">Emitter 1</text>
+                            
+                            <rect x="10" y="28" width="180" height="18" rx="3" fill="#4CAF50"/>
+                            <text x="100" y="41" text-anchor="middle" fill="#fff" font-size="7">Spawn Rate</text>
+                            
+                            <rect x="10" y="50" width="180" height="18" rx="3" fill="#66BB6A"/>
+                            <text x="100" y="63" text-anchor="middle" fill="#fff" font-size="7">Initialize + Velocity</text>
+                            
+                            <rect x="10" y="72" width="180" height="18" rx="3" fill="#81C784"/>
+                            <text x="100" y="85" text-anchor="middle" fill="#fff" font-size="7">Gravity + Sprite Renderer</text>
+                        </g>
+                        
+                        <g transform="translate(240, 40)">
+                            <rect x="0" y="0" width="200" height="95" rx="6" fill="#2196F3" opacity="0.2" stroke="#2196F3" stroke-width="2"/>
+                            <text x="100" y="18" text-anchor="middle" fill="#1565C0" font-size="9" font-weight="bold">Emitter 2</text>
+                            
+                            <rect x="10" y="28" width="180" height="18" rx="3" fill="#2196F3"/>
+                            <text x="100" y="41" text-anchor="middle" fill="#fff" font-size="7">Spawn Burst</text>
+                            
+                            <rect x="10" y="50" width="180" height="18" rx="3" fill="#42A5F5"/>
+                            <text x="100" y="63" text-anchor="middle" fill="#fff" font-size="7">Initialize + Scatter</text>
+                            
+                            <rect x="10" y="72" width="180" height="18" rx="3" fill="#64B5F6"/>
+                            <text x="100" y="85" text-anchor="middle" fill="#fff" font-size="7">Color Fade + Mesh Renderer</text>
+                        </g>
+                        
+                        <g transform="translate(460, 40)">
+                            <rect x="0" y="0" width="200" height="95" rx="6" fill="#9C27B0" opacity="0.2" stroke="#9C27B0" stroke-width="2"/>
+                            <text x="100" y="18" text-anchor="middle" fill="#7B1FA2" font-size="9" font-weight="bold">Emitter 3</text>
+                            
+                            <rect x="10" y="28" width="180" height="18" rx="3" fill="#9C27B0"/>
+                            <text x="100" y="41" text-anchor="middle" fill="#fff" font-size="7">Spawn Per Unit</text>
+                            
+                            <rect x="10" y="50" width="180" height="18" rx="3" fill="#AB47BC"/>
+                            <text x="100" y="63" text-anchor="middle" fill="#fff" font-size="7">Initialize + Trail</text>
+                            
+                            <rect x="10" y="72" width="180" height="18" rx="3" fill="#BA68C8"/>
+                            <text x="100" y="85" text-anchor="middle" fill="#fff" font-size="7">Ribbon Renderer</text>
+                        </g>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: A Niagara System combines multiple emitters, each with its own module stack.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you understand Niagara's structure, the next lesson covers <strong>Creating Particle Effects</strong>. You'll build effects from scratch, work with materials, and learn techniques for common effect types like fire, smoke, and sparks.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is the correct hierarchy in Niagara, from largest to smallest?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Module → Emitter → System</label>
+                            <label><input type="radio" name="q1" value="b"> System → Module → Emitter</label>
+                            <label><input type="radio" name="q1" value="c"> System → Emitter → Module</label>
+                            <label><input type="radio" name="q1" value="d"> Emitter → System → Module</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — The hierarchy is System (top-level, placed in world) → Emitter (particle generator) → Module (individual behavior). Systems contain multiple emitters, and emitters contain multiple modules.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>In which stage would you place a "Spawn Rate" module?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Particle Spawn</label>
+                            <label><input type="radio" name="q2" value="b"> Particle Update</label>
+                            <label><input type="radio" name="q2" value="c"> Emitter Update</label>
+                            <label><input type="radio" name="q2" value="d"> Render</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Spawn Rate belongs in Emitter Update because it controls how many particles the emitter creates each frame. It's an emitter-level decision, not a per-particle operation.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What renderer type would you use for a sword trail effect?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Sprite Renderer</label>
+                            <label><input type="radio" name="q3" value="b"> Mesh Renderer</label>
+                            <label><input type="radio" name="q3" value="c"> Ribbon Renderer</label>
+                            <label><input type="radio" name="q3" value="d"> Light Renderer</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Ribbon Renderer connects particles into continuous strips, perfect for trails behind moving objects like swords, magic projectiles, or vehicle tracks.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What's the main advantage of GPU simulation over CPU simulation?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Easier to debug</label>
+                            <label><input type="radio" name="q4" value="b"> Better interaction with game code</label>
+                            <label><input type="radio" name="q4" value="c"> Can handle millions of particles with better performance</label>
+                            <label><input type="radio" name="q4" value="d"> More flexible module options</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — GPU simulation excels at massive particle counts (millions) with excellent performance. The trade-off is less flexibility for CPU-side interactions and harder debugging. CPU is better for complex logic with fewer particles.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>When does the "Particle Spawn" stage execute?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Once when the emitter starts</label>
+                            <label><input type="radio" name="q5" value="b"> Every frame for all particles</label>
+                            <label><input type="radio" name="q5" value="c"> Once per particle, when that particle is born</label>
+                            <label><input type="radio" name="q5" value="d"> Only when rendering</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Particle Spawn runs once per particle at the moment it's created. This is where you set initial values like position, velocity, size, and color. Particle Update then runs every frame to modify these values over the particle's lifetime.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What is the best approach for beginners learning Niagara?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Build every effect from an empty system</label>
+                            <label><input type="radio" name="q6" value="b"> Start with templates and modify them</label>
+                            <label><input type="radio" name="q6" value="c"> Always use GPU simulation</label>
+                            <label><input type="radio" name="q6" value="d"> Copy modules from online tutorials without understanding them</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Starting with templates is the fastest way to learn. Templates come pre-configured with appropriate modules for common effects. Modify and experiment with them to understand how different modules work together.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>What replaced the Cascade particle system in Unreal Engine 5?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Cascade 2.0</label>
+                            <label><input type="radio" name="q7" value="b"> Particle System Component</label>
+                            <label><input type="radio" name="q7" value="c"> Niagara</label>
+                            <label><input type="radio" name="q7" value="d"> VFX Graph</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Niagara is UE5's primary VFX system, replacing the deprecated Cascade. Niagara offers modular design, GPU simulation, full data access, and extensive customization. All new VFX work should use Niagara.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m08_l03_ambient_audio.html" class="btn">← Previous: Ambient Audio</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m09_l02_creating_particles.html" class="btn">Next: Creating Particle Effects →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

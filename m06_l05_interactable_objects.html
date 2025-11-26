@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create interactable objects in Unreal Engine 5. Learn line traces, interaction interfaces, and build doors, switches, and pickups that respond to player input.">
+    <meta name="author" content="Practical Ace">
+    <title>Interactable Objects - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 6: Player Interaction and Input</a></li>
+            <li aria-current="page">Lesson 6.5: Interactable Objects</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🖐️ Interactable Objects</h1>
+                <p class="lead">Games come alive when the world responds to players. Pressing a button to open a door, picking up a health pack, flipping a switch to activate a bridge—these interactions transform a static environment into a living world. In this lesson, you'll learn how to create objects that respond to player input, combining line traces for detection with input actions for activation. By the end, you'll have a complete interaction system ready for any game.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Implement line traces to detect interactable objects</li>
+                        <li>Create a reusable interaction interface</li>
+                        <li>Build interactable doors, switches, and pickups</li>
+                        <li>Display interaction prompts to the player</li>
+                        <li>Combine collision, input, and visual feedback for polished interactions</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 55-65 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 6.4 (Collision and Physics Interaction), Lesson 6.2 (Enhanced Input System)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#interaction-systems" class="toc-link">Interaction System Overview</a></li>
+                        <li><a href="#line-traces" class="toc-link">Line Traces for Detection</a></li>
+                        <li><a href="#interaction-interface" class="toc-link">The Interaction Interface Pattern</a></li>
+                        <li><a href="#interactable-objects" class="toc-link">Creating Interactable Objects</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Build an Interactive Door</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Interaction System Overview -->
+            <section id="interaction-systems" class="lesson-section">
+                <h2>Interaction System Overview</h2>
+
+                <p>An interaction system answers two questions: "What can the player interact with?" and "What happens when they do?" Different games answer these questions differently, but most interaction systems share common components.</p>
+
+                <h3>Types of Interaction</h3>
+
+                <p><strong>Proximity-Based (Automatic):</strong> Interaction happens automatically when the player gets close. Triggers from the previous lesson handle this—walking through a door opens it, stepping on a platform activates it.</p>
+
+                <p><strong>Input-Based (Manual):</strong> Interaction requires a button press. The player must be near an object AND press a key. This is what we'll focus on in this lesson—"Press E to interact" style systems.</p>
+
+                <p><strong>Hybrid:</strong> Some objects use both. A door might open automatically when you approach, but a chest requires pressing a button to open.</p>
+
+                <h3>Components of an Interaction System</h3>
+
+                <p>A complete interaction system typically includes:</p>
+
+                <p><strong>Detection:</strong> Determining what the player can interact with. This can use overlap triggers (radius around player), line traces (what you're looking at), or both.</p>
+
+                <p><strong>Identification:</strong> Recognizing that an object is interactable and what kind of interaction it supports. Interfaces or tags help with this.</p>
+
+                <p><strong>Feedback:</strong> Showing the player they can interact. UI prompts ("Press E to Open"), object highlights, crosshair changes.</p>
+
+                <p><strong>Execution:</strong> Actually performing the interaction when the player presses the button. Each object handles its own logic.</p>
+
+                <!-- SVG: Interaction System Components -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Interaction System Components</text>
+                    
+                    <!-- Detection -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="150" height="90" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#1565C0" font-size="11" font-weight="bold">🔍 Detection</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">Line Trace or</text>
+                        <text x="75" y="58" text-anchor="middle" fill="#666" font-size="8">Overlap Check</text>
+                        <text x="75" y="78" text-anchor="middle" fill="#1976D2" font-size="7">"What's in range?"</text>
+                    </g>
+                    
+                    <path d="M 205 100 L 245 100" stroke="#667eea" stroke-width="2" marker-end="url(#intArrow)"/>
+                    
+                    <!-- Identification -->
+                    <g transform="translate(250, 55)">
+                        <rect x="0" y="0" width="150" height="90" rx="8" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#E65100" font-size="11" font-weight="bold">🏷️ Identification</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">Interface Check or</text>
+                        <text x="75" y="58" text-anchor="middle" fill="#666" font-size="8">Tag Verification</text>
+                        <text x="75" y="78" text-anchor="middle" fill="#FF9800" font-size="7">"Is it interactable?"</text>
+                    </g>
+                    
+                    <path d="M 405 100 L 445 100" stroke="#667eea" stroke-width="2" marker-end="url(#intArrow)"/>
+                    
+                    <!-- Feedback -->
+                    <g transform="translate(450, 55)">
+                        <rect x="0" y="0" width="150" height="90" rx="8" fill="#f3e5f5" stroke="#9C27B0"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#7B1FA2" font-size="11" font-weight="bold">💬 Feedback</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">UI Prompt</text>
+                        <text x="75" y="58" text-anchor="middle" fill="#666" font-size="8">Object Highlight</text>
+                        <text x="75" y="78" text-anchor="middle" fill="#9C27B0" font-size="7">"Press E to Open"</text>
+                    </g>
+                    
+                    <path d="M 605 100 L 645 100" stroke="#667eea" stroke-width="2" marker-end="url(#intArrow)"/>
+                    
+                    <!-- Execution -->
+                    <g transform="translate(650, 55)">
+                        <rect x="0" y="0" width="100" height="90" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">⚡ Execute</text>
+                        <text x="50" y="45" text-anchor="middle" fill="#666" font-size="8">On Input</text>
+                        <text x="50" y="58" text-anchor="middle" fill="#666" font-size="8">Pressed</text>
+                        <text x="50" y="78" text-anchor="middle" fill="#4CAF50" font-size="7">"Do the thing"</text>
+                    </g>
+                    
+                    <!-- Player and Object -->
+                    <g transform="translate(150, 175)">
+                        <circle cx="50" cy="40" r="30" fill="#667eea"/>
+                        <text x="50" y="45" text-anchor="middle" fill="#fff" font-size="10">Player</text>
+                        
+                        <!-- Line trace -->
+                        <line x1="85" y1="40" x2="280" y2="40" stroke="#667eea" stroke-width="2" stroke-dasharray="8,4"/>
+                        
+                        <!-- Object -->
+                        <rect x="290" y="15" width="80" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="330" y="45" text-anchor="middle" fill="#fff" font-size="9">Door</text>
+                        
+                        <!-- Prompt -->
+                        <rect x="280" y="70" width="100" height="25" rx="3" fill="rgba(0,0,0,0.7)"/>
+                        <text x="330" y="87" text-anchor="middle" fill="#fff" font-size="8">[E] Open Door</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="intArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The four components of a typical interaction system.</em></p>
+
+                <h3>Our Approach</h3>
+
+                <p>In this lesson, we'll build an interaction system that:</p>
+
+                <ol>
+                    <li>Uses a <strong>line trace</strong> from the camera to detect what the player is looking at</li>
+                    <li>Checks if the hit object implements an <strong>interaction interface</strong></li>
+                    <li>Shows a <strong>UI prompt</strong> when an interactable is detected</li>
+                    <li>Calls the object's <strong>Interact</strong> function when the player presses E</li>
+                </ol>
+
+                <p>This approach is flexible, scalable, and used in many professional games.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Why Line Traces?</h4>
+                    <p>Line traces let the player interact with what they're <em>looking at</em>, not just what's nearby. This is more intuitive—you point at a door and press E, rather than bumping into it. It also allows interaction at a distance (picking up items from across the room) if desired.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Line Traces for Detection -->
+            <section id="line-traces" class="lesson-section">
+                <h2>Line Traces for Detection</h2>
+
+                <p>A <strong>line trace</strong> (also called a raycast) shoots an invisible line from one point to another and reports what it hits. It's the most common way to detect what the player is looking at or aiming at.</p>
+
+                <h3>Line Trace Basics</h3>
+
+                <p>A line trace needs:</p>
+
+                <ul>
+                    <li><strong>Start Point:</strong> Where the line begins (usually camera location)</li>
+                    <li><strong>End Point:</strong> Where the line ends (camera location + forward direction × distance)</li>
+                    <li><strong>Trace Channel:</strong> What types of objects to hit (Visibility, Camera, custom channels)</li>
+                    <li><strong>Ignored Actors:</strong> Actors to skip (usually the player themselves)</li>
+                </ul>
+
+                <p>The trace returns a <strong>Hit Result</strong> containing information about what was hit: the actor, component, location, normal, and more.</p>
+
+                <h3>Line Trace by Channel</h3>
+
+                <p>The most common node is <code>Line Trace By Channel</code>:</p>
+
+                <ol>
+                    <li>In Blueprint, right-click and search "Line Trace By Channel"</li>
+                    <li>Connect Start and End vectors</li>
+                    <li>Select Trace Channel (usually Visibility)</li>
+                    <li>The node outputs a boolean (hit something?) and a Hit Result struct</li>
+                </ol>
+
+                <!-- SVG: Line Trace Concept -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Line Trace Visualization</text>
+                    
+                    <!-- Camera/Start point -->
+                    <g transform="translate(100, 80)">
+                        <circle cx="0" cy="40" r="25" fill="#667eea"/>
+                        <text x="0" y="45" text-anchor="middle" fill="#fff" font-size="9">📷</text>
+                        <text x="0" y="85" text-anchor="middle" fill="#888" font-size="8">Start Point</text>
+                        <text x="0" y="98" text-anchor="middle" fill="#667eea" font-size="7">Camera Location</text>
+                    </g>
+                    
+                    <!-- Trace line -->
+                    <line x1="130" y1="120" x2="450" y2="120" stroke="#4CAF50" stroke-width="3"/>
+                    <line x1="450" y1="120" x2="600" y2="120" stroke="#f44336" stroke-width="3" stroke-dasharray="10,5"/>
+                    
+                    <!-- Hit point -->
+                    <g transform="translate(450, 80)">
+                        <circle cx="0" cy="40" r="8" fill="#4CAF50"/>
+                        <rect x="-30" y="20" width="60" height="60" rx="5" fill="#FF9800" opacity="0.8"/>
+                        <text x="0" y="55" text-anchor="middle" fill="#fff" font-size="9">Door</text>
+                        <text x="0" y="100" text-anchor="middle" fill="#4CAF50" font-size="8">Hit!</text>
+                    </g>
+                    
+                    <!-- End point (if no hit) -->
+                    <g transform="translate(600, 80)">
+                        <circle cx="0" cy="40" r="6" fill="#f44336" opacity="0.5"/>
+                        <text x="0" y="85" text-anchor="middle" fill="#888" font-size="8">End Point</text>
+                        <text x="0" y="98" text-anchor="middle" fill="#f44336" font-size="7">(if no hit)</text>
+                    </g>
+                    
+                    <!-- Labels -->
+                    <text x="290" y="105" text-anchor="middle" fill="#4CAF50" font-size="9">Trace Distance</text>
+                    <text x="525" y="105" text-anchor="middle" fill="#f44336" font-size="8">Beyond hit</text>
+                    
+                    <!-- Hit Result box -->
+                    <g transform="translate(520, 130)">
+                        <rect x="0" y="0" width="220" height="70" rx="5" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="110" y="18" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Hit Result</text>
+                        <text x="20" y="35" fill="#aaa" font-size="7">Actor: BP_Door</text>
+                        <text x="20" y="48" fill="#aaa" font-size="7">Location: (450, 0, 120)</text>
+                        <text x="20" y="61" fill="#aaa" font-size="7">Normal: (-1, 0, 0)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Line trace from camera stops at first blocking object and returns hit information.</em></p>
+
+                <h3>Setting Up the Trace in Character</h3>
+
+                <p>We'll add the interaction trace to the player character, running every frame (or every few frames for performance):</p>
+
+                <p><strong>Get Start Point:</strong></p>
+                <ol>
+                    <li>Get the player camera's location: <code>Get Player Camera Manager</code> → <code>Get Camera Location</code></li>
+                    <li>Or use the character's camera component if you have one</li>
+                </ol>
+
+                <p><strong>Get End Point:</strong></p>
+                <ol>
+                    <li>Get camera forward vector: <code>Get Camera Rotation</code> → <code>Get Forward Vector</code></li>
+                    <li>Multiply by trace distance (e.g., 300 units)</li>
+                    <li>Add to start point: <code>Start + (Forward × Distance)</code></li>
+                </ol>
+
+                <p><strong>Perform the Trace:</strong></p>
+                <ol>
+                    <li>Add <code>Line Trace By Channel</code></li>
+                    <li>Connect Start and End</li>
+                    <li>Set Trace Channel to Visibility</li>
+                    <li>Add Self to Actors to Ignore array</li>
+                </ol>
+
+                <!-- SVG: Trace Blueprint Setup -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Interaction Trace Setup (Simplified)</text>
+                    
+                    <!-- Event Tick -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#c62828"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9">Event Tick</text>
+                    </g>
+                    
+                    <path d="M 135 75 L 165 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Get Camera -->
+                    <g transform="translate(170, 50)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#1565C0"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="8">Get Camera Location</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#fff" font-size="8">+ Forward × 300</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#90CAF9" font-size="7">→ Start, End</text>
+                    </g>
+                    
+                    <path d="M 305 75 L 335 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Line Trace -->
+                    <g transform="translate(340, 45)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Line Trace By Channel</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#c8e6c9" font-size="7">Channel: Visibility</text>
+                        <text x="75" y="50" text-anchor="middle" fill="#c8e6c9" font-size="7">Ignore: Self</text>
+                    </g>
+                    
+                    <path d="M 495 75 L 525 75" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Branch -->
+                    <g transform="translate(530, 55)">
+                        <polygon points="0,20 50,0 50,40" fill="#1565C0"/>
+                        <text x="30" y="23" text-anchor="middle" fill="#fff" font-size="7">Hit?</text>
+                    </g>
+                    
+                    <!-- True: Check Interface -->
+                    <g transform="translate(600, 35)">
+                        <rect x="0" y="0" width="150" height="40" rx="5" fill="#FF9800"/>
+                        <text x="75" y="16" text-anchor="middle" fill="#fff" font-size="8">Check Interface</text>
+                        <text x="75" y="30" text-anchor="middle" fill="#ffe0b2" font-size="7">Show Prompt</text>
+                    </g>
+                    <path d="M 585 65 L 595 50" stroke="#4CAF50" stroke-width="2"/>
+                    
+                    <!-- False: Hide Prompt -->
+                    <g transform="translate(600, 95)">
+                        <rect x="0" y="0" width="150" height="40" rx="5" fill="#607D8B"/>
+                        <text x="75" y="16" text-anchor="middle" fill="#fff" font-size="8">Hide Prompt</text>
+                        <text x="75" y="30" text-anchor="middle" fill="#cfd8dc" font-size="7">Clear Target</text>
+                    </g>
+                    <path d="M 585" y1="85" x2="595" y2="105" stroke="#f44336" stroke-width="2"/>
+                    
+                    <!-- Note -->
+                    <text x="400" y="175" text-anchor="middle" fill="#888" font-size="9">Run every tick (or use timer for performance)</text>
+                </svg>
+                <p class="caption"><em>Figure: Basic interaction trace running on Event Tick.</em></p>
+
+                <h3>Extracting Hit Information</h3>
+
+                <p>When the trace hits something, extract information from the Hit Result:</p>
+
+                <ol>
+                    <li><code>Break Hit Result</code> — Splits the struct into individual values</li>
+                    <li><code>Hit Actor</code> — The actor that was hit (use this to check for interface)</li>
+                    <li><code>Hit Component</code> — The specific component hit</li>
+                    <li><code>Impact Point</code> — World location of the hit</li>
+                    <li><code>Impact Normal</code> — Surface direction at hit point</li>
+                </ol>
+
+                <h3>Optimizing the Trace</h3>
+
+                <p>Running a trace every frame works but can be optimized:</p>
+
+                <p><strong>Use a Timer:</strong> Instead of Event Tick, use a timer that fires every 0.1 seconds. Still responsive but fewer traces.</p>
+
+                <p><strong>Trace on Input:</strong> Only trace when the player presses the interact key, not continuously. Simpler but no preview prompt.</p>
+
+                <p><strong>Short Distance:</strong> Keep trace distance reasonable (200-400 units). Longer traces have minimal benefit for interaction.</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Debug Visualization</h4>
+                    <p>The Line Trace node has a "Draw Debug Type" parameter. Set it to "For Duration" during development to see the trace line in-game. Remember to set it back to "None" for the final build!</p>
+                </div>
+            </section>
+
+            <!-- Section 3: The Interaction Interface Pattern -->
+            <section id="interaction-interface" class="lesson-section">
+                <h2>The Interaction Interface Pattern</h2>
+
+                <p>When your trace hits an object, how do you know it's interactable? You could check the actor's class, but that gets messy with many interactable types. The cleaner solution is a <strong>Blueprint Interface</strong>.</p>
+
+                <h3>What is a Blueprint Interface?</h3>
+
+                <p>A Blueprint Interface defines a contract—a set of functions that any Blueprint can implement. It's like saying "any actor that implements BPI_Interactable promises to have an Interact function."</p>
+
+                <p>Benefits of interfaces:</p>
+
+                <ul>
+                    <li><strong>Decoupling:</strong> The player doesn't need to know about every interactable class</li>
+                    <li><strong>Flexibility:</strong> Any actor can be interactable by implementing the interface</li>
+                    <li><strong>Consistency:</strong> All interactables have the same function signature</li>
+                    <li><strong>Easy checking:</strong> "Does this actor implement BPI_Interactable?" is a simple yes/no</li>
+                </ul>
+
+                <!-- SVG: Interface Concept -->
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Blueprint Interface Pattern</text>
+                    
+                    <!-- Interface definition -->
+                    <g transform="translate(300, 50)">
+                        <rect x="0" y="0" width="200" height="70" rx="8" fill="#667eea"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">BPI_Interactable</text>
+                        <text x="100" y="42" text-anchor="middle" fill="#c5cae9" font-size="9">Interact(Actor Caller)</text>
+                        <text x="100" y="58" text-anchor="middle" fill="#c5cae9" font-size="9">GetInteractionText() → String</text>
+                    </g>
+                    
+                    <!-- Implements arrows -->
+                    <path d="M 350 125 L 150 170" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    <path d="M 400 125 L 400 170" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    <path d="M 450 125 L 650 170" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    
+                    <text x="400" y="150" text-anchor="middle" fill="#667eea" font-size="8">implements</text>
+                    
+                    <!-- Implementing classes -->
+                    <g transform="translate(50, 175)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="75" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">BP_Door</text>
+                        <text x="75" y="40" text-anchor="middle" fill="#c8e6c9" font-size="8">Interact → Open/Close</text>
+                        <text x="75" y="54" text-anchor="middle" fill="#c8e6c9" font-size="7">Text → "Open Door"</text>
+                    </g>
+                    
+                    <g transform="translate(325, 175)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#FF9800"/>
+                        <text x="75" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">BP_Pickup</text>
+                        <text x="75" y="40" text-anchor="middle" fill="#ffe0b2" font-size="8">Interact → Collect</text>
+                        <text x="75" y="54" text-anchor="middle" fill="#ffe0b2" font-size="7">Text → "Pick Up"</text>
+                    </g>
+                    
+                    <g transform="translate(600, 175)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#2196F3"/>
+                        <text x="75" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">BP_Switch</text>
+                        <text x="75" y="40" text-anchor="middle" fill="#bbdefb" font-size="8">Interact → Toggle</text>
+                        <text x="75" y="54" text-anchor="middle" fill="#bbdefb" font-size="7">Text → "Flip Switch"</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: One interface, many implementations. Each object handles Interact differently.</em></p>
+
+                <h3>Creating the Interface</h3>
+
+                <ol>
+                    <li>In Content Browser, right-click → <strong>Blueprints → Blueprint Interface</strong></li>
+                    <li>Name it <code>BPI_Interactable</code></li>
+                    <li>Double-click to open</li>
+                </ol>
+
+                <p>In the Interface Editor, add functions:</p>
+
+                <p><strong>Add Interact Function:</strong></p>
+                <ol>
+                    <li>In the Functions panel, there's a default "NewFunction" — rename it to <code>Interact</code></li>
+                    <li>Select the function and add an input parameter:
+                        <ul>
+                            <li>Name: <code>Caller</code></li>
+                            <li>Type: <code>Actor</code> (object reference)</li>
+                        </ul>
+                    </li>
+                    <li>This lets the interactable know WHO is interacting (useful for player-specific logic)</li>
+                </ol>
+
+                <p><strong>Add GetInteractionText Function:</strong></p>
+                <ol>
+                    <li>Click <strong>+ Add Function</strong> in the Functions panel</li>
+                    <li>Name it <code>GetInteractionText</code></li>
+                    <li>Add an output parameter:
+                        <ul>
+                            <li>Name: <code>Text</code></li>
+                            <li>Type: <code>String</code></li>
+                        </ul>
+                    </li>
+                    <li>This returns the prompt text ("Open Door", "Pick Up", etc.)</li>
+                </ol>
+
+                <p>Compile and save the interface.</p>
+
+                <!-- SVG: Interface Creation -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">BPI_Interactable Interface Definition</text>
+                    
+                    <!-- Interface panel mockup -->
+                    <rect x="100" y="45" width="500" height="140" rx="5" fill="#3d3d3d" stroke="#555"/>
+                    
+                    <!-- Header -->
+                    <rect x="100" y="45" width="500" height="25" rx="5" fill="#667eea"/>
+                    <text x="350" y="62" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">BPI_Interactable (Blueprint Interface)</text>
+                    
+                    <!-- Function 1 -->
+                    <g transform="translate(120, 85)">
+                        <rect x="0" y="0" width="220" height="40" rx="3" fill="#4a4a4a"/>
+                        <text x="10" y="17" fill="#4CAF50" font-size="9" font-weight="bold">🔧 Interact</text>
+                        <text x="20" y="32" fill="#888" font-size="7">Input: Caller (Actor)</text>
+                    </g>
+                    
+                    <!-- Function 2 -->
+                    <g transform="translate(360, 85)">
+                        <rect x="0" y="0" width="220" height="40" rx="3" fill="#4a4a4a"/>
+                        <text x="10" y="17" fill="#FF9800" font-size="9" font-weight="bold">🔧 GetInteractionText</text>
+                        <text x="20" y="32" fill="#888" font-size="7">Output: Text (String)</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <text x="350" y="155" text-anchor="middle" fill="#888" font-size="8">Interface defines the contract — implementations provide the behavior</text>
+                </svg>
+                <p class="caption"><em>Figure: BPI_Interactable with two functions: Interact and GetInteractionText.</em></p>
+
+                <h3>Implementing the Interface</h3>
+
+                <p>To make an actor interactable:</p>
+
+                <ol>
+                    <li>Open the actor's Blueprint</li>
+                    <li>Go to <strong>Class Settings</strong> (toolbar)</li>
+                    <li>In Details panel, find <strong>Interfaces → Implemented Interfaces</strong></li>
+                    <li>Click <strong>Add</strong> and select <code>BPI_Interactable</code></li>
+                    <li>Compile — new events appear in the Event Graph</li>
+                </ol>
+
+                <p>Now implement the functions:</p>
+
+                <p><strong>Implement Interact:</strong></p>
+                <ol>
+                    <li>In My Blueprint panel, under Interfaces, find <code>Interact</code></li>
+                    <li>Double-click or right-click → <strong>Implement Event</strong></li>
+                    <li>An event node appears — add your interaction logic after it</li>
+                </ol>
+
+                <p><strong>Implement GetInteractionText:</strong></p>
+                <ol>
+                    <li>Find <code>GetInteractionText</code> under Interfaces</li>
+                    <li>Implement it — this is a function, not an event</li>
+                    <li>Add a Return node with your text string</li>
+                </ol>
+
+                <h3>Checking for Interface in Player</h3>
+
+                <p>Back in the player character, after the line trace hits something:</p>
+
+                <ol>
+                    <li>Get the <code>Hit Actor</code> from the trace result</li>
+                    <li>Use <code>Does Implement Interface</code> node</li>
+                    <li>Select <code>BPI_Interactable</code></li>
+                    <li>Branch on the result</li>
+                </ol>
+
+                <p>If true, call <code>GetInteractionText</code> on the actor to get the prompt, and store the actor reference for when the player presses the interact key.</p>
+
+                <!-- Mermaid: Interface Check Flow -->
+                <pre class="mermaid">
+flowchart TD
+    A["Line Trace Hit"] --> B["Get Hit Actor"]
+    B --> C{"Does Implement<br/>BPI_Interactable?"}
+    C -->|"Yes"| D["Store as Current Target"]
+    D --> E["Call GetInteractionText"]
+    E --> F["Show UI Prompt"]
+    C -->|"No"| G["Clear Current Target"]
+    G --> H["Hide UI Prompt"]
+    
+    style A fill:#4CAF50,color:#fff
+    style C fill:#667eea,color:#fff
+    style F fill:#FF9800,color:#fff
+    style H fill:#607D8B,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Flow for checking if a hit actor is interactable.</em></p>
+
+                <h3>Calling Interact on Input</h3>
+
+                <p>When the player presses the interact key (E):</p>
+
+                <ol>
+                    <li>Check if we have a valid <code>Current Target</code> (from the trace)</li>
+                    <li>If yes, call <code>Interact</code> interface message on that actor</li>
+                    <li>Pass <code>Self</code> (the player) as the Caller parameter</li>
+                </ol>
+
+                <p>Use <code>Interact (Message)</code> node, not a direct function call. Messages work on any actor implementing the interface without needing to know the specific class.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Interface Message vs. Function Call</h4>
+                    <p>When calling interface functions, use the <strong>Message</strong> version (shows with an envelope icon). It safely handles the call even if the target doesn't implement the interface, returning nothing instead of crashing. Direct interface calls require casting first.</p>
+                </div>
+            </section>
+            <!-- Section 4: Creating Interactable Objects -->
+            <section id="interactable-objects" class="lesson-section">
+                <h2>Creating Interactable Objects</h2>
+
+                <p>Now that we have an interaction system framework, let's create some actual interactable objects. Each object implements the BPI_Interactable interface and handles its own behavior when Interact is called.</p>
+
+                <h3>Interactable Door</h3>
+
+                <p>An interactive door opens or closes when the player interacts with it. We'll use a timeline to animate the rotation smoothly.</p>
+
+                <p><strong>Create the Door Blueprint:</strong></p>
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Blueprint Class → Actor</strong></li>
+                    <li>Name it <code>BP_InteractableDoor</code></li>
+                    <li>Open and add components:
+                        <ul>
+                            <li>Scene (root) — acts as the pivot point</li>
+                            <li>Static Mesh (child of Scene) — the door mesh</li>
+                            <li>Box Collision (child of root) — for blocking</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p><strong>Set up the mesh:</strong></p>
+                <ol>
+                    <li>Select the Static Mesh component</li>
+                    <li>Assign a door mesh (or use a scaled cube: 100×10×200)</li>
+                    <li>Offset the mesh so the pivot (Scene root) is at the hinge edge</li>
+                    <li>For a door 100 units wide, offset X by 50 so the left edge aligns with the pivot</li>
+                </ol>
+
+                <p><strong>Implement the Interface:</strong></p>
+                <ol>
+                    <li>Class Settings → Add <code>BPI_Interactable</code></li>
+                    <li>Compile</li>
+                    <li>Implement <code>GetInteractionText</code>: Return "Open Door" or "Close Door" based on state</li>
+                    <li>Implement <code>Interact</code> event: Toggle between open and closed</li>
+                </ol>
+
+                <p><strong>Create the open/close animation:</strong></p>
+                <ol>
+                    <li>Create a variable <code>IsOpen</code> (Boolean, default False)</li>
+                    <li>Add a <strong>Timeline</strong> named "DoorTimeline"</li>
+                    <li>In the timeline, add a Float track named "Alpha" (0 to 1 over 0.5 seconds)</li>
+                    <li>Use <code>Lerp (Rotator)</code> to interpolate between closed (0, 0, 0) and open (0, 90, 0)</li>
+                    <li>Set the Scene component's relative rotation</li>
+                </ol>
+
+                <!-- SVG: Door Blueprint Structure -->
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">BP_InteractableDoor Structure</text>
+                    
+                    <!-- Components -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="120" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Components</text>
+                        
+                        <text x="15" y="50" fill="#4CAF50" font-size="9">📦 Scene (Root/Pivot)</text>
+                        <text x="30" y="70" fill="#2196F3" font-size="9">├─ 🚪 DoorMesh</text>
+                        <text x="30" y="90" fill="#FF9800" font-size="9">└─ 📐 BoxCollision</text>
+                        
+                        <text x="100" y="115" text-anchor="middle" fill="#888" font-size="7">Pivot at hinge edge</text>
+                    </g>
+                    
+                    <!-- Variables -->
+                    <g transform="translate(280, 50)">
+                        <rect x="0" y="0" width="150" height="120" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="75" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Variables</text>
+                        
+                        <text x="15" y="50" fill="#9C27B0" font-size="9">🔘 IsOpen (Bool)</text>
+                        <text x="15" y="70" fill="#9C27B0" font-size="9">🔢 OpenAngle (Float)</text>
+                        <text x="25" y="85" fill="#666" font-size="7">Default: 90</text>
+                    </g>
+                    
+                    <!-- Interface Functions -->
+                    <g transform="translate(460, 50)">
+                        <rect x="0" y="0" width="280" height="120" rx="5" fill="#3d3d3d" stroke="#667eea"/>
+                        <text x="140" y="22" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Interface: BPI_Interactable</text>
+                        
+                        <text x="15" y="50" fill="#4CAF50" font-size="9">Interact →</text>
+                        <text x="100" y="50" fill="#888" font-size="8">Toggle IsOpen, Play Timeline</text>
+                        
+                        <text x="15" y="75" fill="#FF9800" font-size="9">GetInteractionText →</text>
+                        <text x="140" y="75" fill="#888" font-size="8">IsOpen ? "Close" : "Open"</text>
+                    </g>
+                    
+                    <!-- Timeline visualization -->
+                    <g transform="translate(150, 190)">
+                        <rect x="0" y="0" width="500" height="55" rx="5" fill="rgba(102,126,234,0.15)" stroke="#667eea"/>
+                        <text x="250" y="18" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Door Timeline</text>
+                        
+                        <!-- Timeline graph -->
+                        <line x1="30" y1="45" x2="470" y2="45" stroke="#555" stroke-width="1"/>
+                        <line x1="30" y1="25" x2="30" y2="45" stroke="#555" stroke-width="1"/>
+                        <path d="M 30 45 Q 150 45 250 35 Q 350 25 470 25" stroke="#4CAF50" stroke-width="2" fill="none"/>
+                        
+                        <text x="30" y="52" fill="#888" font-size="6">0s</text>
+                        <text x="470" y="52" fill="#888" font-size="6">0.5s</text>
+                        <text x="20" y="28" fill="#888" font-size="6">90°</text>
+                        <text x="20" y="48" fill="#888" font-size="6">0°</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Door Blueprint with components, variables, and animation timeline.</em></p>
+
+                <h3>Interactable Pickup</h3>
+
+                <p>A pickup item that the player collects (health, ammo, coins). When interacted with, it adds to the player's inventory and destroys itself.</p>
+
+                <p><strong>Create the Pickup Blueprint:</strong></p>
+                <ol>
+                    <li>Create new Actor Blueprint: <code>BP_InteractablePickup</code></li>
+                    <li>Add components:
+                        <ul>
+                            <li>Static Mesh — the item visual</li>
+                            <li>Sphere Collision — for proximity detection (optional)</li>
+                            <li>Point Light — glow effect (optional)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p><strong>Variables:</strong></p>
+                <ol>
+                    <li><code>ItemName</code> (String) — "Health Pack", "Gold Coin", etc.</li>
+                    <li><code>ItemValue</code> (Integer) — Amount to give (25 health, 100 gold)</li>
+                    <li>Make these <strong>Instance Editable</strong> so each pickup can be configured in the level</li>
+                </ol>
+
+                <p><strong>Implement Interface:</strong></p>
+                <ul>
+                    <li><code>GetInteractionText</code>: Return "Pick up " + ItemName</li>
+                    <li><code>Interact</code>: 
+                        <ol>
+                            <li>Cast Caller to your character class</li>
+                            <li>Call a function on character to add item (e.g., AddHealth, AddGold)</li>
+                            <li>Play pickup sound</li>
+                            <li>Destroy Actor (self)</li>
+                        </ol>
+                    </li>
+                </ul>
+
+                <!-- SVG: Pickup Types -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Common Pickup Types</text>
+                    
+                    <!-- Health -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="130" height="85" rx="8" fill="#f44336"/>
+                        <text x="65" y="30" text-anchor="middle" fill="#fff" font-size="20">❤️</text>
+                        <text x="65" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Health Pack</text>
+                        <text x="65" y="72" text-anchor="middle" fill="#ffcdd2" font-size="8">+25 Health</text>
+                    </g>
+                    
+                    <!-- Ammo -->
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="130" height="85" rx="8" fill="#FF9800"/>
+                        <text x="65" y="30" text-anchor="middle" fill="#fff" font-size="20">🔫</text>
+                        <text x="65" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Ammo Box</text>
+                        <text x="65" y="72" text-anchor="middle" fill="#ffe0b2" font-size="8">+30 Bullets</text>
+                    </g>
+                    
+                    <!-- Gold -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="130" height="85" rx="8" fill="#FFC107"/>
+                        <text x="65" y="30" text-anchor="middle" fill="#fff" font-size="20">🪙</text>
+                        <text x="65" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Gold Coin</text>
+                        <text x="65" y="72" text-anchor="middle" fill="#fff8e1" font-size="8">+100 Gold</text>
+                    </g>
+                    
+                    <!-- Key -->
+                    <g transform="translate(500, 50)">
+                        <rect x="0" y="0" width="130" height="85" rx="8" fill="#9C27B0"/>
+                        <text x="65" y="30" text-anchor="middle" fill="#fff" font-size="20">🔑</text>
+                        <text x="65" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Key</text>
+                        <text x="65" y="72" text-anchor="middle" fill="#e1bee7" font-size="8">Unlocks doors</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different pickup types use the same base system with different values.</em></p>
+
+                <h3>Interactable Switch</h3>
+
+                <p>A switch that toggles something else in the level—a light, a door, a platform. Switches demonstrate how interactables can affect other actors.</p>
+
+                <p><strong>Create the Switch Blueprint:</strong></p>
+                <ol>
+                    <li>Create <code>BP_InteractableSwitch</code></li>
+                    <li>Add components:
+                        <ul>
+                            <li>Static Mesh — switch/lever visual</li>
+                            <li>Point Light — indicator (red/green)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p><strong>Variables:</strong></p>
+                <ol>
+                    <li><code>IsActivated</code> (Boolean) — Current state</li>
+                    <li><code>LinkedActors</code> (Array of Actors) — Things to toggle</li>
+                    <li>Make LinkedActors Instance Editable for level design</li>
+                </ol>
+
+                <p><strong>Implement Interface:</strong></p>
+                <ul>
+                    <li><code>GetInteractionText</code>: Return "Activate" or "Deactivate" based on state</li>
+                    <li><code>Interact</code>:
+                        <ol>
+                            <li>Toggle IsActivated</li>
+                            <li>Update indicator light color</li>
+                            <li>Loop through LinkedActors and call their activation function</li>
+                        </ol>
+                    </li>
+                </ul>
+
+                <h3>Actor Communication: Event Dispatchers</h3>
+
+                <p>How does a switch tell a door to open? Several approaches:</p>
+
+                <p><strong>Direct Reference:</strong> The switch has a reference to specific actors and calls functions on them. Simple but tightly coupled.</p>
+
+                <p><strong>Interface:</strong> Create a <code>BPI_Activatable</code> interface with Activate/Deactivate functions. Linked actors implement it.</p>
+
+                <p><strong>Event Dispatcher:</strong> The switch broadcasts an event. Any actor can bind to it and respond. Most flexible.</p>
+
+                <p>For simple cases, direct reference works fine. We'll use that approach in the hands-on exercise.</p>
+
+                <!-- Mermaid: Switch Communication -->
+                <pre class="mermaid">
+flowchart LR
+    S["BP_Switch"] -->|"Interact"| T["Toggle State"]
+    T --> L["Loop LinkedActors"]
+    L --> D1["Door 1<br/>Open/Close"]
+    L --> D2["Light 1<br/>On/Off"]
+    L --> D3["Platform<br/>Move"]
+    
+    style S fill:#9C27B0,color:#fff
+    style T fill:#667eea,color:#fff
+    style D1 fill:#4CAF50,color:#fff
+    style D2 fill:#FF9800,color:#fff
+    style D3 fill:#2196F3,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: A switch can control multiple linked actors.</em></p>
+
+                <h3>Adding Visual Feedback</h3>
+
+                <p>Great interactions include visual feedback:</p>
+
+                <p><strong>Highlight Effect:</strong></p>
+                <ul>
+                    <li>Enable "Render Custom Depth" on the mesh when targeted</li>
+                    <li>Use a post-process material to create outline effect</li>
+                    <li>Or simply change material/emissive when targeted</li>
+                </ul>
+
+                <p><strong>UI Prompt:</strong></p>
+                <ul>
+                    <li>Create a Widget Blueprint with text ("Press E to Open")</li>
+                    <li>Add Widget Component to interactables, or</li>
+                    <li>Display a single HUD widget that updates based on current target</li>
+                </ul>
+
+                <p><strong>Interaction Feedback:</strong></p>
+                <ul>
+                    <li>Play sound effect on interact</li>
+                    <li>Spawn particle effect</li>
+                    <li>Brief UI flash or icon</li>
+                </ul>
+
+                <!-- SVG: Feedback Types -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Interaction Feedback</text>
+                    
+                    <!-- Before -->
+                    <g transform="translate(100, 50)">
+                        <text x="75" y="15" text-anchor="middle" fill="#888" font-size="10">Not Targeted</text>
+                        <rect x="25" y="25" width="100" height="70" rx="5" fill="#555"/>
+                        <text x="75" y="65" text-anchor="middle" fill="#888" font-size="9">Door</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 230 85 L 270 85" stroke="#667eea" stroke-width="2" marker-end="url(#fbArrow)"/>
+                    <text x="250" y="75" text-anchor="middle" fill="#667eea" font-size="8">Target</text>
+                    
+                    <!-- After -->
+                    <g transform="translate(300, 50)">
+                        <text x="75" y="15" text-anchor="middle" fill="#4CAF50" font-size="10">Targeted</text>
+                        <rect x="25" y="25" width="100" height="70" rx="5" fill="#4CAF50" stroke="#fff" stroke-width="3"/>
+                        <text x="75" y="65" text-anchor="middle" fill="#fff" font-size="9">Door</text>
+                        
+                        <!-- Prompt -->
+                        <rect x="10" y="100" width="130" height="25" rx="3" fill="rgba(0,0,0,0.8)"/>
+                        <text x="75" y="117" text-anchor="middle" fill="#fff" font-size="8">[E] Open Door</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 460 85 L 500 85" stroke="#667eea" stroke-width="2" marker-end="url(#fbArrow)"/>
+                    <text x="480" y="75" text-anchor="middle" fill="#667eea" font-size="8">Interact</text>
+                    
+                    <!-- Interacted -->
+                    <g transform="translate(530, 50)">
+                        <text x="75" y="15" text-anchor="middle" fill="#FF9800" font-size="10">Interacted</text>
+                        <rect x="25" y="25" width="100" height="70" rx="5" fill="#FF9800" transform="rotate(45, 75, 60)"/>
+                        <text x="75" y="100" text-anchor="middle" fill="#888" font-size="8">🔊 Sound + Animation</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="fbArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Visual feedback progresses from normal → targeted → interacted.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Reusable Base Class</h4>
+                    <p>For games with many interactables, create a base class <code>BP_InteractableBase</code> that implements the interface and common functionality (highlight, sound). Then create child classes (BP_Door, BP_Pickup) that override specific behavior. This reduces duplicate code.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Build an Interactive Door</h2>
+
+                <p>Let's build a complete interactive door system from scratch. We'll create the interface, the door Blueprint, the interaction detection in the character, and a simple UI prompt.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a door that: shows "Press E to Open/Close" when the player looks at it, opens with smooth animation when interacted, and closes when interacted again. This demonstrates the complete interaction workflow.</p>
+                </div>
+
+                <h3>Step 1: Create the Interface</h3>
+
+                <ol>
+                    <li>Content Browser → Right-click → <strong>Blueprints → Blueprint Interface</strong></li>
+                    <li>Name it <code>BPI_Interactable</code></li>
+                    <li>Double-click to open</li>
+                </ol>
+
+                <p><strong>Add Interact function:</strong></p>
+                <ol>
+                    <li>Rename the default function to <code>Interact</code></li>
+                    <li>Add input: <code>Caller</code> (Actor Reference)</li>
+                </ol>
+
+                <p><strong>Add GetInteractionText function:</strong></p>
+                <ol>
+                    <li>Click <strong>+ Add Function</strong></li>
+                    <li>Name it <code>GetInteractionText</code></li>
+                    <li>Add output: <code>Text</code> (String)</li>
+                </ol>
+
+                <p>Compile and save.</p>
+
+                <h3>Step 2: Create the Door Blueprint</h3>
+
+                <ol>
+                    <li>Right-click → <strong>Blueprint Class → Actor</strong></li>
+                    <li>Name it <code>BP_InteractableDoor</code></li>
+                    <li>Open it</li>
+                </ol>
+
+                <p><strong>Add Components:</strong></p>
+                <ol>
+                    <li>Add <code>Scene</code> component — name it "Pivot" (this will be root)</li>
+                    <li>Make Pivot the root by dragging it onto DefaultSceneRoot</li>
+                    <li>Add <code>Static Mesh</code> as child of Pivot — name it "DoorMesh"</li>
+                    <li>Set DoorMesh's Static Mesh to <code>Shape_Cube</code></li>
+                    <li>Scale DoorMesh to (1, 0.1, 2) for a door-like shape</li>
+                    <li>Set DoorMesh's Location to (50, 0, 100) — offset so pivot is at edge</li>
+                </ol>
+
+                <p><strong>Add Variables:</strong></p>
+                <ol>
+                    <li><code>IsOpen</code> (Boolean) — Default: False</li>
+                    <li><code>OpenAngle</code> (Float) — Default: 90, Instance Editable</li>
+                </ol>
+
+                <p><strong>Implement Interface:</strong></p>
+                <ol>
+                    <li>Click <strong>Class Settings</strong> in toolbar</li>
+                    <li>In Details → Interfaces → Add <code>BPI_Interactable</code></li>
+                    <li>Compile</li>
+                </ol>
+
+                <h3>Step 3: Implement GetInteractionText</h3>
+
+                <ol>
+                    <li>In My Blueprint panel, find Interfaces → GetInteractionText</li>
+                    <li>Double-click to create the function graph</li>
+                    <li>Add a <code>Select</code> node (String)</li>
+                    <li>Connect <code>IsOpen</code> to the Index</li>
+                    <li>Set False option to "Open Door"</li>
+                    <li>Set True option to "Close Door"</li>
+                    <li>Connect Select output to Return Node's Text input</li>
+                </ol>
+
+                <h3>Step 4: Create Door Timeline</h3>
+
+                <ol>
+                    <li>In Event Graph, right-click → <strong>Add Timeline</strong></li>
+                    <li>Name it "DoorTimeline"</li>
+                    <li>Double-click to open timeline editor</li>
+                    <li>Click <strong>+ Track → Add Float Track</strong></li>
+                    <li>Name the track "DoorAlpha"</li>
+                    <li>Add keyframes:
+                        <ul>
+                            <li>Time 0, Value 0</li>
+                            <li>Time 0.5, Value 1</li>
+                        </ul>
+                    </li>
+                    <li>Set Length to 0.5</li>
+                    <li>Close timeline editor</li>
+                </ol>
+
+                <h3>Step 5: Implement Interact Event</h3>
+
+                <ol>
+                    <li>In My Blueprint → Interfaces, right-click <code>Interact</code> → Implement Event</li>
+                    <li>From the Interact event:
+                        <ul>
+                            <li>Add a <code>Branch</code> node</li>
+                            <li>Connect <code>IsOpen</code> to condition</li>
+                        </ul>
+                    </li>
+                    <li>If False (door is closed):
+                        <ul>
+                            <li>Set IsOpen to True</li>
+                            <li>DoorTimeline → <code>Play from Start</code></li>
+                        </ul>
+                    </li>
+                    <li>If True (door is open):
+                        <ul>
+                            <li>Set IsOpen to False</li>
+                            <li>DoorTimeline → <code>Reverse from End</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 6: Animate Door Rotation</h3>
+
+                <ol>
+                    <li>From DoorTimeline's <code>Update</code> output:</li>
+                    <li>Add <code>Lerp (Rotator)</code> node</li>
+                    <li>A: Make Rotator (0, 0, 0) — closed position</li>
+                    <li>B: Make Rotator (0, OpenAngle, 0) — open position</li>
+                    <li>Alpha: Connect to DoorAlpha output from timeline</li>
+                    <li>Drag <code>Pivot</code> component into graph</li>
+                    <li>From Pivot, add <code>Set Relative Rotation</code></li>
+                    <li>Connect Lerp output to New Rotation</li>
+                </ol>
+
+                <!-- SVG: Door Blueprint Logic -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Door Interact Logic</text>
+                    
+                    <!-- Interact Event -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="100" height="45" rx="5" fill="#c62828"/>
+                        <text x="50" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Interact</text>
+                        <text x="50" y="32" text-anchor="middle" fill="#ffcdd2" font-size="7">(Event)</text>
+                    </g>
+                    
+                    <path d="M 135 72 L 165 72" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Branch -->
+                    <g transform="translate(170, 55)">
+                        <polygon points="0,20 50,0 50,40" fill="#1565C0"/>
+                        <text x="30" y="23" text-anchor="middle" fill="#fff" font-size="7">IsOpen?</text>
+                    </g>
+                    
+                    <!-- False path - Open door -->
+                    <g transform="translate(250, 30)">
+                        <rect x="0" y="0" width="120" height="55" rx="5" fill="#4CAF50"/>
+                        <text x="60" y="15" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Open Door</text>
+                        <text x="60" y="30" text-anchor="middle" fill="#c8e6c9" font-size="7">Set IsOpen = True</text>
+                        <text x="60" y="45" text-anchor="middle" fill="#c8e6c9" font-size="7">Play from Start</text>
+                    </g>
+                    <path d="M 225 65 L 245 50" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="235" y="45" fill="#4CAF50" font-size="7">F</text>
+                    
+                    <!-- True path - Close door -->
+                    <g transform="translate(250, 100)">
+                        <rect x="0" y="0" width="120" height="55" rx="5" fill="#FF9800"/>
+                        <text x="60" y="15" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Close Door</text>
+                        <text x="60" y="30" text-anchor="middle" fill="#ffe0b2" font-size="7">Set IsOpen = False</text>
+                        <text x="60" y="45" text-anchor="middle" fill="#ffe0b2" font-size="7">Reverse from End</text>
+                    </g>
+                    <path d="M 225 85 L 245 115" stroke="#FF9800" stroke-width="2"/>
+                    <text x="235" y="105" fill="#FF9800" font-size="7">T</text>
+                    
+                    <!-- Timeline Update -->
+                    <g transform="translate(420, 55)">
+                        <rect x="0" y="0" width="130" height="70" rx="5" fill="#667eea"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Timeline Update</text>
+                        <text x="65" y="38" text-anchor="middle" fill="#c5cae9" font-size="7">Lerp Rotation</text>
+                        <text x="65" y="52" text-anchor="middle" fill="#c5cae9" font-size="7">0° ↔ OpenAngle°</text>
+                    </g>
+                    
+                    <path d="M 555 90 L 585 90" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Set Rotation -->
+                    <g transform="translate(590, 65)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#9C27B0"/>
+                        <text x="70" y="20" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Set Relative Rotation</text>
+                        <text x="70" y="38" text-anchor="middle" fill="#e1bee7" font-size="7">(Pivot Component)</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(150, 180)">
+                        <rect x="0" y="0" width="500" height="40" rx="5" fill="rgba(76,175,80,0.15)" stroke="#4CAF50"/>
+                        <text x="250" y="25" text-anchor="middle" fill="#4CAF50" font-size="9">Door smoothly rotates between closed (0°) and open (OpenAngle°)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Interact toggles the timeline direction; timeline drives rotation.</em></p>
+
+                <h3>Step 7: Add Interaction to Character</h3>
+
+                <p>Open your character Blueprint and add:</p>
+
+                <p><strong>Variables:</strong></p>
+                <ol>
+                    <li><code>CurrentInteractable</code> (Actor Reference) — Stores what we're looking at</li>
+                    <li><code>InteractionDistance</code> (Float) — Default: 300</li>
+                </ol>
+
+                <p><strong>Create Interaction Trace Function:</strong></p>
+                <ol>
+                    <li>Create a new function <code>CheckForInteractable</code></li>
+                    <li>Get camera location and rotation (Get Player Camera Manager → Get Camera Location/Rotation)</li>
+                    <li>Calculate end point: Location + (Forward Vector × InteractionDistance)</li>
+                    <li>Line Trace By Channel (Visibility)</li>
+                    <li>If hit:
+                        <ul>
+                            <li>Get Hit Actor</li>
+                            <li>Does Implement Interface (BPI_Interactable)?</li>
+                            <li>If yes: Set CurrentInteractable = Hit Actor</li>
+                            <li>If no: Set CurrentInteractable = None</li>
+                        </ul>
+                    </li>
+                    <li>If no hit: Set CurrentInteractable = None</li>
+                </ol>
+
+                <p><strong>Call on Tick:</strong></p>
+                <ol>
+                    <li>Event Tick → Call CheckForInteractable</li>
+                </ol>
+
+                <p><strong>Handle Interact Input:</strong></p>
+                <ol>
+                    <li>Create Input Action <code>IA_Interact</code> (Digital)</li>
+                    <li>Map to E key in your Mapping Context</li>
+                    <li>Add EnhancedInputAction IA_Interact event</li>
+                    <li>Check if CurrentInteractable is valid</li>
+                    <li>If valid: Call <code>Interact</code> (Message) on CurrentInteractable, pass Self as Caller</li>
+                </ol>
+
+                <h3>Step 8: Add Simple UI Prompt</h3>
+
+                <p>Create a basic text widget:</p>
+
+                <ol>
+                    <li>Right-click → <strong>User Interface → Widget Blueprint</strong></li>
+                    <li>Name it <code>WBP_InteractionPrompt</code></li>
+                    <li>Add a Text Block centered on screen</li>
+                    <li>Bind text to a variable or function</li>
+                </ol>
+
+                <p>In Character:</p>
+                <ol>
+                    <li>Create widget on BeginPlay, add to viewport, store reference</li>
+                    <li>In CheckForInteractable, when CurrentInteractable changes:
+                        <ul>
+                            <li>If valid: Get Interaction Text, set widget text, show widget</li>
+                            <li>If none: Hide widget</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 9: Test</h3>
+
+                <ol>
+                    <li>Place BP_InteractableDoor in your level</li>
+                    <li>Play the game</li>
+                    <li>Look at the door — prompt should appear</li>
+                    <li>Press E — door should open</li>
+                    <li>Press E again — door should close</li>
+                    <li>Look away — prompt should disappear</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've built a complete interaction system with:</p>
+                    <ul>
+                        <li>Blueprint Interface for consistent interaction API</li>
+                        <li>Line trace detection for "look at" targeting</li>
+                        <li>Animated door with timeline-driven rotation</li>
+                        <li>Input handling for the interact key</li>
+                        <li>UI feedback showing interaction prompts</li>
+                    </ul>
+                    <p>This same pattern works for any interactable object—just implement the interface!</p>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Locked Door:</strong> Add a <code>IsLocked</code> variable. If locked, GetInteractionText returns "Locked", Interact does nothing or plays error sound</li>
+                    <li><strong>Key Required:</strong> Check if player has key item before unlocking</li>
+                    <li><strong>Sound Effects:</strong> Play door open/close sounds using Play Sound at Location</li>
+                    <li><strong>Auto-Close:</strong> Add a timer that closes the door after a few seconds</li>
+                    <li><strong>Pickup Item:</strong> Create BP_InteractablePickup that destroys itself and adds health to player</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've built a complete interaction system—the foundation for player engagement with the game world. From detecting what the player is looking at to responding with custom behaviors, you now understand how to make any object interactive.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Interaction System Components:</strong> Detection (what can be interacted with), Identification (is it interactable?), Feedback (UI prompts, highlights), and Execution (the actual interaction logic). These four components work together to create polished interactions.</p>
+
+                <p><strong>Line Traces:</strong> Invisible rays that detect what the player is looking at. Start from the camera, extend forward, and return hit information. Line Trace By Channel uses collision channels to filter what can be hit.</p>
+
+                <p><strong>Blueprint Interfaces:</strong> Contracts that define what functions an actor must implement. BPI_Interactable with Interact and GetInteractionText functions allows any actor to be interactable without the player needing to know specific classes.</p>
+
+                <p><strong>Interface Messages:</strong> Safe way to call interface functions on actors. Use "Interact (Message)" rather than direct calls—it handles cases where the target doesn't implement the interface gracefully.</p>
+
+                <p><strong>Interactable Objects:</strong> Doors use timelines for smooth rotation. Pickups collect items and destroy themselves. Switches toggle other actors in the level. All implement the same interface but handle Interact differently.</p>
+
+                <p><strong>Visual Feedback:</strong> UI prompts show what can be interacted with and how. Object highlights indicate the current target. Sound and visual effects confirm successful interaction.</p>
+
+                <h3>Interaction System Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Component</th>
+                            <th style="padding: 10px; text-align: left;">Implementation</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Detection</td>
+                            <td style="padding: 10px;">Line Trace By Channel</td>
+                            <td style="padding: 10px;">Find what player looks at</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Identification</td>
+                            <td style="padding: 10px;">Does Implement Interface</td>
+                            <td style="padding: 10px;">Check if interactable</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Feedback</td>
+                            <td style="padding: 10px;">Widget + GetInteractionText</td>
+                            <td style="padding: 10px;">Show prompt to player</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Execution</td>
+                            <td style="padding: 10px;">Interact (Message)</td>
+                            <td style="padding: 10px;">Trigger the interaction</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Use interfaces:</strong> They decouple the player from interactable classes, making the system flexible and maintainable</li>
+                    <li><strong>Store current target:</strong> Keep a reference to what the player is looking at for use when they press interact</li>
+                    <li><strong>Provide clear feedback:</strong> Always show the player what they can interact with and what will happen</li>
+                    <li><strong>Use timelines for animation:</strong> Smooth movement looks more polished than instant changes</li>
+                    <li><strong>Make variables editable:</strong> Instance Editable variables let designers configure objects in the level</li>
+                    <li><strong>Consider a base class:</strong> For many interactables, a parent class with common functionality reduces duplication</li>
+                    <li><strong>Add sound:</strong> Audio feedback makes interactions feel responsive and satisfying</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Complete Interaction Flow</text>
+                    
+                    <!-- Player -->
+                    <g transform="translate(50, 60)">
+                        <circle cx="40" cy="40" r="30" fill="#667eea"/>
+                        <text x="40" y="45" text-anchor="middle" fill="#fff" font-size="9">Player</text>
+                        <text x="40" y="95" text-anchor="middle" fill="#666" font-size="7">Line Trace</text>
+                    </g>
+                    
+                    <!-- Trace line -->
+                    <line x1="125" y1="100" x2="250" y2="100" stroke="#667eea" stroke-width="2" stroke-dasharray="8,4"/>
+                    
+                    <!-- Object -->
+                    <g transform="translate(255, 60)">
+                        <rect x="0" y="20" width="80" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="40" y="55" text-anchor="middle" fill="#fff" font-size="9">Door</text>
+                        <text x="40" y="95" text-anchor="middle" fill="#4CAF50" font-size="7">BPI_Interactable</text>
+                    </g>
+                    
+                    <!-- Interface check -->
+                    <path d="M 340 100 L 390 100" stroke="#667eea" stroke-width="2" marker-end="url(#sumFlowArrow)"/>
+                    
+                    <g transform="translate(395, 70)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#E65100" font-size="8" font-weight="bold">Interface?</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#666" font-size="7">Get Text</text>
+                        <text x="50" y="52" text-anchor="middle" fill="#666" font-size="7">Show Prompt</text>
+                    </g>
+                    
+                    <!-- Input -->
+                    <path d="M 500 100 L 550 100" stroke="#667eea" stroke-width="2" marker-end="url(#sumFlowArrow)"/>
+                    
+                    <g transform="translate(555, 70)">
+                        <rect x="0" y="0" width="80" height="60" rx="5" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="40" y="22" text-anchor="middle" fill="#1565C0" font-size="8" font-weight="bold">Press E</text>
+                        <text x="40" y="38" text-anchor="middle" fill="#666" font-size="7">Call</text>
+                        <text x="40" y="52" text-anchor="middle" fill="#666" font-size="7">Interact()</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <path d="M 640 100 L 690 100" stroke="#667eea" stroke-width="2" marker-end="url(#sumFlowArrow)"/>
+                    
+                    <g transform="translate(695, 75)">
+                        <rect x="0" y="0" width="70" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="35" y="20" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Door</text>
+                        <text x="35" y="35" text-anchor="middle" fill="#c8e6c9" font-size="7">Opens!</text>
+                    </g>
+                    
+                    <!-- Flow labels -->
+                    <text x="190" y="85" fill="#667eea" font-size="7">Detect</text>
+                    <text x="365" y="85" fill="#667eea" font-size="7">Identify</text>
+                    <text x="525" y="85" fill="#667eea" font-size="7">Input</text>
+                    <text x="665" y="85" fill="#667eea" font-size="7">Execute</text>
+                    
+                    <defs>
+                        <marker id="sumFlowArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The complete interaction flow from detection to execution.</em></p>
+
+                <h3>Module 6 Complete!</h3>
+
+                <p>Congratulations! You've completed Module 6: Player Interaction and Input. You now understand:</p>
+
+                <ul>
+                    <li><strong>Player Controllers and Pawns:</strong> The architecture of player representation</li>
+                    <li><strong>Enhanced Input System:</strong> Modern, flexible input handling with actions, contexts, and modifiers</li>
+                    <li><strong>Character Movement:</strong> The Character Movement Component and how to tune it for different gameplay feels</li>
+                    <li><strong>Collision and Physics:</strong> Collision channels, responses, triggers, and physics simulation</li>
+                    <li><strong>Interactable Objects:</strong> Interface-based interaction systems with visual feedback</li>
+                </ul>
+
+                <p>These systems form the core of player agency in games. In Module 7, you'll learn about <strong>User Interface with UMG</strong>—creating menus, HUDs, and in-game UI to communicate information to players.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is the primary purpose of using a Blueprint Interface for interactable objects?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> To make objects visible in the level</label>
+                            <label><input type="radio" name="q1" value="b"> To allow any actor to be interactable without the player knowing specific classes</label>
+                            <label><input type="radio" name="q1" value="c"> To automatically generate UI prompts</label>
+                            <label><input type="radio" name="q1" value="d"> To enable physics simulation on objects</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Blueprint Interfaces define a contract that any actor can implement. The player character only needs to check "Does this implement BPI_Interactable?" rather than casting to specific classes like BP_Door, BP_Pickup, etc. This decouples the interaction system from specific implementations.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What does a Line Trace By Channel return when it hits an object?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Only a boolean indicating if something was hit</label>
+                            <label><input type="radio" name="q2" value="b"> A boolean and a Hit Result struct with detailed information</label>
+                            <label><input type="radio" name="q2" value="c"> Only the actor that was hit</label>
+                            <label><input type="radio" name="q2" value="d"> A list of all actors in the trace path</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Line Trace By Channel returns both a boolean (was something hit?) and a Hit Result struct containing detailed information: the hit actor, hit component, impact point, impact normal, physical material, bone name (for skeletal meshes), and more.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>Why should you use "Interact (Message)" instead of calling the interface function directly?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Messages are faster to execute</label>
+                            <label><input type="radio" name="q3" value="b"> Messages work across network in multiplayer</label>
+                            <label><input type="radio" name="q3" value="c"> Messages safely handle cases where the target doesn't implement the interface</label>
+                            <label><input type="radio" name="q3" value="d"> Messages automatically generate UI feedback</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Interface Messages (shown with an envelope icon) safely call interface functions on any actor. If the target doesn't implement the interface, the message simply does nothing instead of causing an error. Direct interface calls require you to cast first and handle the failure case manually.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What is the recommended way to animate a door opening smoothly?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Set the rotation instantly when interacted</label>
+                            <label><input type="radio" name="q4" value="b"> Use Event Tick to increment rotation each frame</label>
+                            <label><input type="radio" name="q4" value="c"> Use a Timeline to interpolate between closed and open rotations</label>
+                            <label><input type="radio" name="q4" value="d"> Use physics simulation to push the door open</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Timelines provide smooth, controlled animation with easy-to-edit curves. They output an alpha value (0-1) that you use with Lerp to interpolate between closed and open states. Timelines can also be played forward or reversed, making toggle behavior simple.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Which component of an interaction system is responsible for showing "Press E to Open" on screen?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Detection</label>
+                            <label><input type="radio" name="q5" value="b"> Identification</label>
+                            <label><input type="radio" name="q5" value="c"> Feedback</label>
+                            <label><input type="radio" name="q5" value="d"> Execution</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Feedback is responsible for communicating to the player what they can interact with. This includes UI prompts (text showing the action), object highlights (visual indication of the target), and interaction confirmations (sounds, effects when interacting).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m06_l04_collision_and_physics.html" class="btn">← Previous: Collision and Physics</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m07_l01_introduction_to_umg.html" class="btn">Next: Module 7 - UMG →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

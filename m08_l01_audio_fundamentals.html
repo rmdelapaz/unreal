@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn audio fundamentals in Unreal Engine 5. Understand sound formats, import workflows, Sound Cues, MetaSounds, and 2D vs 3D audio.">
+    <meta name="author" content="Practical Ace">
+    <title>Sound in Unreal - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 8: Audio Basics</a></li>
+            <li aria-current="page">Lesson 8.1: Sound in Unreal</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🔊 Sound in Unreal</h1>
+                <p class="lead">Sound transforms a visual experience into an immersive one. The crack of a gunshot, the ambience of a forest, the music that swells during a boss fight—audio is half of the player's experience. In this lesson, you'll learn how Unreal Engine handles audio, from importing sound files to understanding the different audio systems available.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Import audio files in supported formats</li>
+                        <li>Understand Sound Wave assets and their properties</li>
+                        <li>Differentiate between Sound Cues and MetaSounds</li>
+                        <li>Explain 2D vs 3D spatialized audio</li>
+                        <li>Configure Sound Classes and Mix settings</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 35-45 minutes</p>
+                    <p><strong>Prerequisites:</strong> Module 5 (Blueprints basics)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#audio-overview" class="toc-link">Audio in Unreal Engine</a></li>
+                        <li><a href="#importing-audio" class="toc-link">Importing Audio Files</a></li>
+                        <li><a href="#sound-systems" class="toc-link">Sound Cues vs MetaSounds</a></li>
+                        <li><a href="#spatial-audio" class="toc-link">2D vs 3D Audio</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Audio in Unreal Engine -->
+            <section id="audio-overview" class="lesson-section">
+                <h2>Audio in Unreal Engine</h2>
+
+                <p>Unreal Engine provides a comprehensive audio system that handles everything from simple sound effects to complex, procedural audio compositions. Understanding the audio pipeline helps you create rich soundscapes that respond to gameplay.</p>
+
+                <h3>The Audio Pipeline</h3>
+
+                <p>Sound in Unreal follows a clear path from source to speaker:</p>
+
+                <ol>
+                    <li><strong>Sound Wave:</strong> The raw audio file imported into Unreal</li>
+                    <li><strong>Sound Asset:</strong> Sound Cue, MetaSound, or direct Sound Wave reference</li>
+                    <li><strong>Audio Component:</strong> The component that plays the sound on an Actor</li>
+                    <li><strong>Sound Class:</strong> Categorization for volume control (Music, SFX, Voice)</li>
+                    <li><strong>Sound Mix:</strong> Master volume controls and effects</li>
+                    <li><strong>Output:</strong> Final audio sent to speakers/headphones</li>
+                </ol>
+
+                <!-- SVG: Audio Pipeline -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Unreal Audio Pipeline</text>
+                    
+                    <!-- Sound Wave -->
+                    <g transform="translate(30, 70)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#667eea"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Sound Wave</text>
+                        <text x="50" y="42" text-anchor="middle" fill="#c5cae9" font-size="7">.wav / .ogg</text>
+                    </g>
+                    
+                    <path d="M 135 100 L 165 100" stroke="#667eea" stroke-width="2" marker-end="url(#audioArrow)"/>
+                    
+                    <!-- Sound Asset -->
+                    <g transform="translate(170, 70)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Sound Asset</text>
+                        <text x="50" y="42" text-anchor="middle" fill="#c8e6c9" font-size="7">Cue / MetaSound</text>
+                    </g>
+                    
+                    <path d="M 275 100 L 305 100" stroke="#667eea" stroke-width="2" marker-end="url(#audioArrow)"/>
+                    
+                    <!-- Audio Component -->
+                    <g transform="translate(310, 70)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#FF9800"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Audio</text>
+                        <text x="50" y="42" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Component</text>
+                    </g>
+                    
+                    <path d="M 415 100 L 445 100" stroke="#667eea" stroke-width="2" marker-end="url(#audioArrow)"/>
+                    
+                    <!-- Sound Class -->
+                    <g transform="translate(450, 70)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#9C27B0"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Sound Class</text>
+                        <text x="50" y="42" text-anchor="middle" fill="#e1bee7" font-size="7">SFX / Music</text>
+                    </g>
+                    
+                    <path d="M 555 100 L 585 100" stroke="#667eea" stroke-width="2" marker-end="url(#audioArrow)"/>
+                    
+                    <!-- Sound Mix -->
+                    <g transform="translate(590, 70)">
+                        <rect x="0" y="0" width="100" height="60" rx="5" fill="#f44336"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Sound Mix</text>
+                        <text x="50" y="42" text-anchor="middle" fill="#ffcdd2" font-size="7">Master Volume</text>
+                    </g>
+                    
+                    <path d="M 695 100 L 725 100" stroke="#667eea" stroke-width="2" marker-end="url(#audioArrow)"/>
+                    
+                    <!-- Output -->
+                    <g transform="translate(730, 80)">
+                        <text x="20" y="20" text-anchor="middle" fill="#333" font-size="24">🔊</text>
+                    </g>
+                    
+                    <!-- Labels -->
+                    <text x="80" y="160" text-anchor="middle" fill="#666" font-size="7">Import</text>
+                    <text x="220" y="160" text-anchor="middle" fill="#666" font-size="7">Process</text>
+                    <text x="360" y="160" text-anchor="middle" fill="#666" font-size="7">Play</text>
+                    <text x="500" y="160" text-anchor="middle" fill="#666" font-size="7">Categorize</text>
+                    <text x="640" y="160" text-anchor="middle" fill="#666" font-size="7">Mix</text>
+                    <text x="750" y="160" text-anchor="middle" fill="#666" font-size="7">Output</text>
+                    
+                    <defs>
+                        <marker id="audioArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Audio flows from imported files through processing to final output.</em></p>
+
+                <h3>Audio Engine Features</h3>
+
+                <p>Unreal's audio engine provides powerful features:</p>
+
+                <p><strong>Spatialization:</strong> 3D positioning of sounds in the game world. Sounds get louder as you approach, quieter as you move away, and pan left/right based on direction.</p>
+
+                <p><strong>Attenuation:</strong> How sound volume decreases over distance. Configure falloff curves, maximum audible range, and occlusion (sounds muffled through walls).</p>
+
+                <p><strong>Reverb:</strong> Environmental effects that simulate sound reflections in different spaces (cave echo, outdoor openness, small room).</p>
+
+                <p><strong>Real-time Mixing:</strong> Adjust volumes, apply effects, and duck certain sounds based on gameplay state.</p>
+
+                <p><strong>Procedural Audio:</strong> With MetaSounds, generate audio algorithmically rather than playing static files.</p>
+
+                <h3>Audio Asset Types</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Asset Type</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                            <th style="padding: 10px; text-align: left;">Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sound Wave</td>
+                            <td style="padding: 10px;">Raw imported audio file</td>
+                            <td style="padding: 10px;">Simple sounds, source for other assets</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Sound Cue</td>
+                            <td style="padding: 10px;">Node-based sound processing</td>
+                            <td style="padding: 10px;">Randomization, layering, simple logic</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">MetaSound</td>
+                            <td style="padding: 10px;">Procedural audio graph</td>
+                            <td style="padding: 10px;">Complex, dynamic, procedural audio</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Sound Class</td>
+                            <td style="padding: 10px;">Category for volume grouping</td>
+                            <td style="padding: 10px;">Separate Music/SFX/Voice controls</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sound Mix</td>
+                            <td style="padding: 10px;">Master mix settings</td>
+                            <td style="padding: 10px;">Overall volume, ducking, effects</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Sound Attenuation</td>
+                            <td style="padding: 10px;">Distance falloff settings</td>
+                            <td style="padding: 10px;">3D sound behavior configuration</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Reverb Effect</td>
+                            <td style="padding: 10px;">Environmental reverb preset</td>
+                            <td style="padding: 10px;">Cave, hallway, outdoor ambience</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 2: Importing Audio Files -->
+            <section id="importing-audio" class="lesson-section">
+                <h2>Importing Audio Files</h2>
+
+                <p>Before you can use sounds in Unreal, you need to import them. Understanding supported formats and import settings helps ensure your audio sounds great and performs well.</p>
+
+                <h3>Supported Audio Formats</h3>
+
+                <p>Unreal Engine supports several audio formats:</p>
+
+                <p><strong>.WAV (Recommended):</strong></p>
+                <ul>
+                    <li>Uncompressed, highest quality</li>
+                    <li>Best for short sound effects</li>
+                    <li>Unreal compresses during cooking</li>
+                    <li>16-bit or 24-bit, any sample rate (44.1kHz or 48kHz typical)</li>
+                </ul>
+
+                <p><strong>.OGG (Ogg Vorbis):</strong></p>
+                <ul>
+                    <li>Compressed, smaller file size</li>
+                    <li>Good for longer sounds (music, ambient loops)</li>
+                    <li>Slight quality loss vs WAV</li>
+                    <li>Streams well for large files</li>
+                </ul>
+
+                <p><strong>.FLAC:</strong></p>
+                <ul>
+                    <li>Lossless compression</li>
+                    <li>Smaller than WAV, same quality</li>
+                    <li>Good middle ground</li>
+                </ul>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Format Recommendation</h4>
+                    <p>Import as WAV for the best quality. Unreal will compress audio during packaging based on your platform settings. This gives you maximum flexibility—you're not double-compressing already-compressed files.</p>
+                </div>
+
+                <h3>Importing Sound Files</h3>
+
+                <ol>
+                    <li>Prepare your audio file (WAV recommended, 44.1kHz or 48kHz)</li>
+                    <li>In Content Browser, click <strong>Import</strong> or drag files directly</li>
+                    <li>Navigate to your audio file(s) and select them</li>
+                    <li>Choose destination folder in your project</li>
+                    <li>Click <strong>Import</strong></li>
+                </ol>
+
+                <p>Unreal creates a <strong>Sound Wave</strong> asset for each imported file.</p>
+
+                <h3>Sound Wave Properties</h3>
+
+                <p>Double-click a Sound Wave to open its properties:</p>
+
+                <p><strong>General:</strong></p>
+                <ul>
+                    <li><strong>Duration:</strong> Length of the sound in seconds</li>
+                    <li><strong>Sample Rate:</strong> Audio quality (44100 Hz typical)</li>
+                    <li><strong>Channels:</strong> Mono (1) or Stereo (2)</li>
+                </ul>
+
+                <p><strong>Sound:</strong></p>
+                <ul>
+                    <li><strong>Volume:</strong> Base volume multiplier (0.0 - 1.0+)</li>
+                    <li><strong>Pitch:</strong> Playback speed/pitch multiplier</li>
+                    <li><strong>Sound Class:</strong> Category assignment (SFX, Music, etc.)</li>
+                </ul>
+
+                <p><strong>Compression:</strong></p>
+                <ul>
+                    <li><strong>Loading Behavior:</strong> How the sound loads into memory</li>
+                    <li><strong>Compression Quality:</strong> Trade-off between size and quality</li>
+                </ul>
+
+                <!-- SVG: Sound Wave Properties -->
+                <svg width="100%" height="220" viewBox="0 0 700 220" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Sound Wave Asset Properties</text>
+                    
+                    <!-- Waveform visualization -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="250" height="80" rx="5" fill="#1e1e1e" stroke="#444"/>
+                        <text x="125" y="20" text-anchor="middle" fill="#667eea" font-size="10">Waveform Preview</text>
+                        
+                        <!-- Simple waveform -->
+                        <path d="M 20 50 Q 40 30, 60 50 T 100 50 T 140 50 T 180 50 T 220 50" stroke="#4CAF50" stroke-width="2" fill="none"/>
+                        <path d="M 20 50 Q 40 70, 60 50 T 100 50 T 140 50 T 180 50 T 220 50" stroke="#4CAF50" stroke-width="2" fill="none"/>
+                        
+                        <text x="125" y="75" text-anchor="middle" fill="#888" font-size="8">Duration: 2.5 seconds</text>
+                    </g>
+                    
+                    <!-- Properties panel -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="300" height="150" rx="5" fill="#3d3d3d" stroke="#555"/>
+                        <text x="150" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Details Panel</text>
+                        
+                        <text x="15" y="45" fill="#888" font-size="8">Sound</text>
+                        <text x="25" y="62" fill="#4CAF50" font-size="8">Volume: 1.0</text>
+                        <text x="25" y="77" fill="#4CAF50" font-size="8">Pitch: 1.0</text>
+                        <text x="25" y="92" fill="#4CAF50" font-size="8">Sound Class: SFX</text>
+                        
+                        <text x="160" y="45" fill="#888" font-size="8">Info</text>
+                        <text x="170" y="62" fill="#667eea" font-size="8">Sample Rate: 44100 Hz</text>
+                        <text x="170" y="77" fill="#667eea" font-size="8">Channels: Stereo</text>
+                        <text x="170" y="92" fill="#667eea" font-size="8">Format: PCM</text>
+                        
+                        <text x="15" y="115" fill="#888" font-size="8">Compression</text>
+                        <text x="25" y="132" fill="#FF9800" font-size="8">Loading: Retain on Load</text>
+                        <text x="170" y="132" fill="#FF9800" font-size="8">Quality: 80</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Sound Wave assets show waveform preview and configurable properties.</em></p>
+
+                <h3>Loading Behavior Options</h3>
+
+                <p>How a sound loads into memory affects both performance and memory usage:</p>
+
+                <p><strong>Retain on Load:</strong> Sound stays in memory once loaded. Best for frequently used sounds (footsteps, gunshots).</p>
+
+                <p><strong>Prime on Load:</strong> Loads async when level loads. Good for sounds needed soon after level start.</p>
+
+                <p><strong>Load on Demand:</strong> Only loads when actually played. Saves memory but may cause slight delay on first play.</p>
+
+                <p><strong>Stream:</strong> Streams from disk during playback. Essential for long sounds (music) to save memory. Small latency on start.</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Streaming Large Files</h4>
+                    <p>For music and long ambient sounds, enable streaming in the Sound Wave's Compression settings. A 3-minute music track as uncompressed audio would use significant memory. Streaming keeps only a small buffer loaded at any time.</p>
+                </div>
+
+                <h3>Mono vs Stereo</h3>
+
+                <p><strong>Mono (1 channel):</strong></p>
+                <ul>
+                    <li>Required for 3D spatialized sounds</li>
+                    <li>Engine can position in 3D space</li>
+                    <li>Use for: gunshots, footsteps, voice, most SFX</li>
+                </ul>
+
+                <p><strong>Stereo (2 channels):</strong></p>
+                <ul>
+                    <li>Fixed left/right channels</li>
+                    <li>Cannot be properly spatialized in 3D</li>
+                    <li>Use for: music, UI sounds, ambient beds</li>
+                </ul>
+
+                <p>Most 3D sound effects should be mono. Unreal will spatialize mono sounds correctly. Stereo sounds played in 3D often sound wrong because the left/right channels don't move naturally.</p>
+            </section>
+
+            <!-- Section 3: Sound Cues vs MetaSounds -->
+            <section id="sound-systems" class="lesson-section">
+                <h2>Sound Cues vs MetaSounds</h2>
+
+                <p>Unreal provides two systems for processing and enhancing audio beyond simple Sound Wave playback. Understanding when to use each helps you create better audio with less effort.</p>
+
+                <h3>Sound Cues</h3>
+
+                <p>Sound Cues are the traditional node-based sound processing system. They let you combine and modify Sound Waves visually.</p>
+
+                <p><strong>Creating a Sound Cue:</strong></p>
+                <ol>
+                    <li>Right-click in Content Browser</li>
+                    <li>Select <strong>Sounds → Sound Cue</strong></li>
+                    <li>Name it (e.g., <code>SC_Footstep</code>)</li>
+                    <li>Double-click to open the Sound Cue Editor</li>
+                </ol>
+
+                <p><strong>Common Sound Cue Nodes:</strong></p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Node</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                            <th style="padding: 10px; text-align: left;">Example Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Wave Player</td>
+                            <td style="padding: 10px;">Plays a Sound Wave</td>
+                            <td style="padding: 10px;">Source for the cue</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Random</td>
+                            <td style="padding: 10px;">Randomly selects from inputs</td>
+                            <td style="padding: 10px;">Varied footstep sounds</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Modulator</td>
+                            <td style="padding: 10px;">Randomizes pitch/volume</td>
+                            <td style="padding: 10px;">Natural variation</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Mixer</td>
+                            <td style="padding: 10px;">Combines multiple sounds</td>
+                            <td style="padding: 10px;">Layered sounds</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Concatenator</td>
+                            <td style="padding: 10px;">Plays sounds in sequence</td>
+                            <td style="padding: 10px;">Multi-part sounds</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Looping</td>
+                            <td style="padding: 10px;">Loops the sound</td>
+                            <td style="padding: 10px;">Ambient loops</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Delay</td>
+                            <td style="padding: 10px;">Adds delay before playing</td>
+                            <td style="padding: 10px;">Timed sequences</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- SVG: Sound Cue Example -->
+                <svg width="100%" height="200" viewBox="0 0 750 200" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Sound Cue: Randomized Footsteps</text>
+                    
+                    <!-- Wave Players -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="120" height="35" rx="5" fill="#667eea"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="8">Footstep_01</text>
+                    </g>
+                    <g transform="translate(50, 95)">
+                        <rect x="0" y="0" width="120" height="35" rx="5" fill="#667eea"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="8">Footstep_02</text>
+                    </g>
+                    <g transform="translate(50, 135)">
+                        <rect x="0" y="0" width="120" height="35" rx="5" fill="#667eea"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="8">Footstep_03</text>
+                    </g>
+                    
+                    <!-- Random node -->
+                    <g transform="translate(230, 85)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#FF9800"/>
+                        <text x="50" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Random</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#fff3e0" font-size="7">Select 1 of 3</text>
+                    </g>
+                    
+                    <!-- Connections to Random -->
+                    <path d="M 175 72 L 225 100" stroke="#fff" stroke-width="2"/>
+                    <path d="M 175 112 L 225 110" stroke="#fff" stroke-width="2"/>
+                    <path d="M 175 152 L 225 120" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Modulator -->
+                    <g transform="translate(380, 85)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#9C27B0"/>
+                        <text x="50" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Modulator</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#e1bee7" font-size="7">Pitch ±10%</text>
+                    </g>
+                    
+                    <path d="M 335 110 L 375 110" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Output -->
+                    <g transform="translate(530, 85)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="50" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Output</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#c8e6c9" font-size="7">To Speakers</text>
+                    </g>
+                    
+                    <path d="M 485 110 L 525 110" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Description -->
+                    <text x="375" y="180" text-anchor="middle" fill="#888" font-size="9">Each play randomly selects one footstep, then slightly varies pitch for natural sound</text>
+                </svg>
+                <p class="caption"><em>Figure: Sound Cue with random selection and pitch modulation.</em></p>
+
+                <h3>MetaSounds</h3>
+
+                <p>MetaSounds is Unreal's modern procedural audio system, introduced in UE5. It's more powerful than Sound Cues, enabling complex, generative audio.</p>
+
+                <p><strong>Creating a MetaSound:</strong></p>
+                <ol>
+                    <li>Right-click in Content Browser</li>
+                    <li>Select <strong>Sounds → MetaSound Source</strong></li>
+                    <li>Name it (e.g., <code>MS_Laser</code>)</li>
+                    <li>Double-click to open the MetaSound Editor</li>
+                </ol>
+
+                <p><strong>MetaSound Capabilities:</strong></p>
+                <ul>
+                    <li>Full audio DSP (Digital Signal Processing)</li>
+                    <li>Synthesizers and oscillators</li>
+                    <li>Runtime parameter control from Blueprints</li>
+                    <li>Complex routing and modulation</li>
+                    <li>Create sounds from scratch without audio files</li>
+                </ul>
+
+                <h3>When to Use Each</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Criteria</th>
+                            <th style="padding: 10px; text-align: left;">Sound Cue</th>
+                            <th style="padding: 10px; text-align: left;">MetaSound</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Complexity</td>
+                            <td style="padding: 10px;">Simple combinations</td>
+                            <td style="padding: 10px;">Complex, procedural</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Learning Curve</td>
+                            <td style="padding: 10px;">Easy</td>
+                            <td style="padding: 10px;">Steeper (audio DSP knowledge helps)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Runtime Control</td>
+                            <td style="padding: 10px;">Limited</td>
+                            <td style="padding: 10px;">Extensive (parameters)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Procedural Audio</td>
+                            <td style="padding: 10px;">No</td>
+                            <td style="padding: 10px;">Yes (synthesizers)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Best For</td>
+                            <td style="padding: 10px;">Randomization, layering</td>
+                            <td style="padding: 10px;">Dynamic, reactive audio</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Example</td>
+                            <td style="padding: 10px;">Random footstep variations</td>
+                            <td style="padding: 10px;">Engine sound reacting to RPM</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Start with Sound Cues</h4>
+                    <p>For most game audio needs, Sound Cues are sufficient and easier to learn. Use them for randomized sound effects, simple layering, and basic looping. Graduate to MetaSounds when you need runtime parameter control, synthesis, or complex procedural audio.</p>
+                </div>
+
+                <!-- Mermaid: Sound System Decision -->
+                <pre class="mermaid">
+flowchart TD
+    A["Need to process audio?"] -->|Simple randomization| B["Sound Cue"]
+    A -->|Layer a few sounds| B
+    A -->|Basic looping| B
+    A -->|Runtime parameter control| C["MetaSound"]
+    A -->|Procedural/synthesized| C
+    A -->|Complex reactive audio| C
+    A -->|Just play a sound| D["Sound Wave directly"]
+    
+    style B fill:#4CAF50,color:#fff
+    style C fill:#9C27B0,color:#fff
+    style D fill:#667eea,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Decision tree for choosing audio asset type.</em></p>
+            </section>
+
+            <!-- Section 4: 2D vs 3D Audio -->
+            <section id="spatial-audio" class="lesson-section">
+                <h2>2D vs 3D Audio</h2>
+
+                <p>Understanding the difference between 2D and 3D audio is crucial for creating immersive soundscapes. The wrong choice can break immersion or waste resources.</p>
+
+                <h3>2D Audio (Non-Spatialized)</h3>
+
+                <p>2D audio plays at consistent volume regardless of listener position. It has no sense of direction or distance.</p>
+
+                <p><strong>Characteristics:</strong></p>
+                <ul>
+                    <li>Same volume everywhere in the level</li>
+                    <li>No left/right panning based on position</li>
+                    <li>No distance-based attenuation</li>
+                    <li>Plays "in the player's head"</li>
+                </ul>
+
+                <p><strong>Use 2D audio for:</strong></p>
+                <ul>
+                    <li>Background music</li>
+                    <li>UI sounds (button clicks, menu navigation)</li>
+                    <li>Voice-over narration</li>
+                    <li>Global announcements</li>
+                    <li>Ambient beds (constant background)</li>
+                </ul>
+
+                <h3>3D Audio (Spatialized)</h3>
+
+                <p>3D audio is positioned in the game world. Volume and panning change based on the listener's position relative to the sound source.</p>
+
+                <p><strong>Characteristics:</strong></p>
+                <ul>
+                    <li>Volume decreases with distance</li>
+                    <li>Pans left/right based on direction</li>
+                    <li>Can be occluded by geometry</li>
+                    <li>Requires mono source for proper spatialization</li>
+                </ul>
+
+                <p><strong>Use 3D audio for:</strong></p>
+                <ul>
+                    <li>Footsteps</li>
+                    <li>Gunshots and weapon sounds</li>
+                    <li>Environmental sounds (waterfalls, machinery)</li>
+                    <li>Character voices in world</li>
+                    <li>Pickup and interaction sounds</li>
+                </ul>
+
+                <!-- SVG: 2D vs 3D Audio -->
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">2D vs 3D Audio Comparison</text>
+                    
+                    <!-- 2D Audio -->
+                    <g transform="translate(50, 50)">
+                        <text x="150" y="15" text-anchor="middle" fill="#667eea" font-size="11" font-weight="bold">2D Audio (Non-Spatialized)</text>
+                        
+                        <rect x="0" y="25" width="300" height="150" rx="5" fill="#e3f2fd" stroke="#1976D2"/>
+                        
+                        <!-- Player icon -->
+                        <circle cx="100" cy="100" r="15" fill="#1976D2"/>
+                        <text x="100" y="105" text-anchor="middle" fill="#fff" font-size="10">P</text>
+                        
+                        <!-- Sound waves (same everywhere) -->
+                        <text x="50" cy="60" fill="#1976D2" font-size="16">🔊</text>
+                        <text x="250" cy="60" fill="#1976D2" font-size="16">🔊</text>
+                        <text x="50" cy="140" fill="#1976D2" font-size="16">🔊</text>
+                        <text x="250" cy="140" fill="#1976D2" font-size="16">🔊</text>
+                        
+                        <text x="150" y="195" text-anchor="middle" fill="#1565C0" font-size="9">Same volume everywhere</text>
+                    </g>
+                    
+                    <!-- 3D Audio -->
+                    <g transform="translate(450, 50)">
+                        <text x="150" y="15" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">3D Audio (Spatialized)</text>
+                        
+                        <rect x="0" y="25" width="300" height="150" rx="5" fill="#e8f5e9" stroke="#4CAF50"/>
+                        
+                        <!-- Player icon -->
+                        <circle cx="100" cy="100" r="15" fill="#4CAF50"/>
+                        <text x="100" y="105" text-anchor="middle" fill="#fff" font-size="10">P</text>
+                        
+                        <!-- Sound source -->
+                        <circle cx="220" cy="80" r="12" fill="#FF9800"/>
+                        <text x="220" y="84" text-anchor="middle" fill="#fff" font-size="8">S</text>
+                        
+                        <!-- Attenuation circles -->
+                        <circle cx="220" cy="80" r="30" fill="none" stroke="#FF9800" stroke-dasharray="3,2" opacity="0.8"/>
+                        <circle cx="220" cy="80" r="60" fill="none" stroke="#FF9800" stroke-dasharray="3,2" opacity="0.5"/>
+                        <circle cx="220" cy="80" r="90" fill="none" stroke="#FF9800" stroke-dasharray="3,2" opacity="0.3"/>
+                        
+                        <!-- Direction indicator -->
+                        <path d="M 115 100 L 160 90" stroke="#4CAF50" stroke-width="2" marker-end="url(#audioDir)"/>
+                        
+                        <text x="150" y="195" text-anchor="middle" fill="#2E7D32" font-size="9">Volume decreases with distance</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(300, 225)">
+                        <circle cx="10" cy="8" r="6" fill="#1976D2"/>
+                        <text x="10" y="12" text-anchor="middle" fill="#fff" font-size="6">P</text>
+                        <text x="30" y="12" fill="#666" font-size="8">= Player/Listener</text>
+                        
+                        <circle cx="130" cy="8" r="6" fill="#FF9800"/>
+                        <text x="130" y="12" text-anchor="middle" fill="#fff" font-size="6">S</text>
+                        <text x="150" y="12" fill="#666" font-size="8">= Sound Source</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="audioDir" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                            <polygon points="0 0, 6 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: 2D audio is uniform; 3D audio attenuates with distance and direction.</em></p>
+
+                <h3>Sound Attenuation</h3>
+
+                <p>Attenuation controls how 3D sounds behave over distance. Create a Sound Attenuation asset:</p>
+
+                <ol>
+                    <li>Right-click in Content Browser</li>
+                    <li>Select <strong>Sounds → Sound Attenuation</strong></li>
+                    <li>Name it (e.g., <code>SA_Footsteps</code>)</li>
+                    <li>Configure distance and falloff settings</li>
+                </ol>
+
+                <p><strong>Key Attenuation Settings:</strong></p>
+
+                <p><strong>Inner Radius:</strong> Distance at which sound is at full volume. Within this radius, no attenuation.</p>
+
+                <p><strong>Falloff Distance:</strong> Distance over which sound fades from full to silent. Larger = sound audible from farther away.</p>
+
+                <p><strong>Attenuation Function:</strong></p>
+                <ul>
+                    <li><strong>Linear:</strong> Even fade from inner to outer radius</li>
+                    <li><strong>Logarithmic:</strong> Quick initial fade, then gradual (most realistic)</li>
+                    <li><strong>Inverse:</strong> 1/distance relationship</li>
+                    <li><strong>Natural Sound:</strong> Physically accurate (recommended)</li>
+                </ul>
+
+                <p><strong>Spatialization:</strong> How the sound is positioned in stereo/surround. Options include stereo panning and binaural (HRTF) for headphones.</p>
+
+                <h3>Sound Classes and Mixes</h3>
+
+                <p><strong>Sound Classes</strong> categorize sounds for volume control:</p>
+
+                <ol>
+                    <li>Create Sound Class asset (Sounds → Sound Class)</li>
+                    <li>Common classes: Master, Music, SFX, Voice, Ambient</li>
+                    <li>Assign sounds to classes via their Sound Class property</li>
+                    <li>Adjust class volume in settings menu (player controls)</li>
+                </ol>
+
+                <p><strong>Sound Mixes</strong> apply volume adjustments to classes:</p>
+
+                <ol>
+                    <li>Create Sound Mix asset (Sounds → Sound Mix)</li>
+                    <li>Add Sound Class adjustments (volume, pitch multipliers)</li>
+                    <li>Push/Pop mixes at runtime for dynamic changes</li>
+                </ol>
+
+                <p><strong>Example Mix Uses:</strong></p>
+                <ul>
+                    <li>Pause menu: Duck gameplay audio, keep UI sounds</li>
+                    <li>Dialogue: Lower music when characters speak</li>
+                    <li>Slow motion: Pitch down SFX</li>
+                </ul>
+
+                <!-- SVG: Sound Class Hierarchy -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Sound Class Hierarchy</text>
+                    
+                    <!-- Master -->
+                    <g transform="translate(275, 50)">
+                        <rect x="0" y="0" width="150" height="40" rx="5" fill="#f44336"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Master (100%)</text>
+                    </g>
+                    
+                    <!-- Child classes -->
+                    <g transform="translate(50, 120)">
+                        <rect x="0" y="0" width="120" height="35" rx="5" fill="#4CAF50"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9">Music (80%)</text>
+                    </g>
+                    
+                    <g transform="translate(200, 120)">
+                        <rect x="0" y="0" width="120" height="35" rx="5" fill="#2196F3"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9">SFX (100%)</text>
+                    </g>
+                    
+                    <g transform="translate(350, 120)">
+                        <rect x="0" y="0" width="120" height="35" rx="5" fill="#FF9800"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9">Voice (100%)</text>
+                    </g>
+                    
+                    <g transform="translate(500, 120)">
+                        <rect x="0" y="0" width="120" height="35" rx="5" fill="#9C27B0"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9">Ambient (70%)</text>
+                    </g>
+                    
+                    <!-- Connections -->
+                    <path d="M 350 95 L 110 115" stroke="#fff" stroke-width="1"/>
+                    <path d="M 350 95 L 260 115" stroke="#fff" stroke-width="1"/>
+                    <path d="M 350 95 L 410 115" stroke="#fff" stroke-width="1"/>
+                    <path d="M 350 95 L 560 115" stroke="#fff" stroke-width="1"/>
+                    
+                    <!-- Note -->
+                    <text x="350" y="180" text-anchor="middle" fill="#888" font-size="8">Players adjust these in Options → Audio → Volume sliders</text>
+                </svg>
+                <p class="caption"><em>Figure: Sound Classes organize audio for separate volume control.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Pro Tip: Set Up Classes Early</h4>
+                    <p>Create your Sound Classes at the start of the project and consistently assign all sounds. This makes implementing volume sliders in your options menu trivial—you just adjust the class volume, and all assigned sounds respond.</p>
+                </div>
+            </section>
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Audio Setup and Sound Cue</h2>
+
+                <p>Let's put theory into practice by importing audio, creating a Sound Cue with variation, setting up Sound Classes, and testing both 2D and 3D audio playback.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Import sound files, create a randomized footstep Sound Cue with pitch variation, set up Sound Classes for volume control, and understand the difference between 2D and 3D playback in practice.</p>
+                </div>
+
+                <h3>Part 1: Prepare Audio Files</h3>
+
+                <p>For this exercise, you'll need some sound files. You can:</p>
+                <ul>
+                    <li>Use sounds from the Starter Content (if included in project)</li>
+                    <li>Download free sounds from <a href="https://freesound.org" target="_blank">Freesound.org</a> or <a href="https://opengameart.org" target="_blank">OpenGameArt.org</a></li>
+                    <li>Use the sounds included with Unreal's templates</li>
+                </ul>
+
+                <p><strong>Recommended sounds to gather:</strong></p>
+                <ul>
+                    <li>3 footstep variations (WAV, mono, short ~0.2s each)</li>
+                    <li>1 ambient loop (WAV or OGG, stereo, ~30s+)</li>
+                    <li>1 UI click sound (WAV, mono or stereo, short)</li>
+                </ul>
+
+                <h3>Part 2: Import Sound Files</h3>
+
+                <h4>Step 1: Create Audio Folder</h4>
+                <ol>
+                    <li>In Content Browser, create folder: <code>Audio</code></li>
+                    <li>Inside Audio, create subfolders:
+                        <ul>
+                            <li><code>Audio/SFX</code> — Sound effects</li>
+                            <li><code>Audio/Music</code> — Background music</li>
+                            <li><code>Audio/Ambient</code> — Environmental sounds</li>
+                            <li><code>Audio/UI</code> — Interface sounds</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 2: Import Footstep Sounds</h4>
+                <ol>
+                    <li>Navigate to <code>Audio/SFX</code></li>
+                    <li>Click <strong>Import</strong> or drag files into the folder</li>
+                    <li>Select your 3 footstep WAV files</li>
+                    <li>Click <strong>Import</strong></li>
+                    <li>Rename them: <code>SW_Footstep_01</code>, <code>SW_Footstep_02</code>, <code>SW_Footstep_03</code></li>
+                </ol>
+
+                <h4>Step 3: Verify Import Settings</h4>
+                <ol>
+                    <li>Double-click one of the footstep Sound Waves</li>
+                    <li>Verify it's <strong>Mono</strong> (for 3D spatialization)</li>
+                    <li>Check the waveform preview looks correct</li>
+                    <li>Click the Play button to preview the sound</li>
+                </ol>
+
+                <h4>Step 4: Import Ambient and UI Sounds</h4>
+                <ol>
+                    <li>Import ambient loop to <code>Audio/Ambient</code></li>
+                    <li>Name it <code>SW_Ambient_Forest</code> (or appropriate name)</li>
+                    <li>Import UI click to <code>Audio/UI</code></li>
+                    <li>Name it <code>SW_UI_Click</code></li>
+                </ol>
+
+                <!-- SVG: Folder Structure -->
+                <svg width="100%" height="200" viewBox="0 0 600 200" style="max-width: 600px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="300" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Audio Folder Organization</text>
+                    
+                    <g transform="translate(50, 50)">
+                        <text x="0" y="15" fill="#FFD700" font-size="10">📁 Audio</text>
+                        
+                        <text x="20" y="40" fill="#4CAF50" font-size="9">├─ 📁 SFX</text>
+                        <text x="45" y="58" fill="#888" font-size="8">├─ SW_Footstep_01</text>
+                        <text x="45" y="73" fill="#888" font-size="8">├─ SW_Footstep_02</text>
+                        <text x="45" y="88" fill="#888" font-size="8">└─ SW_Footstep_03</text>
+                        
+                        <text x="20" y="113" fill="#2196F3" font-size="9">├─ 📁 Music</text>
+                        
+                        <text x="20" y="133" fill="#9C27B0" font-size="9">├─ 📁 Ambient</text>
+                        <text x="45" y="148" fill="#888" font-size="8">└─ SW_Ambient_Forest</text>
+                        
+                        <text x="20" y="168" fill="#FF9800" font-size="9">└─ 📁 UI</text>
+                        <text x="45" y="183" fill="#888" font-size="8">└─ SW_UI_Click</text>
+                    </g>
+                    
+                    <g transform="translate(300, 60)">
+                        <rect x="0" y="0" width="250" height="110" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="125" y="20" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">Naming Convention</text>
+                        <text x="15" y="42" fill="#888" font-size="8">SW_ = Sound Wave</text>
+                        <text x="15" y="58" fill="#888" font-size="8">SC_ = Sound Cue</text>
+                        <text x="15" y="74" fill="#888" font-size="8">MS_ = MetaSound</text>
+                        <text x="15" y="90" fill="#888" font-size="8">SA_ = Sound Attenuation</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Organized audio folder structure with naming convention.</em></p>
+
+                <h3>Part 3: Create Sound Classes</h3>
+
+                <h4>Step 5: Create Sound Class Assets</h4>
+                <ol>
+                    <li>In Content Browser, navigate to <code>Audio</code> folder</li>
+                    <li>Right-click → <strong>Sounds → Sound Class</strong></li>
+                    <li>Name it <code>SC_Master</code></li>
+                    <li>Create additional Sound Classes:
+                        <ul>
+                            <li><code>SC_SFX</code></li>
+                            <li><code>SC_Music</code></li>
+                            <li><code>SC_Ambient</code></li>
+                            <li><code>SC_UI</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 6: Set Up Class Hierarchy</h4>
+                <ol>
+                    <li>Double-click <code>SC_SFX</code> to open it</li>
+                    <li>In Details panel, find <strong>Parent Sound Class</strong></li>
+                    <li>Set it to <code>SC_Master</code></li>
+                    <li>Repeat for SC_Music, SC_Ambient, SC_UI — all should have SC_Master as parent</li>
+                </ol>
+
+                <h4>Step 7: Assign Sounds to Classes</h4>
+                <ol>
+                    <li>Open <code>SW_Footstep_01</code></li>
+                    <li>In Details, find <strong>Sound Class</strong></li>
+                    <li>Set it to <code>SC_SFX</code></li>
+                    <li>Repeat for all footstep sounds → SC_SFX</li>
+                    <li>Set <code>SW_Ambient_Forest</code> → SC_Ambient</li>
+                    <li>Set <code>SW_UI_Click</code> → SC_UI</li>
+                </ol>
+
+                <h3>Part 4: Create a Randomized Footstep Sound Cue</h3>
+
+                <h4>Step 8: Create the Sound Cue</h4>
+                <ol>
+                    <li>Navigate to <code>Audio/SFX</code></li>
+                    <li>Right-click → <strong>Sounds → Sound Cue</strong></li>
+                    <li>Name it <code>SC_Footstep</code></li>
+                    <li>Double-click to open the Sound Cue Editor</li>
+                </ol>
+
+                <h4>Step 9: Add Wave Players</h4>
+                <ol>
+                    <li>In the Sound Cue Editor, right-click the graph</li>
+                    <li>Search for "Wave Player" and add one</li>
+                    <li>Select the Wave Player node</li>
+                    <li>In Details, set <strong>Sound Wave</strong> to <code>SW_Footstep_01</code></li>
+                    <li>Add two more Wave Players for Footstep_02 and Footstep_03</li>
+                </ol>
+
+                <h4>Step 10: Add Random Node</h4>
+                <ol>
+                    <li>Right-click graph → Search "Random" → Add <strong>Random</strong> node</li>
+                    <li>Connect all three Wave Player outputs to the Random node inputs
+                        <ul>
+                            <li>Drag from Wave Player output pin to Random input</li>
+                            <li>Random node will add more inputs as needed</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 11: Add Modulator for Pitch Variation</h4>
+                <ol>
+                    <li>Right-click → Search "Modulator" → Add <strong>Modulator</strong> node</li>
+                    <li>Connect Random output to Modulator input</li>
+                    <li>Select the Modulator node</li>
+                    <li>In Details, set:
+                        <ul>
+                            <li><strong>Pitch Min:</strong> 0.9</li>
+                            <li><strong>Pitch Max:</strong> 1.1</li>
+                            <li><strong>Volume Min:</strong> 0.9</li>
+                            <li><strong>Volume Max:</strong> 1.0</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 12: Connect to Output</h4>
+                <ol>
+                    <li>Connect Modulator output to the <strong>Output</strong> node (speaker icon)</li>
+                    <li>The output node should already exist in the graph</li>
+                </ol>
+
+                <h4>Step 13: Test the Sound Cue</h4>
+                <ol>
+                    <li>Click <strong>Play Cue</strong> button in the toolbar multiple times</li>
+                    <li>You should hear different footstep variations each time</li>
+                    <li>Pitch should vary slightly for natural sound</li>
+                    <li>Save the Sound Cue</li>
+                </ol>
+
+                <!-- SVG: Sound Cue Graph -->
+                <svg width="100%" height="220" viewBox="0 0 750 220" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="375" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">SC_Footstep Sound Cue Graph</text>
+                    
+                    <!-- Wave Players -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="130" height="35" rx="5" fill="#667eea"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Wave Player</text>
+                        <text x="65" y="28" text-anchor="middle" fill="#c5cae9" font-size="7">SW_Footstep_01</text>
+                        <circle cx="130" cy="17" r="5" fill="#4CAF50"/>
+                    </g>
+                    <g transform="translate(30, 95)">
+                        <rect x="0" y="0" width="130" height="35" rx="5" fill="#667eea"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Wave Player</text>
+                        <text x="65" y="28" text-anchor="middle" fill="#c5cae9" font-size="7">SW_Footstep_02</text>
+                        <circle cx="130" cy="17" r="5" fill="#4CAF50"/>
+                    </g>
+                    <g transform="translate(30, 140)">
+                        <rect x="0" y="0" width="130" height="35" rx="5" fill="#667eea"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Wave Player</text>
+                        <text x="65" y="28" text-anchor="middle" fill="#c5cae9" font-size="7">SW_Footstep_03</text>
+                        <circle cx="130" cy="17" r="5" fill="#4CAF50"/>
+                    </g>
+                    
+                    <!-- Connections to Random -->
+                    <path d="M 165 67 L 220 95" stroke="#4CAF50" stroke-width="2"/>
+                    <path d="M 165 112 L 220 112" stroke="#4CAF50" stroke-width="2"/>
+                    <path d="M 165 157 L 220 130" stroke="#4CAF50" stroke-width="2"/>
+                    
+                    <!-- Random node -->
+                    <g transform="translate(220, 85)">
+                        <rect x="0" y="0" width="100" height="55" rx="5" fill="#FF9800"/>
+                        <text x="50" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Random</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#fff3e0" font-size="7">Randomly select</text>
+                        <text x="50" y="50" text-anchor="middle" fill="#fff3e0" font-size="7">1 of 3 inputs</text>
+                        <circle cx="0" cy="15" r="4" fill="#4CAF50"/>
+                        <circle cx="0" cy="27" r="4" fill="#4CAF50"/>
+                        <circle cx="0" cy="39" r="4" fill="#4CAF50"/>
+                        <circle cx="100" cy="27" r="5" fill="#4CAF50"/>
+                    </g>
+                    
+                    <path d="M 325 112 L 380 112" stroke="#4CAF50" stroke-width="2"/>
+                    
+                    <!-- Modulator node -->
+                    <g transform="translate(380, 85)">
+                        <rect x="0" y="0" width="120" height="55" rx="5" fill="#9C27B0"/>
+                        <text x="60" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Modulator</text>
+                        <text x="60" y="35" text-anchor="middle" fill="#e1bee7" font-size="7">Pitch: 0.9 - 1.1</text>
+                        <text x="60" y="48" text-anchor="middle" fill="#e1bee7" font-size="7">Volume: 0.9 - 1.0</text>
+                        <circle cx="0" cy="27" r="4" fill="#4CAF50"/>
+                        <circle cx="120" cy="27" r="5" fill="#4CAF50"/>
+                    </g>
+                    
+                    <path d="M 505 112 L 560 112" stroke="#4CAF50" stroke-width="2"/>
+                    
+                    <!-- Output node -->
+                    <g transform="translate(560, 90)">
+                        <rect x="0" y="0" width="100" height="45" rx="5" fill="#4CAF50"/>
+                        <text x="50" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Output</text>
+                        <text x="50" y="35" text-anchor="middle" fill="#c8e6c9" font-size="8">🔊</text>
+                        <circle cx="0" cy="22" r="4" fill="#fff"/>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <text x="375" y="200" text-anchor="middle" fill="#888" font-size="8">Green circles = connection pins • Drag to connect nodes</text>
+                </svg>
+                <p class="caption"><em>Figure: Complete Sound Cue with random selection and pitch/volume modulation.</em></p>
+
+                <h3>Part 5: Create Sound Attenuation</h3>
+
+                <h4>Step 14: Create Attenuation Asset</h4>
+                <ol>
+                    <li>Right-click in <code>Audio/SFX</code> → <strong>Sounds → Sound Attenuation</strong></li>
+                    <li>Name it <code>SA_Footsteps</code></li>
+                    <li>Double-click to open</li>
+                </ol>
+
+                <h4>Step 15: Configure Attenuation</h4>
+                <ol>
+                    <li>In Details, find <strong>Attenuation (Volume)</strong> section</li>
+                    <li>Enable <strong>Enable Volume Attenuation</strong> (should be on by default)</li>
+                    <li>Set <strong>Attenuation Function:</strong> Natural Sound</li>
+                    <li>Set <strong>Inner Radius:</strong> 100 (full volume within 1 meter)</li>
+                    <li>Set <strong>Falloff Distance:</strong> 2000 (audible up to 20 meters)</li>
+                </ol>
+
+                <h4>Step 16: Configure Spatialization</h4>
+                <ol>
+                    <li>Find <strong>Attenuation (Spatialization)</strong> section</li>
+                    <li>Enable <strong>Spatialize</strong></li>
+                    <li>Set <strong>Spatialization Algorithm:</strong> Default (or Binaural for headphones)</li>
+                </ol>
+
+                <h3>Part 6: Test 2D vs 3D Audio</h3>
+
+                <h4>Step 17: Set Up Test Level</h4>
+                <ol>
+                    <li>Open your test level (or create a simple one)</li>
+                    <li>Make sure you have a playable character</li>
+                </ol>
+
+                <h4>Step 18: Add 3D Sound Source</h4>
+                <ol>
+                    <li>In the level, create an empty Actor or use an existing mesh</li>
+                    <li>Add an <strong>Audio Component</strong> to it</li>
+                    <li>In Audio Component details:
+                        <ul>
+                            <li>Set <strong>Sound:</strong> SC_Footstep</li>
+                            <li>Set <strong>Attenuation Settings:</strong> SA_Footsteps</li>
+                            <li>Enable <strong>Auto Activate</strong></li>
+                            <li>Enable <strong>Is Looping</strong> (for testing)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Step 19: Test 3D Spatialization</h4>
+                <ol>
+                    <li>Play the level (PIE)</li>
+                    <li>Walk toward the sound source — volume should increase</li>
+                    <li>Walk away — volume should decrease</li>
+                    <li>Walk around it — sound should pan left/right</li>
+                    <li>Move outside the falloff distance — sound should be silent</li>
+                </ol>
+
+                <h4>Step 20: Test 2D Audio</h4>
+                <ol>
+                    <li>Create another Audio Component (or modify existing)</li>
+                    <li>Set Sound to your UI click or ambient sound</li>
+                    <li>In Details, find <strong>Attenuation</strong> section</li>
+                    <li><strong>Uncheck</strong> Override Attenuation or leave Attenuation Settings empty</li>
+                    <li>The sound will play as 2D — same volume regardless of position</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've successfully:</p>
+                    <ul>
+                        <li>Organized audio assets with proper folder structure</li>
+                        <li>Created Sound Classes for volume control</li>
+                        <li>Built a randomized footstep Sound Cue with pitch variation</li>
+                        <li>Set up Sound Attenuation for 3D audio</li>
+                        <li>Tested the difference between 2D and 3D audio</li>
+                    </ul>
+                    <p>These foundations will be used throughout your project for all audio needs!</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Common Issues</h4>
+                    
+                    <p><strong>Sound doesn't play:</strong></p>
+                    <ul>
+                        <li>Check Auto Activate is enabled on Audio Component</li>
+                        <li>Verify the Sound asset is assigned</li>
+                        <li>Check volume isn't set to 0</li>
+                        <li>Ensure Sound Class volume isn't muted</li>
+                    </ul>
+                    
+                    <p><strong>3D sound doesn't change with distance:</strong></p>
+                    <ul>
+                        <li>Verify Attenuation asset is assigned</li>
+                        <li>Check that source sound is Mono (not Stereo)</li>
+                        <li>Increase Falloff Distance if you're not moving far enough</li>
+                    </ul>
+                    
+                    <p><strong>Sound Cue doesn't randomize:</strong></p>
+                    <ul>
+                        <li>Verify Random node has multiple inputs connected</li>
+                        <li>Check that Wave Players have different sounds assigned</li>
+                        <li>Play multiple times — randomization may repeat occasionally</li>
+                    </ul>
+                    
+                    <p><strong>Sound is too quiet/loud:</strong></p>
+                    <ul>
+                        <li>Adjust Volume in Sound Wave or Sound Cue</li>
+                        <li>Check Sound Class volume multiplier</li>
+                        <li>Verify attenuation Inner Radius setting</li>
+                    </ul>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Surface-Based Footsteps:</strong> Create separate Sound Cues for grass, stone, and wood, then switch based on surface type</li>
+                    <li><strong>MetaSound Experiment:</strong> Create a simple MetaSound that generates a tone procedurally</li>
+                    <li><strong>Reverb Zones:</strong> Add Audio Volume actors with different reverb settings for indoor/outdoor areas</li>
+                    <li><strong>Volume Options:</strong> Create a UI slider that adjusts the SC_Master Sound Class volume</li>
+                    <li><strong>Ambient Layers:</strong> Create an ambient Sound Cue that mixes wind, birds, and distant sounds</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned the fundamentals of audio in Unreal Engine. Understanding the audio pipeline, import workflows, and the difference between Sound Cues and MetaSounds prepares you to create rich, immersive soundscapes for your games.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Audio Pipeline:</strong> Sound flows from imported Sound Waves through processing (Sound Cues/MetaSounds) to Audio Components, categorized by Sound Classes, mixed through Sound Mixes, and output to speakers. Understanding this flow helps you troubleshoot and optimize.</p>
+
+                <p><strong>Supported Formats:</strong> Import as WAV for best quality—Unreal compresses during packaging. Use OGG for pre-compressed files. Mono for 3D spatialized sounds, Stereo for music and UI.</p>
+
+                <p><strong>Sound Cues:</strong> Node-based sound processing for randomization, layering, and simple logic. Use Random nodes for variation, Modulator for pitch/volume randomization. Great for footsteps, gunshots, and varied sound effects.</p>
+
+                <p><strong>MetaSounds:</strong> Advanced procedural audio system with full DSP capabilities. Use when you need runtime parameter control, synthesis, or complex reactive audio. Steeper learning curve but more powerful.</p>
+
+                <p><strong>2D vs 3D Audio:</strong> 2D audio plays at constant volume (music, UI). 3D audio is spatialized in the world with distance attenuation and directional panning. Use mono sources for proper 3D spatialization.</p>
+
+                <p><strong>Sound Attenuation:</strong> Controls how 3D sounds behave over distance. Configure inner radius (full volume zone), falloff distance (audible range), and attenuation function (linear, logarithmic, natural).</p>
+
+                <p><strong>Sound Classes:</strong> Categorize sounds for separate volume control. Create hierarchy (Master → SFX/Music/Voice). Essential for implementing player volume preferences.</p>
+
+                <h3>Audio Asset Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Asset</th>
+                            <th style="padding: 10px; text-align: left;">Prefix</th>
+                            <th style="padding: 10px; text-align: left;">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sound Wave</td>
+                            <td style="padding: 10px;">SW_</td>
+                            <td style="padding: 10px;">Raw imported audio file</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Sound Cue</td>
+                            <td style="padding: 10px;">SC_</td>
+                            <td style="padding: 10px;">Node-based audio processing</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">MetaSound</td>
+                            <td style="padding: 10px;">MS_</td>
+                            <td style="padding: 10px;">Procedural audio graph</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Sound Attenuation</td>
+                            <td style="padding: 10px;">SA_</td>
+                            <td style="padding: 10px;">3D distance/spatialization settings</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Sound Class</td>
+                            <td style="padding: 10px;">SC_ (or Class_)</td>
+                            <td style="padding: 10px;">Volume category grouping</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Sound Mix</td>
+                            <td style="padding: 10px;">Mix_</td>
+                            <td style="padding: 10px;">Master volume/effect settings</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Sound Cue Common Nodes</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Node</th>
+                            <th style="padding: 10px; text-align: left;">Function</th>
+                            <th style="padding: 10px; text-align: left;">Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Wave Player</td>
+                            <td style="padding: 10px;">Plays a Sound Wave</td>
+                            <td style="padding: 10px;">Source sound input</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Random</td>
+                            <td style="padding: 10px;">Randomly picks one input</td>
+                            <td style="padding: 10px;">Varied footsteps</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Modulator</td>
+                            <td style="padding: 10px;">Varies pitch/volume</td>
+                            <td style="padding: 10px;">Natural variation</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Mixer</td>
+                            <td style="padding: 10px;">Blends sounds together</td>
+                            <td style="padding: 10px;">Layered effects</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Looping</td>
+                            <td style="padding: 10px;">Repeats the sound</td>
+                            <td style="padding: 10px;">Ambient loops</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Use mono for 3D sounds:</strong> Stereo files cannot be properly spatialized in 3D space</li>
+                    <li><strong>Import as WAV:</strong> Let Unreal handle compression for maximum quality and flexibility</li>
+                    <li><strong>Stream long audio:</strong> Enable streaming for music and long ambient sounds to save memory</li>
+                    <li><strong>Organize with folders:</strong> Separate SFX, Music, Ambient, UI, and Voice audio</li>
+                    <li><strong>Set up Sound Classes early:</strong> Assign all sounds to classes from the start for easy volume control</li>
+                    <li><strong>Use variation:</strong> Random selection and pitch modulation prevent repetitive audio</li>
+                    <li><strong>Configure attenuation thoughtfully:</strong> Match falloff to the sound's real-world behavior</li>
+                    <li><strong>Test in-game:</strong> Audio that sounds good in the editor may need adjustment in actual gameplay</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Audio System Overview</text>
+                    
+                    <!-- Source files -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#667eea"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Sound Waves</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#c5cae9" font-size="8">.wav / .ogg files</text>
+                        <text x="70" y="55" text-anchor="middle" fill="#c5cae9" font-size="8">Mono or Stereo</text>
+                    </g>
+                    
+                    <!-- Processing -->
+                    <g transform="translate(200, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#4CAF50"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Processing</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#c8e6c9" font-size="8">Sound Cues</text>
+                        <text x="70" y="55" text-anchor="middle" fill="#c8e6c9" font-size="8">MetaSounds</text>
+                    </g>
+                    
+                    <!-- Playback -->
+                    <g transform="translate(370, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#FF9800"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Playback</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#fff3e0" font-size="8">Audio Components</text>
+                        <text x="70" y="55" text-anchor="middle" fill="#fff3e0" font-size="8">+ Attenuation</text>
+                    </g>
+                    
+                    <!-- Mixing -->
+                    <g transform="translate(540, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="8" fill="#9C27B0"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Mixing</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#e1bee7" font-size="8">Sound Classes</text>
+                        <text x="70" y="55" text-anchor="middle" fill="#e1bee7" font-size="8">Sound Mixes</text>
+                    </g>
+                    
+                    <!-- Output -->
+                    <g transform="translate(710, 70)">
+                        <text x="30" y="25" text-anchor="middle" fill="#333" font-size="28">🔊</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 175 90 L 195 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumAudioArrow)"/>
+                    <path d="M 345 90 L 365 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumAudioArrow)"/>
+                    <path d="M 515 90 L 535 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumAudioArrow)"/>
+                    <path d="M 685 90 L 705 90" stroke="#667eea" stroke-width="2" marker-end="url(#sumAudioArrow)"/>
+                    
+                    <!-- 2D/3D note -->
+                    <g transform="translate(200, 145)">
+                        <rect x="0" y="0" width="400" height="55" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="200" y="20" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">2D vs 3D Audio</text>
+                        <text x="100" y="40" text-anchor="middle" fill="#666" font-size="8">2D: Music, UI, Narration</text>
+                        <text x="300" y="40" text-anchor="middle" fill="#666" font-size="8">3D: SFX, Environment, Voices</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="sumAudioArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Audio flows from source files through processing and playback to final mix output.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you understand audio fundamentals, the next lesson covers <strong>Playing Sounds</strong>. You'll learn how to trigger sounds from Blueprints using Play Sound 2D, Play Sound at Location, and Audio Components. You'll wire up sound effects to gameplay events like collisions, pickups, and player actions.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What audio format is recommended for importing sound effects into Unreal Engine?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> MP3 - it's the most common format</label>
+                            <label><input type="radio" name="q1" value="b"> WAV - uncompressed, highest quality, Unreal compresses during packaging</label>
+                            <label><input type="radio" name="q1" value="c"> MIDI - smallest file size</label>
+                            <label><input type="radio" name="q1" value="d"> AAC - best for streaming</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Import as WAV for the best quality. Unreal Engine will compress audio during the packaging process based on your platform settings. This prevents double-compression that would occur with pre-compressed formats.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why must 3D spatialized sounds be mono instead of stereo?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Mono files are smaller</label>
+                            <label><input type="radio" name="q2" value="b"> Stereo files can't be imported into Unreal</label>
+                            <label><input type="radio" name="q2" value="c"> Stereo has fixed left/right channels that don't spatialize correctly in 3D</label>
+                            <label><input type="radio" name="q2" value="d"> Mono sounds louder</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Stereo audio has separate left and right channels that are meant to play through specific speakers. When you try to position stereo audio in 3D space, the fixed channel separation creates unnatural results. Mono audio has a single channel that the engine can properly pan and attenuate based on 3D position.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is the purpose of the Random node in a Sound Cue?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> To randomly change the volume</label>
+                            <label><input type="radio" name="q3" value="b"> To randomly select one of multiple input sounds each time it plays</label>
+                            <label><input type="radio" name="q3" value="c"> To play all sounds at once in random order</label>
+                            <label><input type="radio" name="q3" value="d"> To randomly skip playing the sound</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The Random node randomly selects one of its input sounds each time the Sound Cue plays. This is perfect for variation—connect multiple footstep sounds and get a different one each step, preventing repetitive audio.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>When should you use MetaSounds instead of Sound Cues?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Always - MetaSounds are newer and better</label>
+                            <label><input type="radio" name="q4" value="b"> Never - Sound Cues are the standard</label>
+                            <label><input type="radio" name="q4" value="c"> When you need runtime parameter control, synthesis, or complex procedural audio</label>
+                            <label><input type="radio" name="q4" value="d"> Only for music</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — MetaSounds excel when you need runtime parameter control (like engine RPM affecting sound), procedural synthesis (generating sounds algorithmically), or complex reactive audio. For simpler needs like randomization and layering, Sound Cues are easier and sufficient.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What does Sound Attenuation control?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> The pitch of the sound</label>
+                            <label><input type="radio" name="q5" value="b"> Which Sound Class the sound belongs to</label>
+                            <label><input type="radio" name="q5" value="c"> How 3D sound volume and spatialization change with distance</label>
+                            <label><input type="radio" name="q5" value="d"> The file compression quality</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Sound Attenuation settings control how 3D sounds behave over distance: the inner radius (full volume zone), falloff distance (how far the sound carries), attenuation curve (how volume decreases), and spatialization options.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 6</h4>
+                        <p>What is the benefit of organizing sounds into Sound Classes?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q6" value="a"> Sounds play faster</label>
+                            <label><input type="radio" name="q6" value="b"> Allows separate volume control for different audio categories (Music, SFX, Voice)</label>
+                            <label><input type="radio" name="q6" value="c"> Reduces file sizes</label>
+                            <label><input type="radio" name="q6" value="d"> Enables 3D spatialization</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Sound Classes let you group sounds by type (Music, SFX, Voice, Ambient). Players can then adjust each category's volume independently in the options menu. Adjusting a class volume affects all sounds assigned to that class.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 7</h4>
+                        <p>Which type of audio should be played as 2D (non-spatialized)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q7" value="a"> Footsteps</label>
+                            <label><input type="radio" name="q7" value="b"> Gunshots</label>
+                            <label><input type="radio" name="q7" value="c"> Background music and UI sounds</label>
+                            <label><input type="radio" name="q7" value="d"> Environmental sounds like waterfalls</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Background music and UI sounds should be 2D because they exist "outside" the game world. They should play at constant volume regardless of player position. 3D audio is for sounds that exist at specific locations in the world (footsteps, gunshots, environmental sounds).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m07_l05_data_binding_and_events.html" class="btn">← Previous: Data Binding and Events</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m08_l02_playing_sounds.html" class="btn">Next: Playing Sounds →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

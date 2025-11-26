@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master interior lighting in Unreal Engine 5. Learn to use Point, Spot, and Rect lights effectively, apply IES profiles, and create atmospheric indoor environments.">
+    <meta name="author" content="Practical Ace">
+    <title>Interior Lighting - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 4: Lighting Your World</a></li>
+            <li aria-current="page">Lesson 4.3: Interior Lighting</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🏠 Interior Lighting</h1>
+                <p class="lead">Interior lighting is a different beast from outdoor environments. Instead of one dominant light source (the sun), you're working with multiple localized lights—ceiling fixtures, lamps, windows, screens—each contributing to the overall atmosphere. A well-lit interior guides players through spaces, creates mood, and makes environments feel believable. In this lesson, you'll learn to use Point, Spot, and Rect lights effectively, master IES profiles for realistic light patterns, and develop strategies for lighting indoor spaces that feel both natural and intentional.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Use Point Lights effectively for general room illumination</li>
+                        <li>Configure Spot Lights for focused, directional interior lighting</li>
+                        <li>Apply Rect Lights for realistic window and panel lighting</li>
+                        <li>Implement IES profiles for photometrically accurate light distribution</li>
+                        <li>Create dynamic lighting effects using Light Functions</li>
+                        <li>Light a complete interior room with proper mood and functionality</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 55-65 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 4.2 - The Directional Light and Sky</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#interior-principles" class="toc-link">Interior Lighting Principles</a></li>
+                        <li><a href="#point-lights" class="toc-link">Point Lights for Room Illumination</a></li>
+                        <li><a href="#spot-lights" class="toc-link">Spot Lights for Focused Lighting</a></li>
+                        <li><a href="#rect-lights" class="toc-link">Rect Lights for Area Lighting</a></li>
+                        <li><a href="#ies-profiles" class="toc-link">IES Profiles</a></li>
+                        <li><a href="#light-functions" class="toc-link">Light Functions</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Light an Interior Room</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Interior Lighting Principles -->
+            <section id="interior-principles" class="lesson-section">
+                <h2>Interior Lighting Principles</h2>
+
+                <p>Before diving into specific light types, let's establish some fundamental principles that guide all interior lighting work. These concepts come from real-world lighting design and cinematography, and they'll help you make better decisions throughout this lesson.</p>
+
+                <h3>The Three-Point Lighting Concept</h3>
+
+                <p>While originally from film and photography, the <strong>three-point lighting</strong> concept provides a useful framework for thinking about interior spaces:</p>
+
+                <p><strong>Key Light:</strong> The main, brightest light source that establishes the primary direction of illumination. In interiors, this might be a window, a prominent ceiling fixture, or a focused lamp.</p>
+
+                <p><strong>Fill Light:</strong> Secondary lighting that softens shadows created by the key light. Ambient bounce from walls, secondary fixtures, or indirect lighting serve this role.</p>
+
+                <p><strong>Accent/Rim Light:</strong> Lights that highlight specific objects or create separation. Track lighting on artwork, under-cabinet lights, or backlit features.</p>
+
+                <!-- SVG: Three-Point Interior Concept -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Three-Point Lighting Applied to Interiors</text>
+                    
+                    <!-- Room outline -->
+                    <rect x="150" y="50" width="500" height="200" fill="none" stroke="#444" stroke-width="2"/>
+                    
+                    <!-- Floor -->
+                    <rect x="150" y="220" width="500" height="30" fill="#2a2a2a"/>
+                    
+                    <!-- Back wall shading -->
+                    <rect x="150" y="50" width="500" height="170" fill="#333"/>
+                    
+                    <!-- Key Light (Window) -->
+                    <g transform="translate(150, 80)">
+                        <rect x="-5" y="0" width="10" height="100" fill="#f1c40f" opacity="0.3"/>
+                        <rect x="0" y="0" width="5" height="100" fill="#87ceeb"/>
+                        <line x1="5" y1="20" x2="150" y2="80" stroke="#f1c40f" stroke-width="2" opacity="0.6"/>
+                        <line x1="5" y1="50" x2="200" y2="120" stroke="#f1c40f" stroke-width="2" opacity="0.6"/>
+                        <line x1="5" y1="80" x2="180" y2="150" stroke="#f1c40f" stroke-width="2" opacity="0.6"/>
+                    </g>
+                    <text x="100" y="130" text-anchor="middle" fill="#f1c40f" font-size="11" font-weight="bold">KEY</text>
+                    <text x="100" y="145" text-anchor="middle" fill="#aaa" font-size="9">(Window)</text>
+                    
+                    <!-- Subject -->
+                    <rect x="380" y="150" width="40" height="70" fill="#667eea"/>
+                    <ellipse cx="400" cy="140" rx="20" ry="15" fill="#667eea"/>
+                    
+                    <!-- Fill Light (Ceiling) -->
+                    <g transform="translate(450, 50)">
+                        <circle cx="0" cy="5" r="15" fill="#4CAF50" opacity="0.5"/>
+                        <line x1="0" y1="20" x2="-40" y2="120" stroke="#4CAF50" stroke-width="1.5" opacity="0.4" stroke-dasharray="5,5"/>
+                        <line x1="0" y1="20" x2="0" y2="130" stroke="#4CAF50" stroke-width="1.5" opacity="0.4" stroke-dasharray="5,5"/>
+                        <line x1="0" y1="20" x2="40" y2="110" stroke="#4CAF50" stroke-width="1.5" opacity="0.4" stroke-dasharray="5,5"/>
+                    </g>
+                    <text x="520" y="45" fill="#4CAF50" font-size="11" font-weight="bold">FILL</text>
+                    <text x="520" y="60" fill="#aaa" font-size="9">(Ambient/Ceiling)</text>
+                    
+                    <!-- Accent Light (Spot on wall art) -->
+                    <g transform="translate(550, 70)">
+                        <rect x="50" y="30" width="60" height="40" fill="#555" stroke="#666"/>
+                        <circle cx="30" cy="0" r="10" fill="#e91e63" opacity="0.7"/>
+                        <polygon points="30,10 50,50 70,50 90,70 -10,70 10,50 30,50" fill="#e91e63" opacity="0.2"/>
+                    </g>
+                    <text x="700" y="80" text-anchor="middle" fill="#e91e63" font-size="11" font-weight="bold">ACCENT</text>
+                    <text x="700" y="95" text-anchor="middle" fill="#aaa" font-size="9">(Track/Spot)</text>
+                    
+                    <!-- Legend -->
+                    <rect x="200" y="235" width="400" height="35" rx="5" fill="rgba(255,255,255,0.05)"/>
+                    <circle cx="240" cy="252" r="6" fill="#f1c40f"/>
+                    <text x="255" y="256" fill="#aaa" font-size="9">Primary direction</text>
+                    <circle cx="360" cy="252" r="6" fill="#4CAF50"/>
+                    <text x="375" y="256" fill="#aaa" font-size="9">Shadow softening</text>
+                    <circle cx="490" cy="252" r="6" fill="#e91e63"/>
+                    <text x="505" y="256" fill="#aaa" font-size="9">Highlight/Separation</text>
+                </svg>
+                <p class="caption"><em>Figure: Three-point lighting concepts applied to an interior space.</em></p>
+
+                <h3>Practical vs. Motivated Lighting</h3>
+
+                <p><strong>Practical Lights:</strong> Light sources that are visible in the scene—lamps, ceiling fixtures, candles, screens. These "justify" the lighting and make it feel grounded in reality.</p>
+
+                <p><strong>Motivated Lighting:</strong> Additional lights placed to enhance the effect of practicals or create specific looks. The viewer accepts them because they seem to come from visible sources, even if the actual game light is positioned differently.</p>
+
+                <p>In game environments, you'll often place a decorative lamp mesh (the practical) and then position an actual Point or Spot Light near it (motivated by the practical) to create the illumination effect.</p>
+
+                <h3>Light Layering Strategy</h3>
+
+                <p>Professional interior lighting uses layers:</p>
+
+                <ol>
+                    <li><strong>Ambient Layer:</strong> Base illumination that prevents pure black shadows. Often from indirect lighting, skylights, or very soft fill lights.</li>
+                    <li><strong>Primary Layer:</strong> Main light sources that define the space—overhead fixtures, windows, prominent lamps.</li>
+                    <li><strong>Accent Layer:</strong> Focused lights that draw attention—spotlights on art, under-cabinet lighting, decorative fixtures.</li>
+                    <li><strong>Effects Layer:</strong> Dynamic or atmospheric lighting—flickering candles, TV glow, lightning flashes.</li>
+                </ol>
+
+                <!-- Mermaid: Light Layering -->
+                <pre class="mermaid">
+flowchart TB
+    subgraph Layers["Interior Light Layers (Bottom to Top)"]
+        direction TB
+        L1["🌫️ Ambient Layer<br/>Soft base illumination<br/>Prevents black shadows"]
+        L2["💡 Primary Layer<br/>Main fixtures & windows<br/>Defines space character"]
+        L3["✨ Accent Layer<br/>Spotlights & highlights<br/>Draws attention"]
+        L4["⚡ Effects Layer<br/>Dynamic & atmospheric<br/>Adds life"]
+    end
+    
+    L1 --> L2 --> L3 --> L4
+    
+    style L1 fill:#607d8b,color:#fff
+    style L2 fill:#f1c40f,color:#333
+    style L3 fill:#e91e63,color:#fff
+    style L4 fill:#9c27b0,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Building interior lighting in layers from ambient base to dynamic effects.</em></p>
+
+                <h3>Color Temperature in Interiors</h3>
+
+                <p>Real interior spaces often mix light sources with different color temperatures:</p>
+
+                <p><strong>Warm (2700K-3000K):</strong> Incandescent bulbs, candles, tungsten. Creates cozy, residential feel.</p>
+
+                <p><strong>Neutral (3500K-4500K):</strong> Halogen, some LEDs. Clean, professional appearance.</p>
+
+                <p><strong>Cool (5000K-6500K):</strong> Daylight, fluorescent, modern LEDs. Clinical, modern, or industrial.</p>
+
+                <p>Mixing temperatures creates visual interest and realism—warm interior lights contrasting with cool daylight from windows is a classic cinematic look.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Start Dark, Add Light</h4>
+                    <p>When lighting interiors, start with all lights off or very dim. Add lights one at a time, observing the contribution of each. This prevents "light soup" where too many overlapping lights create flat, uninteresting illumination. Each light should have a purpose and visible effect.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Point Lights for Room Illumination -->
+            <section id="point-lights" class="lesson-section">
+                <h2>Point Lights for Room Illumination</h2>
+
+                <p>Point Lights emit light equally in all directions from a single point—like a bare light bulb. They're the workhorse of interior lighting, perfect for ceiling fixtures, lamps, chandeliers, and any omnidirectional light source.</p>
+
+                <h3>Placing and Configuring Point Lights</h3>
+
+                <p><strong>Placement:</strong> Place Actors → Lights → Point Light, or right-click → Lights → Point Light.</p>
+
+                <p>Position the Point Light at the location of your practical light source—inside a lamp shade, at the center of a ceiling fixture, at candle flame height.</p>
+
+                <h3>Essential Point Light Settings</h3>
+
+                <h4>Light Section</h4>
+
+                <p><strong>Intensity:</strong> Brightness of the light. For interior lights, values vary widely:</p>
+                <ul>
+                    <li>Candle: 10-50 lumens</li>
+                    <li>Table lamp: 200-800 lumens</li>
+                    <li>Ceiling fixture: 800-3000 lumens</li>
+                    <li>Bright overhead: 3000-10000 lumens</li>
+                </ul>
+
+                <p><strong>Light Color:</strong> Set directly or use Temperature. Warm whites (2700-3000K) for residential, cooler for commercial/industrial.</p>
+
+                <p><strong>Attenuation Radius:</strong> How far the light reaches. Beyond this radius, the light has zero contribution. Set this based on the logical reach of your light source—a small lamp might have radius of 300-500 units, a bright ceiling light 1000-2000 units.</p>
+
+                <p><strong>Source Radius:</strong> Simulates the physical size of the light source for soft shadows. Larger values = softer shadow edges. A small bulb might be 5-10 units; a frosted globe fixture 20-50 units.</p>
+
+                <!-- SVG: Point Light Anatomy -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Point Light Anatomy</text>
+                    
+                    <!-- Attenuation radius circle -->
+                    <circle cx="400" cy="150" r="120" fill="none" stroke="#f1c40f" stroke-width="2" stroke-dasharray="10,5" opacity="0.5"/>
+                    <text x="530" y="100" fill="#f1c40f" font-size="10">Attenuation Radius</text>
+                    <text x="530" y="115" fill="#888" font-size="9">(Light reach limit)</text>
+                    
+                    <!-- Light intensity falloff visualization -->
+                    <circle cx="400" cy="150" r="100" fill="url(#pointFalloff)" opacity="0.6"/>
+                    <defs>
+                        <radialGradient id="pointFalloff" cx="50%" cy="50%">
+                            <stop offset="0%" style="stop-color:#f1c40f;stop-opacity:1"/>
+                            <stop offset="50%" style="stop-color:#f1c40f;stop-opacity:0.3"/>
+                            <stop offset="100%" style="stop-color:#f1c40f;stop-opacity:0"/>
+                        </radialGradient>
+                    </defs>
+                    
+                    <!-- Source radius -->
+                    <circle cx="400" cy="150" r="15" fill="#fff" stroke="#f1c40f" stroke-width="2"/>
+                    <text x="400" y="155" text-anchor="middle" fill="#333" font-size="9">💡</text>
+                    
+                    <!-- Source radius label -->
+                    <line x1="415" y1="140" x2="450" y2="110" stroke="#fff" stroke-width="1"/>
+                    <text x="455" y="105" fill="#fff" font-size="10">Source Radius</text>
+                    <text x="455" y="118" fill="#888" font-size="9">(Shadow softness)</text>
+                    
+                    <!-- Intensity falloff arrow -->
+                    <line x1="400" y1="165" x2="400" y2="250" stroke="#888" stroke-width="1" marker-end="url(#grayArrow)"/>
+                    <text x="400" y="265" text-anchor="middle" fill="#888" font-size="9">Intensity falls off with distance²</text>
+                    <defs>
+                        <marker id="grayArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#888"/>
+                        </marker>
+                    </defs>
+                    
+                    <!-- Settings panel -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="180" height="160" rx="8" fill="rgba(255,255,255,0.05)" stroke="#667eea"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#667eea" font-size="11" font-weight="bold">Key Settings</text>
+                        
+                        <text x="15" y="50" fill="#f1c40f" font-size="10">Intensity:</text>
+                        <text x="15" y="65" fill="#aaa" font-size="9">200-3000 lumens typical</text>
+                        
+                        <text x="15" y="85" fill="#f1c40f" font-size="10">Attenuation Radius:</text>
+                        <text x="15" y="100" fill="#aaa" font-size="9">Light reach distance</text>
+                        
+                        <text x="15" y="120" fill="#f1c40f" font-size="10">Source Radius:</text>
+                        <text x="15" y="135" fill="#aaa" font-size="9">5-50 for soft shadows</text>
+                        
+                        <text x="15" y="155" fill="#4CAF50" font-size="9">Cast Shadows: Optional</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Point Light settings control intensity, reach (attenuation), and shadow softness (source radius).</em></p>
+
+                <h4>Shadows</h4>
+
+                <p><strong>Cast Shadows:</strong> Enable for lights that should cast shadows. Disable for fill lights or where performance is critical.</p>
+
+                <p>Point Light shadows use <strong>cubemap shadow maps</strong>—the scene is rendered from 6 directions to create omnidirectional shadows. This makes Point Light shadows more expensive than Spot Light shadows.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out: Point Light Shadow Cost</h4>
+                    <p>Because Point Lights render shadows in all 6 directions, they're significantly more expensive than Spot Lights for shadows. In performance-critical scenarios:</p>
+                    <ul>
+                        <li>Disable shadows on decorative/fill lights</li>
+                        <li>Use Spot Lights where you only need shadows in one direction</li>
+                        <li>Consider baking shadows for static lights</li>
+                    </ul>
+                </div>
+
+                <h3>Point Light Use Cases</h3>
+
+                <p><strong>Ceiling fixtures:</strong> Position at the fixture location. Adjust attenuation to cover the room appropriately. Multiple fixtures in a large room.</p>
+
+                <p><strong>Table/Floor lamps:</strong> Place inside or just above the lampshade. Smaller attenuation radius. Warm color temperature for residential feel.</p>
+
+                <p><strong>Chandeliers:</strong> Can use one Point Light for the whole fixture (simple) or multiple for each candle/bulb (detailed). Consider performance vs. visual quality.</p>
+
+                <p><strong>Candles/Flames:</strong> Very small attenuation radius, warm orange color (1800-2200K), optionally add flicker with Light Functions or Blueprint.</p>
+
+                <p><strong>Ambient fill:</strong> Large radius, very low intensity, no shadows. Placed to fill shadow areas without creating additional shadow-casting sources.</p>
+
+                <h3>Practical + Point Light Pattern</h3>
+
+                <p>The most common interior lighting pattern combines a visual mesh (the practical) with a Point Light:</p>
+
+                <ol>
+                    <li>Place your lamp/fixture mesh</li>
+                    <li>Add a Point Light at the bulb location</li>
+                    <li>If the fixture mesh blocks light, either make the mesh not cast shadows on self, or place the light just outside the fixture's blocking geometry</li>
+                    <li>Add an emissive material to the bulb part of the mesh so it appears to glow</li>
+                </ol>
+
+                <!-- SVG: Practical + Light Pattern -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #252525;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Practical + Point Light Setup</text>
+                    
+                    <!-- Lamp mesh -->
+                    <g transform="translate(150, 50)">
+                        <text x="60" y="0" text-anchor="middle" fill="#aaa" font-size="10">1. Lamp Mesh (Practical)</text>
+                        
+                        <!-- Base -->
+                        <ellipse cx="60" cy="130" rx="35" ry="8" fill="#555"/>
+                        <rect x="50" y="80" width="20" height="50" fill="#666"/>
+                        
+                        <!-- Shade -->
+                        <polygon points="30,80 90,80 100,40 20,40" fill="#8B4513" opacity="0.7"/>
+                        
+                        <!-- Bulb area (emissive) -->
+                        <ellipse cx="60" cy="60" rx="15" ry="20" fill="#f1c40f" opacity="0.5"/>
+                    </g>
+                    
+                    <!-- Plus -->
+                    <text x="280" y="100" fill="#667eea" font-size="30">+</text>
+                    
+                    <!-- Point Light -->
+                    <g transform="translate(340, 50)">
+                        <text x="60" y="0" text-anchor="middle" fill="#aaa" font-size="10">2. Point Light</text>
+                        
+                        <circle cx="60" cy="70" r="50" fill="url(#lampGlow)" opacity="0.4"/>
+                        <circle cx="60" cy="70" r="10" fill="#f1c40f"/>
+                        <text x="60" y="74" text-anchor="middle" fill="#333" font-size="10">💡</text>
+                        
+                        <text x="60" y="140" text-anchor="middle" fill="#888" font-size="9">Positioned at bulb location</text>
+                        
+                        <defs>
+                            <radialGradient id="lampGlow">
+                                <stop offset="0%" style="stop-color:#f1c40f"/>
+                                <stop offset="100%" style="stop-color:transparent"/>
+                            </radialGradient>
+                        </defs>
+                    </g>
+                    
+                    <!-- Equals -->
+                    <text x="470" y="100" fill="#667eea" font-size="30">=</text>
+                    
+                    <!-- Result -->
+                    <g transform="translate(520, 50)">
+                        <text x="60" y="0" text-anchor="middle" fill="#aaa" font-size="10">3. Complete Effect</text>
+                        
+                        <!-- Glow -->
+                        <circle cx="60" cy="70" r="70" fill="url(#lampGlow)" opacity="0.3"/>
+                        
+                        <!-- Base -->
+                        <ellipse cx="60" cy="130" rx="35" ry="8" fill="#555"/>
+                        <rect x="50" y="80" width="20" height="50" fill="#666"/>
+                        
+                        <!-- Shade (lit from inside) -->
+                        <polygon points="30,80 90,80 100,40 20,40" fill="#CD853F"/>
+                        
+                        <!-- Glowing bulb -->
+                        <ellipse cx="60" cy="60" rx="15" ry="20" fill="#f1c40f"/>
+                        
+                        <text x="60" y="155" text-anchor="middle" fill="#4CAF50" font-size="9">Visible fixture + actual light</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Combine a visible lamp mesh with a Point Light for realistic fixtures.</em></p>
+            </section>
+
+            <!-- Section 3: Spot Lights for Focused Lighting -->
+            <section id="spot-lights" class="lesson-section">
+                <h2>Spot Lights for Focused Lighting</h2>
+
+                <p>Spot Lights emit light in a cone shape, making them perfect for directional interior lighting—recessed ceiling lights, track lighting, flashlights, car headlights, stage spotlights, and any fixture that focuses light in a particular direction.</p>
+
+                <h3>Spot Light Configuration</h3>
+
+                <p><strong>Placement:</strong> Position the Spot Light at the light source and rotate it to aim where you want the light to fall. The light emits along the negative X-axis (forward) of the actor.</p>
+
+                <h4>Key Settings</h4>
+
+                <p><strong>Inner Cone Angle:</strong> The angle of full-intensity illumination. Everything within this cone receives maximum light.</p>
+
+                <p><strong>Outer Cone Angle:</strong> The angle where light falls to zero. The area between inner and outer cones has a smooth falloff. Larger difference = softer edge.</p>
+
+                <p><strong>Attenuation Radius:</strong> Maximum distance the light travels. Same concept as Point Lights.</p>
+
+                <p><strong>Source Radius/Length:</strong> For soft shadows. Source Length turns the point into a line (like a fluorescent tube).</p>
+
+                <!-- SVG: Spot Light Cone Anatomy -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Spot Light Cone Anatomy</text>
+                    
+                    <!-- Light source -->
+                    <circle cx="150" cy="140" r="20" fill="#f1c40f"/>
+                    <text x="150" y="145" text-anchor="middle" fill="#333" font-size="12">🔦</text>
+                    
+                    <!-- Outer cone -->
+                    <polygon points="170,140 650,50 650,230" fill="#f1c40f" opacity="0.15"/>
+                    <line x1="170" y1="140" x2="650" y2="50" stroke="#f1c40f" stroke-width="1" stroke-dasharray="5,5"/>
+                    <line x1="170" y1="140" x2="650" y2="230" stroke="#f1c40f" stroke-width="1" stroke-dasharray="5,5"/>
+                    
+                    <!-- Inner cone -->
+                    <polygon points="170,140 650,90 650,190" fill="#f1c40f" opacity="0.3"/>
+                    <line x1="170" y1="140" x2="650" y2="90" stroke="#f1c40f" stroke-width="2"/>
+                    <line x1="170" y1="140" x2="650" y2="190" stroke="#f1c40f" stroke-width="2"/>
+                    
+                    <!-- Angle labels -->
+                    <path d="M 200 140 A 50 50 0 0 0 200 100" fill="none" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="230" y="105" fill="#4CAF50" font-size="10">Inner Cone</text>
+                    <text x="230" y="120" fill="#4CAF50" font-size="9">Angle</text>
+                    
+                    <path d="M 220 140 A 70 70 0 0 0 220 80" fill="none" stroke="#FF9800" stroke-width="2"/>
+                    <text x="260" y="65" fill="#FF9800" font-size="10">Outer Cone</text>
+                    <text x="260" y="80" fill="#FF9800" font-size="9">Angle</text>
+                    
+                    <!-- Intensity zones at far end -->
+                    <rect x="650" y="90" width="30" height="100" fill="#f1c40f" opacity="0.5"/>
+                    <text x="700" y="120" fill="#fff" font-size="9">Full</text>
+                    <text x="700" y="135" fill="#fff" font-size="9">intensity</text>
+                    
+                    <rect x="650" y="50" width="30" height="40" fill="#f1c40f" opacity="0.2"/>
+                    <rect x="650" y="190" width="30" height="40" fill="#f1c40f" opacity="0.2"/>
+                    <text x="700" y="70" fill="#aaa" font-size="8">Falloff</text>
+                    <text x="700" y="220" fill="#aaa" font-size="8">Falloff</text>
+                    
+                    <!-- Attenuation -->
+                    <line x1="150" y1="250" x2="650" y2="250" stroke="#888" stroke-width="1"/>
+                    <line x1="150" y1="245" x2="150" y2="255" stroke="#888" stroke-width="1"/>
+                    <line x1="650" y1="245" x2="650" y2="255" stroke="#888" stroke-width="1"/>
+                    <text x="400" y="268" text-anchor="middle" fill="#888" font-size="10">Attenuation Radius</text>
+                </svg>
+                <p class="caption"><em>Figure: Spot Light cones define full-intensity zone (inner) and falloff zone (outer).</em></p>
+
+                <h3>Spot Light Use Cases</h3>
+
+                <p><strong>Recessed ceiling lights (can lights):</strong> Point downward from ceiling. Inner cone 20-40°, outer cone 30-50°. Creates focused pools of light on surfaces below.</p>
+
+                <p><strong>Track lighting:</strong> Aimed at artwork, displays, or walls. Narrow cones (15-30°) for focused accent, wider for wall washing.</p>
+
+                <p><strong>Desk/Task lights:</strong> Angled toward work surface. Provides focused illumination for specific areas.</p>
+
+                <p><strong>Architectural lighting:</strong> Uplights (pointing up walls), downlights (ceiling pointing down), wall washers (angled to graze wall surfaces).</p>
+
+                <p><strong>Dramatic effect:</strong> Single harsh spotlight creates theatrical, noir, or horror atmospheres.</p>
+
+                <h3>Spot Lights vs. Point Lights for Performance</h3>
+
+                <p>When you only need light in one direction, Spot Lights are more efficient than Point Lights:</p>
+
+                <!-- SVG: Performance Comparison -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Shadow Rendering: Point vs Spot</text>
+                    
+                    <!-- Point Light -->
+                    <g transform="translate(100, 50)">
+                        <rect x="0" y="0" width="200" height="90" rx="8" fill="#ffcdd2" stroke="#f44336" stroke-width="2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#c62828" font-size="11" font-weight="bold">Point Light Shadows</text>
+                        
+                        <text x="100" y="50" text-anchor="middle" fill="#333" font-size="10">6 shadow map renders</text>
+                        <text x="100" y="65" text-anchor="middle" fill="#333" font-size="10">(cubemap faces)</text>
+                        <text x="100" y="85" text-anchor="middle" fill="#c62828" font-size="10">Higher GPU cost</text>
+                    </g>
+                    
+                    <!-- Spot Light -->
+                    <g transform="translate(400, 50)">
+                        <rect x="0" y="0" width="200" height="90" rx="8" fill="#c8e6c9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#2e7d32" font-size="11" font-weight="bold">Spot Light Shadows</text>
+                        
+                        <text x="100" y="50" text-anchor="middle" fill="#333" font-size="10">1 shadow map render</text>
+                        <text x="100" y="65" text-anchor="middle" fill="#333" font-size="10">(single perspective)</text>
+                        <text x="100" y="85" text-anchor="middle" fill="#2e7d32" font-size="10">Lower GPU cost</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Spot Lights need only one shadow map; Point Lights need six.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Recessed Light Pattern</h4>
+                    <p>For recessed ceiling lights (common in modern interiors):</p>
+                    <ol>
+                        <li>Inner Cone: 25-35°</li>
+                        <li>Outer Cone: 40-50°</li>
+                        <li>Position flush with ceiling geometry</li>
+                        <li>Add a small emissive circle/ring material where the fixture would be visible</li>
+                        <li>Consider disabling shadows for fill lights, enabling only for key lights</li>
+                    </ol>
+                </div>
+
+                <h3>Spot Light IES Preview</h3>
+
+                <p>Spot Lights work especially well with IES profiles (covered in detail soon). The cone angles provide a baseline shape, and the IES profile adds realistic distribution patterns on top.</p>
+            </section>
+
+            <!-- Section 4: Rect Lights for Area Lighting -->
+            <section id="rect-lights" class="lesson-section">
+                <h2>Rect Lights for Area Lighting</h2>
+
+                <p><strong>Rect Lights</strong> (Rectangle Lights) emit light from a rectangular surface rather than a point. This creates the most physically accurate representation of real-world light sources like windows, TV screens, fluorescent panels, and softbox lighting.</p>
+
+                <h3>Why Rect Lights Matter</h3>
+
+                <p>Real light sources have physical size. A window isn't a point—it's a large rectangular opening. This size affects how shadows look:</p>
+
+                <p><strong>Point/Spot Lights:</strong> Create sharp shadows because light comes from a single point (or appears to).</p>
+
+                <p><strong>Rect Lights:</strong> Create soft shadows with penumbra (partially shadowed edges) because light comes from many points across the surface.</p>
+
+                <p>The larger the Rect Light relative to the objects it illuminates, the softer the shadows become. This matches real-world physics.</p>
+
+                <!-- SVG: Point vs Rect Shadow Comparison -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Shadow Comparison: Point vs. Rect Light</text>
+                    
+                    <!-- Point Light Example -->
+                    <g transform="translate(100, 50)">
+                        <text x="100" y="0" text-anchor="middle" fill="#aaa" font-size="11">Point Light Shadow</text>
+                        
+                        <!-- Light source -->
+                        <circle cx="100" cy="30" r="8" fill="#f1c40f"/>
+                        
+                        <!-- Object -->
+                        <rect x="80" y="80" width="40" height="40" fill="#667eea"/>
+                        
+                        <!-- Shadow - sharp -->
+                        <polygon points="80,120 120,120 160,180 40,180" fill="#000" opacity="0.8"/>
+                        
+                        <!-- Ground -->
+                        <rect x="20" y="160" width="160" height="20" fill="#333"/>
+                        
+                        <text x="100" y="200" text-anchor="middle" fill="#f44336" font-size="9">Hard/Sharp shadows</text>
+                    </g>
+                    
+                    <!-- Rect Light Example -->
+                    <g transform="translate(500, 50)">
+                        <text x="100" y="0" text-anchor="middle" fill="#aaa" font-size="11">Rect Light Shadow</text>
+                        
+                        <!-- Light source (rectangle) -->
+                        <rect x="50" y="20" width="100" height="30" fill="#f1c40f" rx="3"/>
+                        
+                        <!-- Object -->
+                        <rect x="80" y="80" width="40" height="40" fill="#667eea"/>
+                        
+                        <!-- Shadow - soft with penumbra -->
+                        <polygon points="70,120 130,120 170,180 30,180" fill="#000" opacity="0.2"/>
+                        <polygon points="75,120 125,120 155,180 45,180" fill="#000" opacity="0.3"/>
+                        <polygon points="80,120 120,120 140,180 60,180" fill="#000" opacity="0.6"/>
+                        
+                        <!-- Ground -->
+                        <rect x="20" y="160" width="160" height="20" fill="#333"/>
+                        
+                        <text x="100" y="200" text-anchor="middle" fill="#4CAF50" font-size="9">Soft shadows with penumbra</text>
+                    </g>
+                    
+                    <!-- Explanation -->
+                    <rect x="280" y="70" width="240" height="80" rx="5" fill="rgba(255,255,255,0.05)" stroke="#667eea"/>
+                    <text x="400" y="95" text-anchor="middle" fill="#fff" font-size="10">Larger light source =</text>
+                    <text x="400" y="112" text-anchor="middle" fill="#fff" font-size="10">More shadow angles =</text>
+                    <text x="400" y="129" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Softer, realistic shadows</text>
+                </svg>
+                <p class="caption"><em>Figure: Rect Lights create physically accurate soft shadows due to their area nature.</em></p>
+
+                <h3>Rect Light Configuration</h3>
+
+                <p><strong>Placement:</strong> Place and orient the Rect Light to match your light source. For a window, align the rectangle with the window opening facing inward.</p>
+
+                <h4>Key Settings</h4>
+
+                <p><strong>Source Width / Source Height:</strong> The dimensions of the emitting rectangle. Match these to your actual light source size (window dimensions, screen size, panel size).</p>
+
+                <p><strong>Barn Door Angle/Length:</strong> Optional settings to add "barn door" falloff at the edges, limiting light spread (like theatrical lighting).</p>
+
+                <p><strong>Attenuation Radius:</strong> How far the light reaches. For windows, this should cover the interior space affected by the window.</p>
+
+                <p><strong>Intensity:</strong> Typically higher than point lights because you're simulating larger sources. A bright window might need 50,000+ lumens depending on your scene's exposure.</p>
+
+                <h3>Rect Light Use Cases</h3>
+
+                <p><strong>Windows:</strong> The primary use case. Place Rect Lights at window positions facing into the room. Size matches window dimensions. Creates realistic soft shadows from daylight.</p>
+
+                <p><strong>TV/Monitor screens:</strong> Emitting colored light into a dark room. The screen's glow on nearby surfaces and characters.</p>
+
+                <p><strong>Fluorescent panels:</strong> Ceiling-mounted rectangular fixtures common in offices, hospitals, commercial spaces.</p>
+
+                <p><strong>Lightboxes/Signs:</strong> Illuminated displays, backlit signage, photography softboxes.</p>
+
+                <p><strong>Practical large sources:</strong> Any rectangular light-emitting surface—illuminated wall panels, ceiling skylights, etc.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out: Rect Light Performance</h4>
+                    <p>Rect Lights are the most expensive light type for shadows because they compute area shadows rather than point shadows. Use them strategically:</p>
+                    <ul>
+                        <li>Use for key window lights and important soft sources</li>
+                        <li>Consider Point/Spot Lights for less critical soft lighting</li>
+                        <li>Reduce shadow resolution for distant or less important Rect Lights</li>
+                        <li>Bake Rect Light shadows where possible</li>
+                    </ul>
+                </div>
+
+                <h3>Window Lighting Setup</h3>
+
+                <p>Windows are the most common Rect Light application. Here's a typical setup:</p>
+
+                <ol>
+                    <li>Measure your window dimensions in Unreal units</li>
+                    <li>Place a Rect Light just inside the window opening, facing into the room</li>
+                    <li>Set Source Width/Height to match window size</li>
+                    <li>Color: Match your exterior sky (blue-white for daylight)</li>
+                    <li>Intensity: Start high (10,000-100,000 lux) and adjust based on auto-exposure</li>
+                    <li>Attenuation: Should cover the room depth affected by the window</li>
+                </ol>
+
+                <p>For best results, combine the Rect Light with a Directional Light (sun) that can cast directional shadows through the window.</p>
+
+                <!-- Mermaid: Light Type Selection -->
+                <pre class="mermaid">
+flowchart TD
+    A["Interior Light Needed"] --> B{"Light Direction?"}
+    
+    B -->|"All directions"| C["Point Light"]
+    B -->|"Focused cone"| D["Spot Light"]
+    B -->|"Large area source"| E["Rect Light"]
+    
+    C --> C1["Lamps, bulbs,<br/>chandeliers, candles"]
+    D --> D1["Recessed lights,<br/>track lights, flashlights"]
+    E --> E1["Windows, screens,<br/>panels, skylights"]
+    
+    C1 --> F{"Need soft shadows?"}
+    D1 --> F
+    E1 --> G["Already soft!"]
+    
+    F -->|Yes| H["Increase Source Radius"]
+    F -->|No| I["Keep Source Radius small"]
+    
+    style C fill:#f1c40f,color:#333
+    style D fill:#e91e63,color:#fff
+    style E fill:#2196F3,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Choose light type based on the real-world source you're simulating.</em></p>
+            </section>
+            <!-- Section 7: Hands-On Exercise -->
+            <section id="hands-on-exercise" class="lesson-section">
+                <h2>Hands-On: Lighting a Complete Interior Room</h2>
+
+                <p>Now let's bring everything together by lighting a complete interior space. We'll work through a living room scenario, applying the layered lighting approach with multiple light types, IES profiles, and dynamic effects.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a realistic, atmospheric living room with: window daylight, ceiling fixtures, table lamps, accent lighting on artwork, and a flickering fireplace. The result should feel warm, inviting, and cinematically lit.</p>
+                </div>
+
+                <h3>Step 1: Set Up Your Room</h3>
+
+                <p>Start with a basic room structure. You can use BSP brushes, a Starter Content room, or any interior mesh:</p>
+
+                <ol>
+                    <li>Create or open a level with an enclosed room (walls, floor, ceiling)</li>
+                    <li>Add a window opening on one wall</li>
+                    <li>Place basic furniture: couch, coffee table, side table, bookshelf</li>
+                    <li>Add a fireplace area (can be simple geometry)</li>
+                    <li>Place a picture or artwork on one wall</li>
+                </ol>
+
+                <p>Don't worry about perfect decoration—focus on having surfaces to receive light and objects to cast shadows.</p>
+
+                <!-- SVG: Room Layout -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Living Room Layout (Top-Down View)</text>
+                    
+                    <!-- Room walls -->
+                    <rect x="100" y="50" width="600" height="220" fill="none" stroke="#888" stroke-width="4"/>
+                    
+                    <!-- Window -->
+                    <rect x="300" y="50" width="150" height="8" fill="#87CEEB" stroke="#fff" stroke-width="2"/>
+                    <text x="375" y="45" text-anchor="middle" fill="#87CEEB" font-size="10">WINDOW</text>
+                    
+                    <!-- Fireplace -->
+                    <rect x="100" y="130" width="8" height="80" fill="#FF5722"/>
+                    <text x="85" y="170" text-anchor="end" fill="#FF5722" font-size="10">FIREPLACE</text>
+                    
+                    <!-- Couch -->
+                    <rect x="250" y="180" width="120" height="50" rx="5" fill="#5D4037"/>
+                    <text x="310" y="210" text-anchor="middle" fill="#fff" font-size="9">Couch</text>
+                    
+                    <!-- Coffee table -->
+                    <rect x="270" y="130" width="80" height="40" rx="3" fill="#795548"/>
+                    <text x="310" y="155" text-anchor="middle" fill="#fff" font-size="8">Table</text>
+                    
+                    <!-- Side table with lamp -->
+                    <rect x="400" y="190" width="40" height="40" rx="3" fill="#795548"/>
+                    <circle cx="420" cy="210" r="12" fill="#FFC107" stroke="#FF9800" stroke-width="2"/>
+                    <text x="420" y="245" text-anchor="middle" fill="#FFC107" font-size="8">Lamp</text>
+                    
+                    <!-- Bookshelf -->
+                    <rect x="550" y="80" width="120" height="30" fill="#4E342E"/>
+                    <text x="610" y="100" text-anchor="middle" fill="#fff" font-size="8">Bookshelf</text>
+                    
+                    <!-- Artwork -->
+                    <rect x="550" y="130" width="50" height="40" fill="#9C27B0" stroke="#E1BEE7" stroke-width="2"/>
+                    <text x="575" y="155" text-anchor="middle" fill="#fff" font-size="7">Art</text>
+                    
+                    <!-- Ceiling light position -->
+                    <circle cx="350" cy="150" r="15" fill="none" stroke="#f1c40f" stroke-width="2" stroke-dasharray="5,3"/>
+                    <text x="350" y="155" text-anchor="middle" fill="#f1c40f" font-size="8">💡</text>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(620, 200)">
+                        <text x="0" y="0" fill="#aaa" font-size="10" font-weight="bold">Light Sources:</text>
+                        <circle cx="10" cy="20" r="6" fill="#87CEEB"/>
+                        <text x="25" y="24" fill="#aaa" font-size="9">Window (Rect)</text>
+                        <circle cx="10" cy="40" r="6" fill="#f1c40f"/>
+                        <text x="25" y="44" fill="#aaa" font-size="9">Ceiling (Point)</text>
+                        <circle cx="10" cy="60" r="6" fill="#FFC107"/>
+                        <text x="25" y="64" fill="#aaa" font-size="9">Lamp (Point)</text>
+                        <circle cx="10" cy="80" r="6" fill="#FF5722"/>
+                        <text x="25" y="84" fill="#aaa" font-size="9">Fire (Point+Func)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Example room layout showing furniture placement and planned light source locations.</em></p>
+
+                <h3>Step 2: Establish Ambient Layer (Start Dark)</h3>
+
+                <p>Begin with everything dark to build up light intentionally:</p>
+
+                <ol>
+                    <li>Remove or disable any default Directional Light and Sky Light in your level</li>
+                    <li>Your room should now be completely black</li>
+                    <li>Add a <strong>Sky Light</strong> with very low intensity (0.1-0.3) to provide minimal ambient fill</li>
+                    <li>Set Sky Light to <strong>Stationary</strong> or <strong>Movable</strong></li>
+                </ol>
+
+                <p>This ambient layer prevents pure black shadows while keeping the room dark enough to see our lights' contributions clearly.</p>
+
+                <h3>Step 3: Add Window Light (Primary Layer - Daylight)</h3>
+
+                <p>The window will be our key light, providing the strongest illumination:</p>
+
+                <ol>
+                    <li>Place a <strong>Rect Light</strong> at the window opening, facing into the room</li>
+                    <li>Set <strong>Source Width</strong> and <strong>Source Height</strong> to match window dimensions</li>
+                    <li>Set <strong>Light Color</strong> to cool daylight (Temperature: 6000-6500K, or light blue-white)</li>
+                    <li>Set <strong>Intensity</strong> high: start around 20,000-50,000 lumens</li>
+                    <li>Set <strong>Attenuation Radius</strong> to cover the room depth (1500-3000 units)</li>
+                    <li>Enable <strong>Cast Shadows</strong></li>
+                    <li>Set Mobility to <strong>Stationary</strong> for good quality with reasonable performance</li>
+                </ol>
+
+                <p>Adjust intensity until the window-side of the room is well-lit with soft shadows. The couch and table should have clear, soft-edged shadows from the window light.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Checkpoint</h4>
+                    <p>At this point, your room should have: bright area near window, soft shadows on furniture, darker areas away from window, and slight ambient fill preventing pure black. The contrast should feel cinematic—bright window side, moody shadow side.</p>
+                </div>
+
+                <h3>Step 4: Add Ceiling Fixture (Primary Layer - Artificial)</h3>
+
+                <p>Add a practical ceiling light to fill the center of the room:</p>
+
+                <ol>
+                    <li>Place a ceiling light mesh (or simple sphere) in the center of the room</li>
+                    <li>Add a <strong>Point Light</strong> at the fixture location</li>
+                    <li>Set <strong>Light Color</strong> to warm (Temperature: 2700-3000K)</li>
+                    <li>Set <strong>Intensity</strong> moderate: 1500-3000 lumens</li>
+                    <li>Set <strong>Attenuation Radius</strong> to cover most of the room (1000-1500 units)</li>
+                    <li>Set <strong>Source Radius</strong> to 10-20 for slightly soft shadows</li>
+                    <li>Consider <strong>disabling shadows</strong> for this fill light, or keep them subtle</li>
+                </ol>
+
+                <p>If you have an IES profile for a ceiling fixture, apply it now for more realistic distribution.</p>
+
+                <h3>Step 5: Add Table Lamp (Primary/Accent Layer)</h3>
+
+                <p>The table lamp adds warmth and creates a focal point:</p>
+
+                <ol>
+                    <li>Place a lamp mesh on the side table</li>
+                    <li>Add a <strong>Point Light</strong> inside or just above the lampshade</li>
+                    <li>Set <strong>Light Color</strong> warm (Temperature: 2700K—incandescent feel)</li>
+                    <li>Set <strong>Intensity</strong> lower: 400-800 lumens (table lamps aren't super bright)</li>
+                    <li>Set <strong>Attenuation Radius</strong> small: 400-600 units</li>
+                    <li>Set <strong>Source Radius</strong> to 15-25 for soft shadows</li>
+                    <li><strong>Disable shadows</strong> or keep them soft—this is accent lighting</li>
+                    <li>Add an <strong>emissive material</strong> to the lamp's bulb so it glows</li>
+                </ol>
+
+                <p>The lamp should create a warm pool of light on the table and nearby surfaces, contrasting with the cooler window light.</p>
+
+                <h3>Step 6: Add Accent Light on Artwork (Accent Layer)</h3>
+
+                <p>Draw attention to the artwork with a focused spot:</p>
+
+                <ol>
+                    <li>Place a <strong>Spot Light</strong> above and in front of the artwork, angled down at it</li>
+                    <li>Set <strong>Inner Cone Angle</strong> to 15-20°</li>
+                    <li>Set <strong>Outer Cone Angle</strong> to 25-35°</li>
+                    <li>Set <strong>Light Color</strong> neutral (3500-4000K) or slightly warm</li>
+                    <li>Set <strong>Intensity</strong> to make the art clearly visible: 2000-5000 lumens</li>
+                    <li><strong>Disable shadows</strong>—this is purely for highlighting</li>
+                    <li>Optionally apply a track light IES profile</li>
+                </ol>
+
+                <p>The spotlight should make the artwork "pop" without harsh shadows on the wall.</p>
+
+                <h3>Step 7: Add Fireplace Glow (Effects Layer)</h3>
+
+                <p>Create a dynamic, flickering fireplace effect:</p>
+
+                <ol>
+                    <li>Place a <strong>Point Light</strong> at the fireplace opening</li>
+                    <li>Set <strong>Light Color</strong> to warm orange (Temperature: 1800-2200K, or manually set orange)</li>
+                    <li>Set <strong>Intensity</strong> moderate: 1000-2500 lumens</li>
+                    <li>Set <strong>Attenuation Radius</strong> to 500-800 units</li>
+                    <li>Set Mobility to <strong>Movable</strong> (required for Light Functions)</li>
+                    <li>Create a <strong>Light Function material</strong> for flickering (Time → Noise → Lerp 0.5-1.0)</li>
+                    <li>Apply the Light Function to the fireplace light</li>
+                    <li>Optionally add a second, dimmer Point Light with slightly different flicker timing for complexity</li>
+                </ol>
+
+                <p>The fireplace should cast dancing, warm light on the nearby floor and furniture, creating a cozy atmosphere.</p>
+
+                <!-- SVG: Layered Result -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Lighting Layers Combined</text>
+                    
+                    <!-- Room cross-section -->
+                    <rect x="100" y="60" width="600" height="180" fill="#2a2a2a" stroke="#555"/>
+                    
+                    <!-- Floor -->
+                    <rect x="100" y="220" width="600" height="20" fill="#3d3d3d"/>
+                    
+                    <!-- Window light rays -->
+                    <polygon points="200,60 200,80 450,200 300,200" fill="#87CEEB" opacity="0.15"/>
+                    <rect x="180" y="60" width="60" height="20" fill="#87CEEB" opacity="0.8"/>
+                    <text x="210" y="55" text-anchor="middle" fill="#87CEEB" font-size="9">Window</text>
+                    
+                    <!-- Ceiling light -->
+                    <circle cx="400" cy="70" r="15" fill="#f1c40f" opacity="0.8"/>
+                    <ellipse cx="400" cy="200" rx="150" ry="30" fill="#f1c40f" opacity="0.1"/>
+                    <text x="400" y="55" text-anchor="middle" fill="#f1c40f" font-size="9">Ceiling</text>
+                    
+                    <!-- Table lamp -->
+                    <rect x="530" y="160" width="30" height="60" fill="#5D4037"/>
+                    <circle cx="545" cy="150" r="20" fill="#FFC107" opacity="0.6"/>
+                    <ellipse cx="545" cy="200" rx="60" ry="15" fill="#FFC107" opacity="0.15"/>
+                    <text x="545" y="125" text-anchor="middle" fill="#FFC107" font-size="9">Lamp</text>
+                    
+                    <!-- Artwork spotlight -->
+                    <rect x="620" y="100" width="40" height="50" fill="#9C27B0"/>
+                    <polygon points="640,85 620,100 660,100" fill="#fff" opacity="0.3"/>
+                    <circle cx="640" cy="80" r="8" fill="#fff" opacity="0.6"/>
+                    <text x="640" y="165" text-anchor="middle" fill="#E1BEE7" font-size="9">Spotlight</text>
+                    
+                    <!-- Fireplace -->
+                    <rect x="100" y="140" width="50" height="80" fill="#333"/>
+                    <rect x="105" y="170" width="40" height="45" fill="#1a1a1a"/>
+                    <ellipse cx="125" cy="195" rx="30" ry="10" fill="#FF5722" opacity="0.3">
+                        <animate attributeName="opacity" values="0.2;0.4;0.25;0.35" dur="0.8s" repeatCount="indefinite"/>
+                    </ellipse>
+                    <circle cx="125" cy="190" r="15" fill="#FF5722" opacity="0.5">
+                        <animate attributeName="r" values="12;18;14;16" dur="0.6s" repeatCount="indefinite"/>
+                    </circle>
+                    <text x="125" y="250" text-anchor="middle" fill="#FF5722" font-size="9">Fireplace</text>
+                    
+                    <!-- Couch silhouette -->
+                    <rect x="280" y="175" width="100" height="45" rx="5" fill="#333"/>
+                    
+                    <!-- Layer labels -->
+                    <g transform="translate(720, 80)">
+                        <text x="0" y="0" fill="#888" font-size="9">Layers:</text>
+                        <rect x="0" y="10" width="60" height="14" fill="#333" stroke="#555"/>
+                        <text x="30" y="21" text-anchor="middle" fill="#aaa" font-size="7">Ambient</text>
+                        <rect x="0" y="30" width="60" height="14" fill="#87CEEB" opacity="0.3"/>
+                        <text x="30" y="41" text-anchor="middle" fill="#fff" font-size="7">Window</text>
+                        <rect x="0" y="50" width="60" height="14" fill="#f1c40f" opacity="0.3"/>
+                        <text x="30" y="61" text-anchor="middle" fill="#fff" font-size="7">Ceiling</text>
+                        <rect x="0" y="70" width="60" height="14" fill="#FFC107" opacity="0.3"/>
+                        <text x="30" y="81" text-anchor="middle" fill="#fff" font-size="7">Lamp</text>
+                        <rect x="0" y="90" width="60" height="14" fill="#9C27B0" opacity="0.3"/>
+                        <text x="30" y="101" text-anchor="middle" fill="#fff" font-size="7">Accent</text>
+                        <rect x="0" y="110" width="60" height="14" fill="#FF5722" opacity="0.3"/>
+                        <text x="30" y="121" text-anchor="middle" fill="#fff" font-size="7">Fire FX</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: All lighting layers working together to create a rich, atmospheric interior.</em></p>
+
+                <h3>Step 8: Fine-Tune and Balance</h3>
+
+                <p>With all lights in place, adjust for balance:</p>
+
+                <ol>
+                    <li><strong>Check exposure:</strong> Use Post Process Volume auto-exposure or manually adjust to ensure nothing is blown out or too dark</li>
+                    <li><strong>Balance temperatures:</strong> Verify the warm/cool contrast between window (cool) and interior lights (warm) reads well</li>
+                    <li><strong>Shadow quality:</strong> Ensure key shadows (from window) are sharp enough to read while fill lights don't create confusing secondary shadows</li>
+                    <li><strong>Disable unnecessary shadows:</strong> Fill lights and accent lights usually don't need shadows</li>
+                    <li><strong>Check from multiple angles:</strong> Walk through the room in Play mode to verify lighting works from different viewpoints</li>
+                </ol>
+
+                <h3>Step 9: Build Lighting (If Using Static/Stationary)</h3>
+
+                <p>If you're using Static or Stationary lights:</p>
+
+                <ol>
+                    <li>Go to <strong>Build → Build Lighting Only</strong></li>
+                    <li>Start with <strong>Preview</strong> quality for fast iteration</li>
+                    <li>Once satisfied, build at <strong>Production</strong> quality for final results</li>
+                    <li>Review the lighting build log for any errors or warnings</li>
+                </ol>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>🎨 Creative Challenge</h4>
+                    <p>Try these variations to practice:</p>
+                    <ul>
+                        <li><strong>Night scene:</strong> Turn off window light, increase lamp and fireplace intensity</li>
+                        <li><strong>Morning light:</strong> Use warmer, lower-angle window light (orange tint)</li>
+                        <li><strong>Overcast day:</strong> Cool, diffuse window light with less contrast</li>
+                        <li><strong>Dramatic mood:</strong> Reduce fill lights, increase contrast, add volumetric fog</li>
+                    </ul>
+                </div>
+
+                <h3>Final Checklist</h3>
+
+                <!-- Mermaid: Lighting Checklist -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Ambient["1️⃣ Ambient Layer"]
+        A1["Sky Light<br/>Very low intensity"]
+    end
+    
+    subgraph Primary["2️⃣ Primary Layer"]
+        P1["Window Rect Light<br/>Cool daylight"]
+        P2["Ceiling Point Light<br/>Warm artificial"]
+    end
+    
+    subgraph Accent["3️⃣ Accent Layer"]
+        AC1["Table Lamp<br/>Warm pool"]
+        AC2["Art Spotlight<br/>Focused highlight"]
+    end
+    
+    subgraph Effects["4️⃣ Effects Layer"]
+        E1["Fireplace<br/>Flickering warmth"]
+    end
+    
+    Ambient --> Primary --> Accent --> Effects
+    
+    style Ambient fill:#455A64,color:#fff
+    style Primary fill:#1976D2,color:#fff
+    style Accent fill:#7B1FA2,color:#fff
+    style Effects fill:#E65100,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Complete interior lighting follows the four-layer approach from ambient base to dynamic effects.</em></p>
+            </section>
+
+            <!-- Section 8: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned to light interior spaces using Unreal Engine 5's lighting tools. Interior lighting requires a thoughtful, layered approach that combines multiple light types to create realistic, atmospheric environments.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Interior Lighting Principles:</strong> Adapt three-point lighting for interiors using key, fill, and accent lights. Use practical lights (visible fixtures) with motivated lighting (actual light sources). Build lighting in layers: Ambient → Primary → Accent → Effects.</p>
+
+                <p><strong>Point Lights:</strong> Emit light in all directions from a single point. Perfect for ceiling fixtures, table lamps, chandeliers, and candles. Control intensity, attenuation radius, source radius, and color temperature. Shadows use expensive cubemap rendering—disable on fill lights.</p>
+
+                <p><strong>Spot Lights:</strong> Emit light in a cone shape. Ideal for recessed ceiling lights, track lighting, flashlights, and dramatic accents. Configure inner/outer cone angles for edge softness. More efficient shadows than Point Lights (single shadow map vs. six).</p>
+
+                <p><strong>Rect Lights:</strong> Emit from a rectangular surface, creating physically accurate soft shadows. Essential for windows, TV screens, and fluorescent panels. Larger source = softer shadows. Most expensive for shadow computation—use strategically.</p>
+
+                <p><strong>IES Profiles:</strong> Industry-standard files defining real fixture light distribution. Import .ies files and apply to Point/Spot Lights for photometrically accurate patterns. Minimal performance cost for significant realism improvement.</p>
+
+                <p><strong>Light Functions:</strong> Material-based light modifiers for dynamic effects. Create flickering, pulsing, projected patterns, and color variations. Requires Movable mobility. Use Time + Noise nodes for organic animation.</p>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Start dark, add light:</strong> Build up lighting intentionally rather than fighting "light soup"</li>
+                    <li><strong>Mix color temperatures:</strong> Warm interiors + cool daylight creates cinematic contrast</li>
+                    <li><strong>Disable shadows selectively:</strong> Only key lights need shadows; fill and accent usually don't</li>
+                    <li><strong>Use practical + light combos:</strong> Place visible fixtures with actual light sources nearby</li>
+                    <li><strong>Match IES to fixture type:</strong> Use appropriate profiles for each fixture style</li>
+                    <li><strong>Consider performance:</strong> Rect > Point for shadow cost; Light Functions add shader overhead</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Interior Lighting Toolkit Summary</text>
+                    
+                    <!-- Point Light -->
+                    <g transform="translate(50, 50)">
+                        <circle cx="50" cy="40" r="30" fill="#f1c40f" opacity="0.3"/>
+                        <circle cx="50" cy="40" r="10" fill="#f1c40f"/>
+                        <text x="50" y="90" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Point Light</text>
+                        <text x="50" y="105" text-anchor="middle" fill="#666" font-size="9">Omnidirectional</text>
+                        <text x="50" y="118" text-anchor="middle" fill="#888" font-size="8">Lamps, fixtures</text>
+                    </g>
+                    
+                    <!-- Spot Light -->
+                    <g transform="translate(200, 50)">
+                        <polygon points="50,20 20,90 80,90" fill="#f1c40f" opacity="0.3"/>
+                        <circle cx="50" cy="20" r="10" fill="#f1c40f"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Spot Light</text>
+                        <text x="50" y="125" text-anchor="middle" fill="#666" font-size="9">Cone-shaped</text>
+                        <text x="50" y="138" text-anchor="middle" fill="#888" font-size="8">Recessed, track</text>
+                    </g>
+                    
+                    <!-- Rect Light -->
+                    <g transform="translate(350, 50)">
+                        <rect x="20" y="15" width="60" height="30" fill="#f1c40f"/>
+                        <polygon points="20,45 0,90 100,90 80,45" fill="#f1c40f" opacity="0.3"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Rect Light</text>
+                        <text x="50" y="125" text-anchor="middle" fill="#666" font-size="9">Area source</text>
+                        <text x="50" y="138" text-anchor="middle" fill="#888" font-size="8">Windows, screens</text>
+                    </g>
+                    
+                    <!-- IES Profile -->
+                    <g transform="translate(500, 50)">
+                        <circle cx="50" cy="25" r="10" fill="#f1c40f"/>
+                        <polygon points="50,35 30,90 45,70 50,90 55,70 70,90" fill="#f1c40f" opacity="0.4"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">IES Profile</text>
+                        <text x="50" y="125" text-anchor="middle" fill="#666" font-size="9">Real distribution</text>
+                        <text x="50" y="138" text-anchor="middle" fill="#888" font-size="8">Photometric data</text>
+                    </g>
+                    
+                    <!-- Light Function -->
+                    <g transform="translate(650, 50)">
+                        <circle cx="50" cy="40" r="25" fill="#FF9800" opacity="0.3">
+                            <animate attributeName="r" values="20;30;25" dur="1s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="50" cy="40" r="10" fill="#FF9800"/>
+                        <text x="50" y="90" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Light Function</text>
+                        <text x="50" y="105" text-anchor="middle" fill="#666" font-size="9">Dynamic effects</text>
+                        <text x="50" y="118" text-anchor="middle" fill="#888" font-size="8">Flicker, pulse</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: The five key tools for interior lighting in Unreal Engine 5.</em></p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Which light type is most appropriate for simulating a window that casts soft, realistic shadows into a room?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Point Light with large Source Radius</label>
+                            <label><input type="radio" name="q1" value="b"> Spot Light with wide outer cone angle</label>
+                            <label><input type="radio" name="q1" value="c"> Rect Light sized to match the window</label>
+                            <label><input type="radio" name="q1" value="d"> Directional Light</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Rect Lights emit from a rectangular surface, accurately simulating large area sources like windows. Their physical size creates soft shadows with proper penumbra, matching how real window light behaves.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why are Point Light shadows more expensive to render than Spot Light shadows?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Point Lights have larger attenuation radius</label>
+                            <label><input type="radio" name="q2" value="b"> Point Lights require six shadow map renders (cubemap) vs. one for Spot Lights</label>
+                            <label><input type="radio" name="q2" value="c"> Point Lights use higher resolution shadow maps</label>
+                            <label><input type="radio" name="q2" value="d"> Point Lights calculate shadows for more objects</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Point Lights emit in all directions, requiring the engine to render six shadow maps (cubemap faces) to capture shadows from every angle. Spot Lights only need a single shadow map since they emit in one direction.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is the purpose of an IES profile?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> To add dynamic flickering effects to lights</label>
+                            <label><input type="radio" name="q3" value="b"> To define photometrically accurate light distribution based on real fixtures</label>
+                            <label><input type="radio" name="q3" value="c"> To control light color temperature</label>
+                            <label><input type="radio" name="q3" value="d"> To improve shadow map resolution</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — IES (Illuminating Engineering Society) profiles contain data from real lighting fixtures that describes how they distribute light in 3D space, including hotspots, falloff patterns, and secondary lobes. This creates photometrically accurate lighting.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>In the four-layer lighting approach, which layer should you build first?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Primary Layer (main sources)</label>
+                            <label><input type="radio" name="q4" value="b"> Effects Layer (dynamic lights)</label>
+                            <label><input type="radio" name="q4" value="c"> Accent Layer (highlights)</label>
+                            <label><input type="radio" name="q4" value="d"> Ambient Layer (base fill)</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="d">
+                            <p><strong>Correct answer: D</strong> — Start with the Ambient Layer to establish a minimal base fill that prevents pure black shadows. Then add Primary (main sources), Accent (highlights), and finally Effects (dynamic) layers, building up intentionally.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What mobility setting is required for Light Functions to work?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Static</label>
+                            <label><input type="radio" name="q5" value="b"> Stationary</label>
+                            <label><input type="radio" name="q5" value="c"> Movable</label>
+                            <label><input type="radio" name="q5" value="d"> Any mobility works</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Light Functions require Movable mobility because they dynamically modify light output at runtime. Static and Stationary lights bake their illumination and cannot change during gameplay.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m04_l02_directional_light_and_sky.html" class="btn">← Previous: Directional Light &amp; Sky</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m04_l04_lumen_global_illumination.html" class="btn">Next: Advanced Lighting Techniques →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'dark',
+            flowchart: { 
+                useMaxWidth: true, 
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

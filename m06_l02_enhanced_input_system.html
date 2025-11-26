@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master the Enhanced Input System in Unreal Engine 5. Learn to create Input Actions, Input Mapping Contexts, bind inputs to Blueprints, and handle keyboard, mouse, and gamepad input.">
+    <meta name="author" content="Practical Ace">
+    <title>Enhanced Input System - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 6: Player Interaction and Input</a></li>
+            <li aria-current="page">Lesson 6.2: Enhanced Input System</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎮 Enhanced Input System</h1>
+                <p class="lead">The Enhanced Input System is Unreal Engine 5's modern approach to handling player input. It replaces the older input system with a more flexible, data-driven architecture that makes it easy to support multiple input devices, remap controls, and create complex input behaviors. Whether players use keyboard and mouse, gamepad, or touch controls, Enhanced Input provides a unified way to handle all of them. In this lesson, you'll learn how to create Input Actions, configure Input Mapping Contexts, and bind input to your Blueprints.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain the advantages of Enhanced Input over the legacy system</li>
+                        <li>Create Input Actions for different types of player input</li>
+                        <li>Configure Input Mapping Contexts to bind keys to actions</li>
+                        <li>Distinguish between digital and axis-based inputs</li>
+                        <li>Apply Input Modifiers and Triggers for advanced behavior</li>
+                        <li>Set up complete WASD movement with keyboard and gamepad support</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 6.1 (Player Controllers and Pawns)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#why-enhanced-input" class="toc-link">Why Enhanced Input?</a></li>
+                        <li><a href="#input-actions" class="toc-link">Input Actions</a></li>
+                        <li><a href="#mapping-contexts" class="toc-link">Input Mapping Contexts</a></li>
+                        <li><a href="#modifiers-triggers" class="toc-link">Modifiers and Triggers</a></li>
+                        <li><a href="#binding-blueprints" class="toc-link">Binding Input to Blueprints</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Set Up WASD Movement</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Why Enhanced Input? -->
+            <section id="why-enhanced-input" class="lesson-section">
+                <h2>Why Enhanced Input?</h2>
+
+                <p>Before UE5, Unreal used a simpler input system where you defined "Action Mappings" and "Axis Mappings" directly in Project Settings. While functional, this approach had limitations. The <strong>Enhanced Input System</strong> addresses these issues with a more powerful, flexible architecture.</p>
+
+                <h3>Problems with the Legacy System</h3>
+
+                <p>The old input system had several pain points:</p>
+
+                <p><strong>Hardcoded Bindings:</strong> Key bindings were defined in project settings, making it difficult to change them at runtime or let players customize controls.</p>
+
+                <p><strong>Limited Input Types:</strong> Actions were either digital (pressed/released) or axis (continuous values), with limited flexibility for complex input patterns.</p>
+
+                <p><strong>Device Agnostic Challenges:</strong> Supporting multiple input devices (keyboard + gamepad + touch) required manual work and often duplicated logic.</p>
+
+                <p><strong>No Input Processing:</strong> You couldn't easily modify input values (like dead zones, sensitivity curves) without custom code.</p>
+
+                <h3>Enhanced Input Advantages</h3>
+
+                <p>The Enhanced Input System solves these problems:</p>
+
+                <p><strong>Data-Driven Design:</strong> Input Actions and Mapping Contexts are assets you create in the Content Browser. They can be modified, swapped, and extended without changing code.</p>
+
+                <p><strong>Flexible Value Types:</strong> Actions can output booleans, floats, 2D vectors, or 3D vectors—whatever makes sense for the action.</p>
+
+                <p><strong>Modifiers and Triggers:</strong> Built-in systems to process input values (dead zones, sensitivity, swizzle axes) and control when actions fire (press, release, hold, tap).</p>
+
+                <p><strong>Context Switching:</strong> Different Mapping Contexts for different gameplay states (on foot, in vehicle, in menu). Switch contexts instantly.</p>
+
+                <p><strong>Runtime Remapping:</strong> Players can remap controls without restarting. The system handles saving and loading preferences.</p>
+
+                <!-- SVG: Legacy vs Enhanced Input -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Legacy Input vs. Enhanced Input System</text>
+                    
+                    <!-- Legacy side -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="320" height="200" rx="10" fill="#fff" stroke="#f44336" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="35" rx="10" fill="#f44336"/>
+                        <text x="160" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Legacy Input System</text>
+                        
+                        <text x="20" y="60" fill="#333" font-size="9" font-weight="bold">Characteristics:</text>
+                        <text x="20" y="80" fill="#666" font-size="8">• Defined in Project Settings only</text>
+                        <text x="20" y="95" fill="#666" font-size="8">• Action Mappings (digital)</text>
+                        <text x="20" y="110" fill="#666" font-size="8">• Axis Mappings (continuous)</text>
+                        <text x="20" y="125" fill="#666" font-size="8">• Hardcoded key bindings</text>
+                        
+                        <text x="20" y="150" fill="#f44336" font-size="9" font-weight="bold">Limitations:</text>
+                        <text x="20" y="170" fill="#c62828" font-size="8">✗ Difficult runtime remapping</text>
+                        <text x="20" y="185" fill="#c62828" font-size="8">✗ No built-in input processing</text>
+                        <text x="20" y="200" fill="#c62828" font-size="8">✗ Context switching is manual</text>
+                    </g>
+                    
+                    <!-- Enhanced side -->
+                    <g transform="translate(430, 50)">
+                        <rect x="0" y="0" width="320" height="200" rx="10" fill="#fff" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="35" rx="10" fill="#4CAF50"/>
+                        <text x="160" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Enhanced Input System</text>
+                        
+                        <text x="20" y="60" fill="#333" font-size="9" font-weight="bold">Characteristics:</text>
+                        <text x="20" y="80" fill="#666" font-size="8">• Data assets (Input Actions)</text>
+                        <text x="20" y="95" fill="#666" font-size="8">• Mapping Contexts (swappable)</text>
+                        <text x="20" y="110" fill="#666" font-size="8">• Multiple value types (bool, float, vector)</text>
+                        <text x="20" y="125" fill="#666" font-size="8">• Modifiers and Triggers</text>
+                        
+                        <text x="20" y="150" fill="#4CAF50" font-size="9" font-weight="bold">Advantages:</text>
+                        <text x="20" y="170" fill="#2E7D32" font-size="8">✓ Easy runtime remapping</text>
+                        <text x="20" y="185" fill="#2E7D32" font-size="8">✓ Built-in dead zones, sensitivity</text>
+                        <text x="20" y="200" fill="#2E7D32" font-size="8">✓ Context switching built-in</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Enhanced Input provides a more flexible, data-driven approach to handling player input.</em></p>
+
+                <h3>The Enhanced Input Architecture</h3>
+
+                <p>Enhanced Input separates input handling into distinct components:</p>
+
+                <p><strong>Input Actions:</strong> Define <em>what</em> can happen. "Jump," "Move," "Fire," "Interact." Each action specifies its value type (digital, axis, 2D, 3D).</p>
+
+                <p><strong>Input Mapping Contexts:</strong> Define <em>how</em> actions are triggered. Map specific keys/buttons to actions. Different contexts for different situations.</p>
+
+                <p><strong>Modifiers:</strong> Process input values before they reach your game. Dead zones, sensitivity curves, axis inversion, value clamping.</p>
+
+                <p><strong>Triggers:</strong> Define <em>when</em> actions fire. On press, on release, while held, on tap, on hold for duration.</p>
+
+                <!-- Mermaid: Enhanced Input Flow -->
+                <pre class="mermaid">
+flowchart LR
+    A["🎮 Physical Input<br/>(Key/Button)"] --> B["Input Mapping<br/>Context"]
+    B --> C["Input Action"]
+    C --> D["Modifiers<br/>(Dead Zone, etc.)"]
+    D --> E["Triggers<br/>(Press/Hold/etc.)"]
+    E --> F["Blueprint Event<br/>(Your Code)"]
+    
+    style A fill:#e3f2fd,color:#333
+    style B fill:#fff3e0,color:#333
+    style C fill:#667eea,color:#fff
+    style D fill:#9C27B0,color:#fff
+    style E fill:#FF9800,color:#fff
+    style F fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Input flows from physical device through Mapping Context, Action, Modifiers, and Triggers to your Blueprint.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Default in UE5</h4>
+                    <p>Enhanced Input is enabled by default in new UE5 projects. The Third Person and First Person templates use Enhanced Input for movement and camera controls. If you're working with an older project, you may need to enable the Enhanced Input plugin (Edit → Plugins → Enhanced Input).</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Input Actions -->
+            <section id="input-actions" class="lesson-section">
+                <h2>Input Actions</h2>
+
+                <p><strong>Input Actions</strong> are data assets that define what the player can do. They don't specify which key triggers them—that's the Mapping Context's job. Actions define the <em>type</em> of input and what value it produces.</p>
+
+                <h3>Creating an Input Action</h3>
+
+                <p>To create an Input Action:</p>
+
+                <ol>
+                    <li>In Content Browser, right-click</li>
+                    <li>Select <strong>Input → Input Action</strong></li>
+                    <li>Name it descriptively with "IA_" prefix (e.g., <code>IA_Jump</code>, <code>IA_Move</code>)</li>
+                    <li>Double-click to open and configure</li>
+                </ol>
+
+                <h3>Input Action Settings</h3>
+
+                <p>The most important setting is <strong>Value Type</strong>:</p>
+
+                <p><strong>Digital (Bool):</strong> True or false. Perfect for buttons: jump, fire, interact, pause. Outputs true when pressed, false when released.</p>
+
+                <p><strong>Axis1D (Float):</strong> A single floating-point value, typically -1 to 1. Good for throttle, zoom, single-axis movement. Can represent analog trigger pressure.</p>
+
+                <p><strong>Axis2D (Vector2D):</strong> Two floating-point values (X, Y). Ideal for movement (forward/back + left/right) or camera look (yaw + pitch). Joysticks naturally output 2D.</p>
+
+                <p><strong>Axis3D (Vector):</strong> Three floating-point values (X, Y, Z). Used for VR motion controllers or other 3D input devices. Less common in traditional games.</p>
+
+                <!-- SVG: Value Types -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Input Action Value Types</text>
+                    
+                    <!-- Digital -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="160" height="140" rx="8" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">Digital (Bool)</text>
+                        
+                        <rect x="30" y="45" width="45" height="30" rx="5" fill="#4CAF50"/>
+                        <text x="52" y="65" text-anchor="middle" fill="#fff" font-size="9">True</text>
+                        
+                        <rect x="85" y="45" width="45" height="30" rx="5" fill="#666"/>
+                        <text x="107" y="65" text-anchor="middle" fill="#aaa" font-size="9">False</text>
+                        
+                        <text x="80" y="100" text-anchor="middle" fill="#aaa" font-size="8">On / Off</text>
+                        <text x="80" y="115" text-anchor="middle" fill="#888" font-size="7">Jump, Fire, Interact</text>
+                    </g>
+                    
+                    <!-- Axis1D -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="160" height="140" rx="8" fill="#3d3d3d" stroke="#2196F3" stroke-width="2"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#2196F3" font-size="11" font-weight="bold">Axis1D (Float)</text>
+                        
+                        <line x1="20" y1="65" x2="140" y2="65" stroke="#666" stroke-width="2"/>
+                        <circle cx="100" cy="65" r="8" fill="#2196F3"/>
+                        <text x="20" y="85" fill="#888" font-size="8">-1.0</text>
+                        <text x="75" y="85" fill="#888" font-size="8">0</text>
+                        <text x="130" y="85" fill="#888" font-size="8">1.0</text>
+                        
+                        <text x="80" y="110" text-anchor="middle" fill="#aaa" font-size="8">Single axis</text>
+                        <text x="80" y="125" text-anchor="middle" fill="#888" font-size="7">Throttle, Zoom</text>
+                    </g>
+                    
+                    <!-- Axis2D -->
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="160" height="140" rx="8" fill="#3d3d3d" stroke="#FF9800" stroke-width="2"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#FF9800" font-size="11" font-weight="bold">Axis2D (Vector2D)</text>
+                        
+                        <!-- Mini joystick representation -->
+                        <circle cx="80" cy="75" r="35" fill="#555" stroke="#666"/>
+                        <circle cx="90" cy="65" r="10" fill="#FF9800"/>
+                        <line x1="45" y1="75" x2="115" y2="75" stroke="#666" stroke-width="1"/>
+                        <line x1="80" y1="40" x2="80" y2="110" stroke="#666" stroke-width="1"/>
+                        <text x="120" y="78" fill="#888" font-size="7">X</text>
+                        <text x="83" y="45" fill="#888" font-size="7">Y</text>
+                        
+                        <text x="80" y="125" text-anchor="middle" fill="#aaa" font-size="8">Movement, Look</text>
+                    </g>
+                    
+                    <!-- Axis3D -->
+                    <g transform="translate(590, 50)">
+                        <rect x="0" y="0" width="160" height="140" rx="8" fill="#3d3d3d" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#9C27B0" font-size="11" font-weight="bold">Axis3D (Vector)</text>
+                        
+                        <!-- 3D axes -->
+                        <line x1="80" y1="90" x2="120" y2="90" stroke="#f44336" stroke-width="2"/>
+                        <line x1="80" y1="90" x2="80" y2="50" stroke="#4CAF50" stroke-width="2"/>
+                        <line x1="80" y1="90" x2="55" y2="105" stroke="#2196F3" stroke-width="2"/>
+                        <text x="125" y="93" fill="#f44336" font-size="7">X</text>
+                        <text x="83" y="48" fill="#4CAF50" font-size="7">Y</text>
+                        <text x="48" y="110" fill="#2196F3" font-size="7">Z</text>
+                        
+                        <text x="80" y="125" text-anchor="middle" fill="#aaa" font-size="8">VR, 3D Input</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Choose the Value Type that matches what your action needs to output.</em></p>
+
+                <h3>Common Input Actions</h3>
+
+                <p>Here are typical Input Actions for a third-person game:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Action Name</th>
+                            <th style="padding: 10px; text-align: left;">Value Type</th>
+                            <th style="padding: 10px; text-align: left;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>IA_Move</code></td>
+                            <td style="padding: 10px;">Axis2D</td>
+                            <td style="padding: 10px;">Character movement (WASD / left stick)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>IA_Look</code></td>
+                            <td style="padding: 10px;">Axis2D</td>
+                            <td style="padding: 10px;">Camera control (mouse / right stick)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>IA_Jump</code></td>
+                            <td style="padding: 10px;">Digital</td>
+                            <td style="padding: 10px;">Jump action (Space / A button)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>IA_Sprint</code></td>
+                            <td style="padding: 10px;">Digital</td>
+                            <td style="padding: 10px;">Sprint modifier (Shift / left stick click)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;"><code>IA_Interact</code></td>
+                            <td style="padding: 10px;">Digital</td>
+                            <td style="padding: 10px;">Interact with objects (E / X button)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><code>IA_Fire</code></td>
+                            <td style="padding: 10px;">Digital</td>
+                            <td style="padding: 10px;">Attack / shoot (Left click / right trigger)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Naming Convention</h4>
+                    <p>Use the <code>IA_</code> prefix for Input Actions (e.g., <code>IA_Jump</code>) and <code>IMC_</code> for Input Mapping Contexts (e.g., <code>IMC_Default</code>). This makes assets easy to find in the Content Browser and clearly identifies their purpose.</p>
+                </div>
+
+                <h3>Other Action Settings</h3>
+
+                <p>Beyond Value Type, Input Actions have additional settings:</p>
+
+                <p><strong>Consume Input:</strong> When true (default), this action consumes the input so lower-priority actions can't use it. Disable to allow multiple actions to share the same key.</p>
+
+                <p><strong>Triggers:</strong> Can define default triggers directly on the action (though usually done in Mapping Context).</p>
+
+                <p><strong>Modifiers:</strong> Can define default modifiers directly on the action (though usually done in Mapping Context).</p>
+
+                <p>For most cases, you'll just set the Value Type and leave other settings at defaults.</p>
+            </section>
+
+            <!-- Section 3: Input Mapping Contexts -->
+            <section id="mapping-contexts" class="lesson-section">
+                <h2>Input Mapping Contexts</h2>
+
+                <p><strong>Input Mapping Contexts</strong> connect physical inputs (keys, buttons, sticks) to Input Actions. They define which keys trigger which actions, and can include modifiers and triggers for each mapping. You can have multiple contexts and switch between them based on gameplay state.</p>
+
+                <h3>Creating a Mapping Context</h3>
+
+                <ol>
+                    <li>In Content Browser, right-click</li>
+                    <li>Select <strong>Input → Input Mapping Context</strong></li>
+                    <li>Name it with "IMC_" prefix (e.g., <code>IMC_Default</code>, <code>IMC_Vehicle</code>)</li>
+                    <li>Double-click to open and configure</li>
+                </ol>
+
+                <h3>Adding Mappings</h3>
+
+                <p>Inside the Mapping Context editor:</p>
+
+                <ol>
+                    <li>Click <strong>+ Add</strong> next to "Mappings"</li>
+                    <li>Select an Input Action from the dropdown</li>
+                    <li>Expand the action to see its mappings</li>
+                    <li>Click <strong>+</strong> to add a key/button mapping</li>
+                    <li>Select the key or button from the dropdown</li>
+                    <li>Add Modifiers and Triggers as needed</li>
+                </ol>
+
+                <!-- SVG: Mapping Context Structure -->
+                <svg width="100%" height="300" viewBox="0 0 700 300" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Input Mapping Context Structure</text>
+                    
+                    <!-- Context header -->
+                    <rect x="50" y="45" width="600" height="240" rx="5" fill="#3d3d3d" stroke="#667eea"/>
+                    <rect x="50" y="45" width="600" height="30" rx="5" fill="#667eea"/>
+                    <text x="70" y="65" fill="#fff" font-size="11" font-weight="bold">IMC_Default</text>
+                    
+                    <!-- IA_Move mapping -->
+                    <g transform="translate(60, 85)">
+                        <rect x="0" y="0" width="570" height="60" rx="3" fill="#4a4a4a"/>
+                        <text x="15" y="20" fill="#4CAF50" font-size="10" font-weight="bold">▼ IA_Move</text>
+                        <text x="450" y="20" fill="#888" font-size="8">Axis2D</text>
+                        
+                        <!-- Key mappings -->
+                        <rect x="25" y="30" width="250" height="22" rx="2" fill="#3d3d3d"/>
+                        <text x="35" y="45" fill="#aaa" font-size="9">🎮 W, A, S, D</text>
+                        <text x="200" y="45" fill="#FF9800" font-size="8">+ Swizzle, Negate</text>
+                        
+                        <rect x="290" y="30" width="250" height="22" rx="2" fill="#3d3d3d"/>
+                        <text x="300" y="45" fill="#aaa" font-size="9">🕹️ Gamepad Left Stick</text>
+                        <text x="470" y="45" fill="#9C27B0" font-size="8">+ Dead Zone</text>
+                    </g>
+                    
+                    <!-- IA_Look mapping -->
+                    <g transform="translate(60, 155)">
+                        <rect x="0" y="0" width="570" height="60" rx="3" fill="#4a4a4a"/>
+                        <text x="15" y="20" fill="#2196F3" font-size="10" font-weight="bold">▼ IA_Look</text>
+                        <text x="450" y="20" fill="#888" font-size="8">Axis2D</text>
+                        
+                        <rect x="25" y="30" width="250" height="22" rx="2" fill="#3d3d3d"/>
+                        <text x="35" y="45" fill="#aaa" font-size="9">🖱️ Mouse XY</text>
+                        
+                        <rect x="290" y="30" width="250" height="22" rx="2" fill="#3d3d3d"/>
+                        <text x="300" y="45" fill="#aaa" font-size="9">🕹️ Gamepad Right Stick</text>
+                        <text x="470" y="45" fill="#9C27B0" font-size="8">+ Dead Zone</text>
+                    </g>
+                    
+                    <!-- IA_Jump mapping -->
+                    <g transform="translate(60, 225)">
+                        <rect x="0" y="0" width="570" height="45" rx="3" fill="#4a4a4a"/>
+                        <text x="15" y="20" fill="#e74c3c" font-size="10" font-weight="bold">▼ IA_Jump</text>
+                        <text x="450" y="20" fill="#888" font-size="8">Digital</text>
+                        
+                        <rect x="25" y="28" width="120" height="14" rx="2" fill="#3d3d3d"/>
+                        <text x="35" y="39" fill="#aaa" font-size="8">⌨️ Space</text>
+                        
+                        <rect x="155" y="28" width="140" height="14" rx="2" fill="#3d3d3d"/>
+                        <text x="165" y="39" fill="#aaa" font-size="8">🎮 Gamepad Face Bottom</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: A Mapping Context maps Input Actions to specific keys with optional modifiers.</em></p>
+
+                <h3>Multiple Key Bindings</h3>
+
+                <p>Each action can have multiple key bindings. This lets you support different input devices in one context:</p>
+
+                <ul>
+                    <li><code>IA_Move</code>: W/A/S/D keys AND left gamepad stick</li>
+                    <li><code>IA_Jump</code>: Space key AND gamepad A button</li>
+                    <li><code>IA_Fire</code>: Left mouse AND right trigger</li>
+                </ul>
+
+                <p>When any bound input is activated, the action fires. This makes your game automatically support multiple input devices without extra code.</p>
+
+                <h3>WASD to Axis2D Mapping</h3>
+
+                <p>Mapping four discrete keys (W, A, S, D) to a 2D axis requires <strong>modifiers</strong> to combine them properly:</p>
+
+                <p><strong>W Key:</strong> Produces +Y (forward). Modifier: <code>Swizzle Input Axis Values</code> (set to YXZ to put the value in Y)</p>
+
+                <p><strong>S Key:</strong> Produces -Y (backward). Modifiers: <code>Swizzle</code> + <code>Negate</code></p>
+
+                <p><strong>A Key:</strong> Produces -X (left). Modifier: <code>Negate</code></p>
+
+                <p><strong>D Key:</strong> Produces +X (right). No modifier needed</p>
+
+                <p>The system combines these into a single Vector2D value representing the movement direction.</p>
+
+                <!-- SVG: WASD Mapping -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">WASD to Axis2D Mapping</text>
+                    
+                    <!-- Keys -->
+                    <g transform="translate(100, 60)">
+                        <text x="100" y="0" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Keyboard Keys</text>
+                        
+                        <!-- W -->
+                        <rect x="75" y="20" width="50" height="40" rx="5" fill="#667eea"/>
+                        <text x="100" y="47" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">W</text>
+                        <text x="100" y="75" text-anchor="middle" fill="#666" font-size="8">+Y (forward)</text>
+                        
+                        <!-- A -->
+                        <rect x="15" y="70" width="50" height="40" rx="5" fill="#667eea"/>
+                        <text x="40" y="97" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">A</text>
+                        <text x="40" y="125" text-anchor="middle" fill="#666" font-size="8">-X (left)</text>
+                        
+                        <!-- S -->
+                        <rect x="75" y="70" width="50" height="40" rx="5" fill="#667eea"/>
+                        <text x="100" y="97" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">S</text>
+                        <text x="100" y="125" text-anchor="middle" fill="#666" font-size="8">-Y (back)</text>
+                        
+                        <!-- D -->
+                        <rect x="135" y="70" width="50" height="40" rx="5" fill="#667eea"/>
+                        <text x="160" y="97" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">D</text>
+                        <text x="160" y="125" text-anchor="middle" fill="#666" font-size="8">+X (right)</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 320 120 L 400 120" stroke="#4CAF50" stroke-width="3" marker-end="url(#wasdArrow)"/>
+                    <text x="360" y="105" text-anchor="middle" fill="#4CAF50" font-size="9">Combined</text>
+                    
+                    <!-- Result -->
+                    <g transform="translate(430, 50)">
+                        <text x="150" y="10" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">IA_Move Output (Axis2D)</text>
+                        
+                        <!-- Coordinate system -->
+                        <circle cx="150" cy="90" r="60" fill="#fff" stroke="#4CAF50" stroke-width="2"/>
+                        
+                        <!-- Axes -->
+                        <line x1="150" y1="30" x2="150" y2="150" stroke="#888" stroke-width="1"/>
+                        <line x1="90" y1="90" x2="210" y2="90" stroke="#888" stroke-width="1"/>
+                        
+                        <!-- Labels -->
+                        <text x="155" y="28" fill="#4CAF50" font-size="9">+Y</text>
+                        <text x="155" y="158" fill="#888" font-size="9">-Y</text>
+                        <text x="215" y="93" fill="#4CAF50" font-size="9">+X</text>
+                        <text x="75" y="93" fill="#888" font-size="9">-X</text>
+                        
+                        <!-- Example vector -->
+                        <line x1="150" y1="90" x2="190" y2="55" stroke="#e74c3c" stroke-width="3"/>
+                        <circle cx="190" cy="55" r="5" fill="#e74c3c"/>
+                        <text x="200" y="50" fill="#e74c3c" font-size="8">(0.7, 0.7)</text>
+                        <text x="150" y="175" text-anchor="middle" fill="#888" font-size="8">W+D pressed = diagonal</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="wasdArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                            <polygon points="0 0, 10 4, 0 8" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Four discrete keys combine into a single 2D vector for movement direction.</em></p>
+
+                <h3>Context Switching</h3>
+
+                <p>You can create different Mapping Contexts for different gameplay states:</p>
+
+                <ul>
+                    <li><code>IMC_OnFoot</code> — Walking character controls</li>
+                    <li><code>IMC_Vehicle</code> — Driving controls (accelerate, brake, steer)</li>
+                    <li><code>IMC_Menu</code> — Menu navigation (confirm, cancel, navigate)</li>
+                    <li><code>IMC_Swimming</code> — Swimming controls (different movement feel)</li>
+                </ul>
+
+                <p>In Blueprints, you add/remove mapping contexts from the player's <strong>Enhanced Input Local Player Subsystem</strong>. When you remove one context and add another, the control scheme changes instantly.</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Context Priority</h4>
+                    <p>When adding a Mapping Context, you specify a priority. Higher priority contexts take precedence when the same key is mapped in multiple contexts. For example, if Space is "Jump" in <code>IMC_OnFoot</code> and "Boost" in <code>IMC_Vehicle</code>, the active context with higher priority wins.</p>
+                </div>
+            </section>
+            <!-- Section 4: Modifiers and Triggers -->
+            <section id="modifiers-triggers" class="lesson-section">
+                <h2>Modifiers and Triggers</h2>
+
+                <p><strong>Modifiers</strong> transform input values before they reach your game. <strong>Triggers</strong> control when an action fires. Together, they provide powerful control over input behavior without writing custom code.</p>
+
+                <h3>Input Modifiers</h3>
+
+                <p>Modifiers process the raw input value and output a modified value. They're applied in order, so the output of one becomes the input of the next.</p>
+
+                <h4>Common Modifiers</h4>
+
+                <p><strong>Dead Zone:</strong> Ignores small stick movements near the center. Essential for analog sticks that may not rest perfectly at zero. Set inner and outer dead zone thresholds.</p>
+
+                <p><strong>Negate:</strong> Multiplies the value by -1. Used to invert axes (e.g., S key produces negative Y instead of positive).</p>
+
+                <p><strong>Swizzle Input Axis Values:</strong> Rearranges axis components. Used when a single key needs to affect a specific axis of a 2D/3D value. Options: YXZ, ZXY, XZY, etc.</p>
+
+                <p><strong>Scalar:</strong> Multiplies the input by a constant. Useful for sensitivity adjustments. A scalar of 2.0 doubles the input value.</p>
+
+                <p><strong>Smooth:</strong> Applies smoothing over time to reduce jitter. Good for mouse input that feels too twitchy.</p>
+
+                <p><strong>Response Curve - Exponential:</strong> Applies an exponential curve to the input. Makes small movements more precise while preserving full range for large movements.</p>
+
+                <!-- SVG: Modifier Examples -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Common Input Modifiers</text>
+                    
+                    <!-- Dead Zone -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">Dead Zone</text>
+                        
+                        <!-- Visual representation -->
+                        <circle cx="70" cy="60" r="30" fill="none" stroke="#666" stroke-width="1"/>
+                        <circle cx="70" cy="60" r="10" fill="#f44336" opacity="0.5"/>
+                        <circle cx="70" cy="60" r="3" fill="#fff"/>
+                        
+                        <text x="145" y="50" fill="#aaa" font-size="8">Inner: ignored</text>
+                        <text x="145" y="65" fill="#aaa" font-size="8">Outer: clamped</text>
+                        <text x="110" y="90" text-anchor="middle" fill="#888" font-size="7">Prevents drift from resting sticks</text>
+                    </g>
+                    
+                    <!-- Negate -->
+                    <g transform="translate(290, 50)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#2196F3" font-size="11" font-weight="bold">Negate</text>
+                        
+                        <text x="40" y="55" fill="#4CAF50" font-size="12">+1.0</text>
+                        <path d="M 80 52 L 130 52" stroke="#fff" stroke-width="2" marker-end="url(#modArrow)"/>
+                        <text x="150" y="55" fill="#f44336" font-size="12">-1.0</text>
+                        
+                        <text x="110" y="90" text-anchor="middle" fill="#888" font-size="7">Inverts the input value</text>
+                    </g>
+                    
+                    <!-- Swizzle -->
+                    <g transform="translate(530, 50)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#3d3d3d" stroke="#FF9800"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#FF9800" font-size="11" font-weight="bold">Swizzle</text>
+                        
+                        <text x="30" y="55" fill="#aaa" font-size="9">(X, 0)</text>
+                        <path d="M 70 52 L 120 52" stroke="#fff" stroke-width="2" marker-end="url(#modArrow)"/>
+                        <text x="140" y="55" fill="#aaa" font-size="9">(0, X) YXZ</text>
+                        
+                        <text x="110" y="90" text-anchor="middle" fill="#888" font-size="7">Moves value to different axis</text>
+                    </g>
+                    
+                    <!-- Scalar -->
+                    <g transform="translate(50, 165)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#3d3d3d" stroke="#9C27B0"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#9C27B0" font-size="11" font-weight="bold">Scalar</text>
+                        
+                        <text x="30" y="55" fill="#aaa" font-size="9">0.5</text>
+                        <text x="60" y="55" fill="#9C27B0" font-size="10">× 2.0</text>
+                        <path d="M 95 52 L 130 52" stroke="#fff" stroke-width="2" marker-end="url(#modArrow)"/>
+                        <text x="150" y="55" fill="#aaa" font-size="9">1.0</text>
+                        
+                        <text x="110" y="90" text-anchor="middle" fill="#888" font-size="7">Multiplies by constant (sensitivity)</text>
+                    </g>
+                    
+                    <!-- Response Curve -->
+                    <g transform="translate(290, 165)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#3d3d3d" stroke="#e74c3c"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#e74c3c" font-size="11" font-weight="bold">Response Curve</text>
+                        
+                        <!-- Curve visualization -->
+                        <line x1="30" y1="85" x2="100" y2="85" stroke="#666" stroke-width="1"/>
+                        <line x1="30" y1="85" x2="30" y2="40" stroke="#666" stroke-width="1"/>
+                        <path d="M 30 85 Q 60 80 100 40" stroke="#e74c3c" stroke-width="2" fill="none"/>
+                        
+                        <text x="115" y="55" fill="#aaa" font-size="8">Exponential</text>
+                        <text x="115" y="70" fill="#aaa" font-size="8">curve shape</text>
+                        <text x="110" y="90" text-anchor="middle" fill="#888" font-size="7">Fine control at low values</text>
+                    </g>
+                    
+                    <!-- Modifier Chain -->
+                    <g transform="translate(530, 165)">
+                        <rect x="0" y="0" width="220" height="100" rx="8" fill="#3d3d3d" stroke="#667eea"/>
+                        <text x="110" y="22" text-anchor="middle" fill="#667eea" font-size="11" font-weight="bold">Modifier Chain</text>
+                        
+                        <rect x="15" y="40" width="50" height="20" rx="3" fill="#4CAF50"/>
+                        <text x="40" y="54" text-anchor="middle" fill="#fff" font-size="7">Dead Zone</text>
+                        
+                        <text x="73" y="53" fill="#fff" font-size="10">→</text>
+                        
+                        <rect x="85" y="40" width="50" height="20" rx="3" fill="#9C27B0"/>
+                        <text x="110" y="54" text-anchor="middle" fill="#fff" font-size="7">Scalar</text>
+                        
+                        <text x="143" y="53" fill="#fff" font-size="10">→</text>
+                        
+                        <rect x="155" y="40" width="50" height="20" rx="3" fill="#e74c3c"/>
+                        <text x="180" y="54" text-anchor="middle" fill="#fff" font-size="7">Curve</text>
+                        
+                        <text x="110" y="90" text-anchor="middle" fill="#888" font-size="7">Modifiers apply in sequence</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="modArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#fff"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Common modifiers transform input values. They can be chained together in sequence.</em></p>
+
+                <h3>Input Triggers</h3>
+
+                <p>Triggers define the conditions under which an action fires. By default, actions fire continuously while input is active. Triggers let you specify more precise behavior.</p>
+
+                <h4>Common Triggers</h4>
+
+                <p><strong>Down:</strong> Fires continuously while the input is active (default behavior). Good for movement, aiming.</p>
+
+                <p><strong>Pressed:</strong> Fires once when input first becomes active. The classic "on press" event. Good for jump, interact, single actions.</p>
+
+                <p><strong>Released:</strong> Fires once when input becomes inactive. Good for "charge and release" mechanics.</p>
+
+                <p><strong>Hold:</strong> Fires after input has been held for a specified duration. Good for "hold to interact" or "hold to charge."</p>
+
+                <p><strong>Hold and Release:</strong> Fires when released, but only if held for minimum duration. Combines hold requirement with release timing.</p>
+
+                <p><strong>Tap:</strong> Fires if input is pressed and released quickly (under threshold). Good for quick-time events or distinguishing tap from hold.</p>
+
+                <p><strong>Pulse:</strong> Fires repeatedly at specified intervals while input is held. Good for auto-fire weapons.</p>
+
+                <!-- SVG: Trigger Types -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Input Trigger Types</text>
+                    
+                    <!-- Timeline base -->
+                    <text x="100" y="55" fill="#666" font-size="10">Input State:</text>
+                    <rect x="180" y="45" width="200" height="20" rx="3" fill="#667eea"/>
+                    <text x="280" y="59" text-anchor="middle" fill="#fff" font-size="9">Held Down</text>
+                    <line x1="180" y1="75" x2="180" y2="280" stroke="#667eea" stroke-width="1" stroke-dasharray="3,3"/>
+                    <line x1="380" y1="75" x2="380" y2="280" stroke="#667eea" stroke-width="1" stroke-dasharray="3,3"/>
+                    <text x="160" y="59" fill="#888" font-size="8">Press</text>
+                    <text x="395" y="59" fill="#888" font-size="8">Release</text>
+                    
+                    <!-- Down trigger -->
+                    <g transform="translate(0, 80)">
+                        <text x="80" y="15" text-anchor="end" fill="#333" font-size="10" font-weight="bold">Down:</text>
+                        <rect x="180" y="5" width="200" height="15" rx="2" fill="#4CAF50"/>
+                        <text x="450" y="17" fill="#666" font-size="8">Fires continuously while held</text>
+                    </g>
+                    
+                    <!-- Pressed trigger -->
+                    <g transform="translate(0, 115)">
+                        <text x="80" y="15" text-anchor="end" fill="#333" font-size="10" font-weight="bold">Pressed:</text>
+                        <circle cx="180" cy="12" r="8" fill="#2196F3"/>
+                        <text x="450" y="17" fill="#666" font-size="8">Fires once on press</text>
+                    </g>
+                    
+                    <!-- Released trigger -->
+                    <g transform="translate(0, 150)">
+                        <text x="80" y="15" text-anchor="end" fill="#333" font-size="10" font-weight="bold">Released:</text>
+                        <circle cx="380" cy="12" r="8" fill="#FF9800"/>
+                        <text x="450" y="17" fill="#666" font-size="8">Fires once on release</text>
+                    </g>
+                    
+                    <!-- Hold trigger -->
+                    <g transform="translate(0, 185)">
+                        <text x="80" y="15" text-anchor="end" fill="#333" font-size="10" font-weight="bold">Hold:</text>
+                        <rect x="180" y="8" width="80" height="10" rx="2" fill="#ddd" stroke="#999"/>
+                        <text x="220" y="16" text-anchor="middle" fill="#666" font-size="6">wait...</text>
+                        <rect x="260" y="5" width="120" height="15" rx="2" fill="#9C27B0"/>
+                        <text x="450" y="17" fill="#666" font-size="8">Fires after hold duration</text>
+                    </g>
+                    
+                    <!-- Tap trigger -->
+                    <g transform="translate(0, 220)">
+                        <text x="80" y="15" text-anchor="end" fill="#333" font-size="10" font-weight="bold">Tap:</text>
+                        <rect x="180" y="5" width="40" height="15" rx="2" fill="#e74c3c"/>
+                        <circle cx="220" cy="12" r="6" fill="#e74c3c"/>
+                        <text x="450" y="17" fill="#666" font-size="8">Fires if pressed + released quickly</text>
+                    </g>
+                    
+                    <!-- Pulse trigger -->
+                    <g transform="translate(0, 255)">
+                        <text x="80" y="15" text-anchor="end" fill="#333" font-size="10" font-weight="bold">Pulse:</text>
+                        <circle cx="200" cy="12" r="6" fill="#00BCD4"/>
+                        <circle cx="240" cy="12" r="6" fill="#00BCD4"/>
+                        <circle cx="280" cy="12" r="6" fill="#00BCD4"/>
+                        <circle cx="320" cy="12" r="6" fill="#00BCD4"/>
+                        <circle cx="360" cy="12" r="6" fill="#00BCD4"/>
+                        <text x="450" y="17" fill="#666" font-size="8">Fires repeatedly at interval</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(550, 80)">
+                        <rect x="0" y="0" width="200" height="100" rx="5" fill="#fff" stroke="#ddd"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Common Use Cases</text>
+                        <text x="15" y="40" fill="#4CAF50" font-size="8">● Down: Movement, Aim</text>
+                        <text x="15" y="55" fill="#2196F3" font-size="8">● Pressed: Jump, Fire, Interact</text>
+                        <text x="15" y="70" fill="#9C27B0" font-size="8">● Hold: Charge attacks, Hold to use</text>
+                        <text x="15" y="85" fill="#00BCD4" font-size="8">● Pulse: Auto-fire weapons</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different triggers control when and how actions fire based on input timing.</em></p>
+
+                <h3>Combining Modifiers and Triggers</h3>
+
+                <p>Each key mapping in a Mapping Context can have its own set of modifiers and triggers. This gives you precise control:</p>
+
+                <p><strong>Example: Sprint Toggle</strong></p>
+                <ul>
+                    <li>Action: <code>IA_Sprint</code> (Digital)</li>
+                    <li>Key: Left Shift</li>
+                    <li>Trigger: <code>Pressed</code> — fires once to toggle sprint on</li>
+                    <li>Another mapping with <code>Released</code> trigger could toggle it off</li>
+                </ul>
+
+                <p><strong>Example: Gamepad Look with Dead Zone and Sensitivity</strong></p>
+                <ul>
+                    <li>Action: <code>IA_Look</code> (Axis2D)</li>
+                    <li>Key: Gamepad Right Stick</li>
+                    <li>Modifier 1: <code>Dead Zone</code> (inner: 0.2, outer: 1.0)</li>
+                    <li>Modifier 2: <code>Scalar</code> (value: 2.5 for sensitivity)</li>
+                    <li>Trigger: <code>Down</code> (continuous while held)</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Modifier Order Matters</h4>
+                    <p>Modifiers are applied in the order they appear. For gamepad input, apply Dead Zone first (to eliminate drift), then Scalar (for sensitivity). If you scaled first, you'd amplify the drift before removing it!</p>
+                </div>
+
+                <h3>Per-Action vs. Per-Mapping Configuration</h3>
+
+                <p>You can add modifiers and triggers in two places:</p>
+
+                <p><strong>On the Input Action asset:</strong> These become defaults for all mappings that use this action. Good for behavior that should always apply.</p>
+
+                <p><strong>On individual mappings in the Mapping Context:</strong> These override or extend the action's defaults. Good for device-specific adjustments (e.g., dead zone only for gamepad, not keyboard).</p>
+
+                <p>Per-mapping configuration is more common because different devices need different processing.</p>
+            </section>
+
+            <!-- Section 5: Binding Input to Blueprints -->
+            <section id="binding-blueprints" class="lesson-section">
+                <h2>Binding Input to Blueprints</h2>
+
+                <p>Once you've created Input Actions and Mapping Contexts, you need to connect them to your Blueprint logic. This involves two steps: adding the Mapping Context to the player, and responding to Input Action events.</p>
+
+                <h3>Adding the Mapping Context</h3>
+
+                <p>Before Input Actions will work, you must add your Mapping Context to the player's Enhanced Input system. This is typically done in the Player Controller or Pawn's <code>BeginPlay</code> event.</p>
+
+                <p><strong>In a Character/Pawn Blueprint:</strong></p>
+
+                <ol>
+                    <li>Open the Event Graph</li>
+                    <li>Add an <code>Event BeginPlay</code> node</li>
+                    <li>Drag from it and search for <code>Get Controller</code></li>
+                    <li>Cast the result to <code>PlayerController</code></li>
+                    <li>From the cast output, search for <code>Get Enhanced Input Local Player Subsystem</code></li>
+                    <li>From the subsystem, call <code>Add Mapping Context</code></li>
+                    <li>Set the Mapping Context to your IMC asset</li>
+                    <li>Set Priority (0 is fine for default context)</li>
+                </ol>
+
+                <!-- SVG: Add Mapping Context Blueprint -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Adding Mapping Context in Blueprint</text>
+                    
+                    <!-- Event BeginPlay -->
+                    <g transform="translate(30, 60)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#c62828"/>
+                        <text x="60" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Event BeginPlay</text>
+                        <circle cx="115" cy="35" r="6" fill="#fff" stroke="#c62828" stroke-width="2"/>
+                    </g>
+                    
+                    <!-- Get Controller -->
+                    <g transform="translate(180, 50)">
+                        <rect x="0" y="0" width="100" height="40" rx="5" fill="#1565C0"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="8">Get Controller</text>
+                        <circle cx="-5" cy="20" r="5" fill="#fff"/>
+                        <circle cx="95" cy="30" r="5" fill="#00BCD4"/>
+                    </g>
+                    <line x1="145" y1="95" x2="175" y2="70" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Cast to PlayerController -->
+                    <g transform="translate(180, 100)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#1565C0"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="7">Cast To</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#00BCD4" font-size="8">PlayerController</text>
+                        <circle cx="-5" cy="15" r="5" fill="#fff"/>
+                        <circle cx="-5" cy="35" r="5" fill="#00BCD4"/>
+                        <circle cx="125" cy="35" r="5" fill="#00BCD4"/>
+                    </g>
+                    <line x1="275" y1="80" x2="175" y2="115" stroke="#00BCD4" stroke-width="2"/>
+                    
+                    <!-- Get Subsystem -->
+                    <g transform="translate(340, 60)">
+                        <rect x="0" y="0" width="170" height="50" rx="5" fill="#1565C0"/>
+                        <text x="85" y="18" text-anchor="middle" fill="#fff" font-size="7">Get Enhanced Input</text>
+                        <text x="85" y="32" text-anchor="middle" fill="#fff" font-size="7">Local Player Subsystem</text>
+                        <circle cx="-5" cy="35" r="5" fill="#00BCD4"/>
+                        <circle cx="165" cy="35" r="5" fill="#9C27B0"/>
+                    </g>
+                    <line x1="305" y1="135" x2="335" y2="95" stroke="#00BCD4" stroke-width="2"/>
+                    
+                    <!-- Add Mapping Context -->
+                    <g transform="translate(540, 60)">
+                        <rect x="0" y="0" width="150" height="80" rx="5" fill="#1565C0"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Add Mapping Context</text>
+                        <circle cx="-5" cy="15" r="5" fill="#fff"/>
+                        <circle cx="-5" cy="40" r="5" fill="#9C27B0"/>
+                        
+                        <text x="15" y="50" fill="#aaa" font-size="7">Mapping Context</text>
+                        <rect x="15" y="55" width="120" height="15" rx="2" fill="#4CAF50"/>
+                        <text x="75" y="66" text-anchor="middle" fill="#fff" font-size="7">IMC_Default</text>
+                    </g>
+                    <line x1="505" y1="95" x2="535" y2="100" stroke="#9C27B0" stroke-width="2"/>
+                    <line x1="305" y1="125" x2="535" y2="75" stroke="#fff" stroke-width="2"/>
+                </svg>
+                <p class="caption"><em>Figure: Blueprint flow to add a Mapping Context when the game starts.</em></p>
+
+                <h3>Responding to Input Actions</h3>
+
+                <p>With the Mapping Context added, you can now respond to Input Action events in your Blueprint:</p>
+
+                <ol>
+                    <li>In the Event Graph, right-click</li>
+                    <li>Search for the action name (e.g., "IA_Jump")</li>
+                    <li>Select <code>Enhanced Action Events → IA_Jump</code></li>
+                    <li>Choose the event type: <code>Triggered</code>, <code>Started</code>, <code>Ongoing</code>, <code>Canceled</code>, or <code>Completed</code></li>
+                </ol>
+
+                <h4>Event Types Explained</h4>
+
+                <p><strong>Started:</strong> Fires when the action first triggers (input begins).</p>
+
+                <p><strong>Triggered:</strong> The main event—fires according to the trigger rules. Most commonly used.</p>
+
+                <p><strong>Ongoing:</strong> Fires every frame while action is active. Useful for continuous updates.</p>
+
+                <p><strong>Canceled:</strong> Fires if the action is interrupted before completing (e.g., released before hold duration met).</p>
+
+                <p><strong>Completed:</strong> Fires when the action successfully completes its trigger condition.</p>
+
+                <p>For simple cases, <code>Triggered</code> is usually what you want.</p>
+
+                <!-- SVG: Input Action Event -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Enhanced Input Action Event</text>
+                    
+                    <!-- Event node -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="100" rx="5" fill="#c62828"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">EnhancedInputAction</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#ffcdd2" font-size="9">IA_Jump</text>
+                        
+                        <!-- Output pins -->
+                        <circle cx="195" cy="55" r="6" fill="#fff" stroke="#c62828" stroke-width="2"/>
+                        <text x="15" y="60" fill="#aaa" font-size="8">Exec</text>
+                        
+                        <circle cx="195" cy="75" r="5" fill="#FF9800"/>
+                        <text x="15" y="80" fill="#aaa" font-size="8">Action Value</text>
+                        
+                        <circle cx="195" cy="92" r="5" fill="#4CAF50"/>
+                        <text x="15" y="95" fill="#aaa" font-size="8">Elapsed Seconds</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <line x1="255" y1="105" x2="300" y2="105" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Action -->
+                    <g transform="translate(310, 70)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#1565C0"/>
+                        <text x="60" y="30" text-anchor="middle" fill="#fff" font-size="10">Jump</text>
+                        <circle cx="-5" cy="25" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <!-- Info box -->
+                    <g transform="translate(470, 50)">
+                        <rect x="0" y="0" width="180" height="100" rx="5" fill="rgba(102,126,234,0.2)" stroke="#667eea"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">Action Value Output</text>
+                        <text x="15" y="40" fill="#aaa" font-size="8">• Digital: Boolean (true/false)</text>
+                        <text x="15" y="55" fill="#aaa" font-size="8">• Axis1D: Float (-1 to 1)</text>
+                        <text x="15" y="70" fill="#aaa" font-size="8">• Axis2D: Vector2D (X, Y)</text>
+                        <text x="15" y="85" fill="#aaa" font-size="8">• Axis3D: Vector (X, Y, Z)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: The Enhanced Input Action event provides the action value and elapsed time.</em></p>
+
+                <h3>Using Action Values</h3>
+
+                <p>The <code>Action Value</code> output pin provides the processed input value. Its type depends on the Input Action's Value Type:</p>
+
+                <p><strong>For Digital (Bool):</strong> The value is true when triggered. You typically just care that the event fired.</p>
+
+                <p><strong>For Axis1D (Float):</strong> The value ranges from -1 to 1. Use directly for things like throttle.</p>
+
+                <p><strong>For Axis2D (Vector2D):</strong> Break the vector to get X and Y components. Use for movement direction.</p>
+
+                <p><strong>Example: Movement from Axis2D</strong></p>
+                <ol>
+                    <li>Get the <code>Action Value</code> from <code>IA_Move Triggered</code> event</li>
+                    <li>The value type is <code>Input Action Value</code>—right-click and "Get Action Value As..." → "Get Action Value 2D"</li>
+                    <li>This gives you a Vector2D</li>
+                    <li>Use X for right/left movement, Y for forward/back</li>
+                    <li>Feed into <code>Add Movement Input</code> with appropriate direction vectors</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Character Movement Pattern</h4>
+                    <p>For third-person movement, you typically:</p>
+                    <ol>
+                        <li>Get the input vector from IA_Move</li>
+                        <li>Get the controller's forward/right vectors (rotation)</li>
+                        <li>Combine input with rotation to get world-space movement direction</li>
+                        <li>Call <code>Add Movement Input</code> with that direction</li>
+                    </ol>
+                    <p>The Third Person template shows this pattern in action.</p>
+                </div>
+
+                <h3>Switching Mapping Contexts</h3>
+
+                <p>To change control schemes (e.g., entering a vehicle), remove one context and add another:</p>
+
+                <ol>
+                    <li>Get the Enhanced Input Local Player Subsystem (same as before)</li>
+                    <li>Call <code>Remove Mapping Context</code> with the old context</li>
+                    <li>Call <code>Add Mapping Context</code> with the new context</li>
+                </ol>
+
+                <p>This instantly swaps the controls. The old bindings stop working; the new bindings take over.</p>
+
+                <!-- Mermaid: Context Switching -->
+                <pre class="mermaid">
+sequenceDiagram
+    participant P as Player
+    participant BP as Blueprint
+    participant EIS as Enhanced Input Subsystem
+    
+    Note over BP,EIS: Initial State: IMC_OnFoot active
+    P->>BP: Press "Enter Vehicle" 
+    BP->>EIS: Remove Mapping Context (IMC_OnFoot)
+    BP->>EIS: Add Mapping Context (IMC_Vehicle)
+    Note over BP,EIS: Now: IMC_Vehicle active
+    
+    P->>BP: Press "Exit Vehicle"
+    BP->>EIS: Remove Mapping Context (IMC_Vehicle)
+    BP->>EIS: Add Mapping Context (IMC_OnFoot)
+    Note over BP,EIS: Back to: IMC_OnFoot
+                </pre>
+                <p class="caption"><em>Figure: Switching Mapping Contexts changes the active control scheme instantly.</em></p>
+            </section>
+            <!-- Section 6: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Set Up WASD Movement</h2>
+
+                <p>Let's put everything together by creating a complete movement system from scratch. We'll create Input Actions, configure a Mapping Context with keyboard and gamepad support, and wire it up in a Character Blueprint.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create WASD movement and mouse look controls using the Enhanced Input System. Support both keyboard/mouse and gamepad input. Understand the complete flow from physical input to character movement.</p>
+                </div>
+
+                <h3>Step 1: Create a New Project or Use Existing</h3>
+
+                <p>You can either:</p>
+                <ul>
+                    <li>Create a new <strong>Third Person</strong> project (already has Enhanced Input set up—examine it)</li>
+                    <li>Create a new <strong>Blank</strong> project to build from scratch (we'll do this)</li>
+                </ul>
+
+                <p>For learning, let's start with a Blank project:</p>
+                <ol>
+                    <li>Create a new Blank project with Blueprint, Starter Content</li>
+                    <li>Let it load completely</li>
+                </ol>
+
+                <h3>Step 2: Create Input Actions</h3>
+
+                <p>First, create the Input Actions we need:</p>
+
+                <p><strong>Create IA_Move:</strong></p>
+                <ol>
+                    <li>In Content Browser, right-click → <strong>Input → Input Action</strong></li>
+                    <li>Name it <code>IA_Move</code></li>
+                    <li>Double-click to open</li>
+                    <li>Set <strong>Value Type</strong> to <code>Axis2D (Vector2D)</code></li>
+                    <li>Save and close</li>
+                </ol>
+
+                <p><strong>Create IA_Look:</strong></p>
+                <ol>
+                    <li>Right-click → Input → Input Action</li>
+                    <li>Name it <code>IA_Look</code></li>
+                    <li>Set <strong>Value Type</strong> to <code>Axis2D (Vector2D)</code></li>
+                    <li>Save and close</li>
+                </ol>
+
+                <p><strong>Create IA_Jump:</strong></p>
+                <ol>
+                    <li>Right-click → Input → Input Action</li>
+                    <li>Name it <code>IA_Jump</code></li>
+                    <li>Set <strong>Value Type</strong> to <code>Digital (bool)</code> (default)</li>
+                    <li>Save and close</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Checkpoint</h4>
+                    <p>You should now have three Input Action assets in your Content Browser: <code>IA_Move</code>, <code>IA_Look</code>, and <code>IA_Jump</code>. These define <em>what</em> can happen but not which keys trigger them.</p>
+                </div>
+
+                <h3>Step 3: Create Input Mapping Context</h3>
+
+                <ol>
+                    <li>Right-click → <strong>Input → Input Mapping Context</strong></li>
+                    <li>Name it <code>IMC_Default</code></li>
+                    <li>Double-click to open</li>
+                </ol>
+
+                <p>Now add mappings for each action:</p>
+
+                <h4>Map IA_Move (WASD + Gamepad)</h4>
+
+                <ol>
+                    <li>Click <strong>+</strong> next to "Mappings"</li>
+                    <li>Select <code>IA_Move</code></li>
+                    <li>Expand IA_Move to see its mappings</li>
+                </ol>
+
+                <p><strong>Add W key (forward):</strong></p>
+                <ol>
+                    <li>Click <strong>+</strong> to add a mapping</li>
+                    <li>Click the key dropdown, select <code>W</code></li>
+                    <li>Click <strong>+</strong> next to Modifiers</li>
+                    <li>Add <code>Swizzle Input Axis Values</code> — set Order to <code>YXZ</code></li>
+                    <li>This puts the input into the Y axis (forward/back)</li>
+                </ol>
+
+                <p><strong>Add S key (backward):</strong></p>
+                <ol>
+                    <li>Click <strong>+</strong> to add another mapping</li>
+                    <li>Select <code>S</code></li>
+                    <li>Add Modifier: <code>Swizzle Input Axis Values</code> → <code>YXZ</code></li>
+                    <li>Add Modifier: <code>Negate</code> (makes it negative Y)</li>
+                </ol>
+
+                <p><strong>Add A key (left):</strong></p>
+                <ol>
+                    <li>Add mapping for <code>A</code></li>
+                    <li>Add Modifier: <code>Negate</code> (negative X = left)</li>
+                </ol>
+
+                <p><strong>Add D key (right):</strong></p>
+                <ol>
+                    <li>Add mapping for <code>D</code></li>
+                    <li>No modifiers needed (positive X = right)</li>
+                </ol>
+
+                <p><strong>Add Gamepad Left Stick:</strong></p>
+                <ol>
+                    <li>Add mapping, select <code>Gamepad Left Thumbstick 2D-Axis</code></li>
+                    <li>Add Modifier: <code>Dead Zone</code></li>
+                    <li>Set Lower Threshold to <code>0.2</code></li>
+                </ol>
+
+                <!-- SVG: IA_Move Mappings -->
+                <svg width="100%" height="260" viewBox="0 0 700 260" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">IA_Move Mapping Configuration</text>
+                    
+                    <!-- Action header -->
+                    <rect x="50" y="45" width="600" height="200" rx="5" fill="#3d3d3d" stroke="#4CAF50"/>
+                    <rect x="50" y="45" width="600" height="25" rx="5" fill="#4CAF50"/>
+                    <text x="70" y="62" fill="#fff" font-size="10" font-weight="bold">▼ IA_Move (Axis2D)</text>
+                    
+                    <!-- W mapping -->
+                    <g transform="translate(60, 80)">
+                        <rect x="0" y="0" width="130" height="35" rx="3" fill="#4a4a4a"/>
+                        <text x="10" y="15" fill="#aaa" font-size="9">⌨️ W</text>
+                        <text x="10" y="28" fill="#FF9800" font-size="7">Swizzle: YXZ</text>
+                    </g>
+                    
+                    <!-- S mapping -->
+                    <g transform="translate(200, 80)">
+                        <rect x="0" y="0" width="130" height="35" rx="3" fill="#4a4a4a"/>
+                        <text x="10" y="15" fill="#aaa" font-size="9">⌨️ S</text>
+                        <text x="10" y="28" fill="#FF9800" font-size="7">Swizzle: YXZ + Negate</text>
+                    </g>
+                    
+                    <!-- A mapping -->
+                    <g transform="translate(340, 80)">
+                        <rect x="0" y="0" width="130" height="35" rx="3" fill="#4a4a4a"/>
+                        <text x="10" y="15" fill="#aaa" font-size="9">⌨️ A</text>
+                        <text x="10" y="28" fill="#FF9800" font-size="7">Negate</text>
+                    </g>
+                    
+                    <!-- D mapping -->
+                    <g transform="translate(480, 80)">
+                        <rect x="0" y="0" width="130" height="35" rx="3" fill="#4a4a4a"/>
+                        <text x="10" y="15" fill="#aaa" font-size="9">⌨️ D</text>
+                        <text x="10" y="28" fill="#888" font-size="7">(no modifiers)</text>
+                    </g>
+                    
+                    <!-- Gamepad mapping -->
+                    <g transform="translate(60, 130)">
+                        <rect x="0" y="0" width="250" height="35" rx="3" fill="#4a4a4a"/>
+                        <text x="10" y="15" fill="#aaa" font-size="9">🎮 Gamepad Left Thumbstick 2D-Axis</text>
+                        <text x="10" y="28" fill="#9C27B0" font-size="7">Dead Zone: 0.2</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(60, 180)">
+                        <rect x="0" y="0" width="580" height="50" rx="5" fill="rgba(76,175,80,0.2)" stroke="#4CAF50"/>
+                        <text x="290" y="20" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Result: Both keyboard and gamepad produce Axis2D movement input</text>
+                        <text x="290" y="38" text-anchor="middle" fill="#888" font-size="8">WASD keys combined = direction vector | Left stick = direction vector</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Complete IA_Move mapping with WASD keys and gamepad stick.</em></p>
+
+                <h4>Map IA_Look (Mouse + Gamepad)</h4>
+
+                <ol>
+                    <li>Click <strong>+</strong> next to Mappings, select <code>IA_Look</code></li>
+                    <li>Add mapping: <code>Mouse XY 2D-Axis</code> — no modifiers needed</li>
+                    <li>Add mapping: <code>Gamepad Right Thumbstick 2D-Axis</code></li>
+                    <li>Add Modifier to gamepad: <code>Dead Zone</code> (Lower: 0.2)</li>
+                    <li>Optional: Add <code>Scalar</code> modifier for sensitivity (e.g., 2.0)</li>
+                </ol>
+
+                <h4>Map IA_Jump (Space + Gamepad)</h4>
+
+                <ol>
+                    <li>Click <strong>+</strong>, select <code>IA_Jump</code></li>
+                    <li>Add mapping: <code>Space Bar</code></li>
+                    <li>Add mapping: <code>Gamepad Face Button Bottom</code> (A on Xbox, X on PlayStation)</li>
+                </ol>
+
+                <p>Save the Mapping Context.</p>
+
+                <h3>Step 4: Create a Character Blueprint</h3>
+
+                <ol>
+                    <li>Right-click in Content Browser → <strong>Blueprint Class</strong></li>
+                    <li>Select <code>Character</code> as parent</li>
+                    <li>Name it <code>BP_PlayerCharacter</code></li>
+                    <li>Double-click to open</li>
+                </ol>
+
+                <p>Add a visual representation:</p>
+                <ol>
+                    <li>In Components panel, select the Mesh component</li>
+                    <li>In Details, set Skeletal Mesh to a mannequin or any available mesh</li>
+                    <li>Or add a Static Mesh component (sphere/capsule) for visibility</li>
+                </ol>
+
+                <p>Add a camera:</p>
+                <ol>
+                    <li>Click <strong>Add Component</strong> → <code>Spring Arm</code></li>
+                    <li>Attach it to the Capsule (drag onto Capsule in hierarchy)</li>
+                    <li>Set <strong>Target Arm Length</strong> to 300</li>
+                    <li>Enable <strong>Use Pawn Control Rotation</strong></li>
+                    <li>Add a <code>Camera</code> component as child of Spring Arm</li>
+                </ol>
+
+                <h3>Step 5: Add Input Setup to Character</h3>
+
+                <p>Open the Event Graph and create the input setup:</p>
+
+                <p><strong>Add Mapping Context on BeginPlay:</strong></p>
+                <ol>
+                    <li>Add <code>Event BeginPlay</code></li>
+                    <li>Add <code>Get Controller</code> node</li>
+                    <li>Add <code>Cast To PlayerController</code></li>
+                    <li>From the cast result, add <code>Get Enhanced Input Local Player Subsystem</code></li>
+                    <li>From the subsystem, add <code>Add Mapping Context</code></li>
+                    <li>Set Mapping Context to <code>IMC_Default</code></li>
+                    <li>Set Priority to 0</li>
+                    <li>Connect the execution wires</li>
+                </ol>
+
+                <h3>Step 6: Handle Movement Input</h3>
+
+                <p>Add movement handling:</p>
+
+                <ol>
+                    <li>Right-click → search "IA_Move" → select <code>EnhancedInputAction IA_Move</code></li>
+                    <li>Choose the <code>Triggered</code> event</li>
+                    <li>From the <code>Action Value</code> pin, drag and select <code>Get Action Value 2D</code></li>
+                    <li>This gives you X (right/left) and Y (forward/back) values</li>
+                </ol>
+
+                <p>Calculate movement direction:</p>
+                <ol>
+                    <li>Add <code>Get Control Rotation</code> node</li>
+                    <li>Add <code>Break Rotator</code> to get Yaw</li>
+                    <li>Add <code>Make Rotator</code> with only Yaw (Pitch and Roll = 0)</li>
+                    <li>Add <code>Get Forward Vector</code> from this rotator (for forward/back)</li>
+                    <li>Add <code>Get Right Vector</code> from this rotator (for left/right)</li>
+                </ol>
+
+                <p>Apply movement:</p>
+                <ol>
+                    <li>Multiply Forward Vector by Input Y value</li>
+                    <li>Multiply Right Vector by Input X value</li>
+                    <li>Add the two vectors together</li>
+                    <li>Feed result into <code>Add Movement Input</code></li>
+                </ol>
+
+                <!-- SVG: Movement Blueprint Overview -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Movement Blueprint Logic Flow</text>
+                    
+                    <!-- Input -->
+                    <g transform="translate(30, 60)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#c62828"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">IA_Move</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#ffcdd2" font-size="8">Triggered</text>
+                        <text x="60" y="52" text-anchor="middle" fill="#aaa" font-size="7">Action Value 2D</text>
+                    </g>
+                    
+                    <path d="M 155 90 L 185 90" stroke="#fff" stroke-width="2" marker-end="url(#mvArrow)"/>
+                    
+                    <!-- Get Direction -->
+                    <g transform="translate(195, 50)">
+                        <rect x="0" y="0" width="140" height="80" rx="5" fill="#1565C0"/>
+                        <text x="70" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Get Directions</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#90CAF9" font-size="7">Control Rotation → Yaw</text>
+                        <text x="70" y="55" text-anchor="middle" fill="#90CAF9" font-size="7">→ Forward Vector</text>
+                        <text x="70" y="70" text-anchor="middle" fill="#90CAF9" font-size="7">→ Right Vector</text>
+                    </g>
+                    
+                    <path d="M 340 90 L 370 90" stroke="#fff" stroke-width="2" marker-end="url(#mvArrow)"/>
+                    
+                    <!-- Multiply -->
+                    <g transform="translate(380, 55)">
+                        <rect x="0" y="0" width="150" height="70" rx="5" fill="#7B1FA2"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Calculate</text>
+                        <text x="75" y="40" text-anchor="middle" fill="#E1BEE7" font-size="7">Forward × Input.Y</text>
+                        <text x="75" y="55" text-anchor="middle" fill="#E1BEE7" font-size="7">Right × Input.X</text>
+                        <text x="75" y="68" text-anchor="middle" fill="#E1BEE7" font-size="7">Add Together</text>
+                    </g>
+                    
+                    <path d="M 535 90 L 565 90" stroke="#fff" stroke-width="2" marker-end="url(#mvArrow)"/>
+                    
+                    <!-- Add Movement -->
+                    <g transform="translate(575, 60)">
+                        <rect x="0" y="0" width="140" height="60" rx="5" fill="#4CAF50"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Add Movement</text>
+                        <text x="70" y="42" text-anchor="middle" fill="#C8E6C9" font-size="8">Input</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <text x="400" y="170" text-anchor="middle" fill="#4CAF50" font-size="10">Character moves relative to camera direction</text>
+                    
+                    <defs>
+                        <marker id="mvArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#fff"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Movement flow—input direction combined with camera rotation to move character.</em></p>
+
+                <h3>Step 7: Handle Look Input</h3>
+
+                <ol>
+                    <li>Add <code>EnhancedInputAction IA_Look</code> (Triggered)</li>
+                    <li>Get Action Value 2D from Action Value</li>
+                    <li>Add <code>Add Controller Yaw Input</code> — connect Input X</li>
+                    <li>Add <code>Add Controller Pitch Input</code> — connect Input Y (may need to negate for natural feel)</li>
+                </ol>
+
+                <h3>Step 8: Handle Jump Input</h3>
+
+                <ol>
+                    <li>Add <code>EnhancedInputAction IA_Jump</code> (Triggered)</li>
+                    <li>Add <code>Jump</code> node (built into Character class)</li>
+                    <li>Connect execution wire from IA_Jump to Jump</li>
+                </ol>
+
+                <h3>Step 9: Set Up Game Mode</h3>
+
+                <ol>
+                    <li>Create a new Blueprint: <strong>Blueprint Class → Game Mode Base</strong></li>
+                    <li>Name it <code>BP_GameMode</code></li>
+                    <li>Open it and in Details panel, set <strong>Default Pawn Class</strong> to <code>BP_PlayerCharacter</code></li>
+                    <li>Go to <strong>Edit → Project Settings → Maps & Modes</strong></li>
+                    <li>Set <strong>Default GameMode</strong> to <code>BP_GameMode</code></li>
+                </ol>
+
+                <h3>Step 10: Add a Player Start and Test</h3>
+
+                <ol>
+                    <li>In your level, add a <strong>Player Start</strong> actor</li>
+                    <li>Add a floor (Place Actors → Basic → Cube, scale to 10×10×0.1)</li>
+                    <li>Position Player Start above the floor</li>
+                    <li>Press <strong>Play</strong></li>
+                </ol>
+
+                <p>Test the controls:</p>
+                <ul>
+                    <li>WASD should move the character</li>
+                    <li>Mouse should rotate the camera</li>
+                    <li>Space should make the character jump</li>
+                    <li>If you have a gamepad, test those inputs too</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've built a complete movement system using Enhanced Input from scratch. You understand how Input Actions define capabilities, Mapping Contexts bind keys, modifiers process values, and Blueprint events respond to input. This same pattern applies to any input in your game.</p>
+                </div>
+
+                <h3>Troubleshooting Common Issues</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Input Not Working?</h4>
+                    
+                    <p><strong>No movement at all:</strong></p>
+                    <ul>
+                        <li>Check that Add Mapping Context is called in BeginPlay</li>
+                        <li>Verify the Mapping Context references the correct Input Actions</li>
+                        <li>Ensure Game Mode's Default Pawn is your character</li>
+                    </ul>
+                    
+                    <p><strong>Movement is backwards or sideways:</strong></p>
+                    <ul>
+                        <li>Check Swizzle modifier settings (YXZ for forward/back)</li>
+                        <li>Check Negate modifiers (S and A should negate)</li>
+                        <li>Verify you're using Forward Vector for Y and Right Vector for X</li>
+                    </ul>
+                    
+                    <p><strong>Camera doesn't rotate:</strong></p>
+                    <ul>
+                        <li>Enable "Use Pawn Control Rotation" on Spring Arm</li>
+                        <li>Disable "Use Controller Rotation Yaw/Pitch" on Character Movement</li>
+                        <li>Or enable them depending on your desired behavior</li>
+                    </ul>
+                    
+                    <p><strong>Gamepad not working:</strong></p>
+                    <ul>
+                        <li>Connect gamepad before launching the game</li>
+                        <li>Check Dead Zone isn't too high (0.2 is reasonable)</li>
+                        <li>Verify gamepad mappings exist in the Mapping Context</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 7: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've mastered the Enhanced Input System—Unreal Engine 5's modern, data-driven approach to handling player input. This system provides the flexibility and power needed for professional game development while remaining accessible for beginners.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Enhanced Input Architecture:</strong> Separates input handling into distinct components: Input Actions (what can happen), Input Mapping Contexts (how it's triggered), Modifiers (value processing), and Triggers (when it fires). This separation enables flexibility and reusability.</p>
+
+                <p><strong>Input Actions:</strong> Data assets that define player capabilities like Move, Jump, Fire. Each action has a Value Type (Digital, Axis1D, Axis2D, Axis3D) that determines what kind of data it outputs.</p>
+
+                <p><strong>Input Mapping Contexts:</strong> Connect physical inputs (keys, buttons, sticks) to Input Actions. Support multiple bindings per action for multi-device support. Can be swapped at runtime for different control schemes.</p>
+
+                <p><strong>Modifiers:</strong> Transform input values before they reach your game. Dead Zone eliminates stick drift. Negate inverts values. Swizzle rearranges axes. Scalar adjusts sensitivity. Applied in sequence.</p>
+
+                <p><strong>Triggers:</strong> Control when actions fire. Pressed for one-shot events. Down for continuous input. Hold for delayed activation. Tap for quick press detection. Pulse for auto-repeat.</p>
+
+                <p><strong>Blueprint Integration:</strong> Add Mapping Context via the Enhanced Input Local Player Subsystem. Respond to Enhanced Input Action events. Use Action Value for the processed input data.</p>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Name consistently:</strong> Use IA_ prefix for Input Actions, IMC_ for Mapping Contexts</li>
+                    <li><strong>Choose correct Value Type:</strong> Digital for buttons, Axis2D for movement/look, Axis1D for single-axis controls</li>
+                    <li><strong>Apply Dead Zone to analog inputs:</strong> Always add Dead Zone to gamepad sticks</li>
+                    <li><strong>Order modifiers correctly:</strong> Dead Zone → Scalar → Curve (process, then scale, then shape)</li>
+                    <li><strong>Support multiple devices:</strong> Add keyboard AND gamepad mappings to the same action</li>
+                    <li><strong>Use context switching:</strong> Create separate Mapping Contexts for different gameplay states</li>
+                    <li><strong>Test with actual devices:</strong> Keyboard feel differs from gamepad—test both</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Enhanced Input System Flow</text>
+                    
+                    <!-- Physical Input -->
+                    <g transform="translate(30, 60)">
+                        <rect x="0" y="0" width="110" height="70" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="55" y="25" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Physical</text>
+                        <text x="55" y="42" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Input</text>
+                        <text x="55" y="58" text-anchor="middle" fill="#666" font-size="7">Keys, Buttons, Sticks</text>
+                    </g>
+                    
+                    <path d="M 145 95 L 175 95" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Mapping Context -->
+                    <g transform="translate(180, 60)">
+                        <rect x="0" y="0" width="110" height="70" rx="8" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="55" y="25" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Mapping</text>
+                        <text x="55" y="42" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Context</text>
+                        <text x="55" y="58" text-anchor="middle" fill="#666" font-size="7">Key → Action binds</text>
+                    </g>
+                    
+                    <path d="M 295 95 L 325 95" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Input Action -->
+                    <g transform="translate(330, 60)">
+                        <rect x="0" y="0" width="110" height="70" rx="8" fill="#667eea"/>
+                        <text x="55" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Input</text>
+                        <text x="55" y="42" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Action</text>
+                        <text x="55" y="58" text-anchor="middle" fill="#c5cae9" font-size="7">Typed output value</text>
+                    </g>
+                    
+                    <path d="M 445 95 L 475 95" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Modifiers + Triggers -->
+                    <g transform="translate(480, 60)">
+                        <rect x="0" y="0" width="110" height="70" rx="8" fill="#f3e5f5" stroke="#9C27B0"/>
+                        <text x="55" y="25" text-anchor="middle" fill="#7B1FA2" font-size="10" font-weight="bold">Modifiers</text>
+                        <text x="55" y="42" text-anchor="middle" fill="#7B1FA2" font-size="10" font-weight="bold">+ Triggers</text>
+                        <text x="55" y="58" text-anchor="middle" fill="#666" font-size="7">Process + timing</text>
+                    </g>
+                    
+                    <path d="M 595 95 L 625 95" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Blueprint -->
+                    <g transform="translate(630, 60)">
+                        <rect x="0" y="0" width="110" height="70" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="55" y="25" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Blueprint</text>
+                        <text x="55" y="42" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Event</text>
+                        <text x="55" y="58" text-anchor="middle" fill="#666" font-size="7">Your game logic</text>
+                    </g>
+                    
+                    <text x="400" y="170" text-anchor="middle" fill="#666" font-size="10">Data flows from left to right, becoming more processed and game-specific</text>
+                    
+                    <defs>
+                        <marker id="sumArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Enhanced Input transforms raw hardware signals into game-ready events.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you can receive and process player input, the next lesson focuses on <strong>Character Movement</strong>—diving deeper into the Character Movement Component to customize walking, running, jumping, and other movement behaviors. You'll learn how to tune movement parameters for different gameplay feels.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is an Input Action in the Enhanced Input System?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> A specific key binding like "W = forward"</label>
+                            <label><input type="radio" name="q1" value="b"> A data asset that defines what the player can do, with a specific value type</label>
+                            <label><input type="radio" name="q1" value="c"> A Blueprint node that moves the character</label>
+                            <label><input type="radio" name="q1" value="d"> The physical hardware input device</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Input Actions are data assets that define player capabilities (like "Move" or "Jump") and specify a Value Type (Digital, Axis1D, Axis2D, Axis3D). They don't specify which keys trigger them—that's the Mapping Context's job.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What Value Type should you use for an Input Action that handles character movement (forward/back and left/right)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Digital (Bool)</label>
+                            <label><input type="radio" name="q2" value="b"> Axis1D (Float)</label>
+                            <label><input type="radio" name="q2" value="c"> Axis2D (Vector2D)</label>
+                            <label><input type="radio" name="q2" value="d"> Axis3D (Vector)</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Movement typically requires two axes: X for left/right and Y for forward/back. Axis2D (Vector2D) provides both values in a single action, making it perfect for movement input from WASD keys or a gamepad stick.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is the purpose of the Dead Zone modifier?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> To invert the input axis</label>
+                            <label><input type="radio" name="q3" value="b"> To multiply input by a sensitivity value</label>
+                            <label><input type="radio" name="q3" value="c"> To ignore small input values near the center position, preventing stick drift</label>
+                            <label><input type="radio" name="q3" value="d"> To change which axis receives the input value</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Dead Zone ignores small input values near the center (zero) position. This is essential for analog sticks that may not rest perfectly at zero, preventing unwanted drift when the player isn't touching the stick.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Which trigger type fires once when a button is first pressed?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Down</label>
+                            <label><input type="radio" name="q4" value="b"> Pressed</label>
+                            <label><input type="radio" name="q4" value="c"> Hold</label>
+                            <label><input type="radio" name="q4" value="d"> Pulse</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The Pressed trigger fires once when input first becomes active. It's perfect for single-shot actions like jumping or interacting. Down fires continuously while held; Hold fires after a duration; Pulse fires repeatedly.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What must you do before Input Actions will work in a Character Blueprint?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Create a Game Mode</label>
+                            <label><input type="radio" name="q5" value="b"> Add the Input Mapping Context to the Enhanced Input Local Player Subsystem</label>
+                            <label><input type="radio" name="q5" value="c"> Set up a Player Start actor</label>
+                            <label><input type="radio" name="q5" value="d"> Configure the Character Movement Component</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Before Input Actions work, you must add your Input Mapping Context to the player's Enhanced Input system. This is typically done in BeginPlay by getting the Enhanced Input Local Player Subsystem and calling Add Mapping Context.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m06_l01_player_controllers_and_pawns.html" class="btn">← Previous: Player Controllers and Pawns</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m06_l03_character_movement.html" class="btn">Next: Character Movement →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

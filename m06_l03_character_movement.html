@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master the Character Movement Component in Unreal Engine 5. Learn to configure walking, running, jumping, and swimming. Customize speed, acceleration, and friction for the perfect gameplay feel.">
+    <meta name="author" content="Practical Ace">
+    <title>Character Movement - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 6: Player Interaction and Input</a></li>
+            <li aria-current="page">Lesson 6.3: Character Movement</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🏃 Character Movement</h1>
+                <p class="lead">Movement is the foundation of gameplay feel. A character that feels heavy, responsive, floaty, or sluggish creates an immediate impression on players. Unreal Engine's Character Movement Component is a powerful system that handles walking, running, jumping, falling, swimming, and flying—all with physics-based simulation. In this lesson, you'll explore every aspect of character movement, learning how to tune parameters to create exactly the gameplay feel you want.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain the role of the Character Movement Component in Unreal</li>
+                        <li>Configure walking and running speed, acceleration, and friction</li>
+                        <li>Set up jumping with customizable height and air control</li>
+                        <li>Understand and switch between movement modes</li>
+                        <li>Implement sprinting as a gameplay mechanic</li>
+                        <li>Tune movement parameters for different gameplay feels</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 6.2 (Enhanced Input System)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#movement-component" class="toc-link">The Character Movement Component</a></li>
+                        <li><a href="#walking-running" class="toc-link">Walking, Running, and Sprinting</a></li>
+                        <li><a href="#jumping-falling" class="toc-link">Jumping and Falling</a></li>
+                        <li><a href="#movement-modes" class="toc-link">Movement Modes</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Customize Movement Parameters</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: The Character Movement Component -->
+            <section id="movement-component" class="lesson-section">
+                <h2>The Character Movement Component</h2>
+
+                <p>The <strong>Character Movement Component</strong> (often called CMC) is the engine behind all character locomotion in Unreal. It's a complex, battle-tested system that handles ground detection, physics simulation, network replication, and smooth movement interpolation. Rather than writing movement code from scratch, you configure this component to achieve your desired feel.</p>
+
+                <h3>What the CMC Handles</h3>
+
+                <p>The Character Movement Component manages:</p>
+
+                <p><strong>Ground Detection:</strong> Continuously checks if the character is on the ground, on a slope, or in the air. Handles step-up onto small obstacles and prevents walking up walls.</p>
+
+                <p><strong>Physics Simulation:</strong> Applies gravity, calculates velocity based on acceleration and friction, and handles collisions with the world.</p>
+
+                <p><strong>Movement Modes:</strong> Supports Walking, Falling, Swimming, Flying, and Custom modes. Each mode has different physics and behavior.</p>
+
+                <p><strong>Network Replication:</strong> Handles client prediction and server correction for smooth multiplayer movement without excessive bandwidth.</p>
+
+                <p><strong>Root Motion:</strong> Can integrate with animation-driven movement for realistic locomotion.</p>
+
+                <!-- SVG: CMC Overview -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Character Movement Component Overview</text>
+                    
+                    <!-- Central CMC -->
+                    <g transform="translate(300, 60)">
+                        <rect x="0" y="0" width="200" height="70" rx="10" fill="#667eea" stroke="#4a5fb8" stroke-width="2"/>
+                        <text x="100" y="30" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Character Movement</text>
+                        <text x="100" y="48" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Component</text>
+                        <text x="100" y="63" text-anchor="middle" fill="#c5cae9" font-size="8">UCharacterMovementComponent</text>
+                    </g>
+                    
+                    <!-- Input -->
+                    <g transform="translate(50, 80)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#1565C0" font-size="9" font-weight="bold">🎮 Input</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#666" font-size="7">Add Movement Input</text>
+                    </g>
+                    <path d="M 175 105 L 295 95" stroke="#1976D2" stroke-width="2" marker-end="url(#cmcArrow)"/>
+                    
+                    <!-- Ground Detection -->
+                    <g transform="translate(50, 160)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#fff3e0" stroke="#FF9800"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#E65100" font-size="9" font-weight="bold">📍 Ground Check</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#666" font-size="7">Traces, slopes, steps</text>
+                    </g>
+                    <path d="M 175 185 L 295 130" stroke="#FF9800" stroke-width="2" marker-end="url(#cmcArrow)"/>
+                    
+                    <!-- Physics -->
+                    <g transform="translate(630, 80)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#2E7D32" font-size="9" font-weight="bold">⚡ Physics</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#666" font-size="7">Velocity, acceleration</text>
+                    </g>
+                    <path d="M 505 95 L 625 100" stroke="#4CAF50" stroke-width="2" marker-end="url(#cmcArrow)"/>
+                    
+                    <!-- Modes -->
+                    <g transform="translate(630, 160)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#fce4ec" stroke="#E91E63"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#C2185B" font-size="9" font-weight="bold">🔄 Modes</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#666" font-size="7">Walk, Fall, Swim, Fly</text>
+                    </g>
+                    <path d="M 505 130 L 625 175" stroke="#E91E63" stroke-width="2" marker-end="url(#cmcArrow)"/>
+                    
+                    <!-- Output: Capsule Movement -->
+                    <g transform="translate(300, 180)">
+                        <rect x="0" y="0" width="200" height="50" rx="5" fill="#4CAF50" stroke="#388E3C"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Character Moves</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#c8e6c9" font-size="8">Capsule position updated</text>
+                    </g>
+                    <path d="M 400 135 L 400 175" stroke="#4CAF50" stroke-width="3" marker-end="url(#cmcArrow2)"/>
+                    
+                    <!-- Key parameters box -->
+                    <g transform="translate(200, 240)">
+                        <rect x="0" y="0" width="400" height="30" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="200" y="19" text-anchor="middle" fill="#667eea" font-size="9">Key Parameters: Max Walk Speed, Acceleration, Friction, Jump Velocity, Gravity Scale</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="cmcArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                        <marker id="cmcArrow2" markerWidth="8" markerHeight="6" refX="3" refY="6" orient="auto">
+                            <polygon points="0 0, 3 8, 6 0" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The Character Movement Component takes input and physics data to move the character.</em></p>
+
+                <h3>Accessing the CMC</h3>
+
+                <p>Every Character Blueprint has a Character Movement Component by default. To access it:</p>
+
+                <p><strong>In the Components Panel:</strong> Select your Character Blueprint and find "CharacterMovement" in the component list. Click it to see its properties in the Details panel.</p>
+
+                <p><strong>In Blueprints:</strong> Use <code>Get Character Movement</code> node to get a reference to the component. From there, you can read or modify any property.</p>
+
+                <p><strong>In Details Panel Categories:</strong> The CMC has many properties organized into categories:</p>
+                <ul>
+                    <li><strong>Character Movement: Walking</strong> — Ground movement settings</li>
+                    <li><strong>Character Movement: Jumping / Falling</strong> — Air movement settings</li>
+                    <li><strong>Character Movement: Swimming</strong> — Water movement settings</li>
+                    <li><strong>Character Movement: Flying</strong> — Flying mode settings</li>
+                    <li><strong>Character Movement (General Settings)</strong> — Gravity, rotation, etc.</li>
+                </ul>
+
+                <h3>How Movement Input Works</h3>
+
+                <p>The CMC doesn't directly receive input. Instead, your Blueprint calls <code>Add Movement Input</code> with a direction vector. The CMC then:</p>
+
+                <ol>
+                    <li>Accumulates input direction for the frame</li>
+                    <li>Calculates desired velocity based on acceleration</li>
+                    <li>Applies friction to slow down when no input</li>
+                    <li>Clamps velocity to maximum speed</li>
+                    <li>Moves the capsule and handles collisions</li>
+                </ol>
+
+                <p>This separation means the CMC doesn't care <em>how</em> you get input—keyboard, gamepad, AI, or network commands all work the same way.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Velocity vs. Input</h4>
+                    <p>The CMC maintains a <strong>Velocity</strong> vector that represents current movement. Input influences velocity through acceleration, but they're not the same. When you stop pressing forward, velocity gradually decreases due to friction rather than instantly stopping. This creates momentum and weight.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Walking, Running, and Sprinting -->
+            <section id="walking-running" class="lesson-section">
+                <h2>Walking, Running, and Sprinting</h2>
+
+                <p>Ground movement is controlled by several key parameters. Understanding how they interact lets you create characters that feel heavy and realistic or light and responsive.</p>
+
+                <h3>Max Walk Speed</h3>
+
+                <p><strong>Max Walk Speed</strong> is the maximum ground speed in cm/s. This is the speed limit—your character can't exceed this while walking, no matter how long they accelerate.</p>
+
+                <p><strong>Typical values:</strong></p>
+                <ul>
+                    <li><strong>200-300:</strong> Slow, careful movement (horror games, stealth)</li>
+                    <li><strong>400-600:</strong> Standard walking/jogging (most games)</li>
+                    <li><strong>800-1200:</strong> Fast running (action games)</li>
+                    <li><strong>1500+:</strong> Very fast (arcade, superhero games)</li>
+                </ul>
+
+                <p>The default is 600 cm/s, which feels like a comfortable jog.</p>
+
+                <h3>Ground Friction</h3>
+
+                <p><strong>Ground Friction</strong> determines how quickly the character slows down when not receiving input. Higher friction = faster stopping. Lower friction = more sliding.</p>
+
+                <p><strong>Typical values:</strong></p>
+                <ul>
+                    <li><strong>0-2:</strong> Very slippery (ice, oiled floors)</li>
+                    <li><strong>4-8:</strong> Standard ground (default is 8)</li>
+                    <li><strong>12-20:</strong> Very grippy (instant stops)</li>
+                </ul>
+
+                <p>Friction interacts with <strong>Braking Deceleration Walking</strong> which is the explicit deceleration applied when stopping.</p>
+
+                <h3>Max Acceleration</h3>
+
+                <p><strong>Max Acceleration</strong> controls how quickly the character reaches maximum speed. Higher values = snappier response. Lower values = gradual buildup.</p>
+
+                <p><strong>Typical values:</strong></p>
+                <ul>
+                    <li><strong>500-1000:</strong> Sluggish, heavy character</li>
+                    <li><strong>2000-2500:</strong> Standard (default is 2048)</li>
+                    <li><strong>4000+:</strong> Very responsive, arcade feel</li>
+                </ul>
+
+                <!-- SVG: Movement Parameters -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Ground Movement Parameters</text>
+                    
+                    <!-- Speed visualization -->
+                    <g transform="translate(50, 55)">
+                        <text x="0" y="15" fill="#4CAF50" font-size="11" font-weight="bold">Max Walk Speed</text>
+                        <text x="0" y="35" fill="#888" font-size="9">Speed limit (cm/s)</text>
+                        
+                        <!-- Speed bar -->
+                        <rect x="180" y="5" width="200" height="25" rx="3" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <rect x="180" y="5" width="120" height="25" rx="3" fill="#4CAF50"/>
+                        <text x="240" y="22" fill="#fff" font-size="9">600 (default)</text>
+                        <text x="390" y="22" fill="#888" font-size="8">→ 1200+</text>
+                        
+                        <text x="450" y="22" fill="#666" font-size="8">Slow ←→ Fast</text>
+                    </g>
+                    
+                    <!-- Acceleration visualization -->
+                    <g transform="translate(50, 115)">
+                        <text x="0" y="15" fill="#2196F3" font-size="11" font-weight="bold">Max Acceleration</text>
+                        <text x="0" y="35" fill="#888" font-size="9">How fast you reach max speed</text>
+                        
+                        <!-- Curve representation -->
+                        <rect x="180" y="0" width="200" height="40" rx="3" fill="#3d3d3d" stroke="#2196F3"/>
+                        <path d="M 185 35 Q 220 35 280 10" stroke="#2196F3" stroke-width="2" fill="none"/>
+                        <text x="290" y="25" fill="#888" font-size="8">2048 default</text>
+                        
+                        <text x="450" y="22" fill="#666" font-size="8">Sluggish ←→ Snappy</text>
+                    </g>
+                    
+                    <!-- Friction visualization -->
+                    <g transform="translate(50, 175)">
+                        <text x="0" y="15" fill="#FF9800" font-size="11" font-weight="bold">Ground Friction</text>
+                        <text x="0" y="35" fill="#888" font-size="9">How fast you stop</text>
+                        
+                        <!-- Friction representation -->
+                        <rect x="180" y="0" width="200" height="40" rx="3" fill="#3d3d3d" stroke="#FF9800"/>
+                        <circle cx="220" cy="20" r="10" fill="#FF9800"/>
+                        <path d="M 235 20 L 350 20" stroke="#FF9800" stroke-width="2" stroke-dasharray="8,4"/>
+                        <text x="290" y="38" fill="#888" font-size="8">8.0 default</text>
+                        
+                        <text x="450" y="22" fill="#666" font-size="8">Slippery ←→ Grippy</text>
+                    </g>
+                    
+                    <!-- Combined feel -->
+                    <g transform="translate(50, 235)">
+                        <rect x="0" y="0" width="700" height="35" rx="5" fill="rgba(102,126,234,0.15)" stroke="#667eea"/>
+                        <text x="350" y="15" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Combined Feel Examples</text>
+                        <text x="150" y="28" text-anchor="middle" fill="#888" font-size="8">Heavy Tank: Low accel, low friction</text>
+                        <text x="400" y="28" text-anchor="middle" fill="#888" font-size="8">Standard: Balanced defaults</text>
+                        <text x="600" y="28" text-anchor="middle" fill="#888" font-size="8">Arcade: High accel, high friction</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Key ground movement parameters and their effects on gameplay feel.</em></p>
+
+                <h3>Implementing Sprinting</h3>
+
+                <p>Sprinting is typically implemented by changing <code>Max Walk Speed</code> at runtime. When the player holds sprint, increase the speed; when they release, return to normal.</p>
+
+                <p><strong>Blueprint Implementation:</strong></p>
+                <ol>
+                    <li>Create an Input Action <code>IA_Sprint</code> (Digital)</li>
+                    <li>Map it to Left Shift and Left Stick Click</li>
+                    <li>In your Character Blueprint:</li>
+                </ol>
+
+                <p><strong>On Sprint Started (Pressed):</strong></p>
+                <ul>
+                    <li>Get Character Movement → Set Max Walk Speed to sprint value (e.g., 1000)</li>
+                </ul>
+
+                <p><strong>On Sprint Ended (Released/Completed):</strong></p>
+                <ul>
+                    <li>Get Character Movement → Set Max Walk Speed back to normal (e.g., 600)</li>
+                </ul>
+
+                <!-- SVG: Sprint Blueprint -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Sprint Implementation</text>
+                    
+                    <!-- Sprint Started -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="130" height="45" rx="5" fill="#c62828"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">IA_Sprint</text>
+                        <text x="65" y="33" text-anchor="middle" fill="#ffcdd2" font-size="8">Started</text>
+                    </g>
+                    
+                    <path d="M 165 72 L 195 72" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(200, 45)">
+                        <rect x="0" y="0" width="150" height="55" rx="5" fill="#1565C0"/>
+                        <text x="75" y="18" text-anchor="middle" fill="#fff" font-size="8">Get Character Movement</text>
+                        <text x="75" y="35" text-anchor="middle" fill="#fff" font-size="8">Set Max Walk Speed</text>
+                        <text x="75" y="50" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">1000</text>
+                    </g>
+                    
+                    <!-- Sprint Ended -->
+                    <g transform="translate(400, 50)">
+                        <rect x="0" y="0" width="130" height="45" rx="5" fill="#c62828"/>
+                        <text x="65" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">IA_Sprint</text>
+                        <text x="65" y="33" text-anchor="middle" fill="#ffcdd2" font-size="8">Completed</text>
+                    </g>
+                    
+                    <path d="M 535 72 L 565 72" stroke="#fff" stroke-width="2"/>
+                    
+                    <g transform="translate(570, 45)">
+                        <rect x="0" y="0" width="100" height="55" rx="5" fill="#1565C0"/>
+                        <text x="50" y="18" text-anchor="middle" fill="#fff" font-size="8">Set Max</text>
+                        <text x="50" y="33" text-anchor="middle" fill="#fff" font-size="8">Walk Speed</text>
+                        <text x="50" y="50" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">600</text>
+                    </g>
+                    
+                    <text x="350" y="135" text-anchor="middle" fill="#888" font-size="9">Hold Shift to sprint (1000 cm/s) → Release to walk (600 cm/s)</text>
+                </svg>
+                <p class="caption"><em>Figure: Simple sprint implementation by modifying Max Walk Speed.</em></p>
+
+                <h3>Advanced: Crouch Speed</h3>
+
+                <p>The CMC has a separate <strong>Max Walk Speed Crouched</strong> property (default 300). When the character crouches, this speed is used instead. Crouch is built into the Character class—just call <code>Crouch</code> and <code>UnCrouch</code> functions.</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Smooth Speed Transitions</h4>
+                    <p>Instantly changing Max Walk Speed works but can feel abrupt. For smoother transitions, use <code>FInterpTo</code> or a Timeline to gradually change speed over a few frames. This creates a more natural acceleration/deceleration into sprint.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Jumping and Falling -->
+            <section id="jumping-falling" class="lesson-section">
+                <h2>Jumping and Falling</h2>
+
+                <p>Jumping is one of the most "feel-critical" aspects of character movement. The height, duration, and air control of a jump dramatically affect how a game plays. The CMC provides many parameters to fine-tune jumping behavior.</p>
+
+                <h3>Jump Z Velocity</h3>
+
+                <p><strong>Jump Z Velocity</strong> is the initial upward velocity when jumping (cm/s). Higher values = higher jumps.</p>
+
+                <p><strong>Typical values:</strong></p>
+                <ul>
+                    <li><strong>300-400:</strong> Small hop (realistic, grounded games)</li>
+                    <li><strong>500-700:</strong> Standard jump (default is 600)</li>
+                    <li><strong>900-1200:</strong> High jump (platformers)</li>
+                    <li><strong>1500+:</strong> Super jump (superhero, sci-fi)</li>
+                </ul>
+
+                <p>Jump height is also affected by gravity. The same Jump Z Velocity results in different heights at different gravity scales.</p>
+
+                <h3>Gravity Scale</h3>
+
+                <p><strong>Gravity Scale</strong> multiplies the world gravity (default -980 cm/s²). A scale of 1.0 is normal Earth gravity.</p>
+
+                <ul>
+                    <li><strong>0.5:</strong> Half gravity (floaty, moon-like)</li>
+                    <li><strong>1.0:</strong> Normal gravity (default)</li>
+                    <li><strong>1.5-2.0:</strong> Heavy gravity (faster falls, snappier jumps)</li>
+                </ul>
+
+                <p>Many platformers use higher gravity (1.5-2.0) for snappier, more responsive jumping that still allows good height with higher Jump Z Velocity.</p>
+
+                <!-- SVG: Jump Physics -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Jump Physics: Velocity vs. Gravity</text>
+                    
+                    <!-- Ground line -->
+                    <line x1="50" y1="230" x2="750" y2="230" stroke="#888" stroke-width="2"/>
+                    <text x="50" y="250" fill="#888" font-size="9">Ground</text>
+                    
+                    <!-- Low gravity jump (floaty) -->
+                    <g transform="translate(100, 0)">
+                        <path d="M 0 230 Q 80 80 160 230" stroke="#2196F3" stroke-width="3" fill="none"/>
+                        <circle cx="0" cy="230" r="8" fill="#2196F3"/>
+                        <text x="80" y="50" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">Low Gravity (0.5)</text>
+                        <text x="80" y="65" text-anchor="middle" fill="#666" font-size="8">Floaty, slow fall</text>
+                        <text x="80" y="80" text-anchor="middle" fill="#666" font-size="8">Long air time</text>
+                    </g>
+                    
+                    <!-- Normal gravity jump -->
+                    <g transform="translate(320, 0)">
+                        <path d="M 0 230 Q 60 120 120 230" stroke="#4CAF50" stroke-width="3" fill="none"/>
+                        <circle cx="0" cy="230" r="8" fill="#4CAF50"/>
+                        <text x="60" y="100" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Normal Gravity (1.0)</text>
+                        <text x="60" y="115" text-anchor="middle" fill="#666" font-size="8">Balanced feel</text>
+                        <text x="60" y="130" text-anchor="middle" fill="#666" font-size="8">Standard air time</text>
+                    </g>
+                    
+                    <!-- High gravity jump (snappy) -->
+                    <g transform="translate(540, 0)">
+                        <path d="M 0 230 Q 40 140 80 230" stroke="#FF9800" stroke-width="3" fill="none"/>
+                        <circle cx="0" cy="230" r="8" fill="#FF9800"/>
+                        <text x="40" y="120" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">High Gravity (1.5)</text>
+                        <text x="40" y="135" text-anchor="middle" fill="#666" font-size="8">Snappy, fast fall</text>
+                        <text x="40" y="150" text-anchor="middle" fill="#666" font-size="8">Quick air time</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(620, 180)">
+                        <rect x="0" y="0" width="130" height="45" rx="5" fill="#fff" stroke="#ddd"/>
+                        <text x="65" y="15" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">Same Jump Z Velocity</text>
+                        <text x="65" y="30" text-anchor="middle" fill="#666" font-size="7">Different gravity scales</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#666" font-size="7">= Different arc shapes</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: The same jump velocity creates different arcs at different gravity scales.</em></p>
+
+                <h3>Air Control</h3>
+
+                <p><strong>Air Control</strong> determines how much the player can influence horizontal movement while airborne. A value of 0 means no air control (projectile motion); a value of 1 means full control.</p>
+
+                <ul>
+                    <li><strong>0.0:</strong> No air control (realistic physics)</li>
+                    <li><strong>0.2-0.3:</strong> Slight adjustment possible</li>
+                    <li><strong>0.5:</strong> Moderate control (default is 0.05)</li>
+                    <li><strong>1.0:</strong> Full control (can completely change direction mid-air)</li>
+                </ul>
+
+                <p>Most action games use 0.2-0.5 for responsive air control. The default (0.05) is very low for realistic feel but can feel unresponsive for platformers.</p>
+
+                <h3>Air Control Boost Multiplier and Velocity</h3>
+
+                <p>These advanced settings allow more control at low speeds:</p>
+
+                <p><strong>Air Control Boost Multiplier:</strong> Multiplies air control when below the boost velocity threshold. Useful for fine-tuning landings.</p>
+
+                <p><strong>Air Control Boost Velocity:</strong> Speed threshold below which the boost applies.</p>
+
+                <h3>Jump Hold Time</h3>
+
+                <p><strong>Jump Max Hold Time</strong> allows variable-height jumps based on how long the player holds the jump button. Set to 0 for fixed-height jumps.</p>
+
+                <p><strong>How it works:</strong> While the player holds jump (up to this duration), upward velocity is maintained. Releasing early = shorter jump. Holding = full jump.</p>
+
+                <p>This is a classic platformer technique used in Mario, Hollow Knight, Celeste, and most modern platformers.</p>
+
+                <!-- SVG: Variable Jump Height -->
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Variable Jump Height (Jump Max Hold Time)</text>
+                    
+                    <!-- Ground -->
+                    <line x1="50" y1="150" x2="650" y2="150" stroke="#666" stroke-width="2"/>
+                    
+                    <!-- Tap jump (short) -->
+                    <g transform="translate(100, 0)">
+                        <path d="M 0 150 Q 30 110 60 150" stroke="#f44336" stroke-width="3" fill="none"/>
+                        <circle cx="0" cy="150" r="6" fill="#f44336"/>
+                        <text x="30" y="95" text-anchor="middle" fill="#f44336" font-size="10" font-weight="bold">Tap</text>
+                        <text x="30" y="110" text-anchor="middle" fill="#888" font-size="8">Quick release</text>
+                    </g>
+                    
+                    <!-- Medium hold -->
+                    <g transform="translate(280, 0)">
+                        <path d="M 0 150 Q 50 70 100 150" stroke="#FF9800" stroke-width="3" fill="none"/>
+                        <circle cx="0" cy="150" r="6" fill="#FF9800"/>
+                        <text x="50" y="55" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Medium Hold</text>
+                        <text x="50" y="70" text-anchor="middle" fill="#888" font-size="8">Partial height</text>
+                    </g>
+                    
+                    <!-- Full hold (max jump) -->
+                    <g transform="translate(480, 0)">
+                        <path d="M 0 150 Q 70 40 140 150" stroke="#4CAF50" stroke-width="3" fill="none"/>
+                        <circle cx="0" cy="150" r="6" fill="#4CAF50"/>
+                        <text x="70" y="30" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Full Hold</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#888" font-size="8">Maximum height</text>
+                    </g>
+                    
+                    <text x="350" y="172" text-anchor="middle" fill="#667eea" font-size="9">Jump Max Hold Time: 0.3 seconds → Holding longer = higher jump</text>
+                </svg>
+                <p class="caption"><em>Figure: Variable jump height based on button hold duration.</em></p>
+
+                <h3>Falling and Landing</h3>
+
+                <p>Several parameters control falling behavior:</p>
+
+                <p><strong>Falling Lateral Friction:</strong> Friction applied while falling. Higher values slow horizontal movement in air.</p>
+
+                <p><strong>Braking Deceleration Falling:</strong> How quickly horizontal velocity decreases when not providing input while falling.</p>
+
+                <p><strong>Landing detection</strong> is automatic—the CMC detects when the capsule contacts ground and transitions from Falling to Walking mode.</p>
+
+                <h3>Double Jump and Multi-Jump</h3>
+
+                <p>The CMC supports multiple jumps via <code>Jump Max Count</code>:</p>
+
+                <ul>
+                    <li><strong>1:</strong> Single jump (default)</li>
+                    <li><strong>2:</strong> Double jump</li>
+                    <li><strong>3+:</strong> Triple jump or more</li>
+                </ul>
+
+                <p>The <code>Jump Current Count</code> tracks how many jumps have been used. It resets when landing.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Platformer Jump Feel</h4>
+                    <p>For responsive platformer-style jumps, try these adjustments:</p>
+                    <ul>
+                        <li>Jump Z Velocity: 800-1000</li>
+                        <li>Gravity Scale: 1.5-2.0</li>
+                        <li>Air Control: 0.3-0.5</li>
+                        <li>Jump Max Hold Time: 0.2-0.4</li>
+                        <li>Jump Max Count: 2 (for double jump)</li>
+                    </ul>
+                    <p>This creates snappy, high jumps with good air control—the classic platformer feel.</p>
+                </div>
+
+                <!-- Mermaid: Jump State Flow -->
+                <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Walking: On Ground
+    Walking --> Falling: Jump Pressed
+    Walking --> Falling: Walk Off Edge
+    
+    Falling --> Falling: Air Control Input
+    Falling --> Walking: Land on Ground
+    Falling --> Falling: Double Jump (if available)
+    
+    Walking --> [*]: Game Over
+    
+    note right of Falling
+        Jump Current Count tracked
+        Air Control applies
+        Gravity pulls down
+    end note
+                </pre>
+                <p class="caption"><em>Figure: State transitions between Walking and Falling modes.</em></p>
+            </section>
+            <!-- Section 4: Movement Modes -->
+            <section id="movement-modes" class="lesson-section">
+                <h2>Movement Modes</h2>
+
+                <p>The Character Movement Component supports several <strong>Movement Modes</strong>, each with its own physics behavior and parameters. The CMC automatically switches between some modes (like Walking to Falling), while others require explicit activation (like Swimming or Flying).</p>
+
+                <h3>Available Movement Modes</h3>
+
+                <p>The CMC defines these standard movement modes:</p>
+
+                <p><strong>Walking:</strong> Standard ground movement. Applies ground friction, respects Max Walk Speed, handles slopes and steps. This is the default mode when on ground.</p>
+
+                <p><strong>Falling:</strong> Airborne movement. Applies gravity, air control, and falling friction. Automatically entered when jumping or walking off edges.</p>
+
+                <p><strong>Swimming:</strong> Water movement. Uses buoyancy, water friction, and swimming speed. Must be triggered by entering a water volume.</p>
+
+                <p><strong>Flying:</strong> Free 3D movement without gravity. Used for spectators, flying characters, or no-clip modes. Must be explicitly enabled.</p>
+
+                <p><strong>Custom:</strong> User-defined movement. Implement your own physics for unique movement types.</p>
+
+                <p><strong>None:</strong> No movement processing. Character is stationary.</p>
+
+                <!-- SVG: Movement Modes -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Character Movement Modes</text>
+                    
+                    <!-- Walking -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="200" height="80" rx="8" fill="#4CAF50" stroke="#388E3C"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🚶 Walking</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#c8e6c9" font-size="9">Ground movement</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#c8e6c9" font-size="8">Friction, slopes, steps</text>
+                        <text x="100" y="73" text-anchor="middle" fill="#a5d6a7" font-size="7">Auto: on ground</text>
+                    </g>
+                    
+                    <!-- Falling -->
+                    <g transform="translate(300, 55)">
+                        <rect x="0" y="0" width="200" height="80" rx="8" fill="#2196F3" stroke="#1976D2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🌀 Falling</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#bbdefb" font-size="9">Airborne movement</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#bbdefb" font-size="8">Gravity, air control</text>
+                        <text x="100" y="73" text-anchor="middle" fill="#90caf9" font-size="7">Auto: jump/off edge</text>
+                    </g>
+                    
+                    <!-- Swimming -->
+                    <g transform="translate(550, 55)">
+                        <rect x="0" y="0" width="200" height="80" rx="8" fill="#00BCD4" stroke="#0097A7"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🏊 Swimming</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#b2ebf2" font-size="9">Water movement</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#b2ebf2" font-size="8">Buoyancy, water friction</text>
+                        <text x="100" y="73" text-anchor="middle" fill="#80deea" font-size="7">Auto: in Physics Volume</text>
+                    </g>
+                    
+                    <!-- Flying -->
+                    <g transform="translate(125, 165)">
+                        <rect x="0" y="0" width="200" height="80" rx="8" fill="#9C27B0" stroke="#7B1FA2"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">✈️ Flying</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#e1bee7" font-size="9">3D free movement</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#e1bee7" font-size="8">No gravity</text>
+                        <text x="100" y="73" text-anchor="middle" fill="#ce93d8" font-size="7">Manual: SetMovementMode</text>
+                    </g>
+                    
+                    <!-- Custom -->
+                    <g transform="translate(425, 165)">
+                        <rect x="0" y="0" width="200" height="80" rx="8" fill="#FF9800" stroke="#F57C00"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">⚙️ Custom</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#ffe0b2" font-size="9">User-defined physics</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#ffe0b2" font-size="8">Override behavior</text>
+                        <text x="100" y="73" text-anchor="middle" fill="#ffcc80" font-size="7">Manual: code required</text>
+                    </g>
+                    
+                    <!-- Transition arrows -->
+                    <path d="M 255 95 L 295 95" stroke="#666" stroke-width="2" marker-end="url(#modeArrow)"/>
+                    <path d="M 295 95 L 255 95" stroke="#666" stroke-width="2" marker-start="url(#modeArrow2)"/>
+                    <text x="275" y="85" text-anchor="middle" fill="#666" font-size="7">jump/land</text>
+                    
+                    <path d="M 505 95 L 545 95" stroke="#666" stroke-width="2" marker-end="url(#modeArrow)"/>
+                    <text x="525" y="85" text-anchor="middle" fill="#666" font-size="7">enter water</text>
+                    
+                    <!-- Current mode indicator -->
+                    <g transform="translate(250, 260)">
+                        <rect x="0" y="0" width="300" height="30" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="150" y="19" text-anchor="middle" fill="#667eea" font-size="9">Get current mode: Get Movement Mode | Change: Set Movement Mode</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="modeArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                        <marker id="modeArrow2" markerWidth="8" markerHeight="6" refX="1" refY="3" orient="auto">
+                            <polygon points="8 0, 0 3, 8 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Movement modes and their characteristics. Some switch automatically; others require explicit activation.</em></p>
+
+                <h3>Switching Movement Modes</h3>
+
+                <p>To manually change movement mode in Blueprints:</p>
+
+                <ol>
+                    <li>Get Character Movement component</li>
+                    <li>Call <code>Set Movement Mode</code></li>
+                    <li>Select the desired mode from the dropdown</li>
+                </ol>
+
+                <p><strong>Example: Enable Flying</strong></p>
+                <ol>
+                    <li>On key press (e.g., F key)</li>
+                    <li>Get Character Movement → Set Movement Mode → Flying</li>
+                    <li>Character now ignores gravity and can move freely in 3D</li>
+                </ol>
+
+                <p><strong>Example: Disable Flying</strong></p>
+                <ol>
+                    <li>On another key press</li>
+                    <li>Set Movement Mode → Walking (or Falling if not on ground)</li>
+                    <li>Gravity resumes; character falls if airborne</li>
+                </ol>
+
+                <h3>Flying Mode Parameters</h3>
+
+                <p>When in Flying mode, these parameters apply:</p>
+
+                <p><strong>Max Fly Speed:</strong> Maximum speed while flying (default 600). Increase for faster flight.</p>
+
+                <p><strong>Braking Deceleration Flying:</strong> How quickly the character stops when not providing input (default 0, meaning no automatic stopping).</p>
+
+                <p><strong>Flying movement</strong> doesn't apply gravity, so the character hovers in place when not moving. Good for spectator cameras, flying vehicles, or superhero games.</p>
+
+                <h3>Swimming Mode Parameters</h3>
+
+                <p>Swimming mode simulates water physics:</p>
+
+                <p><strong>Max Swim Speed:</strong> Maximum speed in water (default 300). Usually slower than walking.</p>
+
+                <p><strong>Buoyancy:</strong> How much the character floats. 1.0 = neutral buoyancy, >1 = floats up, <1 = sinks.</p>
+
+                <p><strong>Water volumes</strong> trigger swimming automatically. Create a Physics Volume actor, check "Water Volume," and the CMC will switch to Swimming mode when the character enters.</p>
+
+                <!-- SVG: Swimming Setup -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Swimming Mode Setup</text>
+                    
+                    <!-- Physics Volume -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="180" height="120" rx="5" fill="rgba(0,188,212,0.3)" stroke="#00BCD4" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#00BCD4" font-size="10" font-weight="bold">Physics Volume</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#80deea" font-size="8">Water Volume ☑</text>
+                        
+                        <!-- Character in water -->
+                        <ellipse cx="90" cy="90" rx="20" ry="30" fill="#667eea"/>
+                        <text x="90" y="95" text-anchor="middle" fill="#fff" font-size="8">🏊</text>
+                        
+                        <!-- Water surface -->
+                        <path d="M 0 60 Q 30 55 60 60 Q 90 65 120 60 Q 150 55 180 60" stroke="#00BCD4" stroke-width="2" fill="none"/>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 250 115 L 310 115" stroke="#00BCD4" stroke-width="2" marker-end="url(#swimArrow)"/>
+                    <text x="280" y="105" text-anchor="middle" fill="#888" font-size="8">Enter volume</text>
+                    
+                    <!-- CMC Settings -->
+                    <g transform="translate(330, 55)">
+                        <rect x="0" y="0" width="320" height="120" rx="5" fill="#3d3d3d" stroke="#00BCD4"/>
+                        <text x="160" y="22" text-anchor="middle" fill="#00BCD4" font-size="10" font-weight="bold">Character Movement: Swimming</text>
+                        
+                        <text x="20" y="50" fill="#aaa" font-size="9">Max Swim Speed</text>
+                        <text x="250" y="50" fill="#00BCD4" font-size="9">300 cm/s</text>
+                        
+                        <text x="20" y="70" fill="#aaa" font-size="9">Buoyancy</text>
+                        <text x="250" y="70" fill="#00BCD4" font-size="9">1.0 (neutral)</text>
+                        
+                        <text x="20" y="90" fill="#aaa" font-size="9">Braking Deceleration Swimming</text>
+                        <text x="250" y="90" fill="#00BCD4" font-size="9">0</text>
+                        
+                        <text x="160" y="115" text-anchor="middle" fill="#888" font-size="8">Mode auto-switches when entering/exiting water</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="swimArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#00BCD4"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Create a Physics Volume with Water Volume enabled to automatically trigger swimming mode.</em></p>
+
+                <h3>Checking Current Mode</h3>
+
+                <p>To check the current movement mode in Blueprints:</p>
+
+                <ul>
+                    <li><code>Get Movement Mode</code> — Returns the current enum value</li>
+                    <li><code>Is Walking</code> — Returns true if in Walking mode</li>
+                    <li><code>Is Falling</code> — Returns true if in Falling mode</li>
+                    <li><code>Is Swimming</code> — Returns true if in Swimming mode</li>
+                    <li><code>Is Flying</code> — Returns true if in Flying mode</li>
+                </ul>
+
+                <p>Use these checks to enable/disable abilities, change animations, or modify UI based on movement state.</p>
+
+                <h3>Movement Mode Events</h3>
+
+                <p>The Character class provides events for mode changes:</p>
+
+                <p><strong>On Movement Mode Changed:</strong> Fires whenever the movement mode changes. Provides both the previous and new mode. Great for triggering sounds, particles, or animation changes.</p>
+
+                <p><strong>On Landed:</strong> Fires specifically when transitioning from Falling to Walking (landing). Provides the hit result for the landing surface.</p>
+
+                <!-- Mermaid: Mode Transitions -->
+                <pre class="mermaid">
+flowchart LR
+    W["Walking"] -->|"Jump/Fall off"| F["Falling"]
+    F -->|"Land"| W
+    W -->|"Enter water"| S["Swimming"]
+    F -->|"Enter water"| S
+    S -->|"Exit water"| F
+    S -->|"Exit at surface"| W
+    W -->|"SetMovementMode"| FL["Flying"]
+    F -->|"SetMovementMode"| FL
+    FL -->|"SetMovementMode"| F
+    
+    style W fill:#4CAF50,color:#fff
+    style F fill:#2196F3,color:#fff
+    style S fill:#00BCD4,color:#fff
+    style FL fill:#9C27B0,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Movement mode transitions. Solid lines show automatic transitions; dashed show manual.</em></p>
+
+                <h3>Advanced: Custom Movement Modes</h3>
+
+                <p>For unique movement (wall running, climbing, swinging), you can use Custom mode:</p>
+
+                <ol>
+                    <li>Set Movement Mode to <code>Custom</code></li>
+                    <li>Override <code>PhysCustom</code> in a C++ Character subclass, or</li>
+                    <li>Handle movement manually in Tick using the Custom mode flag</li>
+                </ol>
+
+                <p>Custom modes require more work but allow complete control over movement physics.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Common Mode Combinations</h4>
+                    <p><strong>Platformer:</strong> Walking + Falling with high air control and double jump.</p>
+                    <p><strong>Swimming Game:</strong> Walking + Swimming with water volumes throughout.</p>
+                    <p><strong>Flying Game:</strong> Start in Flying mode; never enable Walking.</p>
+                    <p><strong>Spectator:</strong> Flying mode with high speed for free camera movement.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Customize Movement Parameters</h2>
+
+                <p>Let's create three different movement feels by adjusting Character Movement Component parameters. This exercise demonstrates how small parameter changes dramatically affect gameplay feel.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create and test three movement presets: Heavy Tank, Standard Action, and Arcade Platformer. Implement sprinting and double jump. Understand how parameters interact to create different gameplay feels.</p>
+                </div>
+
+                <h3>Step 1: Set Up the Project</h3>
+
+                <p>Use your project from the previous lesson, or create a new Third Person project:</p>
+
+                <ol>
+                    <li>Open your Third Person project</li>
+                    <li>Open the Character Blueprint (<code>BP_ThirdPersonCharacter</code> or your custom character)</li>
+                    <li>Select the <strong>CharacterMovement</strong> component in the Components panel</li>
+                    <li>The Details panel shows all movement parameters</li>
+                </ol>
+
+                <h3>Step 2: Note the Default Values</h3>
+
+                <p>Before changing anything, note these default values:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Default Value</th>
+                            <th style="padding: 10px; text-align: left;">Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Max Walk Speed</td>
+                            <td style="padding: 10px;">600</td>
+                            <td style="padding: 10px;">Walking</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Max Acceleration</td>
+                            <td style="padding: 10px;">2048</td>
+                            <td style="padding: 10px;">General</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Ground Friction</td>
+                            <td style="padding: 10px;">8.0</td>
+                            <td style="padding: 10px;">Walking</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Braking Deceleration Walking</td>
+                            <td style="padding: 10px;">2048</td>
+                            <td style="padding: 10px;">Walking</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Jump Z Velocity</td>
+                            <td style="padding: 10px;">420</td>
+                            <td style="padding: 10px;">Jumping</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Air Control</td>
+                            <td style="padding: 10px;">0.35</td>
+                            <td style="padding: 10px;">Falling</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Gravity Scale</td>
+                            <td style="padding: 10px;">1.0</td>
+                            <td style="padding: 10px;">General</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>Test the default feel—run around, jump, stop suddenly. This is your baseline.</p>
+
+                <h3>Step 3: Create Heavy Tank Preset</h3>
+
+                <p>Adjust parameters for a slow, heavy, momentum-based character:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #795548; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Heavy Tank Value</th>
+                            <th style="padding: 10px; text-align: left;">Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #efebe9;">
+                            <td style="padding: 10px;">Max Walk Speed</td>
+                            <td style="padding: 10px;"><strong>350</strong></td>
+                            <td style="padding: 10px;">Slower movement</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Max Acceleration</td>
+                            <td style="padding: 10px;"><strong>800</strong></td>
+                            <td style="padding: 10px;">Slow to reach max speed</td>
+                        </tr>
+                        <tr style="background: #efebe9;">
+                            <td style="padding: 10px;">Ground Friction</td>
+                            <td style="padding: 10px;"><strong>3.0</strong></td>
+                            <td style="padding: 10px;">Slides when stopping</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Braking Deceleration Walking</td>
+                            <td style="padding: 10px;"><strong>800</strong></td>
+                            <td style="padding: 10px;">Takes time to stop</td>
+                        </tr>
+                        <tr style="background: #efebe9;">
+                            <td style="padding: 10px;">Jump Z Velocity</td>
+                            <td style="padding: 10px;"><strong>350</strong></td>
+                            <td style="padding: 10px;">Low jump</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Air Control</td>
+                            <td style="padding: 10px;"><strong>0.1</strong></td>
+                            <td style="padding: 10px;">Minimal air steering</td>
+                        </tr>
+                        <tr style="background: #efebe9;">
+                            <td style="padding: 10px;">Gravity Scale</td>
+                            <td style="padding: 10px;"><strong>1.2</strong></td>
+                            <td style="padding: 10px;">Falls faster</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Test it:</strong> Press Play and move around. Notice:</p>
+                <ul>
+                    <li>Takes time to get moving</li>
+                    <li>Slides past your target when stopping</li>
+                    <li>Jump is short with little air control</li>
+                    <li>Feels heavy and momentum-based</li>
+                </ul>
+
+                <div class="card" style="background: #efebe9; border-left: 4px solid #795548;">
+                    <h4>🎮 Heavy Tank Feel</h4>
+                    <p>Good for: Mech games, tank characters, realistic soldiers with heavy gear, survival horror where you want to feel vulnerable.</p>
+                </div>
+
+                <h3>Step 4: Create Standard Action Preset</h3>
+
+                <p>Reset to defaults or use these balanced values:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4CAF50; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Standard Action Value</th>
+                            <th style="padding: 10px; text-align: left;">Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #e8f5e9;">
+                            <td style="padding: 10px;">Max Walk Speed</td>
+                            <td style="padding: 10px;"><strong>600</strong></td>
+                            <td style="padding: 10px;">Comfortable jog</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Max Acceleration</td>
+                            <td style="padding: 10px;"><strong>2048</strong></td>
+                            <td style="padding: 10px;">Responsive acceleration</td>
+                        </tr>
+                        <tr style="background: #e8f5e9;">
+                            <td style="padding: 10px;">Ground Friction</td>
+                            <td style="padding: 10px;"><strong>8.0</strong></td>
+                            <td style="padding: 10px;">Quick stops</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Braking Deceleration Walking</td>
+                            <td style="padding: 10px;"><strong>2048</strong></td>
+                            <td style="padding: 10px;">Responsive stopping</td>
+                        </tr>
+                        <tr style="background: #e8f5e9;">
+                            <td style="padding: 10px;">Jump Z Velocity</td>
+                            <td style="padding: 10px;"><strong>500</strong></td>
+                            <td style="padding: 10px;">Good height</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Air Control</td>
+                            <td style="padding: 10px;"><strong>0.35</strong></td>
+                            <td style="padding: 10px;">Moderate air steering</td>
+                        </tr>
+                        <tr style="background: #e8f5e9;">
+                            <td style="padding: 10px;">Gravity Scale</td>
+                            <td style="padding: 10px;"><strong>1.0</strong></td>
+                            <td style="padding: 10px;">Normal gravity</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Test it:</strong> This is the default Third Person template feel—balanced, responsive, suitable for most games.</p>
+
+                <h3>Step 5: Create Arcade Platformer Preset</h3>
+
+                <p>Adjust for snappy, responsive, platformer-style movement:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #9C27B0; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Arcade Platformer Value</th>
+                            <th style="padding: 10px; text-align: left;">Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f3e5f5;">
+                            <td style="padding: 10px;">Max Walk Speed</td>
+                            <td style="padding: 10px;"><strong>800</strong></td>
+                            <td style="padding: 10px;">Fast movement</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Max Acceleration</td>
+                            <td style="padding: 10px;"><strong>5000</strong></td>
+                            <td style="padding: 10px;">Instant response</td>
+                        </tr>
+                        <tr style="background: #f3e5f5;">
+                            <td style="padding: 10px;">Ground Friction</td>
+                            <td style="padding: 10px;"><strong>12.0</strong></td>
+                            <td style="padding: 10px;">Precise stops</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Braking Deceleration Walking</td>
+                            <td style="padding: 10px;"><strong>5000</strong></td>
+                            <td style="padding: 10px;">Instant stops</td>
+                        </tr>
+                        <tr style="background: #f3e5f5;">
+                            <td style="padding: 10px;">Jump Z Velocity</td>
+                            <td style="padding: 10px;"><strong>900</strong></td>
+                            <td style="padding: 10px;">High jump</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Air Control</td>
+                            <td style="padding: 10px;"><strong>0.8</strong></td>
+                            <td style="padding: 10px;">Full air steering</td>
+                        </tr>
+                        <tr style="background: #f3e5f5;">
+                            <td style="padding: 10px;">Gravity Scale</td>
+                            <td style="padding: 10px;"><strong>1.8</strong></td>
+                            <td style="padding: 10px;">Snappy falls</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Jump Max Count</td>
+                            <td style="padding: 10px;"><strong>2</strong></td>
+                            <td style="padding: 10px;">Double jump!</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Test it:</strong> Press Play and experience:</p>
+                <ul>
+                    <li>Instant acceleration and stopping</li>
+                    <li>High, responsive jumps</li>
+                    <li>Full control while airborne</li>
+                    <li>Double jump for extended air time</li>
+                    <li>Fast falls that feel snappy, not floaty</li>
+                </ul>
+
+                <div class="card" style="background: #f3e5f5; border-left: 4px solid #9C27B0;">
+                    <h4>🎮 Arcade Platformer Feel</h4>
+                    <p>Good for: Platformers, action games, arcade shooters, any game where tight controls and responsiveness matter more than realism.</p>
+                </div>
+
+                <!-- SVG: Preset Comparison -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Movement Preset Comparison</text>
+                    
+                    <!-- Heavy Tank -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#efebe9" stroke="#795548"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#5D4037" font-size="11" font-weight="bold">🛡️ Heavy Tank</text>
+                        <text x="100" y="50" text-anchor="middle" fill="#666" font-size="8">Speed: 350 | Accel: 800</text>
+                        <text x="100" y="65" text-anchor="middle" fill="#666" font-size="8">Friction: 3 | Jump: 350</text>
+                        <text x="100" y="85" text-anchor="middle" fill="#795548" font-size="9">Momentum-based</text>
+                        <text x="100" y="100" text-anchor="middle" fill="#795548" font-size="9">Slides, weighty</text>
+                    </g>
+                    
+                    <!-- Standard -->
+                    <g transform="translate(300, 55)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">⚖️ Standard Action</text>
+                        <text x="100" y="50" text-anchor="middle" fill="#666" font-size="8">Speed: 600 | Accel: 2048</text>
+                        <text x="100" y="65" text-anchor="middle" fill="#666" font-size="8">Friction: 8 | Jump: 500</text>
+                        <text x="100" y="85" text-anchor="middle" fill="#4CAF50" font-size="9">Balanced feel</text>
+                        <text x="100" y="100" text-anchor="middle" fill="#4CAF50" font-size="9">Responsive, natural</text>
+                    </g>
+                    
+                    <!-- Arcade -->
+                    <g transform="translate(550, 55)">
+                        <rect x="0" y="0" width="200" height="120" rx="8" fill="#f3e5f5" stroke="#9C27B0"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#7B1FA2" font-size="11" font-weight="bold">🚀 Arcade Platformer</text>
+                        <text x="100" y="50" text-anchor="middle" fill="#666" font-size="8">Speed: 800 | Accel: 5000</text>
+                        <text x="100" y="65" text-anchor="middle" fill="#666" font-size="8">Friction: 12 | Jump: 900</text>
+                        <text x="100" y="85" text-anchor="middle" fill="#9C27B0" font-size="9">Instant response</text>
+                        <text x="100" y="100" text-anchor="middle" fill="#9C27B0" font-size="9">Snappy, double jump</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Three movement presets creating distinctly different gameplay feels.</em></p>
+
+                <h3>Step 6: Add Sprint Functionality</h3>
+
+                <p>Using the Arcade Platformer preset, add sprinting:</p>
+
+                <ol>
+                    <li>In Event Graph, add <code>EnhancedInputAction IA_Sprint</code> (Started)</li>
+                    <li>Get Character Movement → Set Max Walk Speed to <strong>1200</strong></li>
+                    <li>Add another <code>EnhancedInputAction IA_Sprint</code> (Completed)</li>
+                    <li>Get Character Movement → Set Max Walk Speed back to <strong>800</strong></li>
+                </ol>
+
+                <p>Test: Hold Shift while moving to sprint at 1200 cm/s.</p>
+
+                <h3>Step 7: Add Variable Jump Height (Optional)</h3>
+
+                <p>For even more responsive platformer feel:</p>
+
+                <ol>
+                    <li>Select CharacterMovement component</li>
+                    <li>Find <strong>Jump Max Hold Time</strong></li>
+                    <li>Set to <strong>0.3</strong> seconds</li>
+                </ol>
+
+                <p>Test: Tap jump for short hops, hold for full height jumps.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've created three distinct movement feels by adjusting the same parameters. You understand how speed, acceleration, friction, and jump settings interact. You've implemented sprinting and optionally variable jump height. These techniques apply to any Unreal project.</p>
+                </div>
+
+                <h3>Bonus Challenges</h3>
+
+                <ol>
+                    <li><strong>Ice Level:</strong> Create a preset with very low friction (1-2) for slippery movement</li>
+                    <li><strong>Moon Gravity:</strong> Set Gravity Scale to 0.4 for floaty lunar movement</li>
+                    <li><strong>Superhero:</strong> Max Walk Speed 1500, Jump Z Velocity 1200, Air Control 1.0</li>
+                    <li><strong>Water Area:</strong> Create a Physics Volume with Water Volume enabled and test swimming</li>
+                </ol>
+            </section>
+
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've explored the Character Movement Component in depth—the powerful system that controls how characters move through the game world. Understanding these parameters gives you the tools to create exactly the gameplay feel your project needs, from heavy realistic simulation to snappy arcade responsiveness.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Character Movement Component:</strong> The CMC handles all character locomotion: ground detection, physics simulation, movement modes, and network replication. It processes input through <code>Add Movement Input</code> and applies acceleration, friction, and gravity to create smooth movement.</p>
+
+                <p><strong>Ground Movement Parameters:</strong> Max Walk Speed sets the speed limit. Max Acceleration controls how fast you reach that speed. Ground Friction and Braking Deceleration determine how quickly you stop. High values create responsive, snappy movement; low values create heavy, momentum-based feel.</p>
+
+                <p><strong>Jump and Air Movement:</strong> Jump Z Velocity determines jump height. Gravity Scale affects both jump arc and fall speed. Air Control (0-1) determines how much you can steer while airborne. Jump Max Hold Time enables variable-height jumps based on button duration. Jump Max Count enables double/triple jumps.</p>
+
+                <p><strong>Movement Modes:</strong> Walking for ground movement, Falling for airborne, Swimming for water, Flying for gravity-free 3D movement. The CMC auto-switches between Walking/Falling and can enter Swimming via water volumes. Flying requires manual activation via <code>Set Movement Mode</code>.</p>
+
+                <p><strong>Gameplay Feel:</strong> Movement parameters work together to create overall feel. Heavy characters use low acceleration, low friction, low air control. Responsive characters use high acceleration, high friction, high air control. The combination matters more than individual values.</p>
+
+                <h3>Parameter Quick Reference</h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px; text-align: left;">Parameter</th>
+                            <th style="padding: 10px; text-align: left;">Low Value Effect</th>
+                            <th style="padding: 10px; text-align: left;">High Value Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Max Walk Speed</td>
+                            <td style="padding: 10px;">Slow movement</td>
+                            <td style="padding: 10px;">Fast movement</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Max Acceleration</td>
+                            <td style="padding: 10px;">Sluggish start</td>
+                            <td style="padding: 10px;">Instant response</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Ground Friction</td>
+                            <td style="padding: 10px;">Slippery, slides</td>
+                            <td style="padding: 10px;">Grippy, precise stops</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Jump Z Velocity</td>
+                            <td style="padding: 10px;">Low hop</td>
+                            <td style="padding: 10px;">High jump</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px;">Gravity Scale</td>
+                            <td style="padding: 10px;">Floaty, slow falls</td>
+                            <td style="padding: 10px;">Snappy, fast falls</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Air Control</td>
+                            <td style="padding: 10px;">Committed trajectory</td>
+                            <td style="padding: 10px;">Full air steering</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Start with defaults:</strong> The default values are reasonable for most games. Adjust from there rather than starting from scratch.</li>
+                    <li><strong>Test frequently:</strong> Small parameter changes have big feel impacts. Playtest after each adjustment.</li>
+                    <li><strong>Consider your genre:</strong> Platformers need high air control and snappy response. Realistic games need momentum and weight.</li>
+                    <li><strong>Match expectations:</strong> Players have learned movement from other games. Match conventions unless you have good reason not to.</li>
+                    <li><strong>Use presets:</strong> Create different CMC configurations for different character types or game states.</li>
+                    <li><strong>Don't forget audio:</strong> Movement feel includes footstep sounds, landing impacts, and jump sounds. Add these to complete the experience.</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Character Movement: The Feel Formula</text>
+                    
+                    <!-- Input -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="120" height="60" rx="8" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Player Input</text>
+                        <text x="60" y="42" text-anchor="middle" fill="#666" font-size="8">Direction + Actions</text>
+                    </g>
+                    
+                    <path d="M 175 85 L 205 85" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Speed/Accel -->
+                    <g transform="translate(210, 55)">
+                        <rect x="0" y="0" width="120" height="60" rx="8" fill="#4CAF50"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Speed</text>
+                        <text x="60" y="42" text-anchor="middle" fill="#c8e6c9" font-size="8">+ Acceleration</text>
+                    </g>
+                    
+                    <path d="M 335 85 L 365 85" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Friction -->
+                    <g transform="translate(370, 55)">
+                        <rect x="0" y="0" width="120" height="60" rx="8" fill="#FF9800"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Friction</text>
+                        <text x="60" y="42" text-anchor="middle" fill="#ffe0b2" font-size="8">+ Deceleration</text>
+                    </g>
+                    
+                    <path d="M 495 85 L 525 85" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Gravity/Air -->
+                    <g transform="translate(530, 55)">
+                        <rect x="0" y="0" width="120" height="60" rx="8" fill="#2196F3"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Gravity</text>
+                        <text x="60" y="42" text-anchor="middle" fill="#bbdefb" font-size="8">+ Air Control</text>
+                    </g>
+                    
+                    <path d="M 655 85 L 685 85" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    
+                    <!-- Result -->
+                    <g transform="translate(690, 55)">
+                        <rect x="0" y="0" width="80" height="60" rx="8" fill="#667eea"/>
+                        <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Feel</text>
+                        <text x="40" y="42" text-anchor="middle" fill="#c5cae9" font-size="8">🎮</text>
+                    </g>
+                    
+                    <text x="400" y="150" text-anchor="middle" fill="#666" font-size="10">Each component contributes to overall movement feel</text>
+                    
+                    <defs>
+                        <marker id="sumArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Movement feel is the combination of speed, friction, and air physics parameters.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you can move through the world, the next lesson covers <strong>Collision and Physics Interaction</strong>. You'll learn about collision channels, overlap vs. block responses, trigger volumes, and how to detect when the player touches or enters specific areas. This enables interactive environments, pickups, damage zones, and much more.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What does the Max Acceleration parameter control in the Character Movement Component?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> The maximum speed the character can reach</label>
+                            <label><input type="radio" name="q1" value="b"> How quickly the character reaches maximum speed from a standstill</label>
+                            <label><input type="radio" name="q1" value="c"> How fast the character falls when airborne</label>
+                            <label><input type="radio" name="q1" value="d"> The height of the character's jump</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Max Acceleration controls how quickly the character accelerates to maximum speed. Higher values create snappier, more responsive movement; lower values create sluggish, momentum-based movement where it takes time to get up to speed.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What happens when you increase the Gravity Scale above 1.0?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> The character floats and falls slowly</label>
+                            <label><input type="radio" name="q2" value="b"> The character falls faster and jumps feel snappier</label>
+                            <label><input type="radio" name="q2" value="c"> The character can jump higher</label>
+                            <label><input type="radio" name="q2" value="d"> Gravity is disabled entirely</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Gravity Scale multiplies the world gravity. Values above 1.0 (like 1.5 or 2.0) increase gravity, making the character fall faster and creating snappier, more responsive-feeling jumps. Many platformers use higher gravity with higher Jump Z Velocity for this effect.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What does the Air Control parameter (ranging from 0 to 1) determine?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> How high the character can jump</label>
+                            <label><input type="radio" name="q3" value="b"> Whether the character can double jump</label>
+                            <label><input type="radio" name="q3" value="c"> How much the player can influence horizontal movement while airborne</label>
+                            <label><input type="radio" name="q3" value="d"> The speed of falling</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Air Control determines how much the player can steer horizontally while in the air. A value of 0 means no air control (pure projectile motion); a value of 1 means full control (can completely reverse direction mid-air). Most action games use 0.2-0.5 for responsive but not unrealistic air steering.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>How do you enable double jump in the Character Movement Component?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Set Air Control to 2.0</label>
+                            <label><input type="radio" name="q4" value="b"> Set Jump Max Count to 2</label>
+                            <label><input type="radio" name="q4" value="c"> Double the Jump Z Velocity value</label>
+                            <label><input type="radio" name="q4" value="d"> Enable the "Double Jump" checkbox</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Jump Max Count determines how many jumps the character can perform before landing. Setting it to 2 enables double jump, 3 enables triple jump, and so on. The Jump Current Count tracks jumps used and resets when landing.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Which movement mode is automatically activated when a character enters a Physics Volume with "Water Volume" enabled?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Flying</label>
+                            <label><input type="radio" name="q5" value="b"> Falling</label>
+                            <label><input type="radio" name="q5" value="c"> Swimming</label>
+                            <label><input type="radio" name="q5" value="d"> Custom</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — The Character Movement Component automatically switches to Swimming mode when the character enters a Physics Volume that has "Water Volume" enabled. Swimming mode uses buoyancy, water friction, and Max Swim Speed instead of the normal walking parameters.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m06_l02_enhanced_input_system.html" class="btn">← Previous: Enhanced Input System</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m06_l04_collision_and_physics.html" class="btn">Next: Collision and Physics Interaction →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

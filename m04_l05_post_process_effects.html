@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master Post-Process Effects in Unreal Engine 5. Learn exposure control, color grading, bloom, lens effects, ambient occlusion, and create cinematic visual styles for your games and experiences.">
+    <meta name="author" content="Practical Ace">
+    <title>Post-Process Effects - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 4: Lighting Your World</a></li>
+            <li aria-current="page">Lesson 4.5: Post-Process Effects</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎬 Post-Process Effects</h1>
+                <p class="lead">Post-process effects are the final layer of visual polish applied after your scene is rendered. They simulate camera behavior, enhance mood, and transform technically correct images into emotionally compelling ones. From the subtle warmth of a sunset to the gritty desaturation of a horror game, post-processing defines how players experience your world. In this lesson, you'll master Unreal's powerful post-process system to create distinctive, cinematic visuals.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Configure Post Process Volumes for global and local effects</li>
+                        <li>Control exposure and auto-exposure for proper brightness</li>
+                        <li>Apply color grading and LUTs for distinctive visual styles</li>
+                        <li>Add bloom, lens flares, and vignette for cinematic polish</li>
+                        <li>Configure Ambient Occlusion for enhanced depth</li>
+                        <li>Create a complete cinematic post-process look from scratch</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 4.1-4.4 (Lighting Fundamentals through Lumen)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#post-process-volumes" class="toc-link">Post Process Volumes Explained</a></li>
+                        <li><a href="#exposure" class="toc-link">Exposure and Auto-Exposure</a></li>
+                        <li><a href="#color-grading" class="toc-link">Color Grading and LUTs</a></li>
+                        <li><a href="#bloom-lens" class="toc-link">Bloom, Lens Flares, and Vignette</a></li>
+                        <li><a href="#ambient-occlusion" class="toc-link">Ambient Occlusion</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Cinematic Post-Process Look</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Post Process Volumes Explained -->
+            <section id="post-process-volumes" class="lesson-section">
+                <h2>Post Process Volumes Explained</h2>
+
+                <p><strong>Post Process Volumes</strong> are actors that define regions where specific post-processing effects apply. They're the containers that hold all your visual adjustments—from exposure to color grading to bloom. Understanding how they work is essential before diving into individual effects.</p>
+
+                <h3>What Are Post-Process Effects?</h3>
+
+                <p>Post-processing happens after the main scene rendering is complete. The engine has already calculated lighting, shadows, and materials—producing a "raw" image. Post-process effects then modify this image before it reaches the screen:</p>
+
+                <ul>
+                    <li><strong>Exposure:</strong> Adjusts overall brightness, simulating camera iris</li>
+                    <li><strong>Color Grading:</strong> Shifts colors for mood and style</li>
+                    <li><strong>Bloom:</strong> Adds glow around bright areas</li>
+                    <li><strong>Lens Effects:</strong> Simulates camera lens behavior (flares, dirt, chromatic aberration)</li>
+                    <li><strong>Depth Effects:</strong> Ambient occlusion, depth of field, motion blur</li>
+                    <li><strong>Tone Mapping:</strong> Converts HDR to displayable range</li>
+                </ul>
+
+                <!-- SVG: Post-Process Pipeline -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Post-Process Pipeline</text>
+                    
+                    <!-- Raw Render -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="10" width="120" height="70" rx="5" fill="#3d3d3d" stroke="#888"/>
+                        <text x="60" y="35" text-anchor="middle" fill="#aaa" font-size="10">Raw Scene</text>
+                        <text x="60" y="52" text-anchor="middle" fill="#888" font-size="8">Lighting, Materials</text>
+                        <text x="60" y="67" text-anchor="middle" fill="#888" font-size="8">Shadows, Reflections</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 180 85 L 220 85" stroke="#667eea" stroke-width="2" marker-end="url(#ppArrow)"/>
+                    
+                    <!-- Post Process -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="300" height="90" rx="5" fill="#667eea" stroke="#8b9fea" stroke-width="2"/>
+                        <text x="150" y="20" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Post-Process Effects</text>
+                        
+                        <!-- Effect boxes -->
+                        <rect x="10" y="32" width="55" height="22" rx="3" fill="#4a5fb8"/>
+                        <text x="37" y="47" text-anchor="middle" fill="#fff" font-size="7">Exposure</text>
+                        
+                        <rect x="70" y="32" width="55" height="22" rx="3" fill="#4a5fb8"/>
+                        <text x="97" y="47" text-anchor="middle" fill="#fff" font-size="7">Color</text>
+                        
+                        <rect x="130" y="32" width="55" height="22" rx="3" fill="#4a5fb8"/>
+                        <text x="157" y="47" text-anchor="middle" fill="#fff" font-size="7">Bloom</text>
+                        
+                        <rect x="190" y="32" width="55" height="22" rx="3" fill="#4a5fb8"/>
+                        <text x="217" y="47" text-anchor="middle" fill="#fff" font-size="7">Lens</text>
+                        
+                        <rect x="250" y="32" width="40" height="22" rx="3" fill="#4a5fb8"/>
+                        <text x="270" y="47" text-anchor="middle" fill="#fff" font-size="7">AO</text>
+                        
+                        <text x="150" y="75" text-anchor="middle" fill="#ccc" font-size="8">Tone Mapping → Final Output</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 540 85 L 580 85" stroke="#667eea" stroke-width="2" marker-end="url(#ppArrow)"/>
+                    
+                    <!-- Final Image -->
+                    <g transform="translate(590, 50)">
+                        <rect x="0" y="10" width="120" height="70" rx="5" fill="#4CAF50" stroke="#66BB6A" stroke-width="2"/>
+                        <text x="60" y="40" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Final Image</text>
+                        <text x="60" y="58" text-anchor="middle" fill="#c8e6c9" font-size="8">Displayed to player</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="ppArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Post-processing modifies the rendered scene before final display.</em></p>
+
+                <h3>Placing a Post Process Volume</h3>
+
+                <p>To add post-process effects to your level:</p>
+
+                <ol>
+                    <li>Go to <strong>Place Actors</strong> panel (or press Ctrl+Shift+1)</li>
+                    <li>Search for "Post Process Volume"</li>
+                    <li>Drag it into your level</li>
+                    <li>Select the volume and open the <strong>Details</strong> panel</li>
+                </ol>
+
+                <p>By default, the volume only affects the area inside its bounds (the visible box). For most projects, you'll want global effects.</p>
+
+                <h3>Global vs. Local Volumes</h3>
+
+                <p><strong>Global (Infinite Extent):</strong> Check the <strong>Infinite Extent (Unbound)</strong> option in the Details panel. The volume now affects the entire level regardless of its position or size. This is your primary tool for establishing the overall look of your game.</p>
+
+                <p><strong>Local (Bounded):</strong> Leave Infinite Extent unchecked. The volume only affects cameras inside its bounds. Use for specific areas: a dark cave, an underwater region, or a stylized dream sequence. You can scale and position the volume to match the area.</p>
+
+                <!-- SVG: Global vs Local Volumes -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Global vs. Local Post Process Volumes</text>
+                    
+                    <!-- Global -->
+                    <g transform="translate(50, 50)">
+                        <text x="150" y="0" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">Global (Infinite Extent)</text>
+                        
+                        <!-- Level representation -->
+                        <rect x="0" y="15" width="300" height="130" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        
+                        <!-- Small PPV icon -->
+                        <rect x="130" y="65" width="40" height="30" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+                        <text x="150" y="85" text-anchor="middle" fill="#fff" font-size="8">PPV</text>
+                        
+                        <!-- Check mark -->
+                        <text x="150" y="115" text-anchor="middle" fill="#2E7D32" font-size="9">☑ Infinite Extent</text>
+                        
+                        <text x="150" y="160" text-anchor="middle" fill="#666" font-size="9">Affects entire level</text>
+                    </g>
+                    
+                    <!-- Local -->
+                    <g transform="translate(450, 50)">
+                        <text x="150" y="0" text-anchor="middle" fill="#2196F3" font-size="12" font-weight="bold">Local (Bounded)</text>
+                        
+                        <!-- Level representation -->
+                        <rect x="0" y="15" width="300" height="130" fill="#f5f5f5" stroke="#888" stroke-width="1"/>
+                        
+                        <!-- Local volume area -->
+                        <rect x="80" y="45" width="100" height="70" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                        <text x="130" y="85" text-anchor="middle" fill="#1976D2" font-size="8">Local PPV</text>
+                        
+                        <!-- Arrows showing boundary -->
+                        <path d="M 80 80 L 60 80" stroke="#2196F3" stroke-width="1" stroke-dasharray="3,2"/>
+                        <path d="M 180 80 L 200 80" stroke="#2196F3" stroke-width="1" stroke-dasharray="3,2"/>
+                        
+                        <text x="130" y="130" text-anchor="middle" fill="#1976D2" font-size="9">☐ Infinite Extent</text>
+                        
+                        <text x="150" y="160" text-anchor="middle" fill="#666" font-size="9">Only affects area inside bounds</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Global volumes affect the entire level; local volumes only affect their bounded region.</em></p>
+
+                <h3>Volume Priority and Blending</h3>
+
+                <p>When multiple Post Process Volumes overlap, Unreal blends their settings:</p>
+
+                <p><strong>Priority:</strong> Each volume has a Priority value (Details → Post Process Volume Settings). Higher priority volumes take precedence. A Priority 1 volume overrides Priority 0 where they overlap.</p>
+
+                <p><strong>Blend Weight:</strong> Controls how strongly this volume's settings apply (0.0 to 1.0). At 0.5, settings are blended 50% with other volumes.</p>
+
+                <p><strong>Blend Radius:</strong> Creates a soft transition at the volume's edges. As the camera enters the blend radius, effects gradually fade in rather than popping abruptly.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Common Setup</h4>
+                    <p>Most projects use one global Post Process Volume (Infinite Extent, Priority 0) for the base look, then add local volumes with higher priority for special areas. The global volume establishes your default visual style; local volumes create variations.</p>
+                </div>
+
+                <h3>Understanding the Details Panel</h3>
+
+                <p>The Post Process Volume's Details panel contains dozens of settings organized into categories:</p>
+
+                <ul>
+                    <li><strong>Lens:</strong> Bloom, exposure, chromatic aberration, dirt mask, vignette</li>
+                    <li><strong>Color Grading:</strong> Temperature, tint, contrast, saturation, color curves, LUT</li>
+                    <li><strong>Film:</strong> Toe, shoulder, white balance adjustments</li>
+                    <li><strong>Rendering Features:</strong> Ambient occlusion, motion blur, screen space reflections</li>
+                    <li><strong>Lumen:</strong> Global illumination and reflection overrides</li>
+                    <li><strong>Post Process Materials:</strong> Custom material effects</li>
+                </ul>
+
+                <p>Each setting has an <strong>override checkbox</strong>. Only checked settings are applied—unchecked settings use defaults or are inherited from other volumes.</p>
+
+                <!-- Mermaid: Volume Stack -->
+                <pre class="mermaid">
+flowchart TB
+    subgraph Stack["Post Process Volume Stack"]
+        direction TB
+        A["Global Volume<br/>Priority 0<br/>Base Look"] --> B["Local Volume<br/>Priority 1<br/>Cave Area"]
+        B --> C["Local Volume<br/>Priority 2<br/>Underwater"]
+    end
+    
+    D["Camera Position"] --> E{"Inside which<br/>volumes?"}
+    E -->|"Global only"| F["Apply Global settings"]
+    E -->|"Global + Cave"| G["Blend Global + Cave<br/>Cave overrides where set"]
+    E -->|"All three"| H["Highest priority wins<br/>Underwater settings apply"]
+    
+    style A fill:#4CAF50,color:#fff
+    style B fill:#2196F3,color:#fff
+    style C fill:#9C27B0,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Multiple volumes stack based on priority; higher priority overrides lower.</em></p>
+            </section>
+
+            <!-- Section 2: Exposure and Auto-Exposure -->
+            <section id="exposure" class="lesson-section">
+                <h2>Exposure and Auto-Exposure</h2>
+
+                <p><strong>Exposure</strong> controls the overall brightness of your scene, simulating how a camera adjusts to different light levels. Getting exposure right is fundamental—it affects how players perceive your lighting, colors, and mood.</p>
+
+                <h3>How Exposure Works</h3>
+
+                <p>Real cameras (and eyes) adjust to ambient light levels. In a bright outdoor scene, the iris closes to prevent overexposure. Moving into a dark interior, the iris opens to gather more light. Unreal simulates this with exposure settings.</p>
+
+                <p>Unreal uses <strong>EV100</strong> (Exposure Value) as its exposure unit. Higher EV = darker image (less exposure). Lower EV = brighter image (more exposure). A sunny outdoor scene might need EV 14-15; a dark interior might need EV 6-8.</p>
+
+                <!-- SVG: EV Scale -->
+                <svg width="100%" height="140" viewBox="0 0 800 140" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Exposure Value (EV100) Scale</text>
+                    
+                    <!-- Gradient bar -->
+                    <defs>
+                        <linearGradient id="evGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#1a1a2e"/>
+                            <stop offset="25%" style="stop-color:#2d3a4a"/>
+                            <stop offset="50%" style="stop-color:#5c7a9a"/>
+                            <stop offset="75%" style="stop-color:#a8c8d8"/>
+                            <stop offset="100%" style="stop-color:#fff"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <rect x="100" y="45" width="600" height="30" fill="url(#evGradient)" rx="5" stroke="#888"/>
+                    
+                    <!-- EV markers -->
+                    <g fill="#aaa" font-size="9">
+                        <line x1="130" y1="75" x2="130" y2="85" stroke="#aaa"/>
+                        <text x="130" y="98" text-anchor="middle">EV 2</text>
+                        <text x="130" y="112" text-anchor="middle" fill="#666" font-size="7">Candlelit</text>
+                        
+                        <line x1="250" y1="75" x2="250" y2="85" stroke="#aaa"/>
+                        <text x="250" y="98" text-anchor="middle">EV 6</text>
+                        <text x="250" y="112" text-anchor="middle" fill="#666" font-size="7">Interior</text>
+                        
+                        <line x1="400" y1="75" x2="400" y2="85" stroke="#aaa"/>
+                        <text x="400" y="98" text-anchor="middle">EV 10</text>
+                        <text x="400" y="112" text-anchor="middle" fill="#666" font-size="7">Overcast</text>
+                        
+                        <line x1="550" y1="75" x2="550" y2="85" stroke="#aaa"/>
+                        <text x="550" y="98" text-anchor="middle">EV 14</text>
+                        <text x="550" y="112" text-anchor="middle" fill="#666" font-size="7">Sunny</text>
+                        
+                        <line x1="670" y1="75" x2="670" y2="85" stroke="#aaa"/>
+                        <text x="670" y="98" text-anchor="middle">EV 16</text>
+                        <text x="670" y="112" text-anchor="middle" fill="#666" font-size="7">Bright Snow</text>
+                    </g>
+                    
+                    <!-- Labels -->
+                    <text x="100" y="62" text-anchor="end" fill="#888" font-size="9">Dark</text>
+                    <text x="700" y="62" text-anchor="start" fill="#888" font-size="9">Bright</text>
+                </svg>
+                <p class="caption"><em>Figure: EV100 scale from dark environments to bright outdoor scenes.</em></p>
+
+                <h3>Auto-Exposure (Eye Adaptation)</h3>
+
+                <p>By default, Unreal uses <strong>auto-exposure</strong>—the engine automatically adjusts exposure based on what the camera sees. This simulates eye adaptation: walk from outdoors into a dark building, and the image gradually brightens as your "eyes" adjust.</p>
+
+                <p>Auto-exposure settings in Post Process Volume (Lens → Exposure):</p>
+
+                <p><strong>Metering Mode:</strong> How the engine measures scene brightness:</p>
+                <ul>
+                    <li><strong>Auto Exposure Histogram:</strong> Analyzes the distribution of brightness values. Most accurate.</li>
+                    <li><strong>Auto Exposure Basic:</strong> Uses average scene luminance. Simpler, faster.</li>
+                    <li><strong>Manual:</strong> You set a fixed exposure—no automatic adjustment.</li>
+                </ul>
+
+                <p><strong>Min/Max Exposure (EV100):</strong> Limits how far auto-exposure can adjust. Prevents the scene from becoming too dark or too bright. For example: Min EV 6, Max EV 14 keeps the game visible in both dark interiors and bright exteriors.</p>
+
+                <p><strong>Speed Up/Speed Down:</strong> How quickly exposure adjusts when brightness changes. Higher values = faster adaptation. Speed Up is when going brighter; Speed Down is when going darker.</p>
+
+                <p><strong>Exposure Compensation:</strong> An offset added to the auto-calculated exposure. Use to make the overall image brighter or darker while keeping auto-adaptation active.</p>
+
+                <!-- SVG: Auto-Exposure Flow -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Auto-Exposure Workflow</text>
+                    
+                    <!-- Scene analysis -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="150" height="80" rx="8" fill="#e3f2fd" stroke="#1976D2" stroke-width="2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#1976D2" font-size="10" font-weight="bold">Scene Analysis</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">Histogram measures</text>
+                        <text x="75" y="58" text-anchor="middle" fill="#666" font-size="8">brightness distribution</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 210 90 L 250 90" stroke="#667eea" stroke-width="2" marker-end="url(#expArrow)"/>
+                    
+                    <!-- Target calculation -->
+                    <g transform="translate(260, 50)">
+                        <rect x="0" y="0" width="150" height="80" rx="8" fill="#fff3e0" stroke="#FF9800" stroke-width="2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Target EV</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">Calculated from</text>
+                        <text x="75" y="58" text-anchor="middle" fill="#666" font-size="8">scene luminance</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 420 90 L 460 90" stroke="#667eea" stroke-width="2" marker-end="url(#expArrow)"/>
+                    
+                    <!-- Clamping -->
+                    <g transform="translate(470, 50)">
+                        <rect x="0" y="0" width="150" height="80" rx="8" fill="#fce4ec" stroke="#E91E63" stroke-width="2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#C2185B" font-size="10" font-weight="bold">Clamp to Range</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#666" font-size="8">Min EV ↔ Max EV</text>
+                        <text x="75" y="58" text-anchor="middle" fill="#666" font-size="8">+ Compensation</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 630 90 L 670 90" stroke="#667eea" stroke-width="2" marker-end="url(#expArrow)"/>
+                    
+                    <!-- Final exposure -->
+                    <g transform="translate(680, 50)">
+                        <rect x="0" y="0" width="80" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="40" y="35" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Apply</text>
+                        <text x="40" y="55" text-anchor="middle" fill="#666" font-size="8">Final EV</text>
+                    </g>
+                    
+                    <!-- Speed indicators -->
+                    <text x="400" y="160" text-anchor="middle" fill="#666" font-size="10">Speed Up / Speed Down controls transition time</text>
+                    <path d="M 300 170 Q 400 185 500 170" stroke="#667eea" stroke-width="1" fill="none" stroke-dasharray="3,2"/>
+                    
+                    <defs>
+                        <marker id="expArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Auto-exposure analyzes scene brightness, calculates target EV, clamps to your range, and applies.</em></p>
+
+                <h3>Manual Exposure</h3>
+
+                <p>For complete control, switch to <strong>Manual</strong> metering mode and set a fixed exposure value. This is useful when:</p>
+
+                <ul>
+                    <li>You want consistent brightness regardless of what's on screen</li>
+                    <li>Auto-exposure is causing unwanted flickering</li>
+                    <li>Specific artistic requirements demand precise control</li>
+                    <li>Cutscenes or cinematics where exposure is pre-planned</li>
+                </ul>
+
+                <p>With Manual mode, set <strong>Exposure Compensation</strong> to adjust brightness. EV 0 uses the calculated "correct" exposure; negative values brighten, positive values darken.</p>
+
+                <h3>Exposure Best Practices</h3>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exposure Tips</h4>
+                    <ul>
+                        <li><strong>Set appropriate Min/Max:</strong> Don't let auto-exposure make things unplayable. Set limits that keep gameplay visible.</li>
+                        <li><strong>Consider gameplay:</strong> In a shooter, players need to see enemies. Don't let exposure hide threats in shadow.</li>
+                        <li><strong>Match transitions to movement:</strong> Fast-paced games need faster adaptation (Speed Up/Down 2-3). Slow exploration games can use slower values (0.5-1).</li>
+                        <li><strong>Test extremes:</strong> Look directly at the sun, then at shadows. Ensure both remain playable.</li>
+                        <li><strong>Use Exposure Compensation:</strong> If auto-exposure is almost right but slightly off, adjust compensation rather than switching to manual.</li>
+                    </ul>
+                </div>
+
+                <h3>Histogram Visualization</h3>
+
+                <p>Enable the histogram view to understand your scene's brightness distribution:</p>
+
+                <ol>
+                    <li>In the viewport, click the <strong>▼</strong> next to "Lit"</li>
+                    <li>Go to <strong>Exposure → Histogram</strong></li>
+                    <li>A graph appears showing brightness distribution</li>
+                    <li>The red lines show your Min/Max EV limits</li>
+                </ol>
+
+                <p>A well-exposed scene has the histogram filling the usable range without piling up at the extremes (clipping).</p>
+            </section>
+
+            <!-- Section 3: Color Grading and LUTs -->
+            <section id="color-grading" class="lesson-section">
+                <h2>Color Grading and LUTs</h2>
+
+                <p><strong>Color grading</strong> is the art of adjusting colors to create a specific mood or visual style. It's what makes a horror game feel cold and desaturated, a tropical game feel warm and vibrant, or a noir thriller feel high-contrast with teal shadows. Unreal provides powerful color grading tools directly in Post Process Volumes.</p>
+
+                <h3>Basic Color Adjustments</h3>
+
+                <p>In the Post Process Volume, expand <strong>Color Grading → Global</strong> for fundamental adjustments:</p>
+
+                <p><strong>Saturation:</strong> Controls color intensity. 1.0 is normal. Lower values desaturate toward grayscale. Higher values make colors more vivid. Most cinematic looks use slight desaturation (0.9-0.95).</p>
+
+                <p><strong>Contrast:</strong> Difference between darks and lights. Higher contrast = punchier image with deeper shadows and brighter highlights. Lower contrast = flatter, softer look. Range around 0.9-1.2 for most uses.</p>
+
+                <p><strong>Gamma:</strong> Adjusts midtones without affecting pure black or white. Higher gamma brightens midtones; lower darkens them. Useful for overall brightness fine-tuning.</p>
+
+                <p><strong>Gain:</strong> Multiplies the entire image. Like exposure but applied after other color work. Useful for final brightness matching.</p>
+
+                <!-- SVG: Color Adjustment Effects -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Color Grading Adjustments</text>
+                    
+                    <!-- Original -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="5" fill="#666"/>
+                        <rect x="10" y="10" width="30" height="25" fill="#e74c3c"/>
+                        <rect x="45" y="10" width="30" height="25" fill="#3498db"/>
+                        <rect x="80" y="10" width="30" height="25" fill="#2ecc71"/>
+                        <rect x="10" y="45" width="100" height="25" fill="linear-gradient(to right, #1a1a1a, #fff)"/>
+                        <text x="60" y="100" text-anchor="middle" fill="#aaa" font-size="10">Original</text>
+                    </g>
+                    
+                    <!-- High Saturation -->
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="5" fill="#666"/>
+                        <rect x="10" y="10" width="30" height="25" fill="#ff1a1a"/>
+                        <rect x="45" y="10" width="30" height="25" fill="#0066ff"/>
+                        <rect x="80" y="10" width="30" height="25" fill="#00ff44"/>
+                        <rect x="10" y="45" width="100" height="25" fill="linear-gradient(to right, #1a1a1a, #fff)"/>
+                        <text x="60" y="100" text-anchor="middle" fill="#aaa" font-size="10">↑ Saturation</text>
+                        <text x="60" y="115" text-anchor="middle" fill="#666" font-size="8">More vivid colors</text>
+                    </g>
+                    
+                    <!-- Low Saturation -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="5" fill="#666"/>
+                        <rect x="10" y="10" width="30" height="25" fill="#8a6b6b"/>
+                        <rect x="45" y="10" width="30" height="25" fill="#6b7a8a"/>
+                        <rect x="80" y="10" width="30" height="25" fill="#6b8a70"/>
+                        <rect x="10" y="45" width="100" height="25" fill="linear-gradient(to right, #1a1a1a, #fff)"/>
+                        <text x="60" y="100" text-anchor="middle" fill="#aaa" font-size="10">↓ Saturation</text>
+                        <text x="60" y="115" text-anchor="middle" fill="#666" font-size="8">Desaturated/muted</text>
+                    </g>
+                    
+                    <!-- High Contrast -->
+                    <g transform="translate(500, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="5" fill="#666"/>
+                        <rect x="10" y="10" width="30" height="25" fill="#e74c3c"/>
+                        <rect x="45" y="10" width="30" height="25" fill="#3498db"/>
+                        <rect x="80" y="10" width="30" height="25" fill="#2ecc71"/>
+                        <rect x="10" y="45" width="100" height="25" fill="linear-gradient(to right, #000, #fff)"/>
+                        <text x="60" y="100" text-anchor="middle" fill="#aaa" font-size="10">↑ Contrast</text>
+                        <text x="60" y="115" text-anchor="middle" fill="#666" font-size="8">Deeper blacks, brighter whites</text>
+                    </g>
+                    
+                    <!-- Low Contrast -->
+                    <g transform="translate(650, 50)">
+                        <rect x="0" y="0" width="120" height="80" rx="5" fill="#666"/>
+                        <rect x="10" y="10" width="30" height="25" fill="#c97a7a"/>
+                        <rect x="45" y="10" width="30" height="25" fill="#7aa3c9"/>
+                        <rect x="80" y="10" width="30" height="25" fill="#7ac988"/>
+                        <rect x="10" y="45" width="100" height="25" fill="linear-gradient(to right, #3a3a3a, #c0c0c0)"/>
+                        <text x="60" y="100" text-anchor="middle" fill="#aaa" font-size="10">↓ Contrast</text>
+                        <text x="60" y="115" text-anchor="middle" fill="#666" font-size="8">Flatter, softer look</text>
+                    </g>
+                    
+                    <!-- Labels row -->
+                    <text x="400" y="200" text-anchor="middle" fill="#888" font-size="10">Adjust these in Color Grading → Global section</text>
+                </svg>
+                <p class="caption"><em>Figure: Saturation and contrast adjustments dramatically change the visual feel.</em></p>
+
+                <h3>Temperature and Tint</h3>
+
+                <p>Under <strong>Color Grading → White Balance</strong>:</p>
+
+                <p><strong>Temperature:</strong> Shifts the image between warm (orange/yellow) and cool (blue). Measured in Kelvin-like values. Use warm for cozy interiors, sunset scenes; use cool for night, sci-fi, or tense moments.</p>
+
+                <p><strong>Tint:</strong> Shifts between green and magenta. Usually kept near zero, but subtle tint can complement temperature adjustments or correct camera color casts.</p>
+
+                <h3>Shadows, Midtones, Highlights</h3>
+
+                <p>Color Grading offers separate controls for different brightness ranges:</p>
+
+                <p><strong>Shadows:</strong> Affects the darkest parts of the image. Add blue to shadows for a cinematic "teal and orange" look. Add warmth to shadows for a vintage feel.</p>
+
+                <p><strong>Midtones:</strong> Affects the middle brightness range—most of your visible detail. Subtle adjustments here have the biggest visual impact.</p>
+
+                <p><strong>Highlights:</strong> Affects the brightest parts. Cool highlights with warm shadows creates pleasing color contrast. Warm highlights can feel like golden hour sunlight.</p>
+
+                <p>Each section has Saturation, Contrast, Gamma, Gain, and Offset controls that only affect that tonal range.</p>
+
+                <!-- SVG: Tonal Ranges -->
+                <svg width="100%" height="160" viewBox="0 0 800 160" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Color Grading Tonal Ranges</text>
+                    
+                    <!-- Gradient bar -->
+                    <defs>
+                        <linearGradient id="tonalGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#000"/>
+                            <stop offset="50%" style="stop-color:#888"/>
+                            <stop offset="100%" style="stop-color:#fff"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <rect x="100" y="50" width="600" height="40" fill="url(#tonalGradient)" rx="5"/>
+                    
+                    <!-- Range brackets -->
+                    <rect x="100" y="95" width="180" height="25" rx="5" fill="#5c6bc0" opacity="0.3"/>
+                    <text x="190" y="112" text-anchor="middle" fill="#3949ab" font-size="11" font-weight="bold">Shadows</text>
+                    
+                    <rect x="290" y="95" width="220" height="25" rx="5" fill="#66bb6a" opacity="0.3"/>
+                    <text x="400" y="112" text-anchor="middle" fill="#43a047" font-size="11" font-weight="bold">Midtones</text>
+                    
+                    <rect x="520" y="95" width="180" height="25" rx="5" fill="#ffa726" opacity="0.3"/>
+                    <text x="610" y="112" text-anchor="middle" fill="#f57c00" font-size="11" font-weight="bold">Highlights</text>
+                    
+                    <!-- Labels -->
+                    <text x="100" y="140" text-anchor="start" fill="#666" font-size="9">Darkest pixels</text>
+                    <text x="400" y="140" text-anchor="middle" fill="#666" font-size="9">Most visible detail</text>
+                    <text x="700" y="140" text-anchor="end" fill="#666" font-size="9">Brightest pixels</text>
+                </svg>
+                <p class="caption"><em>Figure: Shadows, Midtones, and Highlights let you grade different brightness ranges independently.</em></p>
+
+                <h3>Look-Up Tables (LUTs)</h3>
+
+                <p>A <strong>LUT (Look-Up Table)</strong> is a pre-made color transformation stored as a texture. Instead of manually adjusting dozens of color settings, you apply a single LUT that maps input colors to output colors. LUTs are industry-standard in film and TV for applying consistent color grades.</p>
+
+                <p><strong>Using a LUT in Unreal:</strong></p>
+                <ol>
+                    <li>Create or obtain a LUT texture (16x16x16 or 32x32x32 color cube, usually exported as a 256x16 or 1024x32 strip image)</li>
+                    <li>Import the LUT texture into your project</li>
+                    <li>In Post Process Volume, expand <strong>Color Grading → Misc</strong></li>
+                    <li>Set <strong>Color Grading LUT</strong> to your imported texture</li>
+                    <li>Adjust <strong>Color Grading LUT Intensity</strong> (0-1) to blend between original and graded</li>
+                </ol>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Creating LUTs</h4>
+                    <p>LUTs can be created in software like DaVinci Resolve, Photoshop, or specialized LUT tools. The workflow: export a neutral LUT from Unreal, grade it in your preferred software, then import the graded LUT back. Many artists share free LUTs online for common looks (cinematic, vintage, horror, etc.).</p>
+                </div>
+
+                <h3>The "Teal and Orange" Look</h3>
+
+                <p>One of the most popular cinematic color grades pushes shadows toward teal/blue and highlights toward orange/warm. This creates visual separation between skin tones (warm) and backgrounds (cool). To achieve this in Unreal:</p>
+
+                <ol>
+                    <li>In <strong>Color Grading → Shadows</strong>, add a slight blue/teal offset</li>
+                    <li>In <strong>Color Grading → Highlights</strong>, add a slight orange/warm offset</li>
+                    <li>Reduce global saturation slightly (0.9) for a more filmic feel</li>
+                    <li>Increase contrast slightly (1.05-1.1) for punch</li>
+                </ol>
+
+                <!-- SVG: Teal and Orange Example -->
+                <svg width="100%" height="140" viewBox="0 0 800 140" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Teal & Orange Color Grade</text>
+                    
+                    <!-- Before -->
+                    <g transform="translate(150, 45)">
+                        <rect x="0" y="0" width="150" height="70" rx="5" fill="#4a4a4a"/>
+                        <circle cx="45" cy="35" r="20" fill="#d4a574"/>
+                        <rect x="75" y="15" width="60" height="40" fill="#5a6a5a"/>
+                        <text x="75" y="85" text-anchor="middle" fill="#aaa" font-size="10">Before</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 330 80 L 410 80" stroke="#667eea" stroke-width="2" marker-end="url(#tealArrow)"/>
+                    <text x="370" y="70" text-anchor="middle" fill="#667eea" font-size="9">Grade</text>
+                    
+                    <!-- After -->
+                    <g transform="translate(450, 45)">
+                        <rect x="0" y="0" width="150" height="70" rx="5" fill="#2a3a4a"/>
+                        <circle cx="45" cy="35" r="20" fill="#e8a060"/>
+                        <rect x="75" y="15" width="60" height="40" fill="#3a5a6a"/>
+                        <text x="75" y="85" text-anchor="middle" fill="#aaa" font-size="10">After (Teal & Orange)</text>
+                    </g>
+                    
+                    <!-- Color chips -->
+                    <rect x="650" y="50" width="20" height="20" fill="#2a5a6a" rx="3"/>
+                    <text x="680" y="64" fill="#aaa" font-size="9">Shadows: Teal</text>
+                    
+                    <rect x="650" y="80" width="20" height="20" fill="#e8a060" rx="3"/>
+                    <text x="680" y="94" fill="#aaa" font-size="9">Highlights: Orange</text>
+                    
+                    <defs>
+                        <marker id="tealArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The classic teal and orange grade creates color contrast between shadows and highlights.</em></p>
+
+                <h3>Color Grading Best Practices</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Color Grading Guidelines</h4>
+                    <ul>
+                        <li><strong>Subtlety wins:</strong> Heavy color grading can look amateurish. Start subtle and increase gradually.</li>
+                        <li><strong>Preserve readability:</strong> Players need to see gameplay-critical elements. Don't grade so heavily that enemies or items become invisible.</li>
+                        <li><strong>Consistent with lighting:</strong> Color grading should complement your lighting, not fight it. Warm lighting + cool grading can look wrong.</li>
+                        <li><strong>Test on target displays:</strong> Grading looks different on different monitors. Test on typical consumer displays, not just your calibrated monitor.</li>
+                        <li><strong>HDR considerations:</strong> If supporting HDR displays, some color grading behaves differently. Test HDR output separately.</li>
+                    </ul>
+                </div>
+            </section>
+            <!-- Section 4: Bloom, Lens Flares, and Vignette -->
+            <section id="bloom-lens" class="lesson-section">
+                <h2>Bloom, Lens Flares, and Vignette</h2>
+
+                <p>These effects simulate how real cameras and eyes respond to bright light. They add cinematic polish and help sell the illusion that players are viewing the world through a lens rather than a computer-generated window.</p>
+
+                <h3>Bloom</h3>
+
+                <p><strong>Bloom</strong> creates a soft glow around bright areas of the image. In the real world, this happens when bright light scatters in the eye's lens or camera optics. In games, bloom makes lights feel more intense and adds atmospheric softness.</p>
+
+                <p>Bloom settings in Post Process Volume (Lens → Bloom):</p>
+
+                <p><strong>Method:</strong> Choose between Standard (traditional) and Convolution (physically accurate but more expensive). Standard works well for most games.</p>
+
+                <p><strong>Intensity:</strong> Overall bloom strength. 0 = no bloom. Values around 0.5-1.5 are typical. Too high creates a "vaseline on the lens" look.</p>
+
+                <p><strong>Threshold:</strong> Brightness level where bloom begins. Only pixels brighter than this value bloom. Higher threshold = only the brightest spots glow. Lower threshold = more of the image glows.</p>
+
+                <p><strong>Size Scale:</strong> How far bloom extends from bright sources. Larger values create bigger, softer glows. Smaller values keep bloom tighter around sources.</p>
+
+                <!-- SVG: Bloom Effect Comparison -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Bloom Effect Comparison</text>
+                    
+                    <!-- No Bloom -->
+                    <g transform="translate(80, 50)">
+                        <rect x="0" y="0" width="150" height="100" rx="5" fill="#2a2a2a"/>
+                        <circle cx="75" cy="50" r="20" fill="#f1c40f"/>
+                        <text x="75" y="120" text-anchor="middle" fill="#aaa" font-size="10">No Bloom</text>
+                        <text x="75" y="135" text-anchor="middle" fill="#666" font-size="8">Intensity: 0</text>
+                    </g>
+                    
+                    <!-- Subtle Bloom -->
+                    <g transform="translate(280, 50)">
+                        <rect x="0" y="0" width="150" height="100" rx="5" fill="#2a2a2a"/>
+                        <circle cx="75" cy="50" r="35" fill="#f1c40f" opacity="0.2"/>
+                        <circle cx="75" cy="50" r="25" fill="#f1c40f" opacity="0.3"/>
+                        <circle cx="75" cy="50" r="20" fill="#f1c40f"/>
+                        <text x="75" y="120" text-anchor="middle" fill="#aaa" font-size="10">Subtle Bloom</text>
+                        <text x="75" y="135" text-anchor="middle" fill="#666" font-size="8">Intensity: 0.5</text>
+                    </g>
+                    
+                    <!-- Strong Bloom -->
+                    <g transform="translate(480, 50)">
+                        <rect x="0" y="0" width="150" height="100" rx="5" fill="#2a2a2a"/>
+                        <circle cx="75" cy="50" r="55" fill="#f1c40f" opacity="0.15"/>
+                        <circle cx="75" cy="50" r="45" fill="#f1c40f" opacity="0.2"/>
+                        <circle cx="75" cy="50" r="35" fill="#f1c40f" opacity="0.3"/>
+                        <circle cx="75" cy="50" r="25" fill="#f1c40f" opacity="0.5"/>
+                        <circle cx="75" cy="50" r="20" fill="#f1c40f"/>
+                        <text x="75" y="120" text-anchor="middle" fill="#aaa" font-size="10">Strong Bloom</text>
+                        <text x="75" y="135" text-anchor="middle" fill="#666" font-size="8">Intensity: 1.5</text>
+                    </g>
+                    
+                    <!-- Arrow progression -->
+                    <path d="M 240 100 L 270 100" stroke="#667eea" stroke-width="2" marker-end="url(#bloomArrow)"/>
+                    <path d="M 440 100 L 470 100" stroke="#667eea" stroke-width="2" marker-end="url(#bloomArrow)"/>
+                    
+                    <text x="400" y="175" text-anchor="middle" fill="#888" font-size="10">Higher intensity = more glow around bright sources</text>
+                    
+                    <defs>
+                        <marker id="bloomArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Bloom intensity controls how much bright areas glow into surrounding pixels.</em></p>
+
+                <h3>Bloom Best Practices</h3>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Bloom Tips</h4>
+                    <ul>
+                        <li><strong>Less is more:</strong> Subtle bloom (0.3-0.8) usually looks better than heavy bloom</li>
+                        <li><strong>Adjust threshold:</strong> Raise threshold if too many things bloom; lower if only extreme brights should glow</li>
+                        <li><strong>Match your style:</strong> Sci-fi often uses stronger bloom; realistic games use minimal bloom</li>
+                        <li><strong>Consider emissive materials:</strong> Bloom makes emissive materials pop—coordinate material brightness with bloom settings</li>
+                        <li><strong>Test different times of day:</strong> Bloom that looks good at noon might overpower at sunset</li>
+                    </ul>
+                </div>
+
+                <h3>Lens Flares</h3>
+
+                <p><strong>Lens flares</strong> are artifacts caused by bright light scattering inside a camera lens. They create streaks, circles, and geometric patterns radiating from light sources. In games, lens flares add realism and cinematic drama—especially for outdoor scenes with a visible sun.</p>
+
+                <p>Lens flare settings (Lens → Lens Flares):</p>
+
+                <p><strong>Intensity:</strong> Overall strength of lens flare effect. 0 = disabled. Higher values create more prominent flares.</p>
+
+                <p><strong>Tint:</strong> Color applied to the lens flare. Can match your sun color or add stylistic variation.</p>
+
+                <p><strong>Bokeh Size:</strong> Size of the bokeh (out-of-focus highlight) shapes in the flare. Larger = more prominent bokeh artifacts.</p>
+
+                <p><strong>Threshold:</strong> Brightness required to trigger lens flares. Only very bright sources (sun, bright lights) should cause flares.</p>
+
+                <!-- SVG: Lens Flare Anatomy -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Lens Flare Anatomy</text>
+                    
+                    <!-- Sun/light source -->
+                    <circle cx="650" cy="80" r="30" fill="#f1c40f"/>
+                    <circle cx="650" cy="80" r="40" fill="#f1c40f" opacity="0.3"/>
+                    <text x="650" y="140" text-anchor="middle" fill="#aaa" font-size="9">Light Source</text>
+                    
+                    <!-- Flare line -->
+                    <line x1="650" y1="80" x2="150" y2="140" stroke="#f1c40f" stroke-width="1" opacity="0.3"/>
+                    
+                    <!-- Bokeh circles along the line -->
+                    <circle cx="550" cy="93" r="15" fill="#f1c40f" opacity="0.15"/>
+                    <circle cx="450" cy="106" r="20" fill="#e67e22" opacity="0.12"/>
+                    <circle cx="350" cy="120" r="12" fill="#3498db" opacity="0.15"/>
+                    <circle cx="280" cy="128" r="8" fill="#9b59b6" opacity="0.2"/>
+                    <circle cx="200" cy="135" r="25" fill="#1abc9c" opacity="0.1"/>
+                    
+                    <!-- Anamorphic streak -->
+                    <ellipse cx="650" cy="80" rx="100" ry="3" fill="#87CEEB" opacity="0.3"/>
+                    
+                    <!-- Labels -->
+                    <g font-size="8" fill="#aaa">
+                        <text x="550" y="118">Bokeh</text>
+                        <text x="350" y="145">Ghost artifacts</text>
+                        <text x="200" y="170">Spread along axis</text>
+                        <text x="700" y="55">Anamorphic streak</text>
+                    </g>
+                    
+                    <!-- Info box -->
+                    <rect x="50" y="50" width="180" height="70" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                    <text x="140" y="70" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Lens Flare Components</text>
+                    <text x="60" y="88" fill="#aaa" font-size="8">• Bokeh shapes</text>
+                    <text x="60" y="100" fill="#aaa" font-size="8">• Ghost artifacts</text>
+                    <text x="60" y="112" fill="#aaa" font-size="8">• Streaks/anamorphic</text>
+                </svg>
+                <p class="caption"><em>Figure: Lens flares create bokeh shapes and ghost artifacts spreading from bright sources.</em></p>
+
+                <h3>Dirt Mask</h3>
+
+                <p>The <strong>Dirt Mask</strong> simulates dust, fingerprints, or smudges on the camera lens. When bloom or lens flares occur, the dirt pattern becomes visible, adding gritty realism.</p>
+
+                <p>Settings (Lens → Dirt Mask):</p>
+
+                <p><strong>Dirt Mask Texture:</strong> A texture defining the dirt pattern. Unreal includes default textures, or you can create custom ones.</p>
+
+                <p><strong>Dirt Mask Intensity:</strong> How visible the dirt becomes when bloom/flares occur. Subtle values (0.5-2) add realism; higher values create obvious grunge.</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Lens Flare Caution</h4>
+                    <p>Lens flares became overused in games after they were popularized in early 2000s titles. Modern games often use them sparingly or not at all. Consider whether lens flares fit your visual style—they work well for cinematic sci-fi but may feel out of place in fantasy or horror.</p>
+                </div>
+
+                <h3>Vignette</h3>
+
+                <p><strong>Vignette</strong> darkens the edges and corners of the image, drawing the player's attention toward the center. It's a subtle but effective technique for focusing attention and adding cinematic framing.</p>
+
+                <p>Settings (Lens → Image Effects → Vignette):</p>
+
+                <p><strong>Vignette Intensity:</strong> How much the edges darken. 0 = no vignette. Values around 0.3-0.5 are typical. Above 0.7 becomes very noticeable.</p>
+
+                <!-- SVG: Vignette Effect -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Vignette Effect</text>
+                    
+                    <!-- No Vignette -->
+                    <g transform="translate(150, 45)">
+                        <rect x="0" y="0" width="150" height="90" rx="5" fill="#888"/>
+                        <text x="75" y="110" text-anchor="middle" fill="#666" font-size="10">No Vignette</text>
+                        <text x="75" y="125" text-anchor="middle" fill="#888" font-size="8">Intensity: 0</text>
+                    </g>
+                    
+                    <!-- Subtle Vignette -->
+                    <g transform="translate(350, 45)">
+                        <defs>
+                            <radialGradient id="subtleVig" cx="50%" cy="50%" r="70%">
+                                <stop offset="0%" style="stop-color:#888;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#555;stop-opacity:1"/>
+                            </radialGradient>
+                        </defs>
+                        <rect x="0" y="0" width="150" height="90" rx="5" fill="url(#subtleVig)"/>
+                        <text x="75" y="110" text-anchor="middle" fill="#666" font-size="10">Subtle Vignette</text>
+                        <text x="75" y="125" text-anchor="middle" fill="#888" font-size="8">Intensity: 0.4</text>
+                    </g>
+                    
+                    <!-- Strong Vignette -->
+                    <g transform="translate(550, 45)">
+                        <defs>
+                            <radialGradient id="strongVig" cx="50%" cy="50%" r="60%">
+                                <stop offset="0%" style="stop-color:#888;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#222;stop-opacity:1"/>
+                            </radialGradient>
+                        </defs>
+                        <rect x="0" y="0" width="150" height="90" rx="5" fill="url(#strongVig)"/>
+                        <text x="75" y="110" text-anchor="middle" fill="#666" font-size="10">Strong Vignette</text>
+                        <text x="75" y="125" text-anchor="middle" fill="#888" font-size="8">Intensity: 0.8</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Vignette darkens edges to focus attention on the center of the frame.</em></p>
+
+                <h3>Chromatic Aberration</h3>
+
+                <p><strong>Chromatic aberration</strong> simulates the way cheap lenses fail to focus all colors at the same point, creating color fringing at the edges of the image. It adds a subtle imperfection that can make images feel more photographic.</p>
+
+                <p>Settings (Lens → Image Effects → Chromatic Aberration):</p>
+
+                <p><strong>Intensity:</strong> Strength of the color separation. Very subtle values (0.1-0.5) add realism. Higher values create an obvious glitchy or damaged lens effect.</p>
+
+                <p><strong>Start Offset:</strong> Where the effect begins (0 = center, 1 = edge). Setting to 0.5 keeps the center sharp while only affecting outer portions.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 When to Use Chromatic Aberration</h4>
+                    <p>Chromatic aberration works well for horror (damaged/old camera feel), action (chaos/intensity), or stylized games. For clean, realistic visuals, keep it very subtle (under 0.3) or disable entirely. Strong chromatic aberration can feel gimmicky.</p>
+                </div>
+
+                <h3>Other Lens Effects</h3>
+
+                <p>Additional lens-related settings worth knowing:</p>
+
+                <p><strong>Grain:</strong> Adds film grain noise. Creates vintage or filmic looks. Use Grain Intensity (0.1-0.5 typical) and Grain Jitter for animation.</p>
+
+                <p><strong>Depth of Field:</strong> Blurs objects not at the focus distance. Complex topic with Gaussian, Bokeh, and Circle DOF methods. Most commonly used in cinematics rather than gameplay.</p>
+
+                <p><strong>Motion Blur:</strong> Blurs fast-moving objects/camera movement. Some players dislike motion blur, so consider making it optional. Settings include Amount and Max.</p>
+            </section>
+
+            <!-- Section 5: Ambient Occlusion -->
+            <section id="ambient-occlusion" class="lesson-section">
+                <h2>Ambient Occlusion</h2>
+
+                <p><strong>Ambient Occlusion (AO)</strong> darkens areas where surfaces meet, where objects sit on floors, and in crevices where ambient light would naturally be blocked. It adds depth, grounding, and subtle shadows that make scenes feel more three-dimensional and realistic.</p>
+
+                <h3>What Ambient Occlusion Does</h3>
+
+                <p>Without AO, objects can appear to float or lack connection to their environment. AO adds the subtle shadows you'd see in real life:</p>
+
+                <ul>
+                    <li>Where a chair leg meets the floor</li>
+                    <li>In the corners of a room</li>
+                    <li>Where books sit on a shelf</li>
+                    <li>In the folds of fabric or character faces</li>
+                </ul>
+
+                <p>These contact shadows are computationally expensive to calculate with regular lighting, so AO approximates them as a post-process effect.</p>
+
+                <!-- SVG: AO Comparison -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Ambient Occlusion Effect</text>
+                    
+                    <!-- Without AO -->
+                    <g transform="translate(150, 50)">
+                        <text x="75" y="0" text-anchor="middle" fill="#666" font-size="11">Without AO</text>
+                        
+                        <!-- Floor -->
+                        <rect x="0" y="100" width="150" height="20" fill="#ccc"/>
+                        
+                        <!-- Object -->
+                        <rect x="40" y="50" width="70" height="50" fill="#888" rx="3"/>
+                        
+                        <!-- No shadow -->
+                        <text x="75" y="140" text-anchor="middle" fill="#888" font-size="8">Object appears to float</text>
+                    </g>
+                    
+                    <!-- With AO -->
+                    <g transform="translate(450, 50)">
+                        <text x="75" y="0" text-anchor="middle" fill="#4CAF50" font-size="11">With AO</text>
+                        
+                        <!-- Floor -->
+                        <rect x="0" y="100" width="150" height="20" fill="#ccc"/>
+                        
+                        <!-- AO shadow under object -->
+                        <ellipse cx="75" cy="100" rx="45" ry="8" fill="#000" opacity="0.2"/>
+                        <ellipse cx="75" cy="100" rx="35" ry="5" fill="#000" opacity="0.15"/>
+                        
+                        <!-- Object -->
+                        <rect x="40" y="50" width="70" height="50" fill="#888" rx="3"/>
+                        
+                        <!-- AO in corner -->
+                        <rect x="40" y="95" width="3" height="5" fill="#000" opacity="0.2"/>
+                        <rect x="107" y="95" width="3" height="5" fill="#000" opacity="0.2"/>
+                        
+                        <text x="75" y="140" text-anchor="middle" fill="#4CAF50" font-size="8">Object feels grounded</text>
+                    </g>
+                    
+                    <!-- Detail callout -->
+                    <g transform="translate(280, 70)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#fff" stroke="#667eea"/>
+                        <text x="60" y="20" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">AO adds:</text>
+                        <text x="60" y="35" text-anchor="middle" fill="#666" font-size="8">• Contact shadows</text>
+                        <text x="60" y="48" text-anchor="middle" fill="#666" font-size="8">• Depth cues</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Ambient Occlusion adds contact shadows that ground objects in the scene.</em></p>
+
+                <h3>AO Methods in Unreal</h3>
+
+                <p>Unreal offers several AO implementations:</p>
+
+                <p><strong>Screen Space Ambient Occlusion (SSAO):</strong> Traditional post-process AO. Analyzes the depth buffer to find nearby surfaces and darkens accordingly. Fast but can have artifacts and only works for visible geometry.</p>
+
+                <p><strong>Ground Truth Ambient Occlusion (GTAO):</strong> Improved screen-space method with better accuracy, especially in corners. Default in UE5. Good balance of quality and performance.</p>
+
+                <p><strong>Ray Traced Ambient Occlusion (RTAO):</strong> Uses hardware ray tracing for accurate AO. Best quality but requires RTX/RDNA2+ GPU and has higher cost.</p>
+
+                <p><strong>Distance Field Ambient Occlusion (DFAO):</strong> Uses mesh distance fields (same as Lumen Software RT) for large-scale AO. Good for outdoor scenes with big structures.</p>
+
+                <!-- SVG: AO Method Comparison -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">AO Method Comparison</text>
+                    
+                    <!-- SSAO/GTAO -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="100" rx="8" fill="#3d3d3d" stroke="#888"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">SSAO / GTAO</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#4CAF50" font-size="9">✓ Fast, works everywhere</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#4CAF50" font-size="9">✓ No special hardware</text>
+                        <text x="100" y="78" text-anchor="middle" fill="#f44336" font-size="9">✗ Screen-space artifacts</text>
+                        <text x="100" y="93" text-anchor="middle" fill="#888" font-size="8">Best for: Most projects</text>
+                    </g>
+                    
+                    <!-- RTAO -->
+                    <g transform="translate(300, 50)">
+                        <rect x="0" y="0" width="200" height="100" rx="8" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">Ray Traced AO</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#4CAF50" font-size="9">✓ Most accurate</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#4CAF50" font-size="9">✓ No screen-space issues</text>
+                        <text x="100" y="78" text-anchor="middle" fill="#f44336" font-size="9">✗ Requires RT hardware</text>
+                        <text x="100" y="93" text-anchor="middle" fill="#888" font-size="8">Best for: High-end PCs</text>
+                    </g>
+                    
+                    <!-- DFAO -->
+                    <g transform="translate(550, 50)">
+                        <rect x="0" y="0" width="200" height="100" rx="8" fill="#3d3d3d" stroke="#2196F3"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#2196F3" font-size="11" font-weight="bold">Distance Field AO</text>
+                        <text x="100" y="45" text-anchor="middle" fill="#4CAF50" font-size="9">✓ Large scale accuracy</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#4CAF50" font-size="9">✓ Works off-screen</text>
+                        <text x="100" y="78" text-anchor="middle" fill="#f44336" font-size="9">✗ Less detail close-up</text>
+                        <text x="100" y="93" text-anchor="middle" fill="#888" font-size="8">Best for: Outdoor/large</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Different AO methods offer trade-offs between quality, performance, and compatibility.</em></p>
+
+                <h3>Configuring Screen Space AO</h3>
+
+                <p>In Post Process Volume (Rendering Features → Ambient Occlusion):</p>
+
+                <p><strong>Intensity:</strong> Strength of the darkening effect. 0 = disabled. Values around 0.5-1.0 are typical. Above 1.0 creates very dark crevices.</p>
+
+                <p><strong>Radius:</strong> How far the AO effect reaches. Larger radius = AO affects bigger areas (room corners, large surfaces). Smaller radius = AO only in tight crevices.</p>
+
+                <p><strong>Power:</strong> Controls the falloff curve. Higher power = sharper, more defined AO. Lower power = softer, more spread out.</p>
+
+                <p><strong>Quality:</strong> Number of samples used. Higher quality = less noise but more expensive. Use lower quality for fast-moving games where noise isn't visible.</p>
+
+                <p><strong>Fade Out Distance/Radius:</strong> AO fades beyond this distance from camera. Saves performance on distant objects where AO isn't visible.</p>
+
+                <!-- Mermaid: AO Configuration -->
+                <pre class="mermaid">
+flowchart LR
+    A["AO Goal"] --> B{"What's the issue?"}
+    
+    B -->|"AO too dark"| C["↓ Intensity<br/>Try 0.3-0.5"]
+    B -->|"AO too subtle"| D["↑ Intensity<br/>Try 0.8-1.2"]
+    B -->|"Missing big shadows"| E["↑ Radius<br/>Try 100-200"]
+    B -->|"Only want tight crevices"| F["↓ Radius<br/>Try 20-50"]
+    B -->|"AO looks noisy"| G["↑ Quality or<br/>Enable temporal filter"]
+    B -->|"Performance cost too high"| H["↓ Quality<br/>↓ Fade Distance"]
+    
+    style C fill:#4CAF50,color:#fff
+    style D fill:#4CAF50,color:#fff
+    style E fill:#2196F3,color:#fff
+    style F fill:#2196F3,color:#fff
+    style G fill:#FF9800,color:#fff
+    style H fill:#f44336,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Common AO adjustments based on what you're trying to achieve.</em></p>
+
+                <h3>Distance Field Ambient Occlusion</h3>
+
+                <p>For large-scale AO (buildings casting shadows on ground, cliffs, large props), enable <strong>Distance Field Ambient Occlusion</strong>:</p>
+
+                <ol>
+                    <li>Go to Project Settings → Rendering</li>
+                    <li>Enable <strong>Generate Mesh Distance Fields</strong></li>
+                    <li>Restart the editor</li>
+                    <li>In Post Process Volume, find <strong>Distance Field Ambient Occlusion</strong></li>
+                    <li>Enable and adjust Intensity, Occlusion Max Distance</li>
+                </ol>
+
+                <p>DFAO works best combined with SSAO—DFAO handles large structures while SSAO handles small details.</p>
+
+                <h3>AO Best Practices</h3>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ AO Tips</h4>
+                    <ul>
+                        <li><strong>Don't overdo it:</strong> Heavy AO makes everything look dirty. Aim for subtle depth enhancement.</li>
+                        <li><strong>Consider art style:</strong> Stylized games may prefer less realistic AO. Realistic games benefit from accurate AO.</li>
+                        <li><strong>Combine methods:</strong> SSAO/GTAO for details + DFAO for large scale often looks best.</li>
+                        <li><strong>Watch for halos:</strong> If AO creates obvious halos around objects, reduce intensity or adjust radius.</li>
+                        <li><strong>Performance scaling:</strong> Include AO quality in your scalability settings—lower settings can disable or reduce AO.</li>
+                    </ul>
+                </div>
+
+                <h3>AO and Lumen Interaction</h3>
+
+                <p>When using Lumen, you already get some ambient occlusion from the GI calculation. However, screen-space AO can still add value:</p>
+
+                <p><strong>Small-scale detail:</strong> Lumen's radiance cache may miss very fine crevices. SSAO catches these.</p>
+
+                <p><strong>Temporal stability:</strong> SSAO provides consistent small-scale darkening while Lumen's AO may shift slightly as the cache updates.</p>
+
+                <p><strong>Performance trade-off:</strong> You can reduce SSAO intensity when Lumen is active since Lumen provides some occlusion naturally.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Lumen + AO Recommendation</h4>
+                    <p>With Lumen enabled, try SSAO/GTAO at intensity 0.3-0.5 for additional fine detail. This supplements Lumen's natural occlusion without doubling up excessively. Test with AO on and off to see if the additional cost is worthwhile for your scenes.</p>
+                </div>
+            </section>
+            <!-- Section 6: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Cinematic Post-Process Look</h2>
+
+                <p>Let's bring everything together by creating a polished cinematic look from scratch. We'll build a stylized visual treatment that could work for an action-adventure game—warm tones, subtle bloom, grounded contact shadows, and careful exposure control.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Create a complete post-process setup with controlled exposure, cinematic color grading, subtle bloom, light vignette, and ambient occlusion. The result should feel polished and intentional—not over-processed.</p>
+                </div>
+
+                <h3>Step 1: Set Up the Scene</h3>
+
+                <p>Start with a scene that has interesting lighting to work with:</p>
+
+                <ol>
+                    <li>Open an existing level or create one with varied lighting (indoor/outdoor mix ideal)</li>
+                    <li>Ensure you have a Directional Light, SkyLight, and some interior lights</li>
+                    <li>If using a template level, the Third Person map works well</li>
+                    <li>Remove any existing Post Process Volumes for a fresh start</li>
+                </ol>
+
+                <h3>Step 2: Create a Global Post Process Volume</h3>
+
+                <ol>
+                    <li>Go to <strong>Place Actors</strong> → search "Post Process Volume"</li>
+                    <li>Drag it into your level</li>
+                    <li>Select the volume and in Details panel, check <strong>Infinite Extent (Unbound)</strong></li>
+                    <li>This volume will now affect the entire level</li>
+                </ol>
+
+                <!-- SVG: PPV Setup -->
+                <svg width="100%" height="160" viewBox="0 0 700 160" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Post Process Volume Setup</text>
+                    
+                    <!-- Checklist -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="280" height="90" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="140" y="25" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">✓ Volume Settings</text>
+                        
+                        <text x="20" y="50" fill="#aaa" font-size="10">☑ Infinite Extent (Unbound)</text>
+                        <text x="20" y="70" fill="#aaa" font-size="10">☑ Priority: 0 (default for global)</text>
+                        <text x="20" y="90" fill="#aaa" font-size="10">☑ Blend Weight: 1.0</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 350 95 L 390 95" stroke="#667eea" stroke-width="2" marker-end="url(#setupArrow)"/>
+                    
+                    <!-- Result -->
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="240" height="90" rx="5" fill="#3d3d3d" stroke="#667eea"/>
+                        <text x="120" y="25" text-anchor="middle" fill="#667eea" font-size="11" font-weight="bold">Result</text>
+                        <text x="120" y="50" text-anchor="middle" fill="#aaa" font-size="10">Volume affects entire level</text>
+                        <text x="120" y="70" text-anchor="middle" fill="#aaa" font-size="10">All settings apply globally</text>
+                        <text x="120" y="90" text-anchor="middle" fill="#888" font-size="9">Ready for adjustments →</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="setupArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Configure the Post Process Volume for global effect before adjusting settings.</em></p>
+
+                <h3>Step 3: Configure Exposure</h3>
+
+                <p>Set up controlled auto-exposure:</p>
+
+                <ol>
+                    <li>Expand <strong>Lens → Exposure</strong></li>
+                    <li>Check the override box for <strong>Metering Mode</strong>, set to <strong>Auto Exposure Histogram</strong></li>
+                    <li>Override <strong>Min EV100</strong>, set to <strong>6.0</strong> (prevents over-brightening in dark areas)</li>
+                    <li>Override <strong>Max EV100</strong>, set to <strong>13.0</strong> (prevents over-darkening outdoors)</li>
+                    <li>Override <strong>Exposure Compensation</strong>, set to <strong>0.5</strong> (slightly brighter overall)</li>
+                    <li>Override <strong>Speed Up</strong> and <strong>Speed Down</strong>, set both to <strong>2.0</strong> (moderate adaptation speed)</li>
+                </ol>
+
+                <p>Test by looking at bright sky, then dark shadows. Exposure should adapt smoothly without extremes.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Checkpoint: Exposure</h4>
+                    <p>Walk between bright and dark areas. The image should adapt within 1-2 seconds. Neither area should become unplayably dark or blindingly bright. If needed, adjust Min/Max EV to taste.</p>
+                </div>
+
+                <h3>Step 4: Apply Color Grading</h3>
+
+                <p>Create a warm, cinematic look with subtle teal shadows:</p>
+
+                <ol>
+                    <li>Expand <strong>Color Grading → Global</strong></li>
+                    <li>Override <strong>Saturation</strong>, set to <strong>(X=0.92, Y=0.92, Z=0.92, W=1)</strong> (slightly desaturated)</li>
+                    <li>Override <strong>Contrast</strong>, set to <strong>(X=1.08, Y=1.08, Z=1.08, W=1)</strong> (slightly punchy)</li>
+                </ol>
+
+                <ol start="4">
+                    <li>Expand <strong>Color Grading → Shadows</strong></li>
+                    <li>Override <strong>Shadows Gain</strong>, set to <strong>(X=0.95, Y=0.98, Z=1.05, W=1)</strong> (subtle teal/blue push)</li>
+                </ol>
+
+                <ol start="6">
+                    <li>Expand <strong>Color Grading → Highlights</strong></li>
+                    <li>Override <strong>Highlights Gain</strong>, set to <strong>(X=1.05, Y=1.02, Z=0.95, W=1)</strong> (subtle warm push)</li>
+                </ol>
+
+                <ol start="8">
+                    <li>Expand <strong>Color Grading → White Balance</strong></li>
+                    <li>Override <strong>Temp</strong>, set to <strong>6200</strong> (slightly warm)</li>
+                </ol>
+
+                <!-- SVG: Color Grade Values -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Cinematic Color Grade Settings</text>
+                    
+                    <!-- Global -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="160" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">Global</text>
+                        <text x="80" y="40" text-anchor="middle" fill="#666" font-size="9">Saturation: 0.92</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#666" font-size="9">Contrast: 1.08</text>
+                        <text x="80" y="72" text-anchor="middle" fill="#888" font-size="8">Slightly muted + punchy</text>
+                    </g>
+                    
+                    <!-- Shadows -->
+                    <g transform="translate(240, 50)">
+                        <rect x="0" y="0" width="160" height="80" rx="8" fill="#e3f2fd" stroke="#1976D2" stroke-width="2"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Shadows</text>
+                        <text x="80" y="40" text-anchor="middle" fill="#666" font-size="9">Gain: 0.95, 0.98, 1.05</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#666" font-size="9">(R↓ G~ B↑)</text>
+                        <text x="80" y="72" text-anchor="middle" fill="#888" font-size="8">Teal/blue in darks</text>
+                    </g>
+                    
+                    <!-- Highlights -->
+                    <g transform="translate(430, 50)">
+                        <rect x="0" y="0" width="160" height="80" rx="8" fill="#fff3e0" stroke="#FF9800" stroke-width="2"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Highlights</text>
+                        <text x="80" y="40" text-anchor="middle" fill="#666" font-size="9">Gain: 1.05, 1.02, 0.95</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#666" font-size="9">(R↑ G~ B↓)</text>
+                        <text x="80" y="72" text-anchor="middle" fill="#888" font-size="8">Warm in brights</text>
+                    </g>
+                    
+                    <!-- Temperature -->
+                    <g transform="translate(620, 50)">
+                        <rect x="0" y="0" width="130" height="80" rx="8" fill="#fce4ec" stroke="#E91E63" stroke-width="2"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#C2185B" font-size="10" font-weight="bold">White Balance</text>
+                        <text x="65" y="40" text-anchor="middle" fill="#666" font-size="9">Temp: 6200K</text>
+                        <text x="65" y="55" text-anchor="middle" fill="#666" font-size="9">(slightly warm)</text>
+                        <text x="65" y="72" text-anchor="middle" fill="#888" font-size="8">Golden tone</text>
+                    </g>
+                    
+                    <!-- Result preview -->
+                    <g transform="translate(250, 145)">
+                        <rect x="0" y="0" width="300" height="40" rx="5" fill="#2a3a4a"/>
+                        <rect x="5" y="5" width="90" height="30" fill="#3a5a6a"/>
+                        <rect x="105" y="5" width="90" height="30" fill="#6a7a6a"/>
+                        <rect x="205" y="5" width="90" height="30" fill="#e8a060"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#8ac" font-size="8">Shadows</text>
+                        <text x="150" y="25" text-anchor="middle" fill="#ccc" font-size="8">Mids</text>
+                        <text x="250" y="25" text-anchor="middle" fill="#ffd" font-size="8">Highlights</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Color grade values creating the classic teal shadows / warm highlights cinematic look.</em></p>
+
+                <h3>Step 5: Add Subtle Bloom</h3>
+
+                <ol>
+                    <li>Expand <strong>Lens → Bloom</strong></li>
+                    <li>Override <strong>Method</strong>, set to <strong>Standard</strong></li>
+                    <li>Override <strong>Intensity</strong>, set to <strong>0.5</strong></li>
+                    <li>Override <strong>Threshold</strong>, set to <strong>1.0</strong> (only bright areas bloom)</li>
+                </ol>
+
+                <p>The bloom should add subtle glow to lights and bright sky without creating a hazy look.</p>
+
+                <h3>Step 6: Add Vignette</h3>
+
+                <ol>
+                    <li>Expand <strong>Lens → Image Effects</strong></li>
+                    <li>Override <strong>Vignette Intensity</strong>, set to <strong>0.35</strong></li>
+                </ol>
+
+                <p>This gently darkens the corners, focusing attention on center screen where gameplay happens.</p>
+
+                <h3>Step 7: Configure Ambient Occlusion</h3>
+
+                <ol>
+                    <li>Expand <strong>Rendering Features → Ambient Occlusion</strong></li>
+                    <li>Override <strong>Intensity</strong>, set to <strong>0.6</strong></li>
+                    <li>Override <strong>Radius</strong>, set to <strong>60.0</strong> (moderate reach)</li>
+                    <li>Override <strong>Power</strong>, set to <strong>2.5</strong> (defined but not harsh)</li>
+                </ol>
+
+                <p>Check corners of rooms and where objects meet floors—you should see subtle darkening that grounds everything.</p>
+
+                <h3>Step 8: Optional Finishing Touches</h3>
+
+                <p>Consider these additional adjustments:</p>
+
+                <p><strong>Chromatic Aberration (subtle):</strong></p>
+                <ol>
+                    <li>Override <strong>Chromatic Aberration Intensity</strong>, set to <strong>0.15</strong></li>
+                    <li>Override <strong>Chromatic Aberration Start Offset</strong>, set to <strong>0.5</strong></li>
+                </ol>
+
+                <p><strong>Film Grain (optional):</strong></p>
+                <ol>
+                    <li>Override <strong>Grain Intensity</strong>, set to <strong>0.08</strong></li>
+                    <li>Override <strong>Grain Jitter</strong>, set to <strong>0.3</strong></li>
+                </ol>
+
+                <p>These add subtle imperfection that makes the image feel more photographic.</p>
+
+                <!-- SVG: Complete Settings Summary -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Complete Cinematic Post-Process Settings</text>
+                    
+                    <!-- Exposure -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="170" height="90" rx="5" fill="#3d3d3d" stroke="#f1c40f"/>
+                        <text x="85" y="20" text-anchor="middle" fill="#f1c40f" font-size="10" font-weight="bold">📷 Exposure</text>
+                        <text x="10" y="40" fill="#aaa" font-size="8">Min EV: 6.0</text>
+                        <text x="10" y="55" fill="#aaa" font-size="8">Max EV: 13.0</text>
+                        <text x="10" y="70" fill="#aaa" font-size="8">Compensation: 0.5</text>
+                        <text x="10" y="85" fill="#aaa" font-size="8">Speed: 2.0 / 2.0</text>
+                    </g>
+                    
+                    <!-- Color Grading -->
+                    <g transform="translate(240, 50)">
+                        <rect x="0" y="0" width="170" height="90" rx="5" fill="#3d3d3d" stroke="#9b59b6"/>
+                        <text x="85" y="20" text-anchor="middle" fill="#9b59b6" font-size="10" font-weight="bold">🎨 Color Grade</text>
+                        <text x="10" y="40" fill="#aaa" font-size="8">Saturation: 0.92</text>
+                        <text x="10" y="55" fill="#aaa" font-size="8">Contrast: 1.08</text>
+                        <text x="10" y="70" fill="#aaa" font-size="8">Shadows: Teal push</text>
+                        <text x="10" y="85" fill="#aaa" font-size="8">Highlights: Warm push</text>
+                    </g>
+                    
+                    <!-- Bloom -->
+                    <g transform="translate(430, 50)">
+                        <rect x="0" y="0" width="150" height="90" rx="5" fill="#3d3d3d" stroke="#e74c3c"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#e74c3c" font-size="10" font-weight="bold">✨ Bloom</text>
+                        <text x="10" y="40" fill="#aaa" font-size="8">Intensity: 0.5</text>
+                        <text x="10" y="55" fill="#aaa" font-size="8">Threshold: 1.0</text>
+                        <text x="10" y="70" fill="#aaa" font-size="8">Method: Standard</text>
+                    </g>
+                    
+                    <!-- Vignette -->
+                    <g transform="translate(600, 50)">
+                        <rect x="0" y="0" width="150" height="90" rx="5" fill="#3d3d3d" stroke="#3498db"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#3498db" font-size="10" font-weight="bold">🔲 Vignette</text>
+                        <text x="10" y="40" fill="#aaa" font-size="8">Intensity: 0.35</text>
+                        <text x="10" y="60" fill="#888" font-size="8">Subtle edge</text>
+                        <text x="10" y="75" fill="#888" font-size="8">darkening</text>
+                    </g>
+                    
+                    <!-- AO -->
+                    <g transform="translate(50, 160)">
+                        <rect x="0" y="0" width="170" height="90" rx="5" fill="#3d3d3d" stroke="#2ecc71"/>
+                        <text x="85" y="20" text-anchor="middle" fill="#2ecc71" font-size="10" font-weight="bold">🌑 Ambient Occlusion</text>
+                        <text x="10" y="40" fill="#aaa" font-size="8">Intensity: 0.6</text>
+                        <text x="10" y="55" fill="#aaa" font-size="8">Radius: 60</text>
+                        <text x="10" y="70" fill="#aaa" font-size="8">Power: 2.5</text>
+                    </g>
+                    
+                    <!-- Optional -->
+                    <g transform="translate(240, 160)">
+                        <rect x="0" y="0" width="170" height="90" rx="5" fill="#3d3d3d" stroke="#888" stroke-dasharray="5,3"/>
+                        <text x="85" y="20" text-anchor="middle" fill="#888" font-size="10" font-weight="bold">⚙️ Optional</text>
+                        <text x="10" y="40" fill="#666" font-size="8">Chromatic Ab: 0.15</text>
+                        <text x="10" y="55" fill="#666" font-size="8">Film Grain: 0.08</text>
+                        <text x="10" y="70" fill="#666" font-size="8">Start Offset: 0.5</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(430, 160)">
+                        <rect x="0" y="0" width="320" height="90" rx="5" fill="#4CAF50" stroke="#66BB6A" stroke-width="2"/>
+                        <text x="160" y="25" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🎬 Result</text>
+                        <text x="160" y="50" text-anchor="middle" fill="#c8e6c9" font-size="10">Cinematic, polished look</text>
+                        <text x="160" y="70" text-anchor="middle" fill="#c8e6c9" font-size="10">Warm highlights, cool shadows</text>
+                        <text x="160" y="85" text-anchor="middle" fill="#a5d6a7" font-size="9">Grounded with subtle depth</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Complete settings summary for the cinematic post-process look.</em></p>
+
+                <h3>Step 9: Test and Refine</h3>
+
+                <p>Walk through your level and evaluate:</p>
+
+                <ul>
+                    <li><strong>Exposure:</strong> Are bright and dark areas both playable?</li>
+                    <li><strong>Color:</strong> Does the teal/orange split feel natural, not overdone?</li>
+                    <li><strong>Bloom:</strong> Do lights glow pleasantly without hazing the whole image?</li>
+                    <li><strong>Vignette:</strong> Is it noticeable but not distracting?</li>
+                    <li><strong>AO:</strong> Are objects grounded without dirty-looking halos?</li>
+                </ul>
+
+                <p>Adjust values in small increments until you're satisfied. Remember: subtle is usually better than dramatic.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've created a professional cinematic post-process look from scratch. These settings can serve as a starting point for your own projects. Experiment with different values to develop unique visual styles—darker and grittier, brighter and more colorful, or anything in between.</p>
+                </div>
+
+                <h3>Bonus: Create Variation Volumes</h3>
+
+                <p>Try creating local Post Process Volumes for different areas:</p>
+
+                <ol>
+                    <li>Duplicate your global volume's settings to a new local volume</li>
+                    <li>Uncheck Infinite Extent and position it in a specific area</li>
+                    <li>Set Priority to 1 (higher than global)</li>
+                    <li>Adjust settings for that area (darker cave, warmer sunset view, etc.)</li>
+                    <li>Set Blend Radius to 100-200 for smooth transitions</li>
+                </ol>
+
+                <p>This technique creates varied visual experiences as players move through your level.</p>
+            </section>
+
+            <!-- Section 7: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've mastered Unreal Engine 5's post-process system—the final layer of visual polish that transforms technically correct renders into emotionally compelling images. Post-processing is where good-looking games become great-looking games.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Post Process Volumes:</strong> Containers that define where post-process effects apply. Use Infinite Extent for global settings; bounded volumes for local variations. Priority and Blend Weight control how multiple volumes interact.</p>
+
+                <p><strong>Exposure:</strong> Controls overall brightness, simulating camera iris behavior. Auto-exposure adapts to scene brightness within Min/Max EV limits. Speed settings control adaptation time. Exposure Compensation provides overall brightness offset.</p>
+
+                <p><strong>Color Grading:</strong> Adjusts colors for mood and style. Global settings affect entire image; Shadows/Midtones/Highlights provide tonal control. Temperature shifts warm/cool. LUTs apply pre-made color transformations. The teal-and-orange look creates classic cinematic color contrast.</p>
+
+                <p><strong>Bloom:</strong> Adds glow around bright areas. Intensity controls strength; Threshold sets brightness cutoff. Subtle bloom (0.3-0.8) usually looks best. Works with emissive materials to make lights pop.</p>
+
+                <p><strong>Lens Effects:</strong> Lens flares, dirt mask, vignette, and chromatic aberration simulate camera behavior. Use sparingly for cinematic feel without overdoing it. Vignette draws focus to center screen.</p>
+
+                <p><strong>Ambient Occlusion:</strong> Darkens crevices and contact areas for depth and grounding. SSAO/GTAO for screen-space detail; DFAO for large scale; RTAO for maximum accuracy. Subtle AO (0.4-0.8) enhances realism without looking dirty.</p>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Subtlety wins:</strong> Heavy post-processing often looks amateurish. Start subtle, increase gradually</li>
+                    <li><strong>Preserve gameplay:</strong> Never let visual style compromise player ability to see important elements</li>
+                    <li><strong>Test extremes:</strong> Check bright areas, dark areas, fast motion, and different times of day</li>
+                    <li><strong>Consider performance:</strong> Post-processing has GPU cost. Include quality options for lower-end hardware</li>
+                    <li><strong>Stay consistent:</strong> Post-processing should complement your lighting and art direction, not fight them</li>
+                    <li><strong>Use local volumes:</strong> Create visual variety by varying post-processing in different areas</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Post-Process Effects Toolkit</text>
+                    
+                    <!-- Categories -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="8" fill="#fff3e0" stroke="#FF9800" stroke-width="2"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">Exposure</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#666" font-size="8">Brightness control</text>
+                        <text x="65" y="60" text-anchor="middle" fill="#666" font-size="8">Auto-adaptation</text>
+                    </g>
+                    
+                    <g transform="translate(200, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="8" fill="#f3e5f5" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#7B1FA2" font-size="10" font-weight="bold">Color Grade</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#666" font-size="8">Mood & style</text>
+                        <text x="65" y="60" text-anchor="middle" fill="#666" font-size="8">LUTs available</text>
+                    </g>
+                    
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="8" fill="#ffebee" stroke="#f44336" stroke-width="2"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#c62828" font-size="10" font-weight="bold">Bloom</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#666" font-size="8">Light glow</text>
+                        <text x="65" y="60" text-anchor="middle" fill="#666" font-size="8">Intensity + threshold</text>
+                    </g>
+                    
+                    <g transform="translate(500, 50)">
+                        <rect x="0" y="0" width="130" height="70" rx="8" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">Lens Effects</text>
+                        <text x="65" y="45" text-anchor="middle" fill="#666" font-size="8">Flares, vignette</text>
+                        <text x="65" y="60" text-anchor="middle" fill="#666" font-size="8">Camera simulation</text>
+                    </g>
+                    
+                    <g transform="translate(650, 50)">
+                        <rect x="0" y="0" width="100" height="70" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">AO</text>
+                        <text x="50" y="45" text-anchor="middle" fill="#666" font-size="8">Depth cues</text>
+                        <text x="50" y="60" text-anchor="middle" fill="#666" font-size="8">Grounding</text>
+                    </g>
+                    
+                    <!-- Bottom message -->
+                    <text x="400" y="150" text-anchor="middle" fill="#666" font-size="11">Combined thoughtfully = Cinematic, polished visuals</text>
+                </svg>
+                <p class="caption"><em>Figure: The post-process toolkit transforms rendered scenes into polished final images.</em></p>
+
+                <h3>Module Complete!</h3>
+
+                <p>With this lesson, you've completed <strong>Module 4: Lighting Your World</strong>. You now understand the full lighting pipeline in Unreal Engine 5: from fundamental light types and outdoor sky systems, through interior lighting techniques and Lumen global illumination, to the final polish of post-processing effects.</p>
+
+                <p>In the next module, you'll begin learning <strong>Blueprints</strong>—Unreal's powerful visual scripting system. You'll discover how to make your beautifully lit worlds interactive, creating gameplay mechanics, responding to player input, and bringing your environments to life with logic and behavior.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What does checking "Infinite Extent (Unbound)" on a Post Process Volume do?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Makes the volume invisible in the editor</label>
+                            <label><input type="radio" name="q1" value="b"> Applies the volume's settings to the entire level regardless of the volume's position</label>
+                            <label><input type="radio" name="q1" value="c"> Increases the volume's priority to maximum</label>
+                            <label><input type="radio" name="q1" value="d"> Disables blending with other volumes</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Infinite Extent makes the Post Process Volume affect the entire level globally, regardless of where the volume is positioned or how large it is. This is the typical setup for establishing your game's base visual look.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>In auto-exposure, what do the Min EV100 and Max EV100 settings control?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> The speed of exposure adaptation</label>
+                            <label><input type="radio" name="q2" value="b"> The limits of how bright or dark the image can become</label>
+                            <label><input type="radio" name="q2" value="c"> The color temperature range</label>
+                            <label><input type="radio" name="q2" value="d"> The bloom threshold range</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Min and Max EV100 set the boundaries for auto-exposure. The engine won't adjust exposure beyond these limits, preventing the scene from becoming unplayably dark or blindingly bright in extreme lighting conditions.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is the effect of the classic "teal and orange" color grade?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Makes the entire image teal and orange simultaneously</label>
+                            <label><input type="radio" name="q3" value="b"> Pushes shadows toward teal/blue and highlights toward orange/warm for color contrast</label>
+                            <label><input type="radio" name="q3" value="c"> Removes all colors except teal and orange</label>
+                            <label><input type="radio" name="q3" value="d"> Adds teal lens flares and orange bloom</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The teal and orange look creates visual separation by pushing shadows toward cool teal/blue tones while warming highlights toward orange. This complements skin tones (warm) against backgrounds (cool) and is popular in cinematic color grading.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What does the Bloom Threshold setting control?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> How far bloom extends from bright sources</label>
+                            <label><input type="radio" name="q4" value="b"> The color of the bloom effect</label>
+                            <label><input type="radio" name="q4" value="c"> The brightness level at which bloom begins to appear</label>
+                            <label><input type="radio" name="q4" value="d"> Whether bloom affects the entire image or just lights</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Bloom Threshold sets the brightness cutoff for the bloom effect. Only pixels brighter than this value will bloom. Higher threshold means only the brightest areas glow; lower threshold makes more of the image bloom.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What is the primary purpose of Ambient Occlusion in post-processing?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> To add color variation to shadowed areas</label>
+                            <label><input type="radio" name="q5" value="b"> To darken crevices and contact areas where light would naturally be blocked</label>
+                            <label><input type="radio" name="q5" value="c"> To simulate lens dirt and imperfections</label>
+                            <label><input type="radio" name="q5" value="d"> To increase the overall brightness of the scene</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Ambient Occlusion darkens areas where surfaces meet, in corners, and in crevices—places where ambient light would naturally be blocked. This adds depth, grounding, and makes objects feel connected to their environment.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m04_l04_lumen_global_illumination.html" class="btn">← Previous: Lumen Global Illumination</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m05_l01_what_are_blueprints.html" class="btn">Next: What are Blueprints? →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

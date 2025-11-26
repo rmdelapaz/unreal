@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master Lumen Global Illumination in Unreal Engine 5. Learn how real-time ray tracing works, compare Software vs Hardware modes, optimize settings, and create stunning dynamically lit environments.">
+    <meta name="author" content="Practical Ace">
+    <title>Lumen Global Illumination - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 4: Lighting Your World</a></li>
+            <li aria-current="page">Lesson 4.4: Lumen Global Illumination</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>✨ Lumen Global Illumination</h1>
+                <p class="lead">Lumen is Unreal Engine 5's revolutionary real-time global illumination and reflections system. It eliminates the need for baking lightmaps, allowing fully dynamic lighting that responds instantly to changes in your scene. Move a wall, change a light color, open a door—Lumen updates everything in real time. In this lesson, you'll learn how Lumen works, when to use it, and how to configure it for the best balance of quality and performance.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain how Lumen calculates global illumination and reflections</li>
+                        <li>Compare Lumen with traditional baked lighting approaches</li>
+                        <li>Choose between Software and Hardware Ray Tracing modes</li>
+                        <li>Configure Lumen settings for different quality/performance targets</li>
+                        <li>Identify when Lumen is appropriate vs. alternative solutions</li>
+                        <li>Set up and optimize a Lumen-lit scene from scratch</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 55-65 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 4.1-4.3 (Lighting Fundamentals, Outdoor and Interior Lighting)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-is-lumen" class="toc-link">What is Lumen?</a></li>
+                        <li><a href="#how-lumen-works" class="toc-link">How Lumen Works</a></li>
+                        <li><a href="#lumen-vs-baked" class="toc-link">Lumen vs. Baked Lighting</a></li>
+                        <li><a href="#software-vs-hardware" class="toc-link">Software vs. Hardware Ray Tracing</a></li>
+                        <li><a href="#lumen-settings" class="toc-link">Lumen Settings and Optimization</a></li>
+                        <li><a href="#when-to-use-lumen" class="toc-link">When to Use Lumen</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Enable and Configure Lumen</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What is Lumen? -->
+            <section id="what-is-lumen" class="lesson-section">
+                <h2>What is Lumen?</h2>
+
+                <p><strong>Lumen</strong> is Unreal Engine 5's default global illumination and reflections system. It provides fully dynamic indirect lighting without the need to bake lightmaps—a revolutionary departure from traditional real-time rendering workflows.</p>
+
+                <h3>The Problem Lumen Solves</h3>
+
+                <p>Before Lumen, real-time global illumination was one of the hardest problems in game development. When light bounces off surfaces (indirect lighting), it creates subtle color bleeding, soft ambient shadows, and the natural way light fills a room. Calculating this in real time was too expensive, so developers had two main options:</p>
+
+                <p><strong>Baked Lightmaps:</strong> Pre-calculate light bounces and store them in textures. Great quality, but completely static—nothing can move without breaking the lighting.</p>
+
+                <p><strong>Screen Space Effects:</strong> Approximate indirect lighting using only what's visible on screen. Fast, but limited and prone to artifacts when objects move off-screen.</p>
+
+                <p>Lumen changes this equation entirely. It calculates global illumination in real time, allowing lights, geometry, and materials to change dynamically while maintaining convincing indirect lighting.</p>
+
+                <!-- SVG: Before/After Lumen -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">The Lumen Revolution</text>
+                    
+                    <!-- Before: Baked Only -->
+                    <g transform="translate(50, 50)">
+                        <text x="150" y="0" text-anchor="middle" fill="#f44336" font-size="12" font-weight="bold">Before Lumen: Baked Lighting</text>
+                        
+                        <!-- Room -->
+                        <rect x="50" y="20" width="200" height="130" fill="#2a2a2a" stroke="#555"/>
+                        
+                        <!-- Static lightmap texture representation -->
+                        <rect x="55" y="25" width="190" height="120" fill="url(#bakedPattern)" opacity="0.3"/>
+                        
+                        <!-- Static light -->
+                        <circle cx="150" cy="50" r="15" fill="#f1c40f" opacity="0.8"/>
+                        <text x="150" y="55" text-anchor="middle" fill="#000" font-size="8">STATIC</text>
+                        
+                        <!-- X over moving object -->
+                        <rect x="180" y="100" width="40" height="30" fill="#555"/>
+                        <line x1="180" y1="100" x2="220" y2="130" stroke="#f44336" stroke-width="3"/>
+                        <line x1="220" y1="100" x2="180" y2="130" stroke="#f44336" stroke-width="3"/>
+                        
+                        <text x="150" y="170" text-anchor="middle" fill="#aaa" font-size="9">❌ Move object = broken lighting</text>
+                        <text x="150" y="185" text-anchor="middle" fill="#aaa" font-size="9">❌ Rebuild required for changes</text>
+                    </g>
+                    
+                    <!-- After: Lumen -->
+                    <g transform="translate(450, 50)">
+                        <text x="150" y="0" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">With Lumen: Dynamic GI</text>
+                        
+                        <!-- Room -->
+                        <rect x="50" y="20" width="200" height="130" fill="#2a2a2a" stroke="#555"/>
+                        
+                        <!-- Dynamic bounce light -->
+                        <ellipse cx="150" cy="130" rx="80" ry="20" fill="#f1c40f" opacity="0.15"/>
+                        <ellipse cx="100" cy="100" rx="30" ry="40" fill="#f1c40f" opacity="0.1"/>
+                        
+                        <!-- Dynamic light with rays -->
+                        <circle cx="150" cy="50" r="15" fill="#f1c40f"/>
+                        <line x1="150" y1="65" x2="120" y2="120" stroke="#f1c40f" stroke-width="1" opacity="0.5"/>
+                        <line x1="150" y1="65" x2="150" y2="130" stroke="#f1c40f" stroke-width="1" opacity="0.5"/>
+                        <line x1="150" y1="65" x2="180" y2="120" stroke="#f1c40f" stroke-width="1" opacity="0.5"/>
+                        
+                        <!-- Moving object with arrow -->
+                        <rect x="180" y="100" width="40" height="30" fill="#4CAF50"/>
+                        <path d="M 230 115 L 250 115 L 245 105 M 250 115 L 245 125" stroke="#4CAF50" stroke-width="2" fill="none"/>
+                        
+                        <text x="150" y="170" text-anchor="middle" fill="#aaa" font-size="9">✅ Move anything, lighting updates</text>
+                        <text x="150" y="185" text-anchor="middle" fill="#aaa" font-size="9">✅ Instant iteration, no baking</text>
+                    </g>
+                    
+                    <!-- Arrow between -->
+                    <path d="M 320 120 L 380 120" stroke="#667eea" stroke-width="3" marker-end="url(#lumenArrow)"/>
+                    <text x="350" y="140" text-anchor="middle" fill="#667eea" font-size="10">UE5</text>
+                    
+                    <defs>
+                        <marker id="lumenArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#667eea"/>
+                        </marker>
+                        <pattern id="bakedPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+                            <rect width="10" height="10" fill="#f1c40f" opacity="0.3"/>
+                            <rect x="10" y="10" width="10" height="10" fill="#f1c40f" opacity="0.2"/>
+                        </pattern>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Lumen enables fully dynamic indirect lighting—move objects, change lights, and see results instantly.</em></p>
+
+                <h3>What Lumen Provides</h3>
+
+                <p>Lumen actually consists of two systems that work together:</p>
+
+                <p><strong>Lumen Global Illumination:</strong> Calculates indirect lighting—light that bounces off surfaces to illuminate other surfaces. This creates color bleeding (a red wall tints nearby objects red), soft ambient shadows, and the natural way light fills spaces.</p>
+
+                <p><strong>Lumen Reflections:</strong> Provides dynamic reflections for shiny and metallic surfaces. Unlike screen-space reflections, Lumen reflections include off-screen objects and work at any angle.</p>
+
+                <p>Both systems update in real time as your scene changes. Toggle a light on, and within milliseconds the bounced light and reflections update throughout the entire scene.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Default in UE5</h4>
+                    <p>Lumen is enabled by default in new Unreal Engine 5 projects. If you create a project from the Blank or Third Person template, you're already using Lumen. This is a significant shift from UE4, where baked lighting was the default workflow.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: How Lumen Works -->
+            <section id="how-lumen-works" class="lesson-section">
+                <h2>How Lumen Works</h2>
+
+                <p>Understanding Lumen's underlying technology helps you work with it effectively and troubleshoot issues. While the full technical details are complex, the core concepts are accessible.</p>
+
+                <h3>Surface Cache</h3>
+
+                <p>Lumen's foundation is the <strong>Surface Cache</strong>—a simplified representation of your scene's surfaces stored in memory. For each mesh in your level, Lumen captures cards (rectangular patches) that store the surface's material properties: color, roughness, metallic value, and emissive.</p>
+
+                <p>When light hits a surface, Lumen looks up its properties in the Surface Cache rather than re-evaluating complex material shaders. This cache is what makes real-time GI possible—it trades some material fidelity for massive performance gains.</p>
+
+                <!-- SVG: Surface Cache Concept -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Lumen Surface Cache</text>
+                    
+                    <!-- Original Mesh -->
+                    <g transform="translate(100, 50)">
+                        <text x="80" y="0" text-anchor="middle" fill="#aaa" font-size="11">Original Mesh</text>
+                        
+                        <!-- 3D cube representation -->
+                        <polygon points="80,30 140,50 140,120 80,100" fill="#e74c3c" stroke="#fff"/>
+                        <polygon points="80,30 80,100 20,80 20,10" fill="#c0392b" stroke="#fff"/>
+                        <polygon points="20,10 80,30 140,50 80,10" fill="#e57373" stroke="#fff"/>
+                        
+                        <text x="80" y="145" text-anchor="middle" fill="#888" font-size="9">Complex geometry</text>
+                        <text x="80" y="158" text-anchor="middle" fill="#888" font-size="9">Full material shaders</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 260 90 L 340 90" stroke="#667eea" stroke-width="2" marker-end="url(#cacheArrow)"/>
+                    <text x="300" y="110" text-anchor="middle" fill="#667eea" font-size="9">Captured as</text>
+                    
+                    <!-- Surface Cards -->
+                    <g transform="translate(380, 50)">
+                        <text x="100" y="0" text-anchor="middle" fill="#aaa" font-size="11">Surface Cache Cards</text>
+                        
+                        <!-- Cards -->
+                        <rect x="20" y="20" width="60" height="80" fill="#e74c3c" stroke="#fff" stroke-width="2" rx="3"/>
+                        <rect x="90" y="30" width="50" height="60" fill="#c0392b" stroke="#fff" stroke-width="2" rx="3"/>
+                        <rect x="150" y="15" width="70" height="50" fill="#e57373" stroke="#fff" stroke-width="2" rx="3"/>
+                        
+                        <!-- Labels on cards -->
+                        <text x="50" y="55" text-anchor="middle" fill="#fff" font-size="7">Color</text>
+                        <text x="50" y="68" text-anchor="middle" fill="#fff" font-size="7">Roughness</text>
+                        <text x="50" y="81" text-anchor="middle" fill="#fff" font-size="7">Normal</text>
+                        
+                        <text x="100" y="145" text-anchor="middle" fill="#888" font-size="9">Simplified surfaces</text>
+                        <text x="100" y="158" text-anchor="middle" fill="#888" font-size="9">Fast property lookups</text>
+                    </g>
+                    
+                    <!-- Result -->
+                    <g transform="translate(580, 50)">
+                        <text x="80" y="0" text-anchor="middle" fill="#4CAF50" font-size="11">Enables Real-Time GI</text>
+                        
+                        <circle cx="80" cy="70" r="40" fill="none" stroke="#4CAF50" stroke-width="2"/>
+                        <circle cx="80" cy="70" r="25" fill="none" stroke="#4CAF50" stroke-width="1" opacity="0.5"/>
+                        <circle cx="80" cy="70" r="10" fill="#4CAF50"/>
+                        
+                        <!-- Rays -->
+                        <line x1="80" y1="70" x2="40" y2="40" stroke="#f1c40f" stroke-width="1"/>
+                        <line x1="80" y1="70" x2="120" y2="45" stroke="#f1c40f" stroke-width="1"/>
+                        <line x1="80" y1="70" x2="115" y2="100" stroke="#f1c40f" stroke-width="1"/>
+                        <line x1="80" y1="70" x2="50" y2="105" stroke="#f1c40f" stroke-width="1"/>
+                        
+                        <text x="80" y="135" text-anchor="middle" fill="#888" font-size="9">Light bounces traced</text>
+                        <text x="80" y="148" text-anchor="middle" fill="#888" font-size="9">in real time</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="cacheArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Lumen captures mesh surfaces as simplified cards, enabling fast indirect lighting calculations.</em></p>
+
+                <h3>Ray Tracing (The Two Kinds)</h3>
+
+                <p>Lumen traces rays through your scene to determine how light bounces. There are two ray tracing methods:</p>
+
+                <p><strong>Software Ray Tracing:</strong> Uses signed distance fields (SDFs) to trace rays on the GPU without specialized hardware. Works on any modern graphics card. Faster for scenes with many meshes but has some quality limitations.</p>
+
+                <p><strong>Hardware Ray Tracing:</strong> Uses the dedicated RT cores on NVIDIA RTX or AMD RDNA2+ GPUs. Higher quality results, especially for detailed geometry, but requires compatible hardware and has higher performance cost.</p>
+
+                <p>Both methods can be used together—Lumen intelligently combines them for optimal results. We'll explore this choice in detail later in the lesson.</p>
+
+                <h3>Radiance Cache</h3>
+
+                <p>Lumen doesn't trace rays for every pixel every frame—that would be impossibly expensive. Instead, it uses a <strong>Radiance Cache</strong>: a 3D grid of probes throughout your scene that store incoming light from all directions.</p>
+
+                <p>Each probe samples the lighting at its location. Nearby pixels interpolate between probes to determine their indirect lighting. The engine continuously updates probes as lighting changes, spreading updates across multiple frames to maintain performance.</p>
+
+                <!-- SVG: Radiance Cache Grid -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Radiance Cache: Probe Grid</text>
+                    
+                    <!-- Room outline -->
+                    <rect x="100" y="50" width="600" height="120" fill="#fff" stroke="#333" stroke-width="2"/>
+                    
+                    <!-- Probe grid -->
+                    <g fill="#667eea">
+                        <!-- Row 1 -->
+                        <circle cx="150" cy="80" r="8" opacity="0.8"/>
+                        <circle cx="250" cy="80" r="8" opacity="0.8"/>
+                        <circle cx="350" cy="80" r="8" opacity="0.8"/>
+                        <circle cx="450" cy="80" r="8" opacity="0.8"/>
+                        <circle cx="550" cy="80" r="8" opacity="0.8"/>
+                        <circle cx="650" cy="80" r="8" opacity="0.8"/>
+                        
+                        <!-- Row 2 -->
+                        <circle cx="150" cy="130" r="8" opacity="0.8"/>
+                        <circle cx="250" cy="130" r="8" opacity="0.8"/>
+                        <circle cx="350" cy="130" r="8" opacity="0.8"/>
+                        <circle cx="450" cy="130" r="8" opacity="0.8"/>
+                        <circle cx="550" cy="130" r="8" opacity="0.8"/>
+                        <circle cx="650" cy="130" r="8" opacity="0.8"/>
+                    </g>
+                    
+                    <!-- Light source -->
+                    <circle cx="200" cy="50" r="15" fill="#f1c40f"/>
+                    <text x="200" y="40" text-anchor="middle" fill="#333" font-size="9">Light</text>
+                    
+                    <!-- Highlight one probe with sample directions -->
+                    <circle cx="350" cy="130" r="12" fill="none" stroke="#e74c3c" stroke-width="2"/>
+                    <line x1="350" y1="130" x2="320" y2="100" stroke="#e74c3c" stroke-width="1"/>
+                    <line x1="350" y1="130" x2="380" y2="105" stroke="#e74c3c" stroke-width="1"/>
+                    <line x1="350" y1="130" x2="335" y2="155" stroke="#e74c3c" stroke-width="1"/>
+                    <line x1="350" y1="130" x2="375" y2="150" stroke="#e74c3c" stroke-width="1"/>
+                    
+                    <!-- Labels -->
+                    <text x="400" y="180" text-anchor="middle" fill="#666" font-size="10">Each probe samples light from all directions → Pixels interpolate between nearby probes</text>
+                </svg>
+                <p class="caption"><em>Figure: Lumen's Radiance Cache stores indirect lighting at probe locations; pixels interpolate between them.</em></p>
+
+                <h3>Screen Traces and Final Gather</h3>
+
+                <p>For the final image, Lumen performs <strong>screen traces</strong>—rays shot from each visible pixel into the scene. These rays hit surfaces and look up the accumulated radiance from the cache system. This final gather step produces the smooth, high-quality indirect lighting you see on screen.</p>
+
+                <p>The multi-level approach (Surface Cache → Radiance Cache → Screen Traces) is what makes Lumen efficient. Each level reduces the work needed at the next, enabling real-time performance that would otherwise require offline rendering.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Key Insight</h4>
+                    <p>Lumen is fundamentally a <strong>temporal</strong> system—it spreads work across multiple frames. When lighting changes, you may notice a brief adjustment period as the caches update. This is normal and expected. In motion, the eye doesn't notice these subtle temporal transitions.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Lumen vs. Baked Lighting -->
+            <section id="lumen-vs-baked" class="lesson-section">
+                <h2>Lumen vs. Baked Lighting</h2>
+
+                <p>Before diving into Lumen's settings, it's essential to understand when Lumen is the right choice versus traditional baked (precomputed) lighting. Both approaches have their place in modern game development.</p>
+
+                <h3>Baked Lighting Overview</h3>
+
+                <p>Baked lighting pre-calculates indirect illumination and stores it in <strong>lightmap textures</strong>. The engine traces millions of light paths during a build process that can take minutes to hours, producing high-quality results that render extremely fast at runtime.</p>
+
+                <p><strong>Pros of Baked Lighting:</strong></p>
+                <ul>
+                    <li>Maximum quality—unlimited light bounces, no temporal artifacts</li>
+                    <li>Minimal runtime cost—just texture lookups</li>
+                    <li>Works on any hardware, including low-end mobile</li>
+                    <li>Consistent quality regardless of scene complexity</li>
+                </ul>
+
+                <p><strong>Cons of Baked Lighting:</strong></p>
+                <ul>
+                    <li>Static only—nothing lit by baked light can move</li>
+                    <li>Long iteration times (rebuild after every change)</li>
+                    <li>Memory cost for lightmap textures (can be gigabytes)</li>
+                    <li>UV layout requirements (lightmap UVs needed)</li>
+                </ul>
+
+                <h3>Lumen Advantages</h3>
+
+                <p>Lumen's dynamic nature provides significant workflow and capability benefits:</p>
+
+                <p><strong>Instant Iteration:</strong> Change a light color, move a wall, adjust a material—see results immediately. No waiting for builds. This accelerates the creative process enormously.</p>
+
+                <p><strong>Fully Dynamic Scenes:</strong> Doors can open and close, lights can turn on and off, objects can be destroyed—and the lighting responds naturally. This enables gameplay interactions that are impossible with baked lighting.</p>
+
+                <p><strong>No Lightmap UVs Required:</strong> Meshes don't need special UV channels for lightmaps, simplifying the asset pipeline.</p>
+
+                <p><strong>Consistent Look:</strong> Dynamic and static objects receive the same GI treatment, avoiding the mismatched look that can occur when mixing baked static lighting with dynamic objects.</p>
+
+                <!-- Mermaid: Comparison Chart -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Baked["Baked Lighting"]
+        B1["✅ Maximum quality"]
+        B2["✅ Minimal runtime cost"]
+        B3["✅ Any hardware"]
+        B4["❌ Static only"]
+        B5["❌ Long build times"]
+        B6["❌ High memory"]
+    end
+    
+    subgraph Lumen["Lumen GI"]
+        L1["✅ Fully dynamic"]
+        L2["✅ Instant iteration"]
+        L3["✅ No lightmap UVs"]
+        L4["⚠️ Requires modern GPU"]
+        L5["⚠️ Temporal settling"]
+        L6["⚠️ Runtime cost"]
+    end
+    
+    style Baked fill:#e3f2fd,stroke:#1976D2
+    style Lumen fill:#e8f5e9,stroke:#4CAF50
+                </pre>
+                <p class="caption"><em>Figure: Baked lighting and Lumen each have distinct advantages—choose based on your project's needs.</em></p>
+
+                <h3>When to Choose Each</h3>
+
+                <p><strong>Choose Lumen when:</strong></p>
+                <ul>
+                    <li>Your scene has dynamic elements (moving lights, destructible environments)</li>
+                    <li>You're targeting PC, current-gen consoles, or high-end hardware</li>
+                    <li>Rapid iteration during development is valuable</li>
+                    <li>You want consistent GI across dynamic and static objects</li>
+                </ul>
+
+                <p><strong>Choose Baked Lighting when:</strong></p>
+                <ul>
+                    <li>Targeting mobile or low-end hardware</li>
+                    <li>Your environment is completely static</li>
+                    <li>You need absolute maximum quality for cinematics</li>
+                    <li>Runtime performance budget is extremely tight</li>
+                </ul>
+
+                <p><strong>Hybrid Approaches:</strong> You can also combine both—use baked lighting for static elements and dynamic lights for interactive elements. Unreal supports mixing Stationary lights (baked indirect, dynamic direct) with Lumen for specific use cases.</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Project Setting: Global Illumination Method</h4>
+                    <p>In Project Settings → Rendering → Global Illumination, you choose your GI method: <strong>Lumen</strong>, <strong>Screen Space</strong>, or <strong>None</strong> (for baked-only). This is a project-wide setting that fundamentally changes how lighting works. Switching mid-project is possible but may require lighting adjustments.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Software vs. Hardware Ray Tracing -->
+            <section id="software-vs-hardware" class="lesson-section">
+                <h2>Software vs. Hardware Ray Tracing</h2>
+
+                <p>Lumen can trace rays using two different methods. Understanding the differences helps you choose the right mode for your project and hardware.</p>
+
+                <h3>Software Ray Tracing (Default)</h3>
+
+                <p>Software ray tracing uses <strong>Signed Distance Fields (SDFs)</strong>—mathematical representations of mesh surfaces stored as 3D textures. Rays march through these distance fields to find intersections, all running on standard GPU compute shaders.</p>
+
+                <p><strong>How SDFs Work:</strong> Each point in a distance field stores the distance to the nearest surface. A ray can "step" through the field by the stored distance each iteration—if the distance is 10 units, the ray knows it's safe to move 10 units without hitting anything. This makes tracing very efficient.</p>
+
+                <!-- SVG: SDF Concept -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Signed Distance Field Ray Marching</text>
+                    
+                    <!-- Object (circle for simplicity) -->
+                    <circle cx="500" cy="110" r="50" fill="#e74c3c" stroke="#fff" stroke-width="2"/>
+                    <text x="500" y="115" text-anchor="middle" fill="#fff" font-size="10">Object</text>
+                    
+                    <!-- Ray origin -->
+                    <circle cx="100" cy="110" r="8" fill="#4CAF50"/>
+                    <text x="100" y="90" text-anchor="middle" fill="#4CAF50" font-size="10">Ray Start</text>
+                    
+                    <!-- Distance field circles (safe travel distances) -->
+                    <circle cx="100" cy="110" r="80" fill="none" stroke="#667eea" stroke-width="1" stroke-dasharray="5,3" opacity="0.5"/>
+                    <circle cx="180" cy="110" r="60" fill="none" stroke="#667eea" stroke-width="1" stroke-dasharray="5,3" opacity="0.5"/>
+                    <circle cx="240" cy="110" r="50" fill="none" stroke="#667eea" stroke-width="1" stroke-dasharray="5,3" opacity="0.5"/>
+                    <circle cx="290" cy="110" r="45" fill="none" stroke="#667eea" stroke-width="1" stroke-dasharray="5,3" opacity="0.5"/>
+                    <circle cx="335" cy="110" r="40" fill="none" stroke="#667eea" stroke-width="1" stroke-dasharray="5,3" opacity="0.5"/>
+                    <circle cx="375" cy="110" r="35" fill="none" stroke="#667eea" stroke-width="1" stroke-dasharray="5,3" opacity="0.5"/>
+                    <circle cx="410" cy="110" r="30" fill="none" stroke="#667eea" stroke-width="1" stroke-dasharray="5,3" opacity="0.5"/>
+                    
+                    <!-- Step points -->
+                    <circle cx="180" cy="110" r="4" fill="#f1c40f"/>
+                    <circle cx="240" cy="110" r="4" fill="#f1c40f"/>
+                    <circle cx="290" cy="110" r="4" fill="#f1c40f"/>
+                    <circle cx="335" cy="110" r="4" fill="#f1c40f"/>
+                    <circle cx="375" cy="110" r="4" fill="#f1c40f"/>
+                    <circle cx="410" cy="110" r="4" fill="#f1c40f"/>
+                    <circle cx="450" cy="110" r="6" fill="#f44336"/>
+                    
+                    <!-- Ray line -->
+                    <line x1="100" y1="110" x2="450" y2="110" stroke="#f1c40f" stroke-width="2"/>
+                    
+                    <text x="400" y="180" text-anchor="middle" fill="#aaa" font-size="10">Ray steps by safe distance each iteration → Finds surface efficiently</text>
+                </svg>
+                <p class="caption"><em>Figure: SDF ray marching steps through the scene using distance values, efficiently finding surfaces.</em></p>
+
+                <p><strong>Software RT Pros:</strong></p>
+                <ul>
+                    <li>Works on any DirectX 11+ GPU (no RT cores needed)</li>
+                    <li>Fast for scenes with moderate mesh counts</li>
+                    <li>Lower memory overhead than hardware RT</li>
+                </ul>
+
+                <p><strong>Software RT Cons:</strong></p>
+                <ul>
+                    <li>Limited geometric detail (SDFs are approximations)</li>
+                    <li>Thin or highly detailed objects may not represent well</li>
+                    <li>Each mesh needs a generated distance field (build time)</li>
+                </ul>
+
+                <h3>Hardware Ray Tracing</h3>
+
+                <p>Hardware ray tracing uses the dedicated <strong>RT cores</strong> in modern GPUs (NVIDIA RTX 20/30/40 series, AMD RDNA2+). These specialized units accelerate ray-triangle intersection tests, enabling rays to trace against actual mesh triangles rather than SDF approximations.</p>
+
+                <p><strong>Hardware RT Pros:</strong></p>
+                <ul>
+                    <li>Higher geometric accuracy (traces actual triangles)</li>
+                    <li>Better results for detailed/thin geometry</li>
+                    <li>Can capture small surface details SDFs miss</li>
+                </ul>
+
+                <p><strong>Hardware RT Cons:</strong></p>
+                <ul>
+                    <li>Requires compatible GPU hardware</li>
+                    <li>Higher performance cost per ray</li>
+                    <li>Needs ray tracing structures built for meshes</li>
+                </ul>
+
+                <h3>Choosing Your Mode</h3>
+
+                <!-- SVG: Mode Comparison -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Software vs. Hardware Ray Tracing</text>
+                    
+                    <!-- Software RT -->
+                    <g transform="translate(100, 50)">
+                        <rect x="0" y="0" width="250" height="130" rx="8" fill="#e3f2fd" stroke="#1976D2" stroke-width="2"/>
+                        <text x="125" y="25" text-anchor="middle" fill="#1976D2" font-size="12" font-weight="bold">Software RT (SDF)</text>
+                        
+                        <text x="15" y="50" fill="#333" font-size="10">✅ Works on any modern GPU</text>
+                        <text x="15" y="68" fill="#333" font-size="10">✅ Lower memory usage</text>
+                        <text x="15" y="86" fill="#333" font-size="10">⚠️ Approximate geometry</text>
+                        <text x="15" y="104" fill="#333" font-size="10">⚠️ Thin objects problematic</text>
+                        
+                        <text x="125" y="125" text-anchor="middle" fill="#1976D2" font-size="9" font-weight="bold">Best for: Wide compatibility</text>
+                    </g>
+                    
+                    <!-- Hardware RT -->
+                    <g transform="translate(450, 50)">
+                        <rect x="0" y="0" width="250" height="130" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="125" y="25" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">Hardware RT</text>
+                        
+                        <text x="15" y="50" fill="#333" font-size="10">✅ Accurate triangle tracing</text>
+                        <text x="15" y="68" fill="#333" font-size="10">✅ Fine detail preserved</text>
+                        <text x="15" y="86" fill="#333" font-size="10">⚠️ Requires RTX/RDNA2+ GPU</text>
+                        <text x="15" y="104" fill="#333" font-size="10">⚠️ Higher performance cost</text>
+                        
+                        <text x="125" y="125" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Best for: High-end PCs</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Choose Software RT for compatibility or Hardware RT for maximum quality on supported hardware.</em></p>
+
+                <p>In practice, Lumen can <strong>combine both modes</strong>. You can use Software RT for distant objects and scene-wide GI while enabling Hardware RT for nearby detailed surfaces. This hybrid approach balances quality and performance.</p>
+
+                <h3>Enabling Hardware Ray Tracing</h3>
+
+                <p>To use Hardware RT with Lumen:</p>
+
+                <ol>
+                    <li>Go to <strong>Project Settings → Platforms → Windows → Targeted RHIs</strong></li>
+                    <li>Ensure <strong>DirectX 12</strong> is the default RHI (required for hardware RT)</li>
+                    <li>Go to <strong>Project Settings → Rendering → Hardware Ray Tracing</strong></li>
+                    <li>Enable <strong>Support Hardware Ray Tracing</strong></li>
+                    <li>In <strong>Lumen</strong> settings, set <strong>Ray Lighting Mode</strong> to "Hit Lighting for Reflections" or "Surface Cache + Hit Lighting"</li>
+                    <li>Restart the editor for changes to take effect</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommendation</h4>
+                    <p>Start with <strong>Software Ray Tracing</strong> (the default). It works well for most projects and keeps your game accessible to more players. Only enable Hardware RT if you specifically need its quality benefits and are targeting high-end hardware. You can always add it later as a scalability option.</p>
+                </div>
+            </section>
+            <!-- Section 5: Lumen Settings and Optimization -->
+            <section id="lumen-settings" class="lesson-section">
+                <h2>Lumen Settings and Optimization</h2>
+
+                <p>Lumen provides numerous settings to balance quality and performance for your specific needs. Understanding these settings helps you achieve the best results for your target hardware.</p>
+
+                <h3>Accessing Lumen Settings</h3>
+
+                <p>Lumen settings are found in several locations:</p>
+
+                <p><strong>Project Settings:</strong> Edit → Project Settings → Engine → Rendering. These are project-wide defaults.</p>
+
+                <p><strong>Post Process Volume:</strong> Place a Post Process Volume in your level and check "Infinite Extent" to affect the entire level. The Lumen section in its Details panel overrides project defaults.</p>
+
+                <p><strong>Console Variables:</strong> For testing, use console commands (` key) to adjust settings in real time. Prefix with "r.Lumen."</p>
+
+                <h3>Key Global Illumination Settings</h3>
+
+                <p>These settings control Lumen's indirect lighting quality:</p>
+
+                <p><strong>Lumen Scene Detail:</strong> Controls how detailed the Surface Cache representation is. Higher values capture finer geometric detail but cost more memory and performance. Range: 0.25 (low) to 4.0 (ultra). Default: 1.0.</p>
+
+                <p><strong>Lumen Scene Lighting Update Speed:</strong> How quickly indirect lighting responds to changes. Higher values = faster updates but more temporal noise. Lower values = smoother but slower to react. Range: 0.5 to 2.0. Default: 1.0.</p>
+
+                <p><strong>Final Gather Quality:</strong> Quality of the screen-space final gather pass. Higher values reduce noise but cost more. Range: 0.25 to 4.0. Default: 1.0.</p>
+
+                <p><strong>Max Trace Distance:</strong> How far rays travel to find bounced light. Larger values handle bigger spaces but cost more. Measured in Unreal units (centimeters). Default: 20000 (200 meters).</p>
+
+                <!-- SVG: Quality vs Performance -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Lumen Quality vs. Performance Trade-offs</text>
+                    
+                    <!-- Axis -->
+                    <line x1="100" y1="180" x2="700" y2="180" stroke="#333" stroke-width="2"/>
+                    <line x1="100" y1="180" x2="100" y2="50" stroke="#333" stroke-width="2"/>
+                    
+                    <!-- Axis labels -->
+                    <text x="400" y="205" text-anchor="middle" fill="#333" font-size="11">Quality Settings →</text>
+                    <text x="60" y="115" text-anchor="middle" fill="#333" font-size="11" transform="rotate(-90, 60, 115)">Performance Cost →</text>
+                    
+                    <!-- Quality levels -->
+                    <text x="150" y="195" text-anchor="middle" fill="#666" font-size="9">Low</text>
+                    <text x="300" y="195" text-anchor="middle" fill="#666" font-size="9">Medium</text>
+                    <text x="450" y="195" text-anchor="middle" fill="#666" font-size="9">High</text>
+                    <text x="600" y="195" text-anchor="middle" fill="#666" font-size="9">Ultra</text>
+                    
+                    <!-- Performance curve -->
+                    <path d="M 150 165 Q 300 155 450 120 Q 550 90 650 60" stroke="#e74c3c" stroke-width="3" fill="none"/>
+                    
+                    <!-- Data points -->
+                    <circle cx="150" cy="165" r="8" fill="#4CAF50"/>
+                    <circle cx="300" cy="150" r="8" fill="#8BC34A"/>
+                    <circle cx="450" cy="120" r="8" fill="#FFC107"/>
+                    <circle cx="600" cy="75" r="8" fill="#e74c3c"/>
+                    
+                    <!-- Labels -->
+                    <text x="150" y="145" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Fast</text>
+                    <text x="300" y="130" text-anchor="middle" fill="#8BC34A" font-size="9" font-weight="bold">Balanced</text>
+                    <text x="450" y="100" text-anchor="middle" fill="#FFC107" font-size="9" font-weight="bold">Quality</text>
+                    <text x="600" y="55" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">Max</text>
+                    
+                    <!-- Legend -->
+                    <rect x="620" y="130" width="150" height="60" rx="5" fill="#fff" stroke="#ddd"/>
+                    <text x="695" y="148" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Target Hardware</text>
+                    <circle cx="640" cy="165" r="5" fill="#4CAF50"/>
+                    <text x="655" y="168" fill="#666" font-size="8">Console/Mid PC</text>
+                    <circle cx="640" cy="180" r="5" fill="#e74c3c"/>
+                    <text x="655" y="183" fill="#666" font-size="8">High-End PC</text>
+                </svg>
+                <p class="caption"><em>Figure: Higher quality settings provide better visuals but require more powerful hardware.</em></p>
+
+                <h3>Key Reflection Settings</h3>
+
+                <p>Lumen Reflections have their own quality controls:</p>
+
+                <p><strong>Reflection Quality:</strong> Overall quality of traced reflections. Affects ray count and resolution. Range: 0.25 to 4.0. Default: 1.0.</p>
+
+                <p><strong>Ray Lighting Mode:</strong> Determines how reflections are lit:
+                </p>
+                <ul>
+                    <li><strong>Surface Cache:</strong> Uses the simplified surface cache (faster, default for Software RT)</li>
+                    <li><strong>Hit Lighting for Reflections:</strong> Evaluates full material shading for reflection rays (higher quality, requires Hardware RT)</li>
+                </ul>
+
+                <p><strong>Max Reflection Bounces:</strong> How many times reflections can bounce between surfaces. More bounces = more realistic mirror corridors but higher cost. Default: 1.</p>
+
+                <h3>Post Process Volume Overrides</h3>
+
+                <p>Using a Post Process Volume, you can fine-tune Lumen for specific areas or globally override project settings:</p>
+
+                <!-- SVG: Post Process Lumen Settings -->
+                <svg width="100%" height="280" viewBox="0 0 700 280" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Post Process Volume: Lumen Settings</text>
+                    
+                    <!-- Panel background -->
+                    <rect x="50" y="45" width="600" height="220" rx="5" fill="#3d3d3d" stroke="#555"/>
+                    
+                    <!-- Header -->
+                    <rect x="50" y="45" width="600" height="30" rx="5" fill="#4a4a4a"/>
+                    <text x="70" y="65" fill="#fff" font-size="11" font-weight="bold">▼ Lumen Global Illumination</text>
+                    
+                    <!-- Settings rows -->
+                    <g transform="translate(60, 90)">
+                        <!-- Row 1 -->
+                        <rect x="0" y="0" width="20" height="14" rx="2" fill="#667eea"/>
+                        <text x="30" y="11" fill="#aaa" font-size="10">Lumen Scene Detail</text>
+                        <rect x="350" y="0" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
+                        <text x="400" y="11" text-anchor="middle" fill="#fff" font-size="10">1.0</text>
+                        
+                        <!-- Row 2 -->
+                        <rect x="0" y="25" width="20" height="14" rx="2" fill="#667eea"/>
+                        <text x="30" y="36" fill="#aaa" font-size="10">Lumen Scene Lighting Update Speed</text>
+                        <rect x="350" y="25" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
+                        <text x="400" y="36" text-anchor="middle" fill="#fff" font-size="10">1.0</text>
+                        
+                        <!-- Row 3 -->
+                        <rect x="0" y="50" width="20" height="14" rx="2" fill="#667eea"/>
+                        <text x="30" y="61" fill="#aaa" font-size="10">Final Gather Quality</text>
+                        <rect x="350" y="50" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
+                        <text x="400" y="61" text-anchor="middle" fill="#fff" font-size="10">1.0</text>
+                        
+                        <!-- Row 4 -->
+                        <rect x="0" y="75" width="20" height="14" rx="2" fill="#667eea"/>
+                        <text x="30" y="86" fill="#aaa" font-size="10">Max Trace Distance</text>
+                        <rect x="350" y="75" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
+                        <text x="400" y="86" text-anchor="middle" fill="#fff" font-size="10">20000.0</text>
+                    </g>
+                    
+                    <!-- Reflections header -->
+                    <rect x="50" y="185" width="600" height="25" rx="0" fill="#4a4a4a"/>
+                    <text x="70" y="202" fill="#fff" font-size="11" font-weight="bold">▼ Lumen Reflections</text>
+                    
+                    <g transform="translate(60, 220)">
+                        <!-- Row 1 -->
+                        <rect x="0" y="0" width="20" height="14" rx="2" fill="#667eea"/>
+                        <text x="30" y="11" fill="#aaa" font-size="10">Reflection Quality</text>
+                        <rect x="350" y="0" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
+                        <text x="400" y="11" text-anchor="middle" fill="#fff" font-size="10">1.0</text>
+                        
+                        <!-- Row 2 -->
+                        <rect x="0" y="25" width="20" height="14" rx="2" fill="#667eea"/>
+                        <text x="30" y="36" fill="#aaa" font-size="10">Ray Lighting Mode</text>
+                        <rect x="350" y="25" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
+                        <text x="400" y="36" text-anchor="middle" fill="#fff" font-size="10">Surface Cache</text>
+                    </g>
+                    
+                    <!-- Checkbox indicator -->
+                    <text x="550" y="270" text-anchor="end" fill="#888" font-size="8">☑ = Override enabled</text>
+                </svg>
+                <p class="caption"><em>Figure: Lumen settings in a Post Process Volume. Check the box to override each setting.</em></p>
+
+                <h3>Optimization Strategies</h3>
+
+                <p>When Lumen performance isn't meeting your targets, try these approaches in order:</p>
+
+                <p><strong>1. Reduce Final Gather Quality First:</strong> This has the biggest performance impact. Try 0.5 for significant savings with minimal visual difference in motion.</p>
+
+                <p><strong>2. Lower Scene Detail:</strong> Reduce to 0.5 if your scene doesn't have many small objects that need accurate GI representation.</p>
+
+                <p><strong>3. Limit Max Trace Distance:</strong> For interior scenes, you may not need rays traveling 200 meters. Try 5000-10000 for rooms.</p>
+
+                <p><strong>4. Use Screen Space Global Illumination (SSGI) for Fallback:</strong> In scalability settings, lower quality tiers can fall back to cheaper SSGI instead of Lumen.</p>
+
+                <p><strong>5. Reduce Reflection Quality:</strong> Reflections are expensive. For non-critical surfaces, 0.5 quality is often sufficient.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Scalability Settings</h4>
+                    <p>Unreal's Scalability system (Engine → Scalability in Project Settings) lets you define quality presets (Low, Medium, High, Epic, Cinematic). Configure Lumen settings for each tier so players can adjust based on their hardware. The engine automatically applies the appropriate preset.</p>
+                </div>
+
+                <h3>Debugging Lumen</h3>
+
+                <p>Unreal provides visualization modes to understand what Lumen is doing:</p>
+
+                <p><strong>View Mode → Lumen → Lumen Scene:</strong> Shows the Surface Cache representation. Objects should appear with correct colors. Missing or black areas indicate Surface Cache problems.</p>
+
+                <p><strong>View Mode → Lumen → Lumen Reflections:</strong> Isolates reflection contribution. Useful for diagnosing reflection quality issues.</p>
+
+                <p><strong>Console: r.Lumen.Visualize.Mode:</strong> Various debug visualizations including radiance cache probes, ray directions, and more.</p>
+
+                <!-- Mermaid: Optimization Flowchart -->
+                <pre class="mermaid">
+flowchart TD
+    A["Performance Issues?"] --> B{"Check GPU Usage"}
+    
+    B -->|"Lumen GI High"| C["Reduce Final Gather Quality<br/>Try 0.5"]
+    B -->|"Lumen Reflections High"| D["Reduce Reflection Quality<br/>Try 0.5"]
+    B -->|"Surface Cache High"| E["Reduce Scene Detail<br/>Try 0.5"]
+    
+    C --> F{"Still Slow?"}
+    D --> F
+    E --> F
+    
+    F -->|"Yes"| G["Lower Max Trace Distance"]
+    F -->|"No"| H["✅ Performance Target Met"]
+    
+    G --> I{"Still Slow?"}
+    I -->|"Yes"| J["Consider SSGI Fallback<br/>or Baked Lighting"]
+    I -->|"No"| H
+    
+    style H fill:#4CAF50,color:#fff
+    style J fill:#FF9800,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Systematic approach to optimizing Lumen performance.</em></p>
+
+                <h3>Common Lumen Issues and Solutions</h3>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Troubleshooting Guide</h4>
+                    
+                    <p><strong>Issue: Black or missing indirect lighting on objects</strong></p>
+                    <p>Solution: Check that the mesh has "Generate Mesh Distance Field" enabled in its Static Mesh settings. Rebuild distance fields if needed.</p>
+                    
+                    <p><strong>Issue: Light leaking through thin walls</strong></p>
+                    <p>Solution: Increase wall thickness (minimum 10-20 cm recommended). Enable two-sided distance field generation for thin geometry. Consider using Hardware RT for better accuracy.</p>
+                    
+                    <p><strong>Issue: Flickering or unstable indirect lighting</strong></p>
+                    <p>Solution: Increase "Lumen Scene Lighting Update Speed" for faster settling. Ensure lights aren't moving erratically. Check for overlapping geometry causing conflicts.</p>
+                    
+                    <p><strong>Issue: Reflections show incorrect or outdated content</strong></p>
+                    <p>Solution: Reflections use the Surface Cache, which updates over time. Fast-moving objects may show stale reflections briefly—this is expected behavior. Increase reflection quality for faster updates.</p>
+                    
+                    <p><strong>Issue: Performance tanked after adding many small objects</strong></p>
+                    <p>Solution: Small objects contribute to Surface Cache cost. Consider merging small static meshes, reducing Scene Detail, or excluding decorative objects from Lumen (set "Affect Distance Field Lighting" to false).</p>
+                </div>
+            </section>
+
+            <!-- Section 6: When to Use Lumen -->
+            <section id="when-to-use-lumen" class="lesson-section">
+                <h2>When to Use Lumen</h2>
+
+                <p>Lumen is powerful but not universally appropriate. Understanding when to use it—and when alternatives make more sense—helps you make informed decisions for your projects.</p>
+
+                <h3>Ideal Use Cases for Lumen</h3>
+
+                <p><strong>Dynamic Environments:</strong> Games where lighting changes during gameplay—time of day cycles, destructible environments, doors opening/closing, lights turning on/off. Lumen handles all of these seamlessly.</p>
+
+                <p><strong>Rapid Iteration:</strong> During development, Lumen's instant feedback accelerates the creative process. Even if you plan to ship with baked lighting, developing with Lumen can be faster.</p>
+
+                <p><strong>Consistent Quality:</strong> Lumen treats static and dynamic objects identically. There's no visual mismatch between baked static meshes and dynamically-lit characters or movable props.</p>
+
+                <p><strong>Open Worlds:</strong> Streaming large worlds with Lumen is simpler than managing pre-computed lighting data across level boundaries.</p>
+
+                <p><strong>Next-Gen Consoles and PC:</strong> PlayStation 5, Xbox Series X|S, and modern gaming PCs have the GPU power to run Lumen at good quality levels.</p>
+
+                <!-- SVG: Use Case Matrix -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Lumen: Ideal Use Cases</text>
+                    
+                    <!-- Grid of use cases -->
+                    <g transform="translate(50, 50)">
+                        <!-- Row 1 -->
+                        <rect x="0" y="0" width="220" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="110" y="25" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">🌅 Dynamic Time of Day</text>
+                        <text x="110" y="45" text-anchor="middle" fill="#666" font-size="9">Sun moves, lighting updates</text>
+                        <text x="110" y="60" text-anchor="middle" fill="#666" font-size="9">automatically throughout cycle</text>
+                        
+                        <rect x="240" y="0" width="220" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="350" y="25" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">💥 Destructible Environments</text>
+                        <text x="350" y="45" text-anchor="middle" fill="#666" font-size="9">Walls break, light floods in</text>
+                        <text x="350" y="60" text-anchor="middle" fill="#666" font-size="9">GI responds naturally</text>
+                        
+                        <rect x="480" y="0" width="220" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="590" y="25" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">🚪 Interactive Lighting</text>
+                        <text x="590" y="45" text-anchor="middle" fill="#666" font-size="9">Toggle lights, open doors</text>
+                        <text x="590" y="60" text-anchor="middle" fill="#666" font-size="9">Real-time GI changes</text>
+                        
+                        <!-- Row 2 -->
+                        <rect x="0" y="100" width="220" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="110" y="125" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">🎨 Fast Art Iteration</text>
+                        <text x="110" y="145" text-anchor="middle" fill="#666" font-size="9">No bake times, instant</text>
+                        <text x="110" y="160" text-anchor="middle" fill="#666" font-size="9">feedback on changes</text>
+                        
+                        <rect x="240" y="100" width="220" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="350" y="125" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">🌍 Open World Games</text>
+                        <text x="350" y="145" text-anchor="middle" fill="#666" font-size="9">Streaming without lightmap</text>
+                        <text x="350" y="160" text-anchor="middle" fill="#666" font-size="9">management complexity</text>
+                        
+                        <rect x="480" y="100" width="220" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="590" y="125" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="bold">🎮 Current-Gen Consoles</text>
+                        <text x="590" y="145" text-anchor="middle" fill="#666" font-size="9">PS5, Xbox Series X|S</text>
+                        <text x="590" y="160" text-anchor="middle" fill="#666" font-size="9">have GPU power for Lumen</text>
+                    </g>
+                    
+                    <text x="400" y="260" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">✅ Lumen excels in these scenarios</text>
+                </svg>
+                <p class="caption"><em>Figure: Lumen is ideal for dynamic, interactive, and rapidly-iterated projects on capable hardware.</em></p>
+
+                <h3>When to Consider Alternatives</h3>
+
+                <p>Lumen isn't the right choice for every project:</p>
+
+                <p><strong>Mobile Games:</strong> Current mobile GPUs can't run Lumen effectively. Use baked lighting or simpler dynamic solutions for mobile targets.</p>
+
+                <p><strong>Low-End PC / Previous-Gen Consoles:</strong> PS4, Xbox One, and integrated graphics struggle with Lumen. Consider baked lighting with limited dynamic lights.</p>
+
+                <p><strong>Completely Static Environments:</strong> If nothing in your level ever moves or changes, baked lighting provides maximum quality at minimal runtime cost.</p>
+
+                <p><strong>Stylized/Non-Photorealistic Art:</strong> Lumen is designed for physically-based rendering. Highly stylized games may not benefit from realistic GI and might prefer simpler, art-directed lighting.</p>
+
+                <p><strong>VR (Virtual Reality):</strong> VR requires very high, stable framerates (90fps+). Lumen's performance cost and temporal artifacts can be problematic. Many VR games use baked or simpler dynamic lighting.</p>
+
+                <!-- Mermaid: Decision Tree -->
+                <pre class="mermaid">
+flowchart TD
+    A["Choosing GI Method"] --> B{"Target Platform?"}
+    
+    B -->|"Mobile"| C["❌ Not Lumen<br/>Use Baked Lighting"]
+    B -->|"PS4/Xbox One"| D["❌ Not Lumen<br/>Use Baked + Limited Dynamic"]
+    B -->|"PS5/XSX/PC"| E{"Dynamic Lighting<br/>Needed?"}
+    
+    E -->|"Yes, frequently"| F["✅ Use Lumen"]
+    E -->|"No, static scene"| G{"Iteration Speed<br/>Important?"}
+    
+    G -->|"Yes"| H["✅ Develop with Lumen<br/>Consider baking for ship"]
+    G -->|"No"| I["Consider Baked<br/>for max quality"]
+    
+    F --> J{"Performance OK?"}
+    J -->|"Yes"| K["✅ Ship with Lumen"]
+    J -->|"No"| L["Optimize settings or<br/>hybrid approach"]
+    
+    style C fill:#f44336,color:#fff
+    style D fill:#f44336,color:#fff
+    style F fill:#4CAF50,color:#fff
+    style K fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Decision tree for choosing between Lumen and alternative GI solutions.</em></p>
+
+                <h3>Hybrid Approaches</h3>
+
+                <p>You're not limited to purely Lumen or purely baked lighting. Several hybrid strategies can optimize for specific needs:</p>
+
+                <p><strong>Lumen + Baked Skylighting:</strong> Use Lumen for local lights but bake skylighting for distant outdoor ambient. Reduces Lumen's workload while maintaining dynamic local lighting.</p>
+
+                <p><strong>Scalability Fallback:</strong> Ship with Lumen for high-end settings but fall back to SSGI or even baked lighting for low settings. This maximizes audience reach.</p>
+
+                <p><strong>Develop with Lumen, Ship with Baked:</strong> Use Lumen during development for fast iteration. When content is final, bake lighting for maximum quality and performance on target platforms.</p>
+
+                <p><strong>Lumen for Interiors, Simplified Outdoors:</strong> Use full Lumen indoors where bounce lighting matters most. Outdoors, rely more on direct lighting and atmospheric effects with reduced Lumen contribution.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 The Fortnite Approach</h4>
+                    <p>Epic's Fortnite uses Lumen on current-gen consoles and PC while providing fallback rendering for older hardware and mobile. This demonstrates that hybrid approaches work at scale—you can have cutting-edge visuals for capable hardware without abandoning your broader audience.</p>
+                </div>
+
+                <h3>Performance Expectations</h3>
+
+                <p>To set realistic expectations, here are rough performance guidelines:</p>
+
+                <p><strong>High-End PC (RTX 3080+):</strong> Lumen at Epic/Cinematic quality, 4K, 60fps achievable in most scenes.</p>
+
+                <p><strong>Mid-Range PC (RTX 3060):</strong> Lumen at High quality, 1440p, 60fps typical. May need Medium settings for complex scenes.</p>
+
+                <p><strong>Current-Gen Consoles (PS5/XSX):</strong> Lumen at High quality, 1080-1440p, 30-60fps depending on other scene complexity.</p>
+
+                <p><strong>Steam Deck / Entry GPUs:</strong> Lumen at Low/Medium, 720-900p, 30fps. Consider SSGI fallback for better performance.</p>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Profile, Don't Guess</h4>
+                    <p>These are rough guidelines. Actual performance depends heavily on scene complexity, material shaders, number of lights, and many other factors. Always profile your specific content using Unreal's profiling tools (Stat GPU, Unreal Insights) to identify real bottlenecks.</p>
+                </div>
+            </section>
+            <!-- Section 7: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Enable and Configure Lumen</h2>
+
+                <p>Let's put everything together by setting up and configuring Lumen in a practical scenario. We'll start with a fresh project, verify Lumen is active, configure settings for quality, and test dynamic lighting behavior.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Configure a scene with Lumen GI and Reflections, verify dynamic lighting works correctly, optimize settings for your hardware, and understand how to diagnose common issues.</p>
+                </div>
+
+                <h3>Step 1: Verify Lumen is Enabled</h3>
+
+                <p>New UE5 projects have Lumen enabled by default, but let's confirm:</p>
+
+                <ol>
+                    <li>Open your project (or create a new Third Person template project)</li>
+                    <li>Go to <strong>Edit → Project Settings</strong></li>
+                    <li>Navigate to <strong>Engine → Rendering → Global Illumination</strong></li>
+                    <li>Verify <strong>Dynamic Global Illumination Method</strong> is set to <strong>Lumen</strong></li>
+                    <li>Under <strong>Reflections</strong>, verify <strong>Reflection Method</strong> is set to <strong>Lumen</strong></li>
+                </ol>
+
+                <!-- SVG: Project Settings Location -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Project Settings: Lumen Configuration</text>
+                    
+                    <!-- Settings panel mockup -->
+                    <rect x="50" y="45" width="600" height="140" rx="5" fill="#3d3d3d" stroke="#555"/>
+                    
+                    <!-- Search bar -->
+                    <rect x="60" y="55" width="200" height="20" rx="3" fill="#4a4a4a"/>
+                    <text x="70" y="69" fill="#888" font-size="9">🔍 Search...</text>
+                    
+                    <!-- Category tree -->
+                    <text x="70" y="95" fill="#aaa" font-size="10">▼ Engine</text>
+                    <text x="85" y="112" fill="#667eea" font-size="10">▶ Rendering</text>
+                    <text x="100" y="129" fill="#fff" font-size="9">Global Illumination</text>
+                    <text x="100" y="146" fill="#aaa" font-size="9">Reflections</text>
+                    <text x="100" y="163" fill="#aaa" font-size="9">Lumen</text>
+                    
+                    <!-- Right panel -->
+                    <rect x="280" y="55" width="360" height="120" rx="3" fill="#4a4a4a"/>
+                    
+                    <text x="295" y="75" fill="#fff" font-size="10" font-weight="bold">Global Illumination</text>
+                    
+                    <text x="295" y="100" fill="#aaa" font-size="9">Dynamic Global Illumination Method</text>
+                    <rect x="480" y="88" width="140" height="18" rx="2" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="550" y="101" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Lumen ▼</text>
+                    
+                    <text x="295" y="130" fill="#fff" font-size="10" font-weight="bold">Reflections</text>
+                    
+                    <text x="295" y="155" fill="#aaa" font-size="9">Reflection Method</text>
+                    <rect x="480" y="143" width="140" height="18" rx="2" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="550" y="156" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Lumen ▼</text>
+                </svg>
+                <p class="caption"><em>Figure: Verify Lumen is set as both the GI and Reflection method in Project Settings.</em></p>
+
+                <h3>Step 2: Create a Test Environment</h3>
+
+                <p>Build a simple scene to observe Lumen's behavior:</p>
+
+                <ol>
+                    <li>Create a new level (File → New Level → Empty Level)</li>
+                    <li>Add a floor: Place Actors → Basic → Cube, scale to (20, 20, 0.1)</li>
+                    <li>Add walls: Create three more cubes as walls around the floor, leaving one side open</li>
+                    <li>Add a ceiling: Another cube scaled flat above the walls</li>
+                    <li>Add a <strong>Directional Light</strong> representing the sun</li>
+                    <li>Add a <strong>Sky Atmosphere</strong> and <strong>SkyLight</strong> for ambient</li>
+                    <li>Place a few simple objects inside the room (cubes, spheres)</li>
+                </ol>
+
+                <p>You should now have a basic room with one open wall where sunlight can enter.</p>
+
+                <h3>Step 3: Observe Lumen Global Illumination</h3>
+
+                <p>With Lumen active, you should immediately see indirect lighting effects:</p>
+
+                <ol>
+                    <li>Look at the interior walls—they should be softly lit by bounced sunlight, not completely black</li>
+                    <li>Place a brightly colored cube (apply a red or blue material) near a white wall</li>
+                    <li>Observe color bleeding—the wall should pick up a subtle tint from the colored cube</li>
+                    <li>Move the colored cube and watch the color bleeding update in real time</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Checkpoint</h4>
+                    <p>If you see soft indirect lighting on interior surfaces and color bleeding from colored objects, Lumen GI is working correctly. If surfaces appear completely black in shadow, check that Lumen is enabled and that your SkyLight is configured properly.</p>
+                </div>
+
+                <h3>Step 4: Test Dynamic Lighting</h3>
+
+                <p>Demonstrate Lumen's dynamic nature:</p>
+
+                <p><strong>Test 1 - Moving Light:</strong></p>
+                <ol>
+                    <li>Select the Directional Light</li>
+                    <li>Rotate it to change the sun angle</li>
+                    <li>Watch how interior indirect lighting updates immediately</li>
+                    <li>Note the brief "settling" period as the radiance cache updates</li>
+                </ol>
+
+                <p><strong>Test 2 - Toggling Lights:</strong></p>
+                <ol>
+                    <li>Add a Point Light inside the room</li>
+                    <li>Set it to a bright color (orange or blue)</li>
+                    <li>Toggle the light on/off using the checkbox in Details panel</li>
+                    <li>Observe how the entire room's indirect lighting changes</li>
+                </ol>
+
+                <p><strong>Test 3 - Moving Geometry:</strong></p>
+                <ol>
+                    <li>Select one of your walls</li>
+                    <li>Move it while watching the interior lighting</li>
+                    <li>Light should flood in or be blocked as the wall moves</li>
+                    <li>This is impossible with baked lighting!</li>
+                </ol>
+
+                <h3>Step 5: Configure a Post Process Volume</h3>
+
+                <p>Set up scene-wide Lumen control:</p>
+
+                <ol>
+                    <li>Place Actors → Volumes → Post Process Volume</li>
+                    <li>In Details panel, check <strong>Infinite Extent (Unbound)</strong></li>
+                    <li>Expand the <strong>Lumen Global Illumination</strong> section</li>
+                    <li>Check the override box next to <strong>Lumen Scene Detail</strong></li>
+                    <li>Try different values (0.5, 1.0, 2.0) and observe quality differences</li>
+                    <li>Check override for <strong>Final Gather Quality</strong> and experiment</li>
+                </ol>
+
+                <h3>Step 6: Test Reflections</h3>
+
+                <p>Create a reflective surface to see Lumen Reflections:</p>
+
+                <ol>
+                    <li>Create a new Material in Content Browser</li>
+                    <li>Set <strong>Metallic</strong> to 1.0</li>
+                    <li>Set <strong>Roughness</strong> to 0.0 (perfect mirror)</li>
+                    <li>Apply to a cube or sphere in your scene</li>
+                    <li>The reflective surface should show the room, including indirect lighting</li>
+                    <li>Move objects and watch reflections update in real time</li>
+                </ol>
+
+                <!-- SVG: Reflection Test Setup -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Lumen Reflections Test</text>
+                    
+                    <!-- Room -->
+                    <rect x="100" y="50" width="300" height="130" fill="#2a2a2a" stroke="#555"/>
+                    
+                    <!-- Objects in room -->
+                    <rect x="150" y="120" width="40" height="50" fill="#e74c3c"/>
+                    <circle cx="250" cy="145" r="25" fill="#3498db"/>
+                    
+                    <!-- Light -->
+                    <circle cx="200" cy="70" r="15" fill="#f1c40f"/>
+                    <line x1="200" y1="85" x2="170" y2="140" stroke="#f1c40f" stroke-width="1" opacity="0.5"/>
+                    <line x1="200" y1="85" x2="230" y2="140" stroke="#f1c40f" stroke-width="1" opacity="0.5"/>
+                    
+                    <!-- Mirror -->
+                    <rect x="450" y="60" width="150" height="110" fill="url(#mirrorGradient)" stroke="#667eea" stroke-width="2"/>
+                    
+                    <!-- Reflection content (simplified) -->
+                    <rect x="480" y="100" width="25" height="35" fill="#e74c3c" opacity="0.6"/>
+                    <circle cx="540" cy="115" r="18" fill="#3498db" opacity="0.6"/>
+                    <circle cx="510" y="80" r="10" fill="#f1c40f" opacity="0.6"/>
+                    
+                    <!-- Labels -->
+                    <text x="250" y="190" text-anchor="middle" fill="#aaa" font-size="10">Scene Objects</text>
+                    <text x="525" y="190" text-anchor="middle" fill="#aaa" font-size="10">Mirror Surface</text>
+                    
+                    <!-- Arrow -->
+                    <path d="M 320 110 L 430 110" stroke="#667eea" stroke-width="2" marker-end="url(#reflArrow)" stroke-dasharray="5,3"/>
+                    <text x="375" y="100" text-anchor="middle" fill="#667eea" font-size="9">Reflected</text>
+                    
+                    <defs>
+                        <linearGradient id="mirrorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4a6fa5"/>
+                            <stop offset="100%" style="stop-color:#2a3f5f"/>
+                        </linearGradient>
+                        <marker id="reflArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: A mirror material shows Lumen Reflections capturing the scene in real time.</em></p>
+
+                <h3>Step 7: Use Debug Visualizations</h3>
+
+                <p>Explore Lumen's inner workings:</p>
+
+                <ol>
+                    <li>In the viewport, click <strong>View Mode</strong> (usually "Lit")</li>
+                    <li>Navigate to <strong>Lumen → Lumen Scene</strong></li>
+                    <li>This shows the Surface Cache—your scene represented as colored cards</li>
+                    <li>Check that all surfaces appear with correct colors</li>
+                    <li>Black or missing areas indicate Surface Cache problems</li>
+                    <li>Try <strong>Lumen → Lumen Reflections</strong> to isolate reflection contribution</li>
+                    <li>Return to <strong>Lit</strong> mode when done</li>
+                </ol>
+
+                <h3>Step 8: Optimize for Your Hardware</h3>
+
+                <p>Find the right balance for your system:</p>
+
+                <ol>
+                    <li>Open the console with the <strong>`</strong> (backtick) key</li>
+                    <li>Type <code>stat gpu</code> to see GPU timing breakdown</li>
+                    <li>Look for "Lumen" entries—these show GI and Reflection costs</li>
+                    <li>If Lumen is taking too long, reduce quality in Post Process Volume:</li>
+                </ol>
+
+                <p><strong>For performance issues, try these adjustments in order:</strong></p>
+                <ol>
+                    <li>Final Gather Quality: 1.0 → 0.5</li>
+                    <li>Lumen Scene Detail: 1.0 → 0.5</li>
+                    <li>Reflection Quality: 1.0 → 0.5</li>
+                    <li>Max Trace Distance: 20000 → 10000 (for indoor scenes)</li>
+                </ol>
+
+                <p>Re-check <code>stat gpu</code> after each change to see the impact.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've successfully configured Lumen, observed its dynamic behavior, tested reflections, used debug views, and learned to optimize settings. These skills transfer directly to production projects.</p>
+                </div>
+
+                <h3>Bonus: Hardware Ray Tracing (Optional)</h3>
+
+                <p>If you have an RTX or RDNA2+ GPU and want to try Hardware RT:</p>
+
+                <ol>
+                    <li>Go to Project Settings → Platforms → Windows</li>
+                    <li>Set Default RHI to <strong>DirectX 12</strong></li>
+                    <li>Go to Project Settings → Rendering → Hardware Ray Tracing</li>
+                    <li>Enable <strong>Support Hardware Ray Tracing</strong></li>
+                    <li>Restart the editor</li>
+                    <li>In your Post Process Volume, find <strong>Lumen Reflections</strong></li>
+                    <li>Set <strong>Ray Lighting Mode</strong> to "Hit Lighting for Reflections"</li>
+                    <li>Observe improved reflection quality (at higher performance cost)</li>
+                </ol>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Hardware RT Considerations</h4>
+                    <p>Hardware RT significantly increases quality but also GPU load. Monitor performance with <code>stat gpu</code> and only use if your hardware can sustain acceptable framerates. Software RT (the default) is a great balance for most projects.</p>
+                </div>
+            </section>
+
+            <!-- Section 8: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned about Lumen—Unreal Engine 5's revolutionary real-time global illumination and reflection system. Lumen eliminates the traditional trade-off between dynamic lighting and quality indirect illumination, enabling new possibilities for interactive and iterative development.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>What Lumen Is:</strong> A fully dynamic global illumination and reflection system that calculates light bounces in real time. It uses Surface Cache, Radiance Cache, and screen traces to achieve real-time performance.</p>
+
+                <p><strong>How Lumen Works:</strong> Meshes are captured into a simplified Surface Cache. A Radiance Cache of probes stores accumulated indirect lighting. Screen traces gather final illumination for each pixel. The system updates continuously as your scene changes.</p>
+
+                <p><strong>Software vs. Hardware RT:</strong> Software Ray Tracing uses Signed Distance Fields and works on any modern GPU. Hardware Ray Tracing uses dedicated RT cores for higher quality but requires compatible hardware (RTX/RDNA2+). Both can be combined.</p>
+
+                <p><strong>Lumen vs. Baked:</strong> Lumen provides instant iteration and fully dynamic scenes. Baked lighting offers maximum quality and performance for static environments. Choose based on your project's needs and target hardware.</p>
+
+                <p><strong>Optimization:</strong> Key settings include Final Gather Quality, Scene Detail, and Reflection Quality. Reduce these systematically when performance is insufficient. Use stat gpu and debug views to diagnose issues.</p>
+
+                <p><strong>When to Use Lumen:</strong> Ideal for dynamic environments, rapid iteration, and current-gen hardware. Consider alternatives for mobile, low-end PCs, VR, or completely static scenes.</p>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Start with defaults:</strong> Lumen's default settings work well for most projects</li>
+                    <li><strong>Profile early:</strong> Use stat gpu to understand performance on target hardware</li>
+                    <li><strong>Optimize systematically:</strong> Reduce Final Gather first, then Scene Detail, then Reflections</li>
+                    <li><strong>Check Surface Cache:</strong> Use Lumen Scene view mode to diagnose missing indirect lighting</li>
+                    <li><strong>Consider scalability:</strong> Set up different quality presets for different hardware tiers</li>
+                    <li><strong>Embrace the temporal nature:</strong> Brief settling after changes is normal and expected</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="180" viewBox="0 0 800 180" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Lumen: Real-Time Global Illumination</text>
+                    
+                    <!-- Pipeline visualization -->
+                    <g transform="translate(50, 50)">
+                        <!-- Surface Cache -->
+                        <rect x="0" y="20" width="140" height="80" rx="8" fill="#e3f2fd" stroke="#1976D2" stroke-width="2"/>
+                        <text x="70" y="50" text-anchor="middle" fill="#1976D2" font-size="10" font-weight="bold">Surface Cache</text>
+                        <text x="70" y="70" text-anchor="middle" fill="#666" font-size="8">Simplified mesh</text>
+                        <text x="70" y="85" text-anchor="middle" fill="#666" font-size="8">representation</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 150 60 L 190 60" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                        
+                        <!-- Radiance Cache -->
+                        <rect x="200" y="20" width="140" height="80" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="270" y="50" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Radiance Cache</text>
+                        <text x="270" y="70" text-anchor="middle" fill="#666" font-size="8">3D probe grid</text>
+                        <text x="270" y="85" text-anchor="middle" fill="#666" font-size="8">storing light</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 350 60 L 390 60" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                        
+                        <!-- Screen Traces -->
+                        <rect x="400" y="20" width="140" height="80" rx="8" fill="#fff3e0" stroke="#FF9800" stroke-width="2"/>
+                        <text x="470" y="50" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Screen Traces</text>
+                        <text x="470" y="70" text-anchor="middle" fill="#666" font-size="8">Final gather</text>
+                        <text x="470" y="85" text-anchor="middle" fill="#666" font-size="8">per pixel</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 550 60 L 590 60" stroke="#667eea" stroke-width="2" marker-end="url(#sumArrow)"/>
+                        
+                        <!-- Final Image -->
+                        <rect x="600" y="20" width="100" height="80" rx="8" fill="#667eea"/>
+                        <text x="650" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Final</text>
+                        <text x="650" y="72" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Image</text>
+                    </g>
+                    
+                    <text x="400" y="160" text-anchor="middle" fill="#666" font-size="10">Dynamic • Real-Time • No Baking Required</text>
+                    
+                    <defs>
+                        <marker id="sumArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Lumen's multi-stage pipeline enables real-time global illumination.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>With Lumen providing beautiful indirect lighting, the next lesson explores <strong>Post-Process Effects</strong>—the final polish that transforms good-looking scenes into cinematic experiences. You'll learn about exposure control, color grading, bloom, ambient occlusion, and other effects that work alongside Lumen to create stunning visuals.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is the primary advantage of Lumen over traditional baked lighting?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Lumen uses less GPU memory</label>
+                            <label><input type="radio" name="q1" value="b"> Lumen provides fully dynamic indirect lighting that updates in real time</label>
+                            <label><input type="radio" name="q1" value="c"> Lumen works on all mobile devices</label>
+                            <label><input type="radio" name="q1" value="d"> Lumen produces higher quality than any baked solution</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Lumen's key advantage is fully dynamic indirect lighting. Move objects, change lights, open doors—Lumen updates everything in real time. Baked lighting cannot respond to runtime changes.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What does Lumen's Surface Cache store?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Pre-computed lightmaps for each mesh</label>
+                            <label><input type="radio" name="q2" value="b"> Simplified representations of mesh surfaces with material properties</label>
+                            <label><input type="radio" name="q2" value="c"> Shadow map textures for all lights</label>
+                            <label><input type="radio" name="q2" value="d"> Animation data for dynamic objects</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The Surface Cache captures simplified "cards" representing mesh surfaces, storing their material properties (color, roughness, etc.). This enables fast indirect lighting calculations without re-evaluating complex shaders.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is the difference between Software and Hardware Ray Tracing in Lumen?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Software RT is newer and always better quality</label>
+                            <label><input type="radio" name="q3" value="b"> Hardware RT works on any GPU while Software RT requires special hardware</label>
+                            <label><input type="radio" name="q3" value="c"> Software RT uses distance fields; Hardware RT uses dedicated GPU cores to trace actual triangles</label>
+                            <label><input type="radio" name="q3" value="d"> There is no difference—they produce identical results</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Software RT uses Signed Distance Fields to trace rays on standard GPU compute shaders. Hardware RT uses dedicated RT cores (on RTX/RDNA2+ GPUs) to trace against actual mesh triangles for higher geometric accuracy.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Which Lumen setting should you reduce FIRST when experiencing performance issues?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Lumen Scene Detail</label>
+                            <label><input type="radio" name="q4" value="b"> Max Trace Distance</label>
+                            <label><input type="radio" name="q4" value="c"> Final Gather Quality</label>
+                            <label><input type="radio" name="q4" value="d"> Reflection Quality</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — Final Gather Quality has the biggest performance impact. Reducing it from 1.0 to 0.5 provides significant savings with minimal visual difference in motion. It should be the first adjustment when optimizing.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>For which scenario is Lumen NOT recommended?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> A game with dynamic time-of-day cycles</label>
+                            <label><input type="radio" name="q5" value="b"> A mobile game targeting smartphones</label>
+                            <label><input type="radio" name="q5" value="c"> A PS5 game with destructible environments</label>
+                            <label><input type="radio" name="q5" value="d"> Rapid iteration during level design</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Mobile GPUs cannot run Lumen effectively. Mobile games should use baked lighting or simpler dynamic solutions. Lumen is ideal for current-gen consoles and PC but not suitable for mobile platforms.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m04_l03_interior_lighting.html" class="btn">← Previous: Interior Lighting</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m04_l05_post_process_effects.html" class="btn">Next: Post-Process Effects →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Understand Player Controllers and Pawns in Unreal Engine 5. Learn how possession works, the difference between Pawns and Characters, and how player input is routed through the controller system.">
+    <meta name="author" content="Practical Ace">
+    <title>Player Controllers and Pawns - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 6: Player Interaction and Input</a></li>
+            <li aria-current="page">Lesson 6.1: Player Controllers and Pawns</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎮 Player Controllers and Pawns</h1>
+                <p class="lead">Every game needs a way to connect the player to the game world. In Unreal Engine, this connection is managed through a carefully designed system of Controllers and Pawns. The Controller represents the player's will—their inputs and decisions. The Pawn represents their physical presence in the world—something that can move, be seen, and interact with the environment. Understanding how these pieces fit together is fundamental to creating any interactive experience in Unreal. In this lesson, you'll learn how Unreal's player system works and how to leverage it for your own games.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain the role of Player Controllers in Unreal's gameplay framework</li>
+                        <li>Distinguish between Pawns and Characters and when to use each</li>
+                        <li>Understand how possession connects controllers to pawns</li>
+                        <li>Configure the default Pawn class in Project Settings</li>
+                        <li>Describe how Game Mode orchestrates player spawning</li>
+                        <li>Navigate and examine the default player setup in a project</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-55 minutes</p>
+                    <p><strong>Prerequisites:</strong> Module 5 (Introduction to Blueprints)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#player-controller" class="toc-link">The Player Controller Explained</a></li>
+                        <li><a href="#pawns-vs-characters" class="toc-link">Pawns vs. Characters</a></li>
+                        <li><a href="#possession" class="toc-link">Possession and Input Routing</a></li>
+                        <li><a href="#game-mode" class="toc-link">Game Mode Basics</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Examine the Default Player Setup</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: The Player Controller Explained -->
+            <section id="player-controller" class="lesson-section">
+                <h2>The Player Controller Explained</h2>
+
+                <p>The <strong>Player Controller</strong> is the brain behind the player's presence in the game. It receives input from the keyboard, mouse, gamepad, or other devices and translates those inputs into actions. Think of it as the bridge between the human playing the game and the virtual character on screen.</p>
+
+                <h3>What Does the Player Controller Do?</h3>
+
+                <p>The Player Controller handles several key responsibilities:</p>
+
+                <p><strong>Input Reception:</strong> The controller receives all input from the player's devices. When you press W to move forward or click to fire, that input goes to the Player Controller first.</p>
+
+                <p><strong>Camera Management:</strong> The controller often manages camera rotation and view control, especially for first-person and third-person games. The PlayerCameraManager is owned by the controller.</p>
+
+                <p><strong>HUD and UI Ownership:</strong> The controller typically owns the player's HUD and manages UI interactions. It knows when to show menus, pause screens, or in-game overlays.</p>
+
+                <p><strong>Possession:</strong> The controller "possesses" a Pawn to control it. This relationship can change—the same controller can possess different pawns during gameplay (like switching vehicles or characters).</p>
+
+                <p><strong>Game State Awareness:</strong> The controller persists across level loads and pawn deaths. It maintains player-specific information that shouldn't be lost when respawning.</p>
+
+                <!-- SVG: Player Controller Responsibilities -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Player Controller Responsibilities</text>
+                    
+                    <!-- Controller in center -->
+                    <g transform="translate(300, 80)">
+                        <rect x="0" y="0" width="200" height="80" rx="10" fill="#667eea" stroke="#4a5fb8" stroke-width="2"/>
+                        <text x="100" y="35" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Player Controller</text>
+                        <text x="100" y="55" text-anchor="middle" fill="#c5cae9" font-size="10">The player's "brain"</text>
+                        <text x="100" y="70" text-anchor="middle" fill="#c5cae9" font-size="10">in the game world</text>
+                    </g>
+                    
+                    <!-- Input -->
+                    <g transform="translate(50, 100)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#e3f2fd" stroke="#1976D2" stroke-width="2"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">🎮 Input</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#666" font-size="8">Keyboard, Mouse</text>
+                        <text x="60" y="48" text-anchor="middle" fill="#666" font-size="8">Gamepad, Touch</text>
+                    </g>
+                    <path d="M 170 125 L 290 120" stroke="#1976D2" stroke-width="2" marker-end="url(#pcArrow)"/>
+                    
+                    <!-- Camera -->
+                    <g transform="translate(630, 70)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#fff3e0" stroke="#FF9800" stroke-width="2"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#E65100" font-size="10" font-weight="bold">📷 Camera</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#666" font-size="8">View control</text>
+                        <text x="60" y="48" text-anchor="middle" fill="#666" font-size="8">Camera Manager</text>
+                    </g>
+                    <path d="M 510 110 L 620 100" stroke="#FF9800" stroke-width="2" marker-end="url(#pcArrow)"/>
+                    
+                    <!-- HUD/UI -->
+                    <g transform="translate(630, 140)">
+                        <rect x="0" y="0" width="120" height="50" rx="5" fill="#fce4ec" stroke="#E91E63" stroke-width="2"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#C2185B" font-size="10" font-weight="bold">🖼️ HUD / UI</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#666" font-size="8">Menus, overlays</text>
+                        <text x="60" y="48" text-anchor="middle" fill="#666" font-size="8">Player widgets</text>
+                    </g>
+                    <path d="M 510 130 L 620 155" stroke="#E91E63" stroke-width="2" marker-end="url(#pcArrow)"/>
+                    
+                    <!-- Possessed Pawn -->
+                    <g transform="translate(340, 200)">
+                        <rect x="0" y="0" width="120" height="60" rx="5" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#2E7D32" font-size="10" font-weight="bold">🧍 Pawn</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#666" font-size="8">Physical body</text>
+                        <text x="60" y="52" text-anchor="middle" fill="#666" font-size="8">in the world</text>
+                    </g>
+                    <path d="M 400 165 L 400 195" stroke="#4CAF50" stroke-width="3" marker-end="url(#pcArrow)"/>
+                    <text x="420" y="185" fill="#4CAF50" font-size="9" font-weight="bold">Possesses</text>
+                    
+                    <defs>
+                        <marker id="pcArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The Player Controller receives input, manages camera and UI, and possesses a Pawn.</em></p>
+
+                <h3>Controller vs. Pawn: Separation of Concerns</h3>
+
+                <p>You might wonder: why not just put everything in one class? Unreal separates the Controller and Pawn for several good reasons:</p>
+
+                <p><strong>Reusability:</strong> The same Controller class can possess different Pawn types. A player might control a soldier, then enter a vehicle, then pilot a drone—all with the same Controller adapting to each Pawn's capabilities.</p>
+
+                <p><strong>Persistence:</strong> When a Pawn dies, it's destroyed. But the Controller survives. This lets you track scores, unlocks, and player state across deaths and respawns.</p>
+
+                <p><strong>Network Replication:</strong> In multiplayer games, Controllers exist on the server and owning client, while Pawns replicate to all clients. This separation helps manage network authority.</p>
+
+                <p><strong>Clean Architecture:</strong> Input handling logic stays separate from physics and animation logic. This makes code easier to maintain and modify.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Real-World Analogy</h4>
+                    <p>Think of it like remote-controlled cars. The Controller is the remote (and the person holding it). The Pawn is the car. You can use one remote to control different cars, and if a car breaks, you just get a new one while keeping the same remote. The remote (controller) knows which buttons do what; the car (pawn) knows how to actually move.</p>
+                </div>
+
+                <h3>The PlayerController Class</h3>
+
+                <p>Unreal provides the <strong>APlayerController</strong> class (in C++) or <strong>PlayerController</strong> (in Blueprints) as the base for player-controlled entities. Key aspects include:</p>
+
+                <p><strong>One Per Player:</strong> Each human player in the game has exactly one Player Controller. In multiplayer, each connected player has their own controller instance.</p>
+
+                <p><strong>Created Automatically:</strong> The Game Mode spawns Player Controllers when players join. You don't manually create them in most cases.</p>
+
+                <p><strong>Customizable:</strong> You can create custom Player Controller Blueprints to add game-specific functionality like custom camera controls, special input handling, or player-specific logic.</p>
+
+                <p>For most projects, you'll either use the default PlayerController or create a Blueprint child class with your additions.</p>
+
+                <!-- Mermaid: Controller Hierarchy -->
+                <pre class="mermaid">
+flowchart TD
+    A["AController<br/>(Base Class)"] --> B["APlayerController<br/>(Human Players)"]
+    A --> C["AAIController<br/>(AI-Controlled)"]
+    
+    B --> D["Your Custom<br/>PlayerController BP"]
+    C --> E["Enemy AI Controller"]
+    C --> F["NPC Controller"]
+    
+    D --> G["Possesses Player Pawn"]
+    E --> H["Possesses Enemy Pawn"]
+    
+    style A fill:#e0e0e0,color:#333
+    style B fill:#667eea,color:#fff
+    style C fill:#ff9800,color:#fff
+    style D fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Controller class hierarchy. Player Controllers handle human input; AI Controllers handle NPC behavior.</em></p>
+            </section>
+
+            <!-- Section 2: Pawns vs. Characters -->
+            <section id="pawns-vs-characters" class="lesson-section">
+                <h2>Pawns vs. Characters</h2>
+
+                <p>While the Controller handles the "thinking," the <strong>Pawn</strong> is the physical representation in the game world. But Unreal offers two levels of Pawn: the basic Pawn and the more feature-rich Character. Understanding when to use each is crucial.</p>
+
+                <h3>The Pawn Class</h3>
+
+                <p><strong>APawn</strong> is the base class for anything that can be controlled by a player or AI. A Pawn:</p>
+
+                <ul>
+                    <li>Can be possessed by a Controller</li>
+                    <li>Has a root component for transforms</li>
+                    <li>Can receive input when possessed</li>
+                    <li>Has no built-in movement logic</li>
+                    <li>Has no built-in collision handling</li>
+                </ul>
+
+                <p>Pawns are lightweight and flexible. Use them when you need full control over movement and behavior, or when the built-in Character features don't fit your needs.</p>
+
+                <p><strong>Good use cases for Pawn:</strong></p>
+                <ul>
+                    <li>Vehicles (cars, planes, boats)</li>
+                    <li>Cameras or spectator modes</li>
+                    <li>RTS-style unit selection (no direct movement)</li>
+                    <li>Custom movement systems (swimming creatures, zero-gravity)</li>
+                    <li>Menu or UI-only controllers</li>
+                </ul>
+
+                <h3>The Character Class</h3>
+
+                <p><strong>ACharacter</strong> extends Pawn with features specifically designed for humanoid, walking characters. A Character includes:</p>
+
+                <p><strong>Character Movement Component:</strong> A powerful component that handles walking, running, jumping, falling, swimming, flying, and more. It manages acceleration, friction, gravity, and all the complex physics of bipedal movement.</p>
+
+                <p><strong>Capsule Component:</strong> A built-in collision capsule sized for humanoid characters. Handles ground detection, step-up onto small obstacles, and collision with the world.</p>
+
+                <p><strong>Skeletal Mesh Component:</strong> Ready to attach an animated skeletal mesh for character visuals.</p>
+
+                <p><strong>Networking Support:</strong> Built-in replication for multiplayer character movement with prediction and correction.</p>
+
+                <!-- SVG: Pawn vs Character -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Pawn vs. Character Comparison</text>
+                    
+                    <!-- Pawn -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="320" height="220" rx="10" fill="#fff" stroke="#2196F3" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="35" rx="10" fill="#2196F3"/>
+                        <text x="160" y="24" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">APawn (Base Class)</text>
+                        
+                        <!-- Features -->
+                        <text x="20" y="60" fill="#333" font-size="10" font-weight="bold">Included:</text>
+                        <text x="20" y="80" fill="#4CAF50" font-size="9">✓ Can be possessed by Controller</text>
+                        <text x="20" y="95" fill="#4CAF50" font-size="9">✓ Receives input when possessed</text>
+                        <text x="20" y="110" fill="#4CAF50" font-size="9">✓ Has transform (location/rotation)</text>
+                        <text x="20" y="125" fill="#4CAF50" font-size="9">✓ Lightweight and flexible</text>
+                        
+                        <text x="20" y="150" fill="#333" font-size="10" font-weight="bold">Not Included:</text>
+                        <text x="20" y="170" fill="#f44336" font-size="9">✗ No movement component</text>
+                        <text x="20" y="185" fill="#f44336" font-size="9">✗ No collision capsule</text>
+                        <text x="20" y="200" fill="#f44336" font-size="9">✗ No skeletal mesh setup</text>
+                        
+                        <text x="160" y="230" text-anchor="middle" fill="#1976D2" font-size="9" font-weight="bold">Best for: Vehicles, cameras, custom systems</text>
+                    </g>
+                    
+                    <!-- Character -->
+                    <g transform="translate(430, 50)">
+                        <rect x="0" y="0" width="320" height="220" rx="10" fill="#fff" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="35" rx="10" fill="#4CAF50"/>
+                        <text x="160" y="24" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">ACharacter (Extends Pawn)</text>
+                        
+                        <!-- Features -->
+                        <text x="20" y="60" fill="#333" font-size="10" font-weight="bold">Everything in Pawn, plus:</text>
+                        <text x="20" y="80" fill="#4CAF50" font-size="9">✓ Character Movement Component</text>
+                        <text x="20" y="95" fill="#4CAF50" font-size="9">✓ Capsule collision component</text>
+                        <text x="20" y="110" fill="#4CAF50" font-size="9">✓ Skeletal mesh component</text>
+                        <text x="20" y="125" fill="#4CAF50" font-size="9">✓ Walking, running, jumping</text>
+                        <text x="20" y="140" fill="#4CAF50" font-size="9">✓ Swimming, flying modes</text>
+                        <text x="20" y="155" fill="#4CAF50" font-size="9">✓ Step-up, slopes, stairs</text>
+                        <text x="20" y="170" fill="#4CAF50" font-size="9">✓ Network movement replication</text>
+                        
+                        <text x="20" y="195" fill="#333" font-size="10" font-weight="bold">Trade-off:</text>
+                        <text x="20" y="212" fill="#FF9800" font-size="9">⚠ More complex, heavier weight</text>
+                        
+                        <text x="160" y="240" text-anchor="middle" fill="#2E7D32" font-size="9" font-weight="bold">Best for: Humanoid player characters, NPCs</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Pawn is lightweight and flexible; Character adds humanoid movement features.</em></p>
+
+                <h3>When to Use Each</h3>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Use Character When:</h4>
+                    <ul>
+                        <li>Your player is a humanoid that walks, runs, and jumps</li>
+                        <li>You want built-in physics for ground movement</li>
+                        <li>You need standard FPS/TPS player movement</li>
+                        <li>You're building a typical action or adventure game</li>
+                        <li>You want multiplayer movement replication out of the box</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>✅ Use Pawn When:</h4>
+                    <ul>
+                        <li>You're making a vehicle (car, plane, spaceship)</li>
+                        <li>Movement doesn't fit the walking/jumping model</li>
+                        <li>You need a spectator or camera-only controller</li>
+                        <li>You want complete control over movement physics</li>
+                        <li>You're building something unconventional (puzzle piece, abstract entity)</li>
+                    </ul>
+                </div>
+
+                <h3>The Default Pawn</h3>
+
+                <p>Unreal provides a <strong>Default Pawn</strong> class that's a step between basic Pawn and Character. It includes:</p>
+
+                <ul>
+                    <li>A sphere collision component</li>
+                    <li>A simple Floating Pawn Movement component (flies freely, no gravity)</li>
+                    <li>Good for spectator cameras or simple flying pawns</li>
+                </ul>
+
+                <p>This is what you get in a blank project if you don't specify a custom pawn—the "flying camera" experience when you hit Play.</p>
+            </section>
+
+            <!-- Section 3: Possession and Input Routing -->
+            <section id="possession" class="lesson-section">
+                <h2>Possession and Input Routing</h2>
+
+                <p><strong>Possession</strong> is the mechanism that connects a Controller to a Pawn. When a Controller possesses a Pawn, input flows from the player through the Controller to the Pawn, enabling control.</p>
+
+                <h3>How Possession Works</h3>
+
+                <p>When a Controller possesses a Pawn:</p>
+
+                <ol>
+                    <li>The Controller calls <code>Possess(Pawn)</code></li>
+                    <li>The Pawn's <code>PossessedBy(Controller)</code> event fires</li>
+                    <li>The Controller stores a reference to the Pawn</li>
+                    <li>The Pawn stores a reference to the Controller</li>
+                    <li>Input starts flowing from Controller to Pawn</li>
+                    <li>The Pawn's <code>OnPossessed</code> Blueprint event triggers</li>
+                </ol>
+
+                <p>When unpossessing:</p>
+
+                <ol>
+                    <li>The Controller calls <code>UnPossess()</code></li>
+                    <li>The Pawn's <code>UnPossessedBy(Controller)</code> event fires</li>
+                    <li>References are cleared</li>
+                    <li>Input stops flowing to that Pawn</li>
+                </ol>
+
+                <!-- SVG: Possession Flow -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Possession: Connecting Controller to Pawn</text>
+                    
+                    <!-- Before -->
+                    <g transform="translate(50, 60)">
+                        <text x="100" y="0" text-anchor="middle" fill="#888" font-size="11">Before Possession</text>
+                        
+                        <rect x="0" y="15" width="80" height="50" rx="5" fill="#667eea"/>
+                        <text x="40" y="45" text-anchor="middle" fill="#fff" font-size="9">Controller</text>
+                        
+                        <rect x="120" y="15" width="80" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="160" y="45" text-anchor="middle" fill="#fff" font-size="9">Pawn</text>
+                        
+                        <text x="100" y="90" text-anchor="middle" fill="#f44336" font-size="9">No connection</text>
+                        <text x="100" y="105" text-anchor="middle" fill="#888" font-size="8">Input goes nowhere</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 280 110 L 350 110" stroke="#f1c40f" stroke-width="3" marker-end="url(#possArrow)"/>
+                    <text x="315" y="95" text-anchor="middle" fill="#f1c40f" font-size="10">Possess()</text>
+                    
+                    <!-- After -->
+                    <g transform="translate(380, 60)">
+                        <text x="160" y="0" text-anchor="middle" fill="#4CAF50" font-size="11">After Possession</text>
+                        
+                        <rect x="0" y="15" width="80" height="50" rx="5" fill="#667eea"/>
+                        <text x="40" y="45" text-anchor="middle" fill="#fff" font-size="9">Controller</text>
+                        
+                        <!-- Connection line -->
+                        <line x1="85" y1="40" x2="115" y2="40" stroke="#4CAF50" stroke-width="3"/>
+                        <circle cx="100" cy="40" r="5" fill="#4CAF50"/>
+                        
+                        <rect x="120" y="15" width="80" height="50" rx="5" fill="#4CAF50"/>
+                        <text x="160" y="45" text-anchor="middle" fill="#fff" font-size="9">Pawn</text>
+                        
+                        <!-- Input flow -->
+                        <rect x="220" y="20" width="100" height="40" rx="5" fill="#3d3d3d" stroke="#888"/>
+                        <text x="270" y="35" text-anchor="middle" fill="#aaa" font-size="8">🎮 Input</text>
+                        <text x="270" y="50" text-anchor="middle" fill="#888" font-size="7">flows through</text>
+                        
+                        <path d="M 320 40 L 360 40" stroke="#4CAF50" stroke-width="2" marker-end="url(#possArrow2)"/>
+                        
+                        <text x="160" y="90" text-anchor="middle" fill="#4CAF50" font-size="9">Connected!</text>
+                        <text x="160" y="105" text-anchor="middle" fill="#888" font-size="8">Pawn responds to input</text>
+                    </g>
+                    
+                    <!-- Events note -->
+                    <g transform="translate(50, 170)">
+                        <rect x="0" y="0" width="700" height="35" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                        <text x="350" y="15" text-anchor="middle" fill="#667eea" font-size="9">Events fired: OnPossess (Controller) → PossessedBy (Pawn) → RestartPlayer → Enable Input</text>
+                        <text x="350" y="28" text-anchor="middle" fill="#888" font-size="8">You can override these events in Blueprints to add custom behavior</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="possArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                            <polygon points="0 0, 10 4, 0 8" fill="#f1c40f"/>
+                        </marker>
+                        <marker id="possArrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Possession creates the connection that allows input to flow from Controller to Pawn.</em></p>
+
+                <h3>Input Routing</h3>
+
+                <p>Once possessed, input follows this path:</p>
+
+                <ol>
+                    <li><strong>Hardware:</strong> Physical input occurs (key press, mouse move, button)</li>
+                    <li><strong>Engine Input System:</strong> Unreal captures the raw input</li>
+                    <li><strong>Player Controller:</strong> Input is routed to the owning Player Controller</li>
+                    <li><strong>Enhanced Input:</strong> Input Actions and Mappings process the raw input</li>
+                    <li><strong>Pawn:</strong> Bound input actions trigger events on the possessed Pawn</li>
+                </ol>
+
+                <p>This chain means you can handle input at different levels:</p>
+
+                <ul>
+                    <li><strong>Controller level:</strong> UI inputs, menu toggles, camera control</li>
+                    <li><strong>Pawn level:</strong> Movement, actions specific to that pawn type</li>
+                </ul>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Input Enable/Disable</h4>
+                    <p>Pawns can enable or disable input reception. When input is disabled (via <code>Disable Input</code> node), the Pawn ignores player input even while possessed. This is useful for cutscenes, death states, or menu screens where you don't want the player moving around.</p>
+                </div>
+
+                <h3>Switching Pawns</h3>
+
+                <p>A powerful feature of the Controller/Pawn separation is the ability to switch between different Pawns:</p>
+
+                <p><strong>Example: Entering a Vehicle</strong></p>
+                <ol>
+                    <li>Player walks up to car (controlling Character pawn)</li>
+                    <li>Player presses "Enter Vehicle" button</li>
+                    <li>Controller unpossesses the Character</li>
+                    <li>Controller possesses the Vehicle pawn</li>
+                    <li>Input now controls vehicle movement</li>
+                    <li>Character can be hidden or remain visible in driver seat</li>
+                </ol>
+
+                <p>This transition is seamless because the Controller persists—it just switches which Pawn it's controlling.</p>
+
+                <!-- Mermaid: Pawn Switching -->
+                <pre class="mermaid">
+sequenceDiagram
+    participant P as Player
+    participant PC as PlayerController
+    participant Char as Character
+    participant Veh as Vehicle
+
+    Note over PC,Char: Initial State: Possessing Character
+    P->>PC: Press "Enter Vehicle"
+    PC->>Char: UnPossess()
+    Char-->>PC: Input disabled
+    PC->>Veh: Possess()
+    Veh-->>PC: Input enabled
+    Note over PC,Veh: Now controlling vehicle
+    
+    P->>PC: Press "Exit Vehicle"
+    PC->>Veh: UnPossess()
+    PC->>Char: Possess()
+    Note over PC,Char: Back to character
+                </pre>
+                <p class="caption"><em>Figure: Possession switching allows one controller to operate different pawns.</em></p>
+
+                <h3>Getting References</h3>
+
+                <p>In Blueprints, you'll often need to get references between Controllers and Pawns:</p>
+
+                <p><strong>From Controller to Pawn:</strong></p>
+                <ul>
+                    <li><code>Get Controlled Pawn</code> — returns the currently possessed Pawn</li>
+                    <li><code>Get Pawn</code> (on PlayerController) — same result</li>
+                </ul>
+
+                <p><strong>From Pawn to Controller:</strong></p>
+                <ul>
+                    <li><code>Get Controller</code> — returns the Controller possessing this Pawn</li>
+                    <li><code>Get Player Controller</code> (if you know it's a player) — casts to PlayerController</li>
+                </ul>
+
+                <p><strong>From Anywhere:</strong></p>
+                <ul>
+                    <li><code>Get Player Controller (index 0)</code> — gets the first player's controller</li>
+                    <li><code>Get Player Pawn (index 0)</code> — gets the first player's pawn directly</li>
+                </ul>
+            </section>
+            <!-- Section 4: Game Mode Basics -->
+            <section id="game-mode" class="lesson-section">
+                <h2>Game Mode Basics</h2>
+
+                <p>The <strong>Game Mode</strong> is the rulebook of your game. It defines what classes are used for players, how players spawn, and the fundamental rules of gameplay. While Controllers and Pawns handle individual players, the Game Mode orchestrates the entire game session.</p>
+
+                <h3>What Does Game Mode Control?</h3>
+
+                <p>The Game Mode is responsible for:</p>
+
+                <p><strong>Default Classes:</strong> Specifies which classes to use for the Player Controller, Default Pawn, HUD, Player State, and Game State. When a player joins, the Game Mode spawns these classes automatically.</p>
+
+                <p><strong>Player Spawning:</strong> Determines where and how players spawn into the level. It finds Player Start actors and places new players at those locations.</p>
+
+                <p><strong>Match Flow:</strong> Manages game states like "waiting for players," "match in progress," and "match ended." Controls when players can join or leave.</p>
+
+                <p><strong>Game Rules:</strong> Defines win/lose conditions, scoring rules, and other game-specific logic at the session level.</p>
+
+                <!-- SVG: Game Mode Overview -->
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Game Mode: The Orchestrator</text>
+                    
+                    <!-- Game Mode central -->
+                    <g transform="translate(300, 50)">
+                        <rect x="0" y="0" width="200" height="70" rx="10" fill="#9C27B0" stroke="#7B1FA2" stroke-width="2"/>
+                        <text x="100" y="30" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Game Mode</text>
+                        <text x="100" y="50" text-anchor="middle" fill="#e1bee7" font-size="10">Defines rules & default classes</text>
+                    </g>
+                    
+                    <!-- Spawned classes -->
+                    <g transform="translate(50, 160)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#667eea" stroke="#4a5fb8"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Player Controller</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#c5cae9" font-size="8">Default: PlayerController</text>
+                    </g>
+                    <path d="M 340 125 L 140 155" stroke="#9C27B0" stroke-width="2" marker-end="url(#gmArrow)"/>
+                    
+                    <g transform="translate(200, 160)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#4CAF50" stroke="#388E3C"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Default Pawn</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#c8e6c9" font-size="8">Your character class</text>
+                    </g>
+                    <path d="M 380 125 L 280 155" stroke="#9C27B0" stroke-width="2" marker-end="url(#gmArrow)"/>
+                    
+                    <g transform="translate(350, 160)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#E91E63" stroke="#C2185B"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">HUD Class</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#f8bbd9" font-size="8">Player's interface</text>
+                    </g>
+                    <path d="M 420 125 L 420 155" stroke="#9C27B0" stroke-width="2" marker-end="url(#gmArrow)"/>
+                    
+                    <g transform="translate(500, 160)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#FF9800" stroke="#F57C00"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Player State</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#ffe0b2" font-size="8">Per-player data</text>
+                    </g>
+                    <path d="M 460 125 L 560 155" stroke="#9C27B0" stroke-width="2" marker-end="url(#gmArrow)"/>
+                    
+                    <g transform="translate(650, 160)">
+                        <rect x="0" y="0" width="130" height="60" rx="5" fill="#00BCD4" stroke="#0097A7"/>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Game State</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#b2ebf2" font-size="8">Shared game data</text>
+                    </g>
+                    <path d="M 500 125 L 700 155" stroke="#9C27B0" stroke-width="2" marker-end="url(#gmArrow)"/>
+                    
+                    <!-- Player Start -->
+                    <g transform="translate(50, 250)">
+                        <rect x="0" y="0" width="700" height="50" rx="5" fill="#fff" stroke="#9C27B0" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="350" y="20" text-anchor="middle" fill="#7B1FA2" font-size="11" font-weight="bold">Player Spawning</text>
+                        <text x="350" y="38" text-anchor="middle" fill="#666" font-size="9">Game Mode finds Player Start actors → Spawns Pawn → Controller possesses Pawn</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="gmArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#9C27B0"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Game Mode specifies default classes and handles player spawning.</em></p>
+
+                <h3>Game Mode vs. Game Mode Base</h3>
+
+                <p>Unreal provides two Game Mode classes:</p>
+
+                <p><strong>AGameModeBase:</strong> The simpler version with basic functionality. Good for single-player games or when you want full control over game flow.</p>
+
+                <p><strong>AGameMode:</strong> Extends GameModeBase with additional features for competitive multiplayer: match states, ready-up systems, and team management. More complex but feature-rich.</p>
+
+                <p>For most single-player projects, GameModeBase is sufficient. Use GameMode when building competitive multiplayer games that need match flow management.</p>
+
+                <h3>Setting Up Default Classes</h3>
+
+                <p>In your Game Mode Blueprint (or Project Settings), you specify:</p>
+
+                <p><strong>Default Pawn Class:</strong> The Pawn or Character that spawns for each player. This is where you'd set your custom character Blueprint.</p>
+
+                <p><strong>Player Controller Class:</strong> The controller class for human players. Usually the default PlayerController unless you need custom functionality.</p>
+
+                <p><strong>HUD Class:</strong> The HUD class displayed for each player. Can be None if using UMG widgets instead.</p>
+
+                <p><strong>Player State Class:</strong> Stores replicated per-player information (score, name, team). Important for multiplayer.</p>
+
+                <p><strong>Game State Class:</strong> Stores replicated game-wide information (match timer, team scores). Important for multiplayer.</p>
+
+                <!-- SVG: Game Mode Classes Panel -->
+                <svg width="100%" height="220" viewBox="0 0 700 220" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Game Mode: Classes Settings</text>
+                    
+                    <!-- Panel -->
+                    <rect x="50" y="45" width="600" height="160" rx="5" fill="#3d3d3d" stroke="#555"/>
+                    
+                    <!-- Header -->
+                    <rect x="50" y="45" width="600" height="25" rx="5" fill="#4a4a4a"/>
+                    <text x="70" y="62" fill="#fff" font-size="10" font-weight="bold">▼ Classes</text>
+                    
+                    <!-- Rows -->
+                    <g transform="translate(60, 80)">
+                        <text x="0" y="12" fill="#aaa" font-size="9">Default Pawn Class</text>
+                        <rect x="280" y="0" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#4CAF50"/>
+                        <text x="290" y="12" fill="#4CAF50" font-size="9">BP_ThirdPersonCharacter</text>
+                        
+                        <text x="0" y="35" fill="#aaa" font-size="9">Player Controller Class</text>
+                        <rect x="280" y="23" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#667eea"/>
+                        <text x="290" y="35" fill="#667eea" font-size="9">PlayerController</text>
+                        
+                        <text x="0" y="58" fill="#aaa" font-size="9">HUD Class</text>
+                        <rect x="280" y="46" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#888"/>
+                        <text x="290" y="58" fill="#888" font-size="9">None</text>
+                        
+                        <text x="0" y="81" fill="#aaa" font-size="9">Player State Class</text>
+                        <rect x="280" y="69" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#FF9800"/>
+                        <text x="290" y="81" fill="#FF9800" font-size="9">PlayerState</text>
+                        
+                        <text x="0" y="104" fill="#aaa" font-size="9">Game State Class</text>
+                        <rect x="280" y="92" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#00BCD4"/>
+                        <text x="290" y="104" fill="#00BCD4" font-size="9">GameStateBase</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Game Mode Blueprint specifies which classes to use for players and game state.</em></p>
+
+                <h3>Where to Set the Game Mode</h3>
+
+                <p>Game Mode can be set at different levels of specificity:</p>
+
+                <p><strong>Project Settings (Global Default):</strong> Edit → Project Settings → Maps & Modes → Default GameMode. This applies to all levels unless overridden.</p>
+
+                <p><strong>World Settings (Per Level):</strong> With a level open, Window → World Settings → GameMode Override. This level will use this Game Mode regardless of project default.</p>
+
+                <p><strong>URL Parameter:</strong> When launching with command line or loading levels via code, you can specify Game Mode as a URL parameter.</p>
+
+                <!-- Mermaid: Game Mode Priority -->
+                <pre class="mermaid">
+flowchart TD
+    A["Level Loads"] --> B{"World Settings<br/>GameMode Override?"}
+    
+    B -->|"Yes"| C["Use World Settings<br/>Game Mode"]
+    B -->|"No"| D{"Project Settings<br/>Default GameMode?"}
+    
+    D -->|"Yes"| E["Use Project Default<br/>Game Mode"]
+    D -->|"No"| F["Use Engine Default<br/>GameModeBase"]
+    
+    C --> G["Spawn Players with<br/>specified classes"]
+    E --> G
+    F --> G
+    
+    style C fill:#4CAF50,color:#fff
+    style E fill:#2196F3,color:#fff
+    style F fill:#FF9800,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Game Mode selection priority—World Settings overrides Project Settings.</em></p>
+
+                <h3>Player Start Actors</h3>
+
+                <p>The Game Mode needs to know <em>where</em> to spawn players. This is determined by <strong>Player Start</strong> actors placed in your level.</p>
+
+                <p><strong>Placing Player Starts:</strong></p>
+                <ol>
+                    <li>Open Place Actors panel</li>
+                    <li>Search for "Player Start"</li>
+                    <li>Drag into your level at desired spawn location</li>
+                    <li>Rotate to set initial facing direction</li>
+                </ol>
+
+                <p>When Play is pressed or a player joins, the Game Mode:</p>
+                <ol>
+                    <li>Finds available Player Start actors</li>
+                    <li>Chooses one (first available, or by custom logic)</li>
+                    <li>Spawns the Default Pawn at that location</li>
+                    <li>Player Controller possesses the spawned Pawn</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Multiple Player Starts</h4>
+                    <p>You can place multiple Player Start actors for multiplayer games or to randomize spawn points. In multiplayer, the Game Mode distributes players across available starts. You can also create custom spawn logic by overriding <code>FindPlayerStart</code> or <code>ChoosePlayerStart</code> in your Game Mode.</p>
+                </div>
+
+                <h3>The Gameplay Framework Overview</h3>
+
+                <p>Let's see how all these pieces connect:</p>
+
+                <!-- SVG: Complete Framework -->
+                <svg width="100%" height="350" viewBox="0 0 800 350" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Unreal Gameplay Framework Overview</text>
+                    
+                    <!-- Game Mode at top -->
+                    <g transform="translate(300, 45)">
+                        <rect x="0" y="0" width="200" height="50" rx="8" fill="#9C27B0"/>
+                        <text x="100" y="22" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Game Mode</text>
+                        <text x="100" y="38" text-anchor="middle" fill="#e1bee7" font-size="8">Rules, spawning, classes</text>
+                    </g>
+                    
+                    <!-- Game State -->
+                    <g transform="translate(550, 45)">
+                        <rect x="0" y="0" width="150" height="50" rx="8" fill="#00BCD4"/>
+                        <text x="75" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Game State</text>
+                        <text x="75" y="38" text-anchor="middle" fill="#b2ebf2" font-size="8">Shared game data</text>
+                    </g>
+                    <line x1="505" y1="70" x2="545" y2="70" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+                    
+                    <!-- Per-Player section -->
+                    <rect x="80" y="115" width="640" height="200" rx="10" fill="rgba(102,126,234,0.1)" stroke="#667eea" stroke-dasharray="5,3"/>
+                    <text x="400" y="135" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Per Player (one set for each human player)</text>
+                    
+                    <!-- Player Controller -->
+                    <g transform="translate(120, 155)">
+                        <rect x="0" y="0" width="160" height="60" rx="8" fill="#667eea"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Player Controller</text>
+                        <text x="80" y="42" text-anchor="middle" fill="#c5cae9" font-size="8">Input, camera, UI</text>
+                    </g>
+                    
+                    <!-- Player State -->
+                    <g transform="translate(120, 235)">
+                        <rect x="0" y="0" width="160" height="50" rx="8" fill="#FF9800"/>
+                        <text x="80" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Player State</text>
+                        <text x="80" y="38" text-anchor="middle" fill="#ffe0b2" font-size="8">Score, name, team</text>
+                    </g>
+                    <line x1="200" y1="220" x2="200" y2="230" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+                    
+                    <!-- Pawn -->
+                    <g transform="translate(350, 170)">
+                        <rect x="0" y="0" width="160" height="80" rx="8" fill="#4CAF50"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Pawn / Character</text>
+                        <text x="80" y="42" text-anchor="middle" fill="#c8e6c9" font-size="8">Physical body</text>
+                        <text x="80" y="58" text-anchor="middle" fill="#c8e6c9" font-size="8">Movement, collision</text>
+                    </g>
+                    
+                    <!-- Possession arrow -->
+                    <path d="M 285 185 L 345 200" stroke="#4CAF50" stroke-width="3" marker-end="url(#fwArrow)"/>
+                    <text x="310" y="180" fill="#4CAF50" font-size="8" font-weight="bold">Possesses</text>
+                    
+                    <!-- HUD -->
+                    <g transform="translate(580, 155)">
+                        <rect x="0" y="0" width="120" height="50" rx="8" fill="#E91E63"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">HUD</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#f8bbd9" font-size="8">UI display</text>
+                    </g>
+                    <line x1="285" y1="180" x2="575" y2="180" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+                    
+                    <!-- Input Camera Manager -->
+                    <g transform="translate(580, 225)">
+                        <rect x="0" y="0" width="120" height="50" rx="8" fill="#795548"/>
+                        <text x="60" y="22" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Camera Manager</text>
+                        <text x="60" y="38" text-anchor="middle" fill="#d7ccc8" font-size="8">View control</text>
+                    </g>
+                    <line x1="285" y1="195" x2="575" y2="250" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+                    
+                    <!-- Spawn arrow from Game Mode -->
+                    <path d="M 400 100 L 400 145" stroke="#9C27B0" stroke-width="2" marker-end="url(#fwArrow2)"/>
+                    <text x="420" y="125" fill="#9C27B0" font-size="8">Spawns</text>
+                    
+                    <defs>
+                        <marker id="fwArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                            <polygon points="0 0, 10 4, 0 8" fill="#4CAF50"/>
+                        </marker>
+                        <marker id="fwArrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#9C27B0"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The complete Unreal Gameplay Framework—Game Mode orchestrates, Controllers possess Pawns.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Framework Summary</h4>
+                    <p><strong>Game Mode:</strong> The rules—exists only on server in multiplayer, defines what classes to use.<br/>
+                    <strong>Game State:</strong> Shared data everyone can see (match time, scores).<br/>
+                    <strong>Player Controller:</strong> One per player—handles input, owns camera and HUD.<br/>
+                    <strong>Player State:</strong> Per-player data that others can see (name, score).<br/>
+                    <strong>Pawn/Character:</strong> The physical body in the world that moves and interacts.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Examine the Default Player Setup</h2>
+
+                <p>Let's explore how these concepts work in practice by examining a real project's player setup. We'll look at the default classes, trace the possession chain, and understand how the pieces connect.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🎯 Exercise Goal</h4>
+                    <p>Examine the Third Person template's player setup to understand how Player Controller, Pawn, and Game Mode work together. Trace the connection between input and character movement.</p>
+                </div>
+
+                <h3>Step 1: Create or Open a Third Person Project</h3>
+
+                <ol>
+                    <li>Open the Epic Games Launcher</li>
+                    <li>Launch Unreal Engine 5</li>
+                    <li>Select <strong>Games → Third Person</strong> template</li>
+                    <li>Choose Blueprint, include Starter Content</li>
+                    <li>Create the project and let it load</li>
+                </ol>
+
+                <p>If you already have a Third Person project, open it instead.</p>
+
+                <h3>Step 2: Find the Game Mode</h3>
+
+                <ol>
+                    <li>Go to <strong>Edit → Project Settings</strong></li>
+                    <li>Navigate to <strong>Project → Maps & Modes</strong></li>
+                    <li>Look at <strong>Default GameMode</strong></li>
+                    <li>You should see something like <code>BP_ThirdPersonGameMode</code></li>
+                </ol>
+
+                <p>Click the magnifying glass icon next to the Game Mode to find it in the Content Browser, or double-click to open it.</p>
+
+                <h3>Step 3: Examine the Game Mode Classes</h3>
+
+                <ol>
+                    <li>Open <code>BP_ThirdPersonGameMode</code> (double-click)</li>
+                    <li>In the Details panel (right side), find the <strong>Classes</strong> section</li>
+                    <li>Note the <strong>Default Pawn Class</strong>—this is the character that spawns</li>
+                    <li>Note the <strong>Player Controller Class</strong>—usually the default PlayerController</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Checkpoint</h4>
+                    <p>You should see the Default Pawn Class set to something like <code>BP_ThirdPersonCharacter</code>. This is the Character Blueprint that the player controls. The Game Mode tells Unreal to spawn this character for each player.</p>
+                </div>
+
+                <h3>Step 4: Examine the Character</h3>
+
+                <ol>
+                    <li>In Content Browser, find <code>BP_ThirdPersonCharacter</code></li>
+                    <li>Double-click to open it</li>
+                    <li>In the Components panel (left), you'll see:
+                        <ul>
+                            <li><strong>CapsuleComponent</strong> — collision capsule</li>
+                            <li><strong>CharacterMovement</strong> — handles walking, jumping</li>
+                            <li><strong>Mesh</strong> — the skeletal mesh (character model)</li>
+                            <li><strong>CameraBoom</strong> — spring arm for third-person camera</li>
+                            <li><strong>FollowCamera</strong> — the actual camera</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p>This is a <strong>Character</strong> (not just a Pawn), so it inherits all the movement functionality we discussed earlier.</p>
+
+                <h3>Step 5: Find Input Handling</h3>
+
+                <ol>
+                    <li>With the Character Blueprint open, go to the <strong>Event Graph</strong></li>
+                    <li>Look for <strong>Enhanced Input Action</strong> events</li>
+                    <li>You should see events like:
+                        <ul>
+                            <li><code>IA_Move</code> — handles WASD movement</li>
+                            <li><code>IA_Look</code> — handles mouse look</li>
+                            <li><code>IA_Jump</code> — handles jump input</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p>These events fire when the player provides input. The Character Blueprint responds by calling movement functions.</p>
+
+                <!-- SVG: Character Blueprint Structure -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Third Person Character Structure</text>
+                    
+                    <!-- Components list -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="200" height="130" rx="5" fill="#3d3d3d" stroke="#4CAF50"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Components</text>
+                        
+                        <text x="15" y="42" fill="#aaa" font-size="9">📦 CapsuleComponent (Root)</text>
+                        <text x="25" y="58" fill="#888" font-size="8">└ 💨 CharacterMovement</text>
+                        <text x="25" y="74" fill="#888" font-size="8">└ 🦴 Mesh (Skeletal)</text>
+                        <text x="25" y="90" fill="#888" font-size="8">└ 📷 CameraBoom (SpringArm)</text>
+                        <text x="35" y="106" fill="#888" font-size="8">    └ 🎥 FollowCamera</text>
+                    </g>
+                    
+                    <!-- Input events -->
+                    <g transform="translate(280, 50)">
+                        <rect x="0" y="0" width="180" height="130" rx="5" fill="#3d3d3d" stroke="#667eea"/>
+                        <text x="90" y="20" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">Input Events</text>
+                        
+                        <text x="15" y="45" fill="#aaa" font-size="9">🎮 IA_Move</text>
+                        <text x="25" y="60" fill="#888" font-size="8">→ Add Movement Input</text>
+                        
+                        <text x="15" y="80" fill="#aaa" font-size="9">🖱️ IA_Look</text>
+                        <text x="25" y="95" fill="#888" font-size="8">→ Add Controller Input</text>
+                        
+                        <text x="15" y="115" fill="#aaa" font-size="9">⬆️ IA_Jump</text>
+                        <text x="25" y="130" fill="#888" font-size="8">→ Jump()</text>
+                    </g>
+                    
+                    <!-- Movement result -->
+                    <g transform="translate(490, 50)">
+                        <rect x="0" y="0" width="160" height="130" rx="5" fill="#3d3d3d" stroke="#FF9800"/>
+                        <text x="80" y="20" text-anchor="middle" fill="#FF9800" font-size="10" font-weight="bold">Movement Result</text>
+                        
+                        <text x="15" y="50" fill="#aaa" font-size="9">Character moves</text>
+                        <text x="15" y="70" fill="#aaa" font-size="9">Camera follows</text>
+                        <text x="15" y="90" fill="#aaa" font-size="9">Animation plays</text>
+                        <text x="15" y="110" fill="#aaa" font-size="9">Physics applied</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 255 115 L 275 115" stroke="#667eea" stroke-width="2" marker-end="url(#charArrow)"/>
+                    <path d="M 465 115 L 485 115" stroke="#FF9800" stroke-width="2" marker-end="url(#charArrow2)"/>
+                    
+                    <defs>
+                        <marker id="charArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                        <marker id="charArrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#FF9800"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The Third Person Character Blueprint structure showing components and input flow.</em></p>
+
+                <h3>Step 6: Find the Player Start</h3>
+
+                <ol>
+                    <li>In the main editor, look at the <strong>Outliner</strong> panel</li>
+                    <li>Search for "PlayerStart"</li>
+                    <li>Select it—you'll see a flag icon in the viewport</li>
+                    <li>This is where your character spawns when you hit Play</li>
+                </ol>
+
+                <h3>Step 7: Test the Complete Flow</h3>
+
+                <ol>
+                    <li>Press <strong>Play</strong> (or Alt+P)</li>
+                    <li>Use WASD to move, mouse to look, Space to jump</li>
+                    <li>While playing, press <strong>F8</strong> to "eject" from the pawn</li>
+                    <li>You can now fly around freely as a spectator</li>
+                    <li>Notice your character is still there, but you're no longer controlling it</li>
+                    <li>Press <strong>F8</strong> again to re-possess the character</li>
+                </ol>
+
+                <p>The F8 key demonstrates possession in action—you're temporarily unpossessing and repossessing the pawn!</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Checkpoint</h4>
+                    <p>When ejected (F8), your Player Controller stops sending input to the Character. The Character stands idle. When you re-possess (F8 again), input flows again and you can control the character. This is exactly what happens when switching between pawns in gameplay.</p>
+                </div>
+
+                <h3>Step 8: Examine at Runtime (Optional)</h3>
+
+                <p>For deeper understanding, examine the runtime hierarchy:</p>
+
+                <ol>
+                    <li>Play the game (Alt+P)</li>
+                    <li>Press <strong>`</strong> (backtick) to open the console</li>
+                    <li>Type <code>showdebug</code> to see debug information</li>
+                    <li>Or in Outliner, check "Show Runtime" to see spawned actors</li>
+                    <li>You'll see:
+                        <ul>
+                            <li>Your spawned Character instance</li>
+                            <li>A PlayerController (might be named PlayerController_0)</li>
+                            <li>The Game Mode instance</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Step 9: Trace the Blueprint Flow</h3>
+
+                <p>To see exactly how input becomes movement:</p>
+
+                <ol>
+                    <li>Open <code>BP_ThirdPersonCharacter</code></li>
+                    <li>Find the <code>IA_Move</code> Enhanced Input event</li>
+                    <li>Follow the wires—you'll see it:
+                        <ul>
+                            <li>Gets the input action value (a 2D vector)</li>
+                            <li>Calculates movement direction based on camera</li>
+                            <li>Calls <code>Add Movement Input</code></li>
+                        </ul>
+                    </li>
+                    <li>The <code>Add Movement Input</code> function tells the Character Movement Component to move</li>
+                </ol>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Exercise Complete!</h4>
+                    <p>You've traced the complete player setup from Game Mode → Player Controller → Character → Input → Movement. You understand how Unreal's gameplay framework orchestrates player interaction. This foundation applies to every Unreal project you'll build.</p>
+                </div>
+
+                <h3>Bonus: Modify the Setup</h3>
+
+                <p>Try these modifications to reinforce your understanding:</p>
+
+                <ol>
+                    <li><strong>Change spawn location:</strong> Move the Player Start to a different position and play again</li>
+                    <li><strong>Add another Player Start:</strong> Place a second one and see which one is chosen</li>
+                    <li><strong>Change default pawn:</strong> In Project Settings, change Default Pawn Class to "DefaultPawn" and see what happens (you'll get a floating sphere instead of a character)</li>
+                    <li><strong>Create a custom Game Mode:</strong> Create a new Blueprint based on GameModeBase, set your own Default Pawn, and assign it in World Settings</li>
+                </ol>
+            </section>
+            <!-- Section 6: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned the foundational architecture that connects players to the game world in Unreal Engine 5. Understanding Player Controllers, Pawns, and Game Modes is essential for building any interactive experience—from simple walking simulators to complex multiplayer games.</p>
+
+                <h3>Key Concepts</h3>
+
+                <p><strong>Player Controller:</strong> The brain behind the player's presence. It receives input from devices, manages camera and HUD, and possesses a Pawn to control. One Player Controller exists per human player. It persists across pawn deaths and level transitions, maintaining player-specific state.</p>
+
+                <p><strong>Pawn vs. Character:</strong> Pawns are the base class for controllable entities—lightweight and flexible, ideal for vehicles or custom movement. Characters extend Pawns with humanoid-specific features: the Character Movement Component for walking/jumping/swimming, a collision capsule, and skeletal mesh support. Use Character for humanoid players; use Pawn for everything else.</p>
+
+                <p><strong>Possession:</strong> The mechanism connecting Controller to Pawn. When possessed, input flows from the Controller to the Pawn. Controllers can switch between Pawns (like entering vehicles). The Pawn stores a reference to its Controller, and vice versa.</p>
+
+                <p><strong>Game Mode:</strong> The rulebook that defines default classes, handles player spawning, and manages game flow. It specifies which Controller, Pawn, HUD, and State classes to use. Player Start actors mark spawn locations. Game Mode can be set project-wide or per-level.</p>
+
+                <p><strong>Gameplay Framework:</strong> The complete system where Game Mode orchestrates everything, spawning Player Controllers that possess Pawns at Player Start locations. Player State tracks per-player data; Game State tracks shared game data. This architecture scales from single-player to multiplayer seamlessly.</p>
+
+                <h3>Best Practices</h3>
+
+                <ul>
+                    <li><strong>Use Character for humanoids:</strong> Don't reinvent the wheel—the Character Movement Component handles countless edge cases</li>
+                    <li><strong>Use Pawn for non-humanoids:</strong> Vehicles, cameras, and custom movement benefit from the lighter base class</li>
+                    <li><strong>Create custom classes when needed:</strong> Extend PlayerController or Character when you need project-specific functionality</li>
+                    <li><strong>Set up Game Mode early:</strong> Define your default classes in Project Settings before building gameplay</li>
+                    <li><strong>Place Player Starts intentionally:</strong> Consider spawn points, facing directions, and multiplayer distribution</li>
+                    <li><strong>Keep Controller and Pawn responsibilities separate:</strong> Input logic in Controller; movement/physics in Pawn</li>
+                </ul>
+
+                <!-- Summary diagram -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Player System Architecture</text>
+                    
+                    <!-- Flow -->
+                    <g transform="translate(50, 60)">
+                        <!-- Game Mode -->
+                        <rect x="0" y="30" width="120" height="60" rx="8" fill="#9C27B0"/>
+                        <text x="60" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Game Mode</text>
+                        <text x="60" y="72" text-anchor="middle" fill="#e1bee7" font-size="8">Defines classes</text>
+                    </g>
+                    
+                    <path d="M 175 90 L 215 90" stroke="#9C27B0" stroke-width="2" marker-end="url(#sumArrow)"/>
+                    <text x="195" y="80" text-anchor="middle" fill="#9C27B0" font-size="8">Spawns</text>
+                    
+                    <g transform="translate(220, 60)">
+                        <!-- Controller -->
+                        <rect x="0" y="30" width="120" height="60" rx="8" fill="#667eea"/>
+                        <text x="60" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Controller</text>
+                        <text x="60" y="72" text-anchor="middle" fill="#c5cae9" font-size="8">Handles input</text>
+                    </g>
+                    
+                    <path d="M 345 90 L 385 90" stroke="#4CAF50" stroke-width="3" marker-end="url(#sumArrow2)"/>
+                    <text x="365" y="80" text-anchor="middle" fill="#4CAF50" font-size="8">Possesses</text>
+                    
+                    <g transform="translate(390, 60)">
+                        <!-- Pawn -->
+                        <rect x="0" y="30" width="120" height="60" rx="8" fill="#4CAF50"/>
+                        <text x="60" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Pawn</text>
+                        <text x="60" y="72" text-anchor="middle" fill="#c8e6c9" font-size="8">Physical body</text>
+                    </g>
+                    
+                    <path d="M 515 90 L 555 90" stroke="#FF9800" stroke-width="2" marker-end="url(#sumArrow3)"/>
+                    <text x="535" y="80" text-anchor="middle" fill="#FF9800" font-size="8">Moves in</text>
+                    
+                    <g transform="translate(560, 60)">
+                        <!-- World -->
+                        <rect x="0" y="30" width="120" height="60" rx="8" fill="#FF9800"/>
+                        <text x="60" y="55" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Game World</text>
+                        <text x="60" y="72" text-anchor="middle" fill="#ffe0b2" font-size="8">Level, actors</text>
+                    </g>
+                    
+                    <!-- Input arrow -->
+                    <g transform="translate(220, 140)">
+                        <rect x="0" y="0" width="120" height="30" rx="5" fill="#e3f2fd" stroke="#1976D2"/>
+                        <text x="60" y="19" text-anchor="middle" fill="#1976D2" font-size="9">🎮 Player Input</text>
+                    </g>
+                    <path d="M 280 140 L 280 125" stroke="#1976D2" stroke-width="2" marker-end="url(#sumArrow4)"/>
+                    
+                    <defs>
+                        <marker id="sumArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#9C27B0"/>
+                        </marker>
+                        <marker id="sumArrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#4CAF50"/>
+                        </marker>
+                        <marker id="sumArrow3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#FF9800"/>
+                        </marker>
+                        <marker id="sumArrow4" markerWidth="8" markerHeight="6" refX="3" refY="6" orient="auto">
+                            <polygon points="0 8, 3 0, 6 8" fill="#1976D2"/>
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: The flow from Game Mode → Controller → Pawn → World, with player input driving the Controller.</em></p>
+
+                <h3>What's Next?</h3>
+
+                <p>Now that you understand how players connect to the game world, the next lesson introduces the <strong>Enhanced Input System</strong>—Unreal's modern approach to handling player input. You'll learn how to create Input Actions, bind them to keys and buttons, and respond to player input in your Blueprints. This builds directly on the Controller/Pawn foundation you've learned today.</p>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is the primary role of the Player Controller in Unreal's gameplay framework?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> To render the player's character on screen</label>
+                            <label><input type="radio" name="q1" value="b"> To receive input and manage the connection between player and pawn</label>
+                            <label><input type="radio" name="q1" value="c"> To handle physics simulation for the player</label>
+                            <label><input type="radio" name="q1" value="d"> To spawn enemies and manage AI behavior</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — The Player Controller receives input from the player's devices, manages the camera and HUD, and possesses a Pawn to control. It's the bridge between the human player and their in-game representation.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What is the main difference between a Pawn and a Character in Unreal Engine?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Pawns can only be controlled by AI, Characters by players</label>
+                            <label><input type="radio" name="q2" value="b"> Characters include the Character Movement Component and collision capsule; Pawns are simpler</label>
+                            <label><input type="radio" name="q2" value="c"> Pawns are 2D and Characters are 3D</label>
+                            <label><input type="radio" name="q2" value="d"> There is no difference; they are the same class</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Character extends Pawn with humanoid-specific features: the Character Movement Component (walking, jumping, swimming), a collision capsule, and skeletal mesh support. Pawns are lighter weight and better suited for vehicles or custom movement systems.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What does "possession" mean in the context of Controllers and Pawns?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> The Pawn owns and controls the Controller</label>
+                            <label><input type="radio" name="q3" value="b"> The Controller establishes a connection to a Pawn, enabling input to flow to it</label>
+                            <label><input type="radio" name="q3" value="c"> Multiple Pawns share the same physics simulation</label>
+                            <label><input type="radio" name="q3" value="d"> The Game Mode creates a copy of the Pawn</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Possession is when a Controller takes control of a Pawn. The Controller calls Possess(), creating a two-way reference. Input then flows from the Controller to the Pawn. Controllers can unpossess and possess different Pawns (like entering vehicles).</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What is the Game Mode responsible for?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Rendering graphics and managing shaders</label>
+                            <label><input type="radio" name="q4" value="b"> Playing background music and sound effects</label>
+                            <label><input type="radio" name="q4" value="c"> Defining default classes, handling player spawning, and managing game rules</label>
+                            <label><input type="radio" name="q4" value="d"> Saving and loading game progress</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> — The Game Mode is the rulebook of your game. It specifies which classes to use for Controllers, Pawns, HUD, and States. It handles spawning players at Player Start locations and manages overall game flow and rules.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Where do players spawn in a level, and what determines the spawn location?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> At the world origin (0, 0, 0), always</label>
+                            <label><input type="radio" name="q5" value="b"> At Player Start actors placed in the level; Game Mode finds and uses them</label>
+                            <label><input type="radio" name="q5" value="c"> At the camera location when the level was saved</label>
+                            <label><input type="radio" name="q5" value="d"> Randomly anywhere in the level bounds</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> — Players spawn at Player Start actors placed in the level. When play begins, the Game Mode finds available Player Starts, chooses one, spawns the Default Pawn at that location, and has the Player Controller possess it.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m05_l05_working_with_actors.html" class="btn">← Previous: Working with Actors in Blueprints</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m06_l02_enhanced_input_system.html" class="btn">Next: Enhanced Input System →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+                
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+                
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+                
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

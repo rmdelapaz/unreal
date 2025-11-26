@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create your first Unreal Engine project - Learn about project templates, understand project settings, and build your first interactive 3D environment step-by-step.">
+    <meta name="author" content="Practical Ace">
+    <title>Your First Project - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 1: Getting Started</a></li>
+            <li aria-current="page">Lesson 1.3: Your First Project</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎨 Your First Project</h1>
+                <p class="lead">The moment has arrived—you're about to create your very first Unreal Engine project! This lesson guides you through choosing the right template, configuring project settings, and understanding how Unreal projects are structured. By the end, you'll have a working project open in the editor and ready for exploration.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Understand the purpose and differences between project templates</li>
+                        <li>Choose the appropriate template for your learning goals</li>
+                        <li>Create a new Unreal Engine project with proper settings</li>
+                        <li>Navigate the Unreal Editor interface confidently</li>
+                        <li>Understand the folder structure and organization of Unreal projects</li>
+                        <li>Explore a basic level and interact with objects in the viewport</li>
+                        <li>Save your work and understand project file management</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 1.2: Installation and Setup (Unreal Engine installed)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#introduction" class="toc-link">Introduction</a></li>
+                        <li><a href="#project-templates" class="toc-link">Understanding Project Templates</a></li>
+                        <li><a href="#creating-project" class="toc-link">Creating Your First Project</a></li>
+                        <li><a href="#project-settings" class="toc-link">Project Settings Explained</a></li>
+                        <li><a href="#project-structure" class="toc-link">Project Folder Structure</a></li>
+                        <li><a href="#editor-interface" class="toc-link">The Unreal Editor Interface</a></li>
+                        <li><a href="#exploring-level" class="toc-link">Exploring Your First Level</a></li>
+                        <li><a href="#saving-work" class="toc-link">Saving Your Work</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Introduction -->
+            <section id="introduction" class="lesson-section">
+                <h2>Introduction</h2>
+                
+                <p>Creating your first Unreal Engine project is an exciting milestone! Think of a project as a container for everything related to a particular game, application, or experience you're building—levels, assets, code, settings, and more. Every time you work in Unreal Engine, you're working within a project.</p>
+                
+                <h3>What Is a Project?</h3>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Unreal Engine Project</h4>
+                    <p style="color: white;"><strong>A Project</strong> is a self-contained directory structure that holds all the content, code, configuration files, and settings for your game or application. Each project is completely independent—you can have multiple projects installed, and they don't interfere with each other.</p>
+                </div>
+                
+                <p>A typical project contains:</p>
+                
+                <ul>
+                    <li><strong>Content:</strong> 3D models, textures, materials, sounds, animations, Blueprints</li>
+                    <li><strong>Levels (Maps):</strong> The 3D environments where your game takes place</li>
+                    <li><strong>Code:</strong> Blueprints (visual scripts) and/or C++ code</li>
+                    <li><strong>Configuration:</strong> Project settings, input mappings, game rules</li>
+                    <li><strong>Build Files:</strong> Files needed to package and distribute your project</li>
+                </ul>
+                
+                <h3>The Project Creation Process</h3>
+                
+                <p>Here's what we'll be doing in this lesson:</p>
+                
+                <div class="mermaid">
+                    flowchart LR
+                        A[Open Unreal Engine] --> B[Choose Template]
+                        B --> C[Configure Settings]
+                        C --> D[Create Project]
+                        D --> E[Editor Opens]
+                        E --> F[Explore & Learn]
+                        
+                        style A fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style B fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style C fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style D fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style E fill:#10b981,stroke:#059669,color:#fff
+                        style F fill:#10b981,stroke:#059669,color:#fff
+                </div>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Why This Matters</h4>
+                    <p>Understanding project creation and structure from the start helps you:</p>
+                    <ul>
+                        <li>Choose the right starting point for different types of projects</li>
+                        <li>Organize your work efficiently</li>
+                        <li>Collaborate with others more easily</li>
+                        <li>Troubleshoot issues when they arise</li>
+                        <li>Move between projects confidently</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 2: Understanding Project Templates -->
+            <section id="project-templates" class="lesson-section">
+                <h2>Understanding Project Templates</h2>
+                
+                <p>When you create a new project in Unreal Engine, you don't start with a completely blank slate. Instead, you choose from several <strong>project templates</strong>—pre-configured starting points that include relevant assets, settings, and example content tailored to specific use cases.</p>
+                
+                <h3>Why Templates Exist</h3>
+                
+                <p>Think of templates like home blueprints. You could design a house from scratch, figuring out plumbing, electrical, structural requirements—or you could start with a blueprint that already has those systems in place and customize from there. Templates save you hours (or days) of setup work.</p>
+                
+                <h3>Template Categories</h3>
+                
+                <p>Unreal Engine organizes templates into several categories:</p>
+                
+                <h4>🎮 Games</h4>
+                
+                <p>Templates specifically designed for different types of games:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Template</th>
+                            <th>What It Includes</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Blank</strong></td>
+                            <td>Minimal setup, empty level, basic lighting</td>
+                            <td>Advanced users who want complete control; not recommended for beginners</td>
+                        </tr>
+                        <tr>
+                            <td><strong>First Person</strong></td>
+                            <td>Character controller, weapon mechanics, sample level with targets</td>
+                            <td>FPS games, first-person experiences, shooter prototypes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Third Person</strong></td>
+                            <td>Character with over-shoulder camera, movement mechanics, sample level</td>
+                            <td>Action games, adventure games, most beginner learning</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Top Down</strong></td>
+                            <td>Isometric camera, click-to-move controls, sample level</td>
+                            <td>Strategy games, MOBAs, classic RPGs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Side Scroller</strong></td>
+                            <td>2D/2.5D character, side-view camera, platform mechanics</td>
+                            <td>Platformers, side-scrolling games</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vehicle</strong></td>
+                            <td>Drivable vehicle, physics setup, test track</td>
+                            <td>Racing games, vehicle-based gameplay</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Puzzle</strong></td>
+                            <td>Grid-based mechanics, movable pieces, sample puzzles</td>
+                            <td>Puzzle games, match-3 style games</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>🎬 Film / Video & Live Events</h4>
+                
+                <p>Templates for cinematic production and virtual events:</p>
+                
+                <ul>
+                    <li><strong>Virtual Production:</strong> LED wall tracking, camera systems for real-time filming</li>
+                    <li><strong>DMX:</strong> Lighting control for live events and concerts</li>
+                    <li><strong>nDisplay:</strong> Multi-screen setups for immersive installations</li>
+                </ul>
+                
+                <p><em>Note: These are specialized templates for professional production workflows—beginners typically skip these.</em></p>
+                
+                <h4>🏗️ Architecture</h4>
+                
+                <p>Templates for architectural visualization:</p>
+                
+                <ul>
+                    <li><strong>Architectural Visualization:</strong> Pre-configured lighting, camera tools, and settings optimized for realistic building visualization</li>
+                    <li>Includes sample architectural environment to study</li>
+                </ul>
+                
+                <h4>🚗 Automotive</h4>
+                
+                <p>Templates for vehicle visualization and configurators:</p>
+                
+                <ul>
+                    <li><strong>Product Configurator:</strong> Interactive product showcase with customization options</li>
+                    <li>Optimized for real-time vehicle visualization and material swapping</li>
+                </ul>
+                
+                <h3>Which Template Should You Choose?</h3>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommended for Beginners</h4>
+                    <p><strong>Use the Third Person template for your first project.</strong></p>
+                    <p>Here's why:</p>
+                    <ul>
+                        <li>✅ Includes a fully functional character you can control immediately</li>
+                        <li>✅ Camera system lets you see both your character and the environment</li>
+                        <li>✅ Provides a complete sample level to explore</li>
+                        <li>✅ Most tutorials and learning resources assume Third Person</li>
+                        <li>✅ Teaches fundamental concepts applicable to any game type</li>
+                        <li>✅ Not too simple (like Blank) or too complex (like Vehicle)</li>
+                    </ul>
+                    <p>Once you're comfortable with the basics, you can experiment with other templates.</p>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Template Comparison: Blank vs. Third Person</h4>
+                    <p><strong>Blank Template:</strong></p>
+                    <ul>
+                        <li>Empty level with basic sky and floor</li>
+                        <li>No character or controls</li>
+                        <li>You build everything from scratch</li>
+                        <li>⚠️ Overwhelming for beginners—lots of setup required</li>
+                    </ul>
+                    <p><strong>Third Person Template:</strong></p>
+                    <ul>
+                        <li>Complete level with platforms, ramps, and structures</li>
+                        <li>Character with movement, jumping, camera controls</li>
+                        <li>Example content showing best practices</li>
+                        <li>✅ Perfect for learning—see how things work, then customize</li>
+                    </ul>
+                </div>
+                
+                <h3>Starter Content: To Include or Not?</h3>
+                
+                <p>When creating a project, you'll see an option for <strong>Starter Content</strong>. This includes:</p>
+                
+                <ul>
+                    <li>Sample materials (wood, metal, concrete, etc.)</li>
+                    <li>Basic props (chairs, tables, simple meshes)</li>
+                    <li>Particle effects (fire, smoke, sparks)</li>
+                    <li>Audio files (footsteps, impacts)</li>
+                    <li>Example textures and blueprints</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommendation: Include Starter Content</h4>
+                    <p>For learning projects, <strong>always include Starter Content</strong>. It gives you materials and assets to experiment with immediately, and many tutorials reference these assets. You can always exclude it later for production projects where you'll use custom assets.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Creating Your First Project -->
+            <section id="creating-project" class="lesson-section">
+                <h2>Creating Your First Project</h2>
+                
+                <p>Enough theory—let's actually create your first project! Follow these steps carefully.</p>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>🎨 Step-by-Step Project Creation</h3>
+                    
+                    <h4>Step 1: Launch Unreal Engine</h4>
+                    <ul>
+                        <li>Open the Epic Games Launcher</li>
+                        <li>Go to <strong>Unreal Engine → Library</strong></li>
+                        <li>Click <strong>Launch</strong> on your installed engine version</li>
+                        <li>Wait for the Unreal Project Browser to appear</li>
+                    </ul>
+                    
+                    <h4>Step 2: Navigate to Games Category</h4>
+                    <ul>
+                        <li>In the Project Browser, you'll see several category tabs at the top</li>
+                        <li>Click on <strong>Games</strong> (should be selected by default)</li>
+                        <li>You'll see template cards: Blank, First Person, Third Person, etc.</li>
+                    </ul>
+                    
+                    <h4>Step 3: Select Third Person Template</h4>
+                    <ul>
+                        <li>Click on the <strong>Third Person</strong> template card</li>
+                        <li>The template will be highlighted with a blue border</li>
+                        <li>A preview image shows what the template includes</li>
+                    </ul>
+                    
+                    <h4>Step 4: Configure Project Settings (Right Panel)</h4>
+                    <p>On the right side of the window, you'll see project configuration options:</p>
+                    
+                    <p><strong>Blueprint or C++?</strong></p>
+                    <ul>
+                        <li>Select <strong>Blueprint</strong> (the default)</li>
+                        <li>Blueprint is visual scripting—perfect for beginners</li>
+                        <li>C++ is for advanced users with programming experience</li>
+                    </ul>
+                    
+                    <p><strong>Target Platform:</strong></p>
+                    <ul>
+                        <li>Keep <strong>Desktop</strong> selected</li>
+                        <li>This optimizes the project for PC/Mac development</li>
+                        <li>You can add mobile support later if needed</li>
+                    </ul>
+                    
+                    <p><strong>Quality Preset:</strong></p>
+                    <ul>
+                        <li><strong>Maximum:</strong> Best visual quality, requires powerful PC</li>
+                        <li><strong>Scalable:</strong> Good balance, adjusts to your hardware (recommended)</li>
+                        <li>For learning, either option works—choose based on your system specs</li>
+                    </ul>
+                    
+                    <p><strong>Raytracing:</strong></p>
+                    <ul>
+                        <li>Leave <strong>disabled</strong> unless you have a high-end RTX GPU</li>
+                        <li>Raytracing provides realistic reflections/lighting but is very demanding</li>
+                        <li>You can enable it later if your system supports it</li>
+                    </ul>
+                    
+                    <p><strong>Starter Content:</strong></p>
+                    <ul>
+                        <li>✅ <strong>Check this box</strong> to include Starter Content</li>
+                        <li>As discussed earlier, this gives you sample assets to learn with</li>
+                    </ul>
+                    
+                    <h4>Step 5: Choose Project Location and Name</h4>
+                    <p>At the bottom of the window:</p>
+                    
+                    <p><strong>Project Location:</strong></p>
+                    <ul>
+                        <li>Click <strong>Browse</strong> to choose where to save your project</li>
+                        <li>Default: <code>Documents/Unreal Projects/</code></li>
+                        <li>💡 <strong>Tip:</strong> If you have an SSD, save projects there for best performance</li>
+                        <li>Each project needs 2-10 GB of space depending on content</li>
+                    </ul>
+                    
+                    <p><strong>Project Name:</strong></p>
+                    <ul>
+                        <li>Enter a name for your project (e.g., "MyFirstProject" or "LearningUnreal")</li>
+                        <li><strong>Rules:</strong> No spaces (use underscores or CamelCase), no special characters</li>
+                        <li><strong>Good names:</strong> MyFirstProject, Learning_Unreal, TestProject01</li>
+                        <li><strong>Bad names:</strong> My Project, Test!, 123Project</li>
+                    </ul>
+                    
+                    <h4>Step 6: Create the Project!</h4>
+                    <ul>
+                        <li>Review your settings one more time</li>
+                        <li>Click the large <strong>Create</strong> button at the bottom-right</li>
+                        <li>Unreal Engine will now:
+                            <ul>
+                                <li>Create the project folder structure</li>
+                                <li>Copy template files</li>
+                                <li>Generate configuration files</li>
+                                <li>Compile shaders for your hardware</li>
+                                <li>Load the project into the editor</li>
+                            </ul>
+                        </li>
+                        <li>⏱️ <strong>This takes 2-5 minutes on first project creation</strong></li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ First Project Takes Longer</h4>
+                    <p>The first time you create a project in a new engine version, it takes longer because Unreal Engine must:</p>
+                    <ul>
+                        <li>Compile thousands of shaders optimized for your specific GPU</li>
+                        <li>Build asset caches</li>
+                        <li>Initialize the editor for the first time</li>
+                    </ul>
+                    <p>You'll see a progress bar with "Compiling Shaders" — this is normal! Future projects will create much faster.</p>
+                </div>
+                
+                <h3>What Happens During Project Creation?</h3>
+                
+                <div class="mermaid">
+                    flowchart TD
+                        A[Click Create] --> B[Create Project Folder]
+                        B --> C[Copy Template Files]
+                        C --> D[Generate Config Files]
+                        D --> E[Compile Shaders]
+                        E --> F[Build Asset Registry]
+                        F --> G[Load Editor]
+                        G --> H[Project Ready!]
+                        
+                        style A fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style E fill:#fbbf24,stroke:#d97706,color:#000
+                        style H fill:#10b981,stroke:#059669,color:#fff
+                </div>
+                
+                <p>While you wait, here's what's happening behind the scenes:</p>
+                
+                <ol>
+                    <li><strong>Folder Creation:</strong> Creates the project directory with proper structure</li>
+                    <li><strong>Template Copy:</strong> Copies template-specific content (character, level, etc.)</li>
+                    <li><strong>Configuration:</strong> Generates .uproject file and config files for your settings</li>
+                    <li><strong>Shader Compilation:</strong> Compiles rendering shaders for your GPU (longest step)</li>
+                    <li><strong>Asset Registry:</strong> Indexes all content files for quick searching</li>
+                    <li><strong>Editor Launch:</strong> Opens the Unreal Editor with your new project loaded</li>
+                </ol>
+            </section>
+
+            <!-- Section 4: Project Settings Explained -->
+            <section id="project-settings" class="lesson-section">
+                <h2>Project Settings Explained</h2>
+                
+                <p>Let's take a deeper look at the project settings you just configured and what they actually mean for your development experience.</p>
+                
+                <h3>Blueprint vs. C++: Understanding the Difference</h3>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Blueprints</h4>
+                    <p style="color: white;"><strong>Blueprints</strong> are Unreal Engine's visual scripting system. Instead of writing code as text, you create logic by connecting nodes in a graph. It's like flowcharting—you can see the logic flow visually.</p>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Blueprint</th>
+                            <th>C++</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Learning Curve</strong></td>
+                            <td>Beginner-friendly, visual, intuitive</td>
+                            <td>Requires programming knowledge, steep learning curve</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Speed</strong></td>
+                            <td>Rapid prototyping, instant testing</td>
+                            <td>Requires compilation, longer iteration times</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Good for most game logic</td>
+                            <td>Better for performance-critical code</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Debugging</strong></td>
+                            <td>Visual debugging, easy to follow logic</td>
+                            <td>Traditional debugger, text-based</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Game logic, UI, gameplay mechanics, level scripting</td>
+                            <td>Engine systems, complex algorithms, optimization</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Can You Mix Blueprint and C++?</h4>
+                    <p>Yes! Professional studios often use both:</p>
+                    <ul>
+                        <li>C++ for core systems (AI, physics, networking)</li>
+                        <li>Blueprints for game-specific logic (UI, level scripting, one-off mechanics)</li>
+                    </ul>
+                    <p>You can start with Blueprint and add C++ later when you need it. Many successful games are built entirely in Blueprints.</p>
+                </div>
+                
+                <h3>Target Platform Settings</h3>
+                
+                <p>The target platform setting optimizes your project for specific devices:</p>
+                
+                <ul>
+                    <li><strong>Desktop:</strong> Windows, Mac, Linux PCs—no mobile-specific features</li>
+                    <li><strong>Mobile:</strong> iOS and Android—lighter assets, touch controls, reduced graphical features</li>
+                    <li><strong>Console:</strong> PlayStation, Xbox, Nintendo Switch—platform-specific optimizations</li>
+                </ul>
+                
+                <p><strong>Can you change this later?</strong> Yes! Platform support can be added anytime through Project Settings. Start with Desktop for learning.</p>
+                
+                <h3>Quality Presets: Maximum vs. Scalable</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Preset</th>
+                            <th>What It Does</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Maximum</strong></td>
+                            <td>Enables all visual features at highest settings: Lumen, Nanite, high-res textures, advanced post-processing</td>
+                            <td>High-end PC (RTX 3060+, 16+ GB RAM), architectural visualization, cinematics</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalable</strong></td>
+                            <td>Balanced settings that adapt to hardware; can scale down for lower-end systems</td>
+                            <td>Most game development, learning, targeting a range of PC specs</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 What "Scalable" Actually Means</h4>
+                    <p>Scalable doesn't mean "low quality"—it means your project can adjust quality based on the hardware it's running on. Think of it like how modern games have Low/Medium/High/Ultra graphics settings. With Scalable preset:</p>
+                    <ul>
+                        <li>High-end PCs get beautiful visuals</li>
+                        <li>Mid-range PCs get good visuals with good performance</li>
+                        <li>Lower-end PCs can still run the game with reduced settings</li>
+                    </ul>
+                    <p>For game development, Scalable is almost always the right choice.</p>
+                </div>
+                
+                <h3>Raytracing: Do You Need It?</h3>
+                
+                <p>Raytracing provides ultra-realistic lighting, reflections, and shadows by simulating how light actually bounces in the real world. However:</p>
+                
+                <ul>
+                    <li><strong>Hardware Requirements:</strong> Needs RTX 2060 or better (NVIDIA), RX 6600 XT or better (AMD)</li>
+                    <li><strong>Performance Cost:</strong> Can cut frame rates in half or more</li>
+                    <li><strong>Learning Impact:</strong> Minimal—UE5's Lumen system provides excellent lighting without raytracing</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommendation: Leave Raytracing Off</h4>
+                    <p>For learning Unreal Engine, disable raytracing unless you have a very high-end system. UE5's default lighting (Lumen) is already impressive and doesn't require special hardware. You can enable raytracing later when you understand lighting fundamentals.</p>
+                </div>
+            </section>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn what Unreal Engine is, its history, capabilities, and why it's the industry-leading game engine used for games, film, architecture, and more.">
+    <meta name="author" content="Practical Ace">
+    <title>What is Unreal Engine? - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 1: Getting Started</a></li>
+            <li aria-current="page">Lesson 1.1: What is Unreal Engine?</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎮 What is Unreal Engine?</h1>
+                <p class="lead">Discover the powerhouse behind some of the world's most stunning games, films, and interactive experiences. Unreal Engine isn't just a game engine—it's a creative platform that's reshaping entire industries.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what Unreal Engine is and what makes it unique among game engines</li>
+                        <li>Describe the history of Unreal Engine and Epic Games</li>
+                        <li>Differentiate between real-time and pre-rendered graphics</li>
+                        <li>Identify the diverse industries and use cases for Unreal Engine</li>
+                        <li>Compare Unreal Engine with other popular game engines</li>
+                        <li>Navigate the Unreal ecosystem including the Marketplace and community resources</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 30-45 minutes</p>
+                    <p><strong>Prerequisites:</strong> None—this is your starting point!</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#introduction" class="toc-link">Introduction</a></li>
+                        <li><a href="#history" class="toc-link">History of Unreal Engine and Epic Games</a></li>
+                        <li><a href="#realtime-vs-prerendered" class="toc-link">Real-Time vs. Pre-Rendered Graphics</a></li>
+                        <li><a href="#use-cases" class="toc-link">Industries and Use Cases</a></li>
+                        <li><a href="#engine-comparison" class="toc-link">Comparing Game Engines</a></li>
+                        <li><a href="#ecosystem" class="toc-link">The Unreal Ecosystem</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Introduction -->
+            <section id="introduction" class="lesson-section">
+                <h2>Introduction</h2>
+                
+                <p>Imagine you want to build a house. You could gather raw materials—lumber, nails, concrete—and figure out how to construct everything from scratch. Or you could use pre-fabricated components, power tools, and established blueprints that handle the complex engineering for you. A <strong>game engine</strong> is like that second approach: it's a comprehensive toolkit that handles the heavy lifting of creating interactive 3D experiences, letting you focus on bringing your creative vision to life.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Game Engine:</strong> A software framework designed to create video games and other interactive 3D applications. It provides core functionality like rendering graphics, simulating physics, playing audio, handling input, and managing game logic—so developers don't have to build these systems from scratch.</p>
+                </div>
+                
+                <p><strong>Unreal Engine</strong> is one of the most powerful and widely-used game engines in the world. Developed by Epic Games, it powers everything from blockbuster video games like <em>Fortnite</em> and <em>Final Fantasy VII Remake</em> to Hollywood productions like <em>The Mandalorian</em>. But its reach extends far beyond entertainment—architects use it to visualize buildings before they're constructed, automotive companies design virtual car showrooms, and medical professionals train surgeons in virtual operating rooms.</p>
+                
+                <p>What makes Unreal Engine special? Three things stand out:</p>
+                
+                <ul>
+                    <li><strong>Visual Fidelity:</strong> Unreal Engine is renowned for producing stunning, photorealistic graphics that rival pre-rendered CGI</li>
+                    <li><strong>Accessibility:</strong> Its visual scripting system called "Blueprints" allows creators to build complex functionality without writing traditional code</li>
+                    <li><strong>Free to Use:</strong> Unreal Engine is completely free until your project earns over $1 million in revenue</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Why This Matters</h4>
+                    <p>Understanding what Unreal Engine is and what it can do helps you appreciate the tool you're about to learn. Whether your goal is game development, film production, architectural visualization, or something entirely different, Unreal Engine provides a foundation that can take you there.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: History -->
+            <section id="history" class="lesson-section">
+                <h2>History of Unreal Engine and Epic Games</h2>
+                
+                <p>Every powerful tool has an origin story. Understanding where Unreal Engine came from helps you appreciate how it evolved into the industry titan it is today.</p>
+                
+                <h3>The Birth of Epic Games (1991)</h3>
+                
+                <p>Epic Games was founded in 1991 by Tim Sweeney, working out of his parents' house in Potomac, Maryland. Originally called "Potomac Computer Systems," the company started by creating simple games and productivity software. Sweeney was a self-taught programmer with a passion for pushing technical boundaries—a trait that would define Epic's future.</p>
+                
+                <h3>Unreal: The Game That Started It All (1998)</h3>
+                
+                <p>In 1998, Epic released <em>Unreal</em>, a first-person shooter that stunned the gaming world. While the game itself was successful, what truly impressed the industry was the underlying technology. The Unreal Engine featured advanced 3D rendering, dynamic lighting, and a level design toolkit that was ahead of its time.</p>
+                
+                <p>Epic made a pivotal decision: license this technology to other developers. This transformed Epic from just a game studio into a technology company. Studios could now use the same powerful tools that created <em>Unreal</em> to build their own games.</p>
+                
+                <h3>Evolution Through the Years</h3>
+                
+                <div class="mermaid">
+                    timeline
+                        title Unreal Engine Evolution
+                        1998 : Unreal Engine 1
+                             : First-person shooters
+                             : Licensed to other studios
+                        2002 : Unreal Engine 2
+                             : Improved rendering
+                             : Used in Splinter Cell, Lineage II
+                        2006 : Unreal Engine 3
+                             : Console generation leap
+                             : Gears of War, Mass Effect, BioShock
+                        2014 : Unreal Engine 4
+                             : Free for everyone
+                             : Blueprints visual scripting
+                             : Fortnite, Kingdom Hearts III
+                        2022 : Unreal Engine 5
+                             : Nanite virtualized geometry
+                             : Lumen global illumination
+                             : Film-quality visuals in real-time
+                </div>
+                
+                <h3>Key Milestones</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Milestone</th>
+                            <th>Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1998</td>
+                            <td>Unreal Engine 1 launches</td>
+                            <td>Established Epic as a technology licensor</td>
+                        </tr>
+                        <tr>
+                            <td>2006</td>
+                            <td>Unreal Engine 3 powers Xbox 360/PS3 era</td>
+                            <td>Became the dominant engine for AAA games</td>
+                        </tr>
+                        <tr>
+                            <td>2014</td>
+                            <td>UE4 becomes free with royalty model</td>
+                            <td>Democratized access to professional tools</td>
+                        </tr>
+                        <tr>
+                            <td>2017</td>
+                            <td>Fortnite launches</td>
+                            <td>Became cultural phenomenon, funded Epic's expansion</td>
+                        </tr>
+                        <tr>
+                            <td>2020</td>
+                            <td>UE5 revealed with tech demos</td>
+                            <td>Showcased next-gen capabilities</td>
+                        </tr>
+                        <tr>
+                            <td>2022</td>
+                            <td>UE5 officially releases</td>
+                            <td>Introduced Nanite and Lumen technologies</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Did You Know?</h4>
+                    <p>The decision to make Unreal Engine 4 free in 2014 was revolutionary. Previously, licensing a professional game engine could cost hundreds of thousands of dollars upfront. By switching to a royalty model (5% of revenue after the first $1 million), Epic made professional game development accessible to indie developers, students, and hobbyists worldwide. With UE5, the threshold increased to $1 million before royalties kick in.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Real-Time vs Pre-Rendered -->
+            <section id="realtime-vs-prerendered" class="lesson-section">
+                <h2>Real-Time vs. Pre-Rendered Graphics</h2>
+                
+                <p>To understand why Unreal Engine is so impressive, you need to grasp a fundamental concept in computer graphics: the difference between <strong>real-time rendering</strong> and <strong>pre-rendered graphics</strong>.</p>
+                
+                <h3>Pre-Rendered Graphics</h3>
+                
+                <p>Think of a Pixar movie like <em>Toy Story</em> or <em>Finding Nemo</em>. Every frame of these films is meticulously calculated by powerful computers—often taking hours or even days to render a single frame. The result is stunning, photorealistic imagery with complex lighting, reflections, and details. However, because this process is so computationally expensive, it must be done ahead of time. The final movie is essentially a very fancy video file—you can watch it, but you can't interact with it or change anything.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Pre-Rendered Graphics:</strong> Images or animations that are computed in advance, often taking minutes to hours per frame. Used in films, animated movies, and high-quality cinematics where interactivity isn't needed.</p>
+                </div>
+                
+                <h3>Real-Time Rendering</h3>
+                
+                <p>Now imagine playing a video game. As you move your character, the entire scene—lighting, shadows, reflections, physics—must be calculated and displayed <em>instantly</em>, typically 30 to 60 times per second (or even higher). This is real-time rendering: generating images fast enough that they appear smooth and responsive to user input.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Real-Time Rendering:</strong> The process of generating images fast enough for interactive applications, typically 30-60+ frames per second. Used in video games, simulations, VR/AR, and interactive visualizations.</p>
+                </div>
+                
+                <h3>The Challenge and the Breakthrough</h3>
+                
+                <p>Historically, there was a massive quality gap between pre-rendered and real-time graphics. Movies looked gorgeous; games looked... like games. But that gap has been shrinking rapidly, and Unreal Engine 5 represents a major leap forward.</p>
+                
+                <div class="mermaid">
+                    graph LR
+                        subgraph "Pre-Rendered"
+                            A[Scene Data] --> B[Render Farm]
+                            B --> |Hours/Days| C[Final Frame]
+                        end
+                        subgraph "Real-Time"
+                            D[Scene Data] --> E[GPU]
+                            E --> |Milliseconds| F[Display]
+                            F --> |User Input| D
+                        end
+                        style B fill:#ff9800,stroke:#333,color:#fff
+                        style E fill:#4CAF50,stroke:#333,color:#fff
+                </div>
+                
+                <h3>Why This Matters for Unreal Engine</h3>
+                
+                <p>Unreal Engine 5's headline features—<strong>Nanite</strong> and <strong>Lumen</strong>—are specifically designed to bring film-quality visuals into real-time applications:</p>
+                
+                <ul>
+                    <li><strong>Nanite:</strong> A virtualized geometry system that allows you to import film-quality assets with millions of polygons directly into your scene, and the engine automatically optimizes them for real-time display</li>
+                    <li><strong>Lumen:</strong> A global illumination system that simulates how light bounces around a scene in real-time, creating realistic lighting without the hours-long render times traditionally required</li>
+                </ul>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Keep in Mind</h4>
+                    <p>While UE5 dramatically closes the gap between real-time and pre-rendered graphics, there are still scenarios where pre-rendering is preferred—particularly when you need absolute maximum quality and have no interactivity requirements. However, for most game development, architectural visualization, and even many film/TV productions, real-time rendering in UE5 is now "good enough" and offers massive advantages in iteration speed and flexibility.</p>
+                </div>
+            </section>
+            <!-- Section 4: Industries and Use Cases -->
+            <section id="use-cases" class="lesson-section">
+                <h2>Industries and Use Cases</h2>
+                
+                <p>While Unreal Engine was born in the gaming world, its capabilities have attracted professionals from a surprisingly diverse range of industries. Let's explore where Unreal Engine is making an impact today.</p>
+                
+                <h3>🎮 Video Games</h3>
+                
+                <p>This is Unreal Engine's home turf. From indie passion projects to massive AAA blockbusters, Unreal powers games across every genre and platform.</p>
+                
+                <p><strong>Notable titles built with Unreal Engine:</strong></p>
+                <ul>
+                    <li><em>Fortnite</em> – Epic's own cultural phenomenon with hundreds of millions of players</li>
+                    <li><em>Final Fantasy VII Remake</em> – Square Enix's stunning reimagining of a classic</li>
+                    <li><em>Gears of War</em> series – The franchise that defined a generation of shooters</li>
+                    <li><em>Kingdom Hearts III</em> – Disney and Square Enix's action RPG</li>
+                    <li><em>Street Fighter 6</em> – Capcom's latest fighting game entry</li>
+                    <li><em>Hogwarts Legacy</em> – Open-world Harry Potter adventure</li>
+                </ul>
+                
+                <h3>🎬 Film and Television</h3>
+                
+                <p>Hollywood has discovered that real-time rendering can revolutionize production. Instead of waiting hours for renders, directors can see final-quality visuals instantly and make creative decisions on the fly.</p>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Virtual Production</h4>
+                    <p><strong>Virtual Production</strong> uses massive LED walls displaying real-time Unreal Engine environments. Actors perform in front of these screens, and the camera captures both the actor and the virtual background together—no green screen compositing needed. The environment even responds to camera movement in real-time, creating proper parallax and perspective.</p>
+                </div>
+                
+                <p><strong>Productions using Unreal Engine:</strong></p>
+                <ul>
+                    <li><em>The Mandalorian</em> – Pioneered the "StageCraft" LED volume technology</li>
+                    <li><em>The Batman</em> – Used virtual production for Gotham City environments</li>
+                    <li><em>Westworld</em> – Created complex sci-fi environments</li>
+                    <li><em>The Lion King</em> (2019) – Virtual cinematography in CG environments</li>
+                </ul>
+                
+                <h3>🏗️ Architecture and Real Estate</h3>
+                
+                <p>Architects and real estate developers use Unreal Engine to create photorealistic walkthroughs of buildings before a single brick is laid. Clients can "visit" their future home or office, exploring every room and seeing how natural light changes throughout the day.</p>
+                
+                <p><strong>Benefits for architecture:</strong></p>
+                <ul>
+                    <li>Interactive client presentations instead of static renders</li>
+                    <li>Real-time design changes during meetings</li>
+                    <li>VR walkthroughs for immersive experiences</li>
+                    <li>Accurate lighting simulation for any time of day or season</li>
+                </ul>
+                
+                <h3>🚗 Automotive</h3>
+                
+                <p>Car manufacturers use Unreal Engine throughout the design and marketing process. Designers can evaluate vehicle aesthetics in various lighting conditions, marketers create configurators that let customers customize their dream car, and engineers simulate driving scenarios.</p>
+                
+                <p><strong>Automotive applications:</strong></p>
+                <ul>
+                    <li>Virtual showrooms and car configurators</li>
+                    <li>Design visualization and review</li>
+                    <li>Driving simulation for testing</li>
+                    <li>Marketing materials and commercials</li>
+                </ul>
+                
+                <h3>🏥 Medical and Healthcare</h3>
+                
+                <p>Medical professionals use Unreal Engine to create training simulations, visualize complex procedures, and even plan surgeries using patient-specific 3D models derived from CT and MRI scans.</p>
+                
+                <h3>🎓 Education and Training</h3>
+                
+                <p>From flight simulators to emergency response training, Unreal Engine creates realistic scenarios where trainees can practice dangerous or expensive procedures safely. Military, aviation, and industrial sectors all leverage this technology.</p>
+                
+                <div class="mermaid">
+                    mindmap
+                        root((Unreal Engine))
+                            Games
+                                AAA Titles
+                                Indie Games
+                                Mobile Games
+                                VR Games
+                            Film/TV
+                                Virtual Production
+                                Previz
+                                Animation
+                            Architecture
+                                Visualization
+                                VR Walkthroughs
+                                Real Estate
+                            Automotive
+                                Configurators
+                                Design Review
+                                Simulation
+                            Other
+                                Medical Training
+                                Military Simulation
+                                Education
+                </div>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ The Takeaway</h4>
+                    <p>No matter what industry you're interested in, learning Unreal Engine opens doors. The skills you develop—3D visualization, real-time graphics, interactive design—are transferable across all these fields and more.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Engine Comparison -->
+            <section id="engine-comparison" class="lesson-section">
+                <h2>Comparing Game Engines</h2>
+                
+                <p>Unreal Engine isn't the only game engine available. Understanding how it compares to alternatives helps you appreciate its strengths and make informed decisions about which tool fits your needs.</p>
+                
+                <h3>The Big Three</h3>
+                
+                <p>Three game engines dominate the industry: <strong>Unreal Engine</strong>, <strong>Unity</strong>, and <strong>Godot</strong>. Each has its own philosophy, strengths, and ideal use cases.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Unreal Engine 5</th>
+                            <th>Unity</th>
+                            <th>Godot</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Price</strong></td>
+                            <td>Free until $1M revenue, then 5% royalty</td>
+                            <td>Free tier available; subscription plans for pro features</td>
+                            <td>Completely free and open source</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visual Quality</strong></td>
+                            <td>Industry-leading, film-quality capable</td>
+                            <td>Good, improving with HDRP</td>
+                            <td>Decent, best for stylized graphics</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Learning Curve</strong></td>
+                            <td>Steeper initially, but Blueprints help</td>
+                            <td>Generally considered more beginner-friendly</td>
+                            <td>Easiest for simple 2D games</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Primary Language</strong></td>
+                            <td>C++ and Blueprints (visual scripting)</td>
+                            <td>C#</td>
+                            <td>GDScript (Python-like), C#, C++</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>AAA games, realistic visuals, film/arch-viz</td>
+                            <td>Mobile games, indie games, AR/VR</td>
+                            <td>2D games, indie projects, learning</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Source Access</strong></td>
+                            <td>Full source code available</td>
+                            <td>No (proprietary)</td>
+                            <td>Full source code (MIT license)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>When to Choose Unreal Engine</h3>
+                
+                <p>Unreal Engine is typically the best choice when:</p>
+                <ul>
+                    <li>You need high-fidelity, realistic graphics</li>
+                    <li>You're building a 3D game (especially first/third-person)</li>
+                    <li>You want to work in film, architecture, or automotive visualization</li>
+                    <li>You prefer visual scripting (Blueprints) over traditional coding</li>
+                    <li>You need access to the engine's source code for deep customization</li>
+                    <li>You're targeting PC or console platforms primarily</li>
+                </ul>
+                
+                <h3>When Other Engines Might Be Better</h3>
+                
+                <p>Consider alternatives when:</p>
+                <ul>
+                    <li><strong>Mobile-first development:</strong> Unity has historically had better mobile optimization and smaller build sizes</li>
+                    <li><strong>2D games:</strong> Godot excels at 2D with dedicated 2D rendering (not just 3D viewed from above)</li>
+                    <li><strong>Rapid prototyping:</strong> Godot's lightweight nature makes it great for quick experiments</li>
+                    <li><strong>Team expertise:</strong> If your team knows C# well, Unity might offer faster onboarding</li>
+                </ul>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ A Note on Engine Wars</h4>
+                    <p>Online discussions about game engines can get heated. Remember: the "best" engine depends entirely on your project, team, and goals. Many successful studios use multiple engines for different projects. The skills you learn—3D math, game design principles, programming logic—transfer between engines. Focus on learning deeply rather than arguing about which tool is superior.</p>
+                </div>
+            </section>
+            <!-- Section 6: The Unreal Ecosystem -->
+            <section id="ecosystem" class="lesson-section">
+                <h2>The Unreal Ecosystem</h2>
+                
+                <p>Unreal Engine isn't just software you download—it's an entire ecosystem of resources, tools, and community support designed to help you succeed. Understanding what's available will accelerate your learning and save you countless hours.</p>
+                
+                <h3>📦 The Unreal Marketplace</h3>
+                
+                <p>The <strong>Unreal Marketplace</strong> is an online store where creators sell (and give away) assets, tools, and plugins for Unreal Engine. Think of it as an app store for your game development projects.</p>
+                
+                <p><strong>What you'll find on the Marketplace:</strong></p>
+                <ul>
+                    <li><strong>3D Models:</strong> Characters, vehicles, props, environments—ready to drop into your project</li>
+                    <li><strong>Materials and Textures:</strong> Professional-quality surfaces for your objects</li>
+                    <li><strong>Animations:</strong> Character movements, from walking cycles to combat moves</li>
+                    <li><strong>Audio:</strong> Sound effects, music, and ambient tracks</li>
+                    <li><strong>Blueprints:</strong> Pre-built gameplay systems like inventory, dialogue, or AI</li>
+                    <li><strong>Plugins:</strong> Tools that extend Unreal Engine's capabilities</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Free Monthly Assets</h4>
+                    <p>Every month, Epic Games gives away several Marketplace assets completely free. Once you claim them, they're yours forever. This is an excellent way to build up a library of professional assets without spending a dime. Check the Marketplace regularly!</p>
+                </div>
+                
+                <h3>📚 Official Documentation</h3>
+                
+                <p>Epic maintains comprehensive documentation at <strong>docs.unrealengine.com</strong>. This should be your first stop when you have questions. The documentation includes:</p>
+                
+                <ul>
+                    <li><strong>Getting Started guides:</strong> Step-by-step tutorials for beginners</li>
+                    <li><strong>Feature documentation:</strong> Detailed explanations of every system</li>
+                    <li><strong>API reference:</strong> Technical details for C++ and Blueprint nodes</li>
+                    <li><strong>Sample projects:</strong> Downloadable examples demonstrating specific features</li>
+                    <li><strong>Release notes:</strong> What's new and changed in each version</li>
+                </ul>
+                
+                <h3>🎓 Learning Resources</h3>
+                
+                <p>Epic has invested heavily in education. Here are the official learning platforms:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Description</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Unreal Online Learning</strong></td>
+                            <td>Free structured courses with video lessons</td>
+                            <td>Beginners wanting guided paths</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Unreal Engine YouTube</strong></td>
+                            <td>Official channel with tutorials and livestreams</td>
+                            <td>Visual learners, staying current</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sample Projects</strong></td>
+                            <td>Complete projects you can download and explore</td>
+                            <td>Learning by examining real code</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Documentation</strong></td>
+                            <td>Written guides and API reference</td>
+                            <td>Quick lookups, detailed explanations</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>👥 Community</h3>
+                
+                <p>One of Unreal Engine's greatest strengths is its active, helpful community. When you get stuck (and you will—everyone does), these resources can help:</p>
+                
+                <ul>
+                    <li><strong>Unreal Engine Forums:</strong> Official forums monitored by Epic staff and experienced developers</li>
+                    <li><strong>Unreal Slackers Discord:</strong> Active community with channels for every topic</li>
+                    <li><strong>Reddit (r/unrealengine):</strong> Discussions, showcases, and questions</li>
+                    <li><strong>Stack Overflow:</strong> Programming-focused Q&A</li>
+                    <li><strong>YouTube creators:</strong> Many excellent independent tutorial channels</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Asking Good Questions</h4>
+                    <p>When seeking help from the community, you'll get better responses if you: clearly describe what you're trying to do, explain what you've already tried, share relevant screenshots or code snippets, and mention your Unreal Engine version. A well-asked question often gets answered within hours.</p>
+                </div>
+                
+                <h3>🔧 Additional Tools</h3>
+                
+                <p>Epic provides several companion tools that integrate with Unreal Engine:</p>
+                
+                <ul>
+                    <li><strong>Quixel Bridge:</strong> Access to Megascans, a massive library of photorealistic 3D assets (free for Unreal Engine users)</li>
+                    <li><strong>MetaHuman Creator:</strong> Web-based tool for creating realistic digital humans</li>
+                    <li><strong>Twinmotion:</strong> Simplified real-time visualization tool for architecture</li>
+                    <li><strong>RealityCapture:</strong> Photogrammetry software for creating 3D models from photos</li>
+                </ul>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Megascans</h4>
+                    <p style="color: white;"><strong>Megascans</strong> is a library of thousands of photorealistic 3D assets and surfaces created by Quixel using photogrammetry. In 2019, Epic Games acquired Quixel and made the entire Megascans library free for use in Unreal Engine projects. This is an incredible resource worth billions of dollars in asset creation—available at no cost.</p>
+                </div>
+            </section>
+
+            <!-- Section 7: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>You've taken your first step into the world of Unreal Engine. Let's recap what we've covered.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h3>🎉 Key Takeaways</h3>
+                    <ul>
+                        <li><strong>Unreal Engine</strong> is a powerful, industry-leading game engine developed by Epic Games, used for games, film, architecture, and more</li>
+                        <li><strong>Real-time rendering</strong> generates images instantly (30-60+ fps) for interactive experiences, unlike pre-rendered graphics that take hours per frame</li>
+                        <li><strong>UE5's Nanite and Lumen</strong> technologies bring film-quality visuals into real-time applications</li>
+                        <li>Unreal Engine is used across many industries: games, film/TV (virtual production), architecture, automotive, medical, and education</li>
+                        <li>Compared to Unity and Godot, Unreal excels at high-fidelity 3D graphics and offers Blueprints for visual scripting</li>
+                        <li>The <strong>Unreal ecosystem</strong> includes the Marketplace, free monthly assets, comprehensive documentation, Megascans, MetaHumans, and an active community</li>
+                        <li>Unreal Engine is <strong>free to use</strong> until your project earns over $1 million in revenue</li>
+                    </ul>
+                </div>
+                
+                <h3>📚 Additional Resources</h3>
+                <ul>
+                    <li><a href="https://www.unrealengine.com/" target="_blank" rel="noopener">Unreal Engine Official Website</a></li>
+                    <li><a href="https://docs.unrealengine.com/" target="_blank" rel="noopener">Unreal Engine Documentation</a></li>
+                    <li><a href="https://dev.epicgames.com/community/learning" target="_blank" rel="noopener">Unreal Online Learning Portal</a></li>
+                    <li><a href="https://www.unrealengine.com/marketplace" target="_blank" rel="noopener">Unreal Marketplace</a></li>
+                    <li><a href="https://quixel.com/megascans" target="_blank" rel="noopener">Quixel Megascans Library</a></li>
+                    <li><a href="https://metahuman.unrealengine.com/" target="_blank" rel="noopener">MetaHuman Creator</a></li>
+                </ul>
+                
+                <h3>🚀 What's Next?</h3>
+                <p>Now that you understand what Unreal Engine is and why it's so powerful, it's time to get it installed on your computer. In the next lesson, we'll walk through downloading and setting up Unreal Engine 5 so you can start creating.</p>
+
+                <!-- Encouragement Card -->
+                <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; text-align: center; padding: 2rem;">
+                    <h3 style="color: white;">🎉 Congratulations!</h3>
+                    <p style="color: white;">You've completed your first lesson! You now have a solid foundation for understanding what Unreal Engine is and where it fits in the world of real-time 3D. Onward to installation!</p>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson Navigation">
+                <a href="index.html" class="prev-lesson">← Course Home</a>
+                <a href="index.html" class="home-link">🏠 Course Home</a>
+                <a href="m01_l02_installation_and_setup.html" class="next-lesson">Next: Installation and Setup →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; margin-top: 4rem;">
+        <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; opacity: 0.9;">Empowering creators to build amazing experiences with Unreal Engine.</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            <a href="index.html" style="color: white; text-decoration: underline;">Course Home</a> | 
+            <a href="index.html#modules" style="color: white; text-decoration: underline;">All Modules</a> | 
+            <a href="#main-content" style="color: white; text-decoration: underline;">Back to Top ↑</a>
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

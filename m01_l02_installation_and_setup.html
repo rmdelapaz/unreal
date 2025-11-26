@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Step-by-step guide to installing Unreal Engine 5 - Learn how to create an Epic Games account, install the launcher, download UE5, and configure your development environment.">
+    <meta name="author" content="Practical Ace">
+    <title>Installation and Setup - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 1: Getting Started</a></li>
+            <li aria-current="page">Lesson 1.2: Installation and Setup</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🔧 Installation and Setup</h1>
+                <p class="lead">Ready to get your hands on Unreal Engine? This lesson walks you through every step of the installation process—from creating your Epic Games account to launching the engine for the first time. By the end, you'll have a fully configured Unreal Engine 5 development environment ready to go.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Create and configure an Epic Games account</li>
+                        <li>Install the Epic Games Launcher on your system</li>
+                        <li>Download and install Unreal Engine 5</li>
+                        <li>Understand engine versions and when to use different versions</li>
+                        <li>Verify system requirements and optimize performance settings</li>
+                        <li>Configure initial preferences for your workflow</li>
+                        <li>Launch Unreal Engine and understand the project browser</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes (plus download time)</p>
+                    <p><strong>Prerequisites:</strong> Lesson 1.1: What is Unreal Engine?</p>
+                    <p><strong>Note:</strong> Download times vary based on your internet speed. Unreal Engine 5 is approximately 30-50 GB.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#system-requirements" class="toc-link">System Requirements</a></li>
+                        <li><a href="#epic-account" class="toc-link">Creating an Epic Games Account</a></li>
+                        <li><a href="#launcher-install" class="toc-link">Installing the Epic Games Launcher</a></li>
+                        <li><a href="#engine-install" class="toc-link">Downloading Unreal Engine 5</a></li>
+                        <li><a href="#engine-versions" class="toc-link">Understanding Engine Versions</a></li>
+                        <li><a href="#first-launch" class="toc-link">First Launch and Configuration</a></li>
+                        <li><a href="#preferences" class="toc-link">Configuring Preferences</a></li>
+                        <li><a href="#troubleshooting" class="toc-link">Troubleshooting Common Issues</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: System Requirements -->
+            <section id="system-requirements" class="lesson-section">
+                <h2>System Requirements</h2>
+                
+                <p>Before you start downloading anything, let's make sure your computer can handle Unreal Engine 5. While UE5 can technically run on lower-end systems, you'll want decent hardware to have a smooth development experience.</p>
+                
+                <h3>Minimum vs. Recommended Specs</h3>
+                
+                <p>Think of minimum requirements as "it will start" and recommended requirements as "it will actually be pleasant to use." If you're serious about learning Unreal Engine, aim for the recommended specs or better.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Minimum</th>
+                            <th>Recommended</th>
+                            <th>Professional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Operating System</strong></td>
+                            <td>Windows 10 64-bit</td>
+                            <td>Windows 11 64-bit</td>
+                            <td>Windows 11 64-bit</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Processor</strong></td>
+                            <td>Quad-core Intel or AMD, 2.5 GHz</td>
+                            <td>8-core Intel or AMD, 3.0+ GHz</td>
+                            <td>12+ core, 3.5+ GHz</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RAM</strong></td>
+                            <td>8 GB</td>
+                            <td>16 GB</td>
+                            <td>32 GB or more</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Graphics Card</strong></td>
+                            <td>DirectX 12 compatible, 4 GB VRAM</td>
+                            <td>NVIDIA RTX 2060 / AMD RX 5700 (8 GB VRAM)</td>
+                            <td>NVIDIA RTX 3080 / AMD RX 6800 XT (12+ GB VRAM)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Storage</strong></td>
+                            <td>150 GB free space (HDD)</td>
+                            <td>256 GB free space (SSD)</td>
+                            <td>500+ GB NVMe SSD</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DirectX Version</strong></td>
+                            <td>DirectX 12</td>
+                            <td>DirectX 12</td>
+                            <td>DirectX 12</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Mac and Linux Users</h4>
+                    <p><strong>macOS:</strong> Unreal Engine 5 supports macOS, but with some limitations. You'll need macOS 12.5 Monterey or later, and performance may not match Windows due to differences in graphics API support (Metal vs. DirectX 12).</p>
+                    <p><strong>Linux:</strong> UE5 supports Linux (Ubuntu 20.04 or CentOS 7), but this is primarily aimed at advanced users and server/rendering farm setups. Most learning resources and tutorials assume Windows.</p>
+                    <p><strong>Recommendation:</strong> If you're new to Unreal Engine, Windows 10/11 will give you the smoothest experience and best compatibility.</p>
+                </div>
+                
+                <h3>Why These Requirements Matter</h3>
+                
+                <p>Let's break down why each component is important:</p>
+                
+                <ul>
+                    <li><strong>Processor (CPU):</strong> Handles compilation, Blueprint logic, and general editor operations. More cores = faster compile times and better multitasking</li>
+                    <li><strong>RAM:</strong> Unreal Engine loads entire levels into memory. Large projects can easily consume 12-16 GB just in the editor</li>
+                    <li><strong>Graphics Card (GPU):</strong> Renders the viewport in real-time. UE5's Nanite and Lumen features are GPU-intensive</li>
+                    <li><strong>Storage:</strong> SSDs dramatically improve load times. The engine itself is ~30 GB, but projects accumulate quickly</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Storage Pro Tip</h4>
+                    <p>Install Unreal Engine on an SSD if possible, even if you store project files on a larger HDD. The engine's startup and compile times will be significantly faster. A good workflow is: Engine on SSD, active project on SSD, archived projects on HDD.</p>
+                </div>
+                
+                <h3>Checking Your System Specs</h3>
+                
+                <p>Not sure what your computer has? Here's how to check on Windows:</p>
+                
+                <details>
+                    <summary><strong>How to Check Your PC Specs (Windows)</strong></summary>
+                    <ol>
+                        <li>Press <kbd>Windows Key + R</kbd> to open the Run dialog</li>
+                        <li>Type <code>dxdiag</code> and press Enter</li>
+                        <li>In the DirectX Diagnostic Tool window:
+                            <ul>
+                                <li><strong>System tab:</strong> Shows your processor, RAM, and Windows version</li>
+                                <li><strong>Display tab:</strong> Shows your graphics card, VRAM, and DirectX version</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p>Alternatively, right-click on "This PC" → Properties to see basic CPU and RAM info.</p>
+                </details>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 What If My PC Doesn't Meet Requirements?</h4>
+                    <p>Don't panic! You can still learn Unreal Engine on lower-spec hardware, but you may need to:</p>
+                    <ul>
+                        <li>Work with smaller, simpler projects</li>
+                        <li>Disable real-time features like Lumen and Nanite</li>
+                        <li>Use lower viewport quality settings</li>
+                        <li>Be patient with longer compile and load times</li>
+                    </ul>
+                    <p>Many successful developers started learning on modest hardware and upgraded as their skills (and budgets) grew.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Creating an Epic Games Account -->
+            <section id="epic-account" class="lesson-section">
+                <h2>Creating an Epic Games Account</h2>
+                
+                <p>Your Epic Games account is your gateway to everything Unreal Engine—from downloading the software to accessing the Marketplace, forums, and documentation. Creating an account is free and takes just a few minutes.</p>
+                
+                <h3>Step-by-Step Account Creation</h3>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>📝 Account Creation Walkthrough</h3>
+                    
+                    <ol>
+                        <li><strong>Visit the Epic Games Website</strong>
+                            <ul>
+                                <li>Go to <a href="https://www.epicgames.com/" target="_blank" rel="noopener">www.epicgames.com</a></li>
+                                <li>Click the "Sign In" button in the top-right corner</li>
+                                <li>Click "Sign Up" to create a new account</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Choose Your Sign-Up Method</strong>
+                            <p>You can create an account using:</p>
+                            <ul>
+                                <li><strong>Email address:</strong> Most straightforward option</li>
+                                <li><strong>Google, Facebook, Apple, etc.:</strong> Convenient if you use these services</li>
+                            </ul>
+                            <p><em>Recommendation:</em> Using email gives you the most control and doesn't tie your account to third-party services.</p>
+                        </li>
+                        
+                        <li><strong>Fill Out the Registration Form</strong>
+                            <ul>
+                                <li><strong>Country:</strong> Select your location (affects regional availability and tax calculations)</li>
+                                <li><strong>First and Last Name:</strong> Use your real name</li>
+                                <li><strong>Display Name:</strong> This is what others see in forums and community features (can be changed later)</li>
+                                <li><strong>Email Address:</strong> Use a reliable email you check regularly</li>
+                                <li><strong>Password:</strong> Choose a strong password (at least 8 characters, mix of letters, numbers, symbols)</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Agree to Terms</strong>
+                            <ul>
+                                <li>Review the Terms of Service</li>
+                                <li>Check the box to accept (required)</li>
+                                <li>Optionally subscribe to email updates (you can unsubscribe later)</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Verify Your Email</strong>
+                            <ul>
+                                <li>Epic will send a verification email to the address you provided</li>
+                                <li>Check your inbox (and spam folder if needed)</li>
+                                <li>Click the verification link in the email</li>
+                                <li>Your account is now active!</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Account Security Tips</h4>
+                    <ul>
+                        <li><strong>Enable Two-Factor Authentication (2FA):</strong> After creating your account, go to Account Settings → Password & Security → Enable 2FA. This protects your account from unauthorized access.</li>
+                        <li><strong>Use a unique password:</strong> Don't reuse passwords from other services</li>
+                        <li><strong>Keep your email secure:</strong> Your Epic account is only as secure as the email address it's tied to</li>
+                    </ul>
+                </div>
+                
+                <h3>What Your Account Gives You Access To</h3>
+                
+                <p>With your Epic Games account, you can:</p>
+                
+                <ul>
+                    <li>✅ Download and install Unreal Engine (all versions)</li>
+                    <li>✅ Access the Unreal Marketplace (free and paid assets)</li>
+                    <li>✅ Claim monthly free Marketplace assets (worth thousands of dollars)</li>
+                    <li>✅ Participate in the Unreal Engine forums and community</li>
+                    <li>✅ Access official documentation and learning resources</li>
+                    <li>✅ Download Epic Games Store games (including free games)</li>
+                    <li>✅ Publish your projects (when ready)</li>
+                </ul>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Two-Factor Authentication (2FA)</h4>
+                    <p style="color: white;"><strong>Two-Factor Authentication</strong> adds an extra layer of security by requiring a second form of verification (usually a code from an authenticator app or SMS) in addition to your password. Even if someone steals your password, they can't access your account without the second factor.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Installing the Epic Games Launcher -->
+            <section id="launcher-install" class="lesson-section">
+                <h2>Installing the Epic Games Launcher</h2>
+                
+                <p>The Epic Games Launcher is your central hub for managing Unreal Engine installations, accessing the Marketplace, and downloading assets. Think of it as a "steam" for Epic's ecosystem—a desktop application that handles everything related to Epic Games products.</p>
+                
+                <h3>Why You Need the Launcher</h3>
+                
+                <p>You might wonder: "Can't I just download Unreal Engine directly?" The answer is no—and here's why the Launcher exists:</p>
+                
+                <ul>
+                    <li><strong>Version Management:</strong> Easily install, update, and switch between multiple engine versions</li>
+                    <li><strong>Marketplace Access:</strong> Browse and download assets directly to your engine installation</li>
+                    <li><strong>Project Management:</strong> Launch projects and see which engine version they use</li>
+                    <li><strong>Updates:</strong> Get automatic notifications when new engine versions or asset updates are available</li>
+                    <li><strong>Library:</strong> Manage all your Unreal projects and Epic Games Store titles in one place</li>
+                </ul>
+                
+                <h3>Downloading the Launcher</h3>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>💻 Launcher Installation Steps</h3>
+                    
+                    <ol>
+                        <li><strong>Navigate to the Download Page</strong>
+                            <ul>
+                                <li>Go to <a href="https://www.unrealengine.com/download" target="_blank" rel="noopener">unrealengine.com/download</a></li>
+                                <li>Or from the Epic Games homepage, click "Get Unreal" or "Download"</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Download the Installer</strong>
+                            <ul>
+                                <li>Click the "Download" button for your platform (Windows/Mac/Linux)</li>
+                                <li>The installer is small (~2-3 MB)—it downloads the full launcher after you run it</li>
+                                <li>Save the installer file (usually <code>EpicInstaller-X.X.X.msi</code> for Windows)</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Run the Installer</strong>
+                            <ul>
+                                <li>Double-click the downloaded installer file</li>
+                                <li>If Windows asks "Do you want to allow this app to make changes?" click <strong>Yes</strong></li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Choose Installation Location</strong>
+                            <ul>
+                                <li>Default location: <code>C:\Program Files\Epic Games\</code> (Windows)</li>
+                                <li>You can choose a different location if needed</li>
+                                <li><strong>Tip:</strong> If you have multiple drives, installing on an SSD will improve performance</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Complete Installation</strong>
+                            <ul>
+                                <li>Click "Install" and wait for the process to complete</li>
+                                <li>The installer will download the full Launcher (~200-300 MB)</li>
+                                <li>Check "Launch Epic Games Launcher" if you want it to open automatically</li>
+                                <li>Click "Finish"</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                
+                <h3>First Time Launching the Launcher</h3>
+                
+                <p>When you open the Epic Games Launcher for the first time:</p>
+                
+                <ol>
+                    <li><strong>Sign In:</strong> Use the Epic Games account you created earlier</li>
+                    <li><strong>Launcher Update Check:</strong> The Launcher may update itself to the latest version</li>
+                    <li><strong>Browse the Interface:</strong> You'll see several tabs:
+                        <ul>
+                            <li><strong>Unreal Engine:</strong> Where you'll install and manage engine versions</li>
+                            <li><strong>Marketplace:</strong> Browse and download assets</li>
+                            <li><strong>Library:</strong> Your installed engines, projects, and Epic Games Store titles</li>
+                            <li><strong>Store:</strong> Epic Games Store (for games, not directly related to engine development)</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Launcher Installed Successfully?</h4>
+                    <p>You should now see the Epic Games Launcher interface. The "Unreal Engine" tab is where you'll spend most of your time. Next up: actually downloading Unreal Engine itself!</p>
+                </div>
+            </section>
+            <!-- Section 4: Downloading Unreal Engine 5 -->
+            <section id="engine-install" class="lesson-section">
+                <h2>Downloading Unreal Engine 5</h2>
+                
+                <p>Now comes the big download! Unreal Engine 5 is a substantial piece of software, so make sure you have a stable internet connection and enough time for the download to complete. Depending on your internet speed, this could take anywhere from 30 minutes to several hours.</p>
+                
+                <h3>Navigating to the Engine Installation</h3>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>🎮 Installing Unreal Engine 5</h3>
+                    
+                    <ol>
+                        <li><strong>Open the Epic Games Launcher</strong>
+                            <ul>
+                                <li>Launch the Epic Games Launcher if it's not already open</li>
+                                <li>Make sure you're signed in to your Epic Games account</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Navigate to the Unreal Engine Tab</strong>
+                            <ul>
+                                <li>Click on the <strong>"Unreal Engine"</strong> tab on the left sidebar</li>
+                                <li>You'll see several sub-tabs: Library, Marketplace, Learn, etc.</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Go to the Library Section</strong>
+                            <ul>
+                                <li>Click on <strong>"Library"</strong> at the top of the Unreal Engine tab</li>
+                                <li>This is where you'll manage all your installed engine versions</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Install Engine Version</strong>
+                            <ul>
+                                <li>Look for a yellow <strong>"+"</strong> button or <strong>"Install Engine"</strong> button</li>
+                                <li>Click it to see available engine versions</li>
+                                <li>You'll see options like "5.5.0", "5.4.4", "5.3.2", etc.</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Select Your Version</strong>
+                            <ul>
+                                <li>For this course, install the <strong>latest stable release</strong> (e.g., UE 5.5 or 5.4)</li>
+                                <li>Avoid "Preview" or "Early Access" versions unless you have a specific reason</li>
+                                <li>Click on your chosen version</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Choose Installation Location</strong>
+                            <ul>
+                                <li>Default: <code>C:\Program Files\Epic Games\UE_5.X</code> (Windows)</li>
+                                <li>Click <strong>"Browse"</strong> to choose a different location</li>
+                                <li><strong>Important:</strong> Install on an SSD if you have one—it dramatically improves startup and compile times</li>
+                                <li>Make sure you have at least <strong>100-150 GB free space</strong> on the selected drive</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Select Optional Components (Advanced)</strong>
+                            <ul>
+                                <li>Click <strong>"Options"</strong> to see what will be installed</li>
+                                <li>By default, the essential components are selected</li>
+                                <li>Optional components include:
+                                    <ul>
+                                        <li><strong>Starter Content:</strong> Sample assets for learning (recommended for beginners)</li>
+                                        <li><strong>Templates and Feature Packs:</strong> Pre-made project templates</li>
+                                        <li><strong>Engine Source:</strong> Full C++ source code (only needed for advanced users doing engine modifications)</li>
+                                        <li><strong>Debug Symbols:</strong> For C++ debugging (advanced users only)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Recommendation:</strong> Keep the defaults for your first installation. You can always add components later.</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Start the Download</strong>
+                            <ul>
+                                <li>Click <strong>"Install"</strong></li>
+                                <li>The download will begin—you'll see a progress bar</li>
+                                <li>Total download size: approximately 30-50 GB depending on selected components</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Wait for Installation to Complete</strong>
+                            <ul>
+                                <li>The Launcher will download and extract files automatically</li>
+                                <li>You can minimize the Launcher and do other work, but avoid closing it</li>
+                                <li>Don't shut down your computer during installation</li>
+                                <li>Once complete, you'll see the engine version listed in your Library with a <strong>"Launch"</strong> button</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Slow Download Speeds?</h4>
+                    <p>If your download is extremely slow or keeps pausing:</p>
+                    <ul>
+                        <li><strong>Check your internet connection:</strong> Run a speed test at <a href="https://fast.com" target="_blank" rel="noopener">fast.com</a></li>
+                        <li><strong>Pause other downloads:</strong> Close Steam, torrent clients, and other bandwidth-heavy applications</li>
+                        <li><strong>Try downloading during off-peak hours:</strong> Epic's servers may be less congested late at night or early morning</li>
+                        <li><strong>Check firewall/antivirus:</strong> Some security software can throttle large downloads</li>
+                        <li><strong>Be patient:</strong> This is a large download, and it may take several hours on slower connections</li>
+                    </ul>
+                </div>
+                
+                <h3>What Gets Installed?</h3>
+                
+                <p>When you install Unreal Engine, you're getting several key components:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Description</th>
+                            <th>Size (Approximate)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Core Engine</strong></td>
+                            <td>The main Unreal Editor application and runtime</td>
+                            <td>~15-20 GB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Build Tools</strong></td>
+                            <td>Compilers and tools for building projects</td>
+                            <td>~5-8 GB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Starter Content</strong></td>
+                            <td>Sample assets, materials, blueprints for learning</td>
+                            <td>~2-3 GB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Templates</strong></td>
+                            <td>Pre-configured project templates (FPS, Third Person, etc.)</td>
+                            <td>~3-5 GB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Documentation</strong></td>
+                            <td>Offline help documentation</td>
+                            <td>~1-2 GB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Optional: Engine Source</strong></td>
+                            <td>Full C++ source code (advanced users)</td>
+                            <td>~15-20 GB</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Install Location Strategy</h4>
+                    <p>If you have multiple drives, consider this setup:</p>
+                    <ul>
+                        <li><strong>SSD:</strong> Install the engine itself here for fast startup and compilation</li>
+                        <li><strong>SSD:</strong> Keep your active project(s) here while you're working on them</li>
+                        <li><strong>HDD:</strong> Move completed or archived projects here to save SSD space</li>
+                    </ul>
+                    <p>The speed difference between SSD and HDD for engine startup can be 30 seconds vs. 2-3 minutes!</p>
+                </div>
+                
+                <h3>Installation Progress Tracking</h3>
+                
+                <p>While the download is running, the Epic Games Launcher shows you:</p>
+                
+                <ul>
+                    <li><strong>Download Speed:</strong> Current download rate (MB/s)</li>
+                    <li><strong>Downloaded Amount:</strong> How much has been downloaded (e.g., "15.2 GB / 45.8 GB")</li>
+                    <li><strong>Time Remaining:</strong> Estimated time until completion</li>
+                    <li><strong>Extraction Progress:</strong> After downloading, files are extracted and installed</li>
+                </ul>
+                
+                <p>The download happens in phases:</p>
+                
+                <div class="mermaid">
+                    flowchart LR
+                        A[Download Files] --> B[Verify Download]
+                        B --> C[Extract Archives]
+                        C --> D[Install Components]
+                        D --> E[Configure Engine]
+                        E --> F[Ready to Launch!]
+                        
+                        style A fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style B fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style C fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style D fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style E fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style F fill:#10b981,stroke:#059669,color:#fff
+                </div>
+            </section>
+
+            <!-- Section 5: Understanding Engine Versions -->
+            <section id="engine-versions" class="lesson-section">
+                <h2>Understanding Engine Versions</h2>
+                
+                <p>Unlike some software where you only keep the latest version, many developers maintain multiple versions of Unreal Engine simultaneously. Understanding version numbers and when to use different versions is important for both learning and professional work.</p>
+                
+                <h3>Version Numbering System</h3>
+                
+                <p>Unreal Engine uses a three-part version number: <strong>Major.Minor.Patch</strong></p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Version Number Breakdown</h4>
+                    <p style="color: white;">Example: <strong>Unreal Engine 5.4.2</strong></p>
+                    <ul style="color: white;">
+                        <li><strong>5</strong> = Major version (fundamental engine architecture)</li>
+                        <li><strong>4</strong> = Minor version (new features, improvements)</li>
+                        <li><strong>2</strong> = Patch version (bug fixes, small improvements)</li>
+                    </ul>
+                </div>
+                
+                <h3>What Different Versions Mean</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Version Type</th>
+                            <th>Description</th>
+                            <th>When to Use</th>
+                            <th>Stability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Major Release</strong><br/>(e.g., UE4 → UE5)</td>
+                            <td>Fundamental changes to engine architecture, major new features</td>
+                            <td>New projects, when you need cutting-edge features</td>
+                            <td>⚠️ May have teething issues early on</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Minor Release</strong><br/>(e.g., 5.3 → 5.4)</td>
+                            <td>New features, significant improvements, some API changes</td>
+                            <td>Most new projects—good balance of features and stability</td>
+                            <td>✅ Generally stable after .1 or .2 patch</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Patch Release</strong><br/>(e.g., 5.4.1 → 5.4.2)</td>
+                            <td>Bug fixes, performance improvements, minor tweaks</td>
+                            <td>Upgrading existing projects, production work</td>
+                            <td>✅✅ Most stable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Preview/Early Access</strong></td>
+                            <td>Experimental builds with upcoming features</td>
+                            <td>Testing future features, advanced users only</td>
+                            <td>❌ Not for production use</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Which Version Should You Use?</h3>
+                
+                <p>For learning and following this course:</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommended for Beginners</h4>
+                    <p><strong>Install the latest stable minor version with the highest patch number.</strong></p>
+                    <p>For example, if available versions are:</p>
+                    <ul>
+                        <li>5.5.0 (just released)</li>
+                        <li>5.4.4 (stable, well-tested)</li>
+                        <li>5.3.2 (older but rock-solid)</li>
+                    </ul>
+                    <p>→ Install <strong>5.4.4</strong> for the best balance of features and stability.</p>
+                    <p>Avoid the bleeding edge (5.5.0) until it's had a few patches, and avoid very old versions (5.2.x) unless you have a specific compatibility reason.</p>
+                </div>
+                
+                <h3>Can I Have Multiple Versions Installed?</h3>
+                
+                <p><strong>Yes—and many developers do!</strong> Here's why you might want multiple versions:</p>
+                
+                <ul>
+                    <li><strong>Learning:</strong> Follow tutorials that use specific engine versions</li>
+                    <li><strong>Compatibility:</strong> Open older projects without upgrading them</li>
+                    <li><strong>Plugin Support:</strong> Some plugins only work with certain engine versions</li>
+                    <li><strong>Stability vs. Features:</strong> Keep a stable version for important work, test new features in latest version</li>
+                    <li><strong>Client Requirements:</strong> Professional work may require specific versions</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Managing Multiple Versions</h4>
+                    <p>The Epic Games Launcher makes it easy to manage multiple engine versions:</p>
+                    <ul>
+                        <li>Each version installs to its own directory (e.g., <code>UE_5.3</code>, <code>UE_5.4</code>)</li>
+                        <li>Projects remember which version they were created with</li>
+                        <li>You can switch between versions easily from the Launcher</li>
+                        <li>Each version takes 40-60 GB of disk space, so plan accordingly</li>
+                    </ul>
+                </div>
+                
+                <h3>Upgrading Projects Between Versions</h3>
+                
+                <p>What happens when you open an old project in a newer engine version?</p>
+                
+                <div class="mermaid">
+                    flowchart TD
+                        A[Open Project in Newer Engine] --> B{Same Minor Version?}
+                        B -->|Yes<br/>5.4.1 → 5.4.4| C[Usually Safe<br/>Minimal Changes]
+                        B -->|No<br/>5.3.x → 5.4.x| D[Engine Offers to Convert]
+                        D --> E{Accept Conversion?}
+                        E -->|Yes| F[Backup Created<br/>Project Converted]
+                        E -->|No| G[Project Opens in Original Version]
+                        F --> H[Test Thoroughly!<br/>May need fixes]
+                        
+                        style C fill:#10b981,stroke:#059669,color:#fff
+                        style F fill:#fbbf24,stroke:#d97706,color:#000
+                        style H fill:#ef4444,stroke:#b91c1c,color:#fff
+                </div>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Version Upgrade Best Practices</h4>
+                    <ul>
+                        <li><strong>Always backup before upgrading:</strong> Make a complete copy of your project folder</li>
+                        <li><strong>Test in a copy first:</strong> Don't upgrade your only copy of an important project</li>
+                        <li><strong>Expect to fix things:</strong> APIs change, blueprints may need updates, plugins might break</li>
+                        <li><strong>Read release notes:</strong> Check what changed between versions before upgrading</li>
+                        <li><strong>Stay on stable versions for important work:</strong> Don't upgrade mid-project unless necessary</li>
+                    </ul>
+                </div>
+                
+                <h3>Release Channels</h3>
+                
+                <p>Epic provides different release channels for different needs:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>Purpose</th>
+                            <th>Who Should Use It</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Release</strong></td>
+                            <td>Stable, production-ready versions</td>
+                            <td>Everyone—this is the default</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Preview</strong></td>
+                            <td>Beta testing upcoming features</td>
+                            <td>Advanced users wanting early access</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Source</strong></td>
+                            <td>GitHub source code for custom builds</td>
+                            <td>Engine developers, studios with custom needs</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>For this course and general learning: stick with the Release channel.</strong></p>
+            </section>
+
+            <!-- Section 6: First Launch and Configuration -->
+            <section id="first-launch" class="lesson-section">
+                <h2>First Launch and Configuration</h2>
+                
+                <p>Installation complete? Congratulations! Now let's launch Unreal Engine for the first time and get familiar with the Project Browser—your starting point for every Unreal Engine session.</p>
+                
+                <h3>Launching Unreal Engine</h3>
+                
+                <p>There are two ways to launch the engine:</p>
+                
+                <ol>
+                    <li><strong>From the Epic Games Launcher:</strong>
+                        <ul>
+                            <li>Open the Epic Games Launcher</li>
+                            <li>Go to <strong>Unreal Engine → Library</strong></li>
+                            <li>Find your installed engine version</li>
+                            <li>Click the <strong>"Launch"</strong> button</li>
+                        </ul>
+                    </li>
+                    
+                    <li><strong>From a Desktop Shortcut (if created):</strong>
+                        <ul>
+                            <li>Double-click the Unreal Engine icon on your desktop</li>
+                            <li>Note: This launches the most recently installed version</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 First Launch Takes Longer</h4>
+                    <p>The very first time you launch Unreal Engine, it takes longer than subsequent launches because the engine is:</p>
+                    <ul>
+                        <li>Compiling shaders for your graphics card</li>
+                        <li>Building initial caches</li>
+                        <li>Setting up configuration files</li>
+                    </ul>
+                    <p>On an SSD, first launch might take 2-3 minutes. On an HDD, it could take 5-10 minutes. Subsequent launches will be much faster (30-60 seconds on SSD, 2-3 minutes on HDD).</p>
+                </div>
+                
+                <h3>The Unreal Project Browser</h3>
+                
+                <p>After the engine loads, you'll see the <strong>Unreal Project Browser</strong>—a window that lets you create new projects or open existing ones. Think of it as the "home screen" for Unreal Engine.</p>
+                
+                <h4>Project Browser Interface</h4>
+                
+                <p>The Project Browser has several sections:</p>
+                
+                <ul>
+                    <li><strong>Recent Projects:</strong> Projects you've worked on recently (empty for first-time users)</li>
+                    <li><strong>New Project Categories:</strong>
+                        <ul>
+                            <li><strong>Games:</strong> Templates for game projects (First Person, Third Person, Top-Down, etc.)</li>
+                            <li><strong>Film / Video & Live Events:</strong> Templates for virtual production and cinematics</li>
+                            <li><strong>Architecture:</strong> Templates for architectural visualization</li>
+                            <li><strong>Automotive:</strong> Templates for vehicle visualization</li>
+                            <li><strong>Blank:</strong> Empty project with minimal setup</li>
+                        </ul>
+                    </li>
+                    <li><strong>Project Settings Panel:</strong> Configure project name, location, and options</li>
+                </ul>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Project Template</h4>
+                    <p style="color: white;"><strong>Project Templates</strong> are pre-configured starting points that include relevant assets, settings, and example content for specific use cases. For example, the "First Person" template includes a character controller, sample level, and weapon mechanics ready to customize.</p>
+                </div>
+                
+                <h3>Don't Create a Project Yet!</h3>
+                
+                <p>It's tempting to dive right in and create your first project, but hold on! In the next lesson (Lesson 1.3), we'll walk through creating your first project step-by-step and explore what all these template options mean.</p>
+                
+                <p>For now, we're just getting familiar with the interface. You can close the Project Browser or leave it open—we'll come back to it shortly.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ What You Should See</h4>
+                    <p>If your installation was successful, you should see:</p>
+                    <ul>
+                        <li>The Unreal Project Browser window with various template categories</li>
+                        <li>No error messages or crashes</li>
+                        <li>Template preview images loading properly</li>
+                    </ul>
+                    <p>If you see error messages, check the Troubleshooting section at the end of this lesson.</p>
+                </div>
+            </section>
+            <!-- Section 7: Configuring Preferences -->
+            <section id="preferences" class="lesson-section">
+                <h2>Configuring Preferences</h2>
+                
+                <p>Before you start creating projects, it's worth taking a few minutes to configure Unreal Engine's preferences to match your workflow and hardware. These settings affect the editor's behavior, performance, and user experience.</p>
+                
+                <h3>Accessing Editor Preferences</h3>
+                
+                <p>To access preferences, you'll need to have the editor open (either from the Project Browser or with a project loaded). Here's how:</p>
+                
+                <ol>
+                    <li>Launch Unreal Engine</li>
+                    <li>Click <strong>Edit → Editor Preferences</strong> from the menu bar</li>
+                    <li>The Editor Preferences window opens with categories on the left</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Editor Preferences vs. Project Settings</h4>
+                    <p>There are two types of settings in Unreal Engine:</p>
+                    <ul>
+                        <li><strong>Editor Preferences:</strong> Personal settings that apply to you across all projects (interface, hotkeys, auto-save frequency)</li>
+                        <li><strong>Project Settings:</strong> Settings specific to the current project (rendering quality, input mappings, physics)</li>
+                    </ul>
+                    <p>We're focusing on Editor Preferences here since they're global to your Unreal Engine installation.</p>
+                </div>
+                
+                <h3>Essential Preferences to Configure</h3>
+                
+                <h4>General Settings</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Setting</th>
+                            <th>Location</th>
+                            <th>Recommendation</th>
+                            <th>Why</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Auto-Save</strong></td>
+                            <td>General → Loading & Saving</td>
+                            <td>Enable, 5-10 minutes</td>
+                            <td>Prevents losing work if editor crashes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Source Control</strong></td>
+                            <td>General → Source Control</td>
+                            <td>Set up later when needed</td>
+                            <td>Version control for team projects</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Editor Startup</strong></td>
+                            <td>General → Loading & Saving</td>
+                            <td>Load last project: Personal preference</td>
+                            <td>Skip Project Browser on startup</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>Appearance and Interface</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Setting</th>
+                            <th>Location</th>
+                            <th>Recommendation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>UI Scale</strong></td>
+                            <td>General → Appearance</td>
+                            <td>Adjust for your monitor size (100-125% typical)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Theme</strong></td>
+                            <td>General → Appearance</td>
+                            <td>Dark (default) or Light theme</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Viewport Color</strong></td>
+                            <td>General → Appearance</td>
+                            <td>Personal preference (affects background)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>Performance Settings</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Setting</th>
+                            <th>Location</th>
+                            <th>Low-End PC</th>
+                            <th>High-End PC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Real-Time Thumbnails</strong></td>
+                            <td>General → Performance</td>
+                            <td>Disable</td>
+                            <td>Enable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Less CPU in Background</strong></td>
+                            <td>General → Performance</td>
+                            <td>Enable</td>
+                            <td>Personal preference</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Show Frame Rate</strong></td>
+                            <td>General → Performance</td>
+                            <td>Enable (to monitor performance)</td>
+                            <td>Enable</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommended First-Time Setup</h4>
+                    <p>For your first time using Unreal Engine, configure these essential settings:</p>
+                    <ol>
+                        <li><strong>Enable Auto-Save:</strong> Go to General → Loading & Saving → Enable Auto Save Maps/Content, set interval to 5 minutes</li>
+                        <li><strong>Adjust UI Scale:</strong> Go to General → Appearance → UI Scale, adjust if text is too small/large</li>
+                        <li><strong>Show Frame Rate:</strong> Go to General → Performance → Show Frame Rate and Memory in Stats</li>
+                    </ol>
+                    <p>You can explore and customize other settings as you become more familiar with the engine.</p>
+                </div>
+                
+                <h4>Keyboard Shortcuts</h4>
+                
+                <p>Unreal Engine has extensive keyboard shortcut customization:</p>
+                
+                <ul>
+                    <li>Go to <strong>Edit → Editor Preferences → Keyboard Shortcuts</strong></li>
+                    <li>Search for any command</li>
+                    <li>Click on a shortcut to rebind it</li>
+                    <li>Common shortcuts to know:
+                        <ul>
+                            <li><kbd>Ctrl + S</kbd> - Save current file</li>
+                            <li><kbd>Ctrl + Shift + S</kbd> - Save all</li>
+                            <li><kbd>Ctrl + P</kbd> - Open asset picker</li>
+                            <li><kbd>F</kbd> - Frame selected object in viewport</li>
+                            <li><kbd>Alt + Mouse Drag</kbd> - Orbit camera in viewport</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Don't Overwhelm Yourself</h4>
+                    <p>There are hundreds of preference options! You don't need to configure everything now. Start with the essentials listed above, and adjust other settings as you discover features you want to customize. The default settings work well for most users.</p>
+                </div>
+            </section>
+
+            <!-- Section 8: Troubleshooting Common Issues -->
+            <section id="troubleshooting" class="lesson-section">
+                <h2>Troubleshooting Common Issues</h2>
+                
+                <p>Even with a smooth installation, you might encounter some issues. Here are the most common problems and their solutions.</p>
+                
+                <h3>Installation Problems</h3>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🔧 Issue: Download Keeps Failing or Pausing</h4>
+                    <p><strong>Symptoms:</strong> Epic Games Launcher shows "Download failed" or download pauses repeatedly</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Check your internet connection stability</li>
+                        <li>Temporarily disable firewall/antivirus and retry</li>
+                        <li>Clear the Launcher's download cache: Settings → Clear Download Cache</li>
+                        <li>Restart the Epic Games Launcher</li>
+                        <li>Try downloading during off-peak hours</li>
+                        <li>Check if your drive has enough free space (need 100+ GB)</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🔧 Issue: "Not Enough Disk Space" Error</h4>
+                    <p><strong>Symptoms:</strong> Installation fails with disk space error even though you have space</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Unreal Engine needs ~100-150 GB during installation (temporary files are larger than final install)</li>
+                        <li>Check BOTH download location and installation location have enough space</li>
+                        <li>Clean up disk space: empty Recycle Bin, run Disk Cleanup</li>
+                        <li>Choose a different drive with more free space</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🔧 Issue: Launcher Won't Install or Open</h4>
+                    <p><strong>Symptoms:</strong> Epic Games Launcher installer fails or won't launch after installation</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Run installer as Administrator (right-click → Run as Administrator)</li>
+                        <li>Install Visual C++ Redistributables (required dependency):
+                            <ul>
+                                <li>Download from Microsoft: <a href="https://aka.ms/vs/17/release/vc_redist.x64.exe" target="_blank" rel="noopener">Visual C++ 2015-2022 Redistributable</a></li>
+                            </ul>
+                        </li>
+                        <li>Install .NET Framework 4.8 if on older Windows versions</li>
+                        <li>Temporarily disable antivirus during installation</li>
+                        <li>Check Windows Update is current</li>
+                    </ul>
+                </div>
+                
+                <h3>First Launch Problems</h3>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🔧 Issue: Engine Won't Launch / Crashes on Startup</h4>
+                    <p><strong>Symptoms:</strong> Unreal Engine crashes immediately, shows error message, or hangs on splash screen</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li><strong>Update Graphics Drivers:</strong> Download latest drivers from NVIDIA, AMD, or Intel website</li>
+                        <li><strong>Check DirectX:</strong> Ensure DirectX 12 is installed and your GPU supports it</li>
+                        <li><strong>Verify Installation:</strong> In Epic Launcher → Library → Click dropdown next to Launch → Verify</li>
+                        <li><strong>Disable Integrated Graphics:</strong> If you have both integrated and dedicated GPU, force Unreal to use dedicated:
+                            <ul>
+                                <li>Windows Settings → System → Display → Graphics Settings</li>
+                                <li>Add UnrealEditor.exe → Set to "High Performance"</li>
+                            </ul>
+                        </li>
+                        <li><strong>Run as Administrator:</strong> Right-click Launch button → Run as Administrator</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🔧 Issue: "Prerequisites Failed" Error</h4>
+                    <p><strong>Symptoms:</strong> Error message about missing prerequisites or failed installation</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Manually install prerequisites:
+                            <ul>
+                                <li>Navigate to: <code>C:\Program Files\Epic Games\UE_5.X\Engine\Extras\Redist\en-us</code></li>
+                                <li>Run <code>UEPrereqSetup_x64.exe</code> as Administrator</li>
+                            </ul>
+                        </li>
+                        <li>Install Visual C++ Redistributables manually (see above)</li>
+                        <li>Restart computer after installing prerequisites</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🔧 Issue: Extremely Slow Performance / Low Frame Rate</h4>
+                    <p><strong>Symptoms:</strong> Viewport is choppy, low FPS, editor feels sluggish</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li><strong>Lower Viewport Quality:</strong> In viewport, click Settings icon → Engine Scalability Settings → Low</li>
+                        <li><strong>Disable Real-Time:</strong> Click the "Real-Time" checkbox in viewport to toggle off (makes viewport update only when you interact)</li>
+                        <li><strong>Disable Lumen and Nanite:</strong> These are GPU-intensive; disable in Project Settings for better performance on older hardware</li>
+                        <li><strong>Close Other Applications:</strong> Free up RAM and GPU resources</li>
+                        <li><strong>Check Task Manager:</strong> Make sure Unreal is using your dedicated GPU, not integrated graphics</li>
+                    </ul>
+                </div>
+                
+                <h3>Account and Login Issues</h3>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🔧 Issue: Can't Sign In to Epic Games Launcher</h4>
+                    <p><strong>Symptoms:</strong> Login fails, "Invalid credentials" error, or can't connect to Epic servers</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Verify your email/password are correct (try logging in at epicgames.com first)</li>
+                        <li>Check if Epic Games services are down: <a href="https://status.epicgames.com/" target="_blank" rel="noopener">status.epicgames.com</a></li>
+                        <li>Disable VPN if you're using one</li>
+                        <li>Check firewall isn't blocking Epic Games Launcher</li>
+                        <li>Reset password if you've forgotten it</li>
+                        <li>Enable 2FA if account security is the issue</li>
+                    </ul>
+                </div>
+                
+                <h3>Getting More Help</h3>
+                
+                <p>If you're still experiencing issues after trying these solutions:</p>
+                
+                <ul>
+                    <li><strong>Official Documentation:</strong> <a href="https://docs.unrealengine.com/" target="_blank" rel="noopener">docs.unrealengine.com</a></li>
+                    <li><strong>Unreal Engine Forums:</strong> <a href="https://forums.unrealengine.com/" target="_blank" rel="noopener">forums.unrealengine.com</a> (search for your specific error message)</li>
+                    <li><strong>AnswerHub:</strong> <a href="https://answers.unrealengine.com/" target="_blank" rel="noopener">answers.unrealengine.com</a> (community Q&A)</li>
+                    <li><strong>Epic Games Support:</strong> <a href="https://www.epicgames.com/help/" target="_blank" rel="noopener">epicgames.com/help</a></li>
+                    <li><strong>Reddit:</strong> r/unrealengine community is helpful for troubleshooting</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ When Reporting Issues</h4>
+                    <p>If you need to ask for help online, include these details:</p>
+                    <ul>
+                        <li>Exact error message (screenshot if possible)</li>
+                        <li>Unreal Engine version (e.g., 5.4.2)</li>
+                        <li>Your system specs (CPU, GPU, RAM, OS)</li>
+                        <li>What you were doing when the issue occurred</li>
+                        <li>Steps you've already tried to fix it</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 9: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Congratulations! You've successfully installed Unreal Engine 5 and configured your development environment. Let's review what you've accomplished.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h3>🎉 Key Takeaways</h3>
+                    <ul>
+                        <li><strong>System Requirements:</strong> UE5 needs a decent PC—minimum 8 GB RAM, DirectX 12 GPU with 4 GB VRAM, and 100+ GB storage. Recommended specs are 16 GB RAM, modern GPU with 8 GB VRAM, and SSD storage.</li>
+                        <li><strong>Epic Games Account:</strong> Free account required for downloading Unreal Engine, accessing Marketplace, and community resources. Enable 2FA for security.</li>
+                        <li><strong>Epic Games Launcher:</strong> Central hub for managing engine versions, projects, and Marketplace assets. Keep it updated.</li>
+                        <li><strong>Engine Installation:</strong> Download is 30-50 GB depending on components. First install includes Core Engine, Build Tools, Starter Content, and Templates.</li>
+                        <li><strong>Version Numbers:</strong> Format is Major.Minor.Patch (e.g., 5.4.2). Use latest stable minor version with highest patch number for best balance of features and stability.</li>
+                        <li><strong>Multiple Versions:</strong> You can install multiple engine versions simultaneously—each takes 40-60 GB. Useful for compatibility and testing.</li>
+                        <li><strong>First Launch:</strong> Takes longer initially due to shader compilation and cache building. Subsequent launches are much faster.</li>
+                        <li><strong>Editor Preferences:</strong> Configure auto-save, UI scale, and performance settings before starting projects.</li>
+                        <li><strong>Troubleshooting:</strong> Most common issues involve GPU drivers, DirectX, or prerequisites. Keep drivers updated and install Visual C++ Redistributables.</li>
+                    </ul>
+                </div>
+                
+                <h3>📚 What You've Learned</h3>
+                
+                <p>In this lesson, you learned how to:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Skill</th>
+                            <th>Why It Matters</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Create and secure an Epic Games account</td>
+                            <td>Gateway to all Unreal Engine resources and services</td>
+                        </tr>
+                        <tr>
+                            <td>Install the Epic Games Launcher</td>
+                            <td>Manage engine versions and access Marketplace</td>
+                        </tr>
+                        <tr>
+                            <td>Download and install Unreal Engine 5</td>
+                            <td>Core skill for setting up your development environment</td>
+                        </tr>
+                        <tr>
+                            <td>Understand engine version numbering</td>
+                            <td>Choose appropriate versions for different projects</td>
+                        </tr>
+                        <tr>
+                            <td>Launch and configure the editor</td>
+                            <td>Optimize your workflow and performance</td>
+                        </tr>
+                        <tr>
+                            <td>Troubleshoot common installation issues</td>
+                            <td>Solve problems independently and get unstuck</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>🚀 What's Next?</h3>
+                
+                <p>Now that you have Unreal Engine installed and configured, you're ready to create your first project! In the next lesson, we'll:</p>
+                
+                <ul>
+                    <li>Explore the different project templates available</li>
+                    <li>Understand when to use each template type</li>
+                    <li>Create your first Unreal Engine project from scratch</li>
+                    <li>Take a tour of a basic Unreal level</li>
+                    <li>Learn the fundamental concepts of how Unreal projects are organized</li>
+                </ul>
+                
+                <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; text-align: center; padding: 2rem;">
+                    <h3 style="color: white;">🎉 Installation Complete!</h3>
+                    <p style="color: white;">You've successfully set up your Unreal Engine 5 development environment! The hardest part is behind you. Now the real fun begins—actually creating something in Unreal Engine!</p>
+                </div>
+                
+                <h3>💪 Quick Challenge</h3>
+                
+                <p>Before moving to the next lesson, try this:</p>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🏋️ Challenge: Familiarize Yourself with the Launcher</h4>
+                    <ol>
+                        <li>Open the Epic Games Launcher</li>
+                        <li>Browse the Unreal Marketplace and find the "Free for the Month" section</li>
+                        <li>Look at your Library and confirm your engine version is installed</li>
+                        <li>Open Editor Preferences and explore the different categories (don't change anything yet)</li>
+                        <li>Close and relaunch the engine to confirm it opens correctly</li>
+                    </ol>
+                    <p><strong>Goal:</strong> Get comfortable navigating the Launcher and launching the engine before we start creating projects.</p>
+                </div>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson Navigation">
+                <a href="m01_l01_what_is_unreal_engine.html" class="prev-lesson">← Previous: What is Unreal Engine?</a>
+                <a href="index.html" class="home-link">🏠 Course Home</a>
+                <a href="m01_l03_your_first_project.html" class="next-lesson">Next: Your First Project →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; margin-top: 4rem;">
+        <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; opacity: 0.9;">Empowering creators to build amazing experiences with Unreal Engine.</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            <a href="index.html" style="color: white; text-decoration: underline;">Course Home</a> | 
+            <a href="index.html#modules" style="color: white; text-decoration: underline;">All Modules</a> | 
+            <a href="#main-content" style="color: white; text-decoration: underline;">Back to Top ↑</a>
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

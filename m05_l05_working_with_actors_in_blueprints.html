@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master working with Actors in Blueprints in Unreal Engine 5. Learn spawning, destroying, references, casting, and Actor communication patterns.">
+    <meta name="author" content="Practical Ace">
+    <title>Working with Actors in Blueprints - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 5: Introduction to Blueprints</a></li>
+            <li aria-current="page">Lesson 5.5: Working with Actors in Blueprints</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎭 Working with Actors in Blueprints</h1>
+                <p class="lead">Actors are the building blocks of every Unreal Engine level—from simple props to complex characters, from lights to sound emitters. Blueprints become truly powerful when they can create, find, communicate with, and destroy Actors dynamically at runtime. In this lesson, you'll learn to spawn enemies on demand, find nearby objects, pass information between Actors, and build systems where different game elements work together seamlessly. These skills are essential for creating dynamic, interactive games.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Spawn Actors dynamically at runtime using Blueprints</li>
+                        <li>Destroy Actors and clean up resources properly</li>
+                        <li>Get references to Actors in the level</li>
+                        <li>Use casting to access Actor-specific functionality</li>
+                        <li>Find all Actors of a specific class in the level</li>
+                        <li>Implement Actor communication patterns effectively</li>
+                        <li>Create spawner systems for enemies and objects</li>
+                        <li>Understand Actor lifecycle and best practices</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 60-75 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 5.4 - Flow Control</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#why-dynamic-actors" class="toc-link">Why Dynamic Actor Management Matters</a></li>
+                        <li><a href="#spawning-actors" class="toc-link">Spawning Actors</a></li>
+                        <li><a href="#destroying-actors" class="toc-link">Destroying Actors</a></li>
+                        <li><a href="#getting-references" class="toc-link">Getting References to Actors</a></li>
+                        <li><a href="#casting" class="toc-link">Casting Explained</a></li>
+                        <li><a href="#get-all-actors" class="toc-link">Get All Actors of Class</a></li>
+                        <li><a href="#actor-communication" class="toc-link">Actor Communication Patterns</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Create a Spawner Blueprint</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Why Dynamic Actor Management Matters -->
+            <section id="why-dynamic-actors" class="lesson-section">
+                <h2>Why Dynamic Actor Management Matters</h2>
+                
+                <p>Imagine a wave-based shooter where enemies appear continuously, or an adventure game where treasure chests spawn loot when opened. You can't place every enemy or item by hand—you need to create and remove Actors dynamically during gameplay.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Dynamic Actor Management:</strong> The ability to create, find, modify, and destroy Actors at runtime through Blueprints rather than placing them manually in the editor. This is essential for creating responsive, replayable games where the world changes based on player actions and game state.</p>
+                </div>
+                
+                <h3>Static vs. Dynamic Actors</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                        <h4>Static Actors (Placed in Editor)</h4>
+                        <p><strong>Characteristics:</strong></p>
+                        <ul>
+                            <li>Placed manually in the level</li>
+                            <li>Exist when level loads</li>
+                            <li>Predictable locations</li>
+                            <li>Easy to visualize and design</li>
+                        </ul>
+                        <p><strong>Examples:</strong></p>
+                        <ul style="margin-bottom: 0;">
+                            <li>Buildings and architecture</li>
+                            <li>Fixed props and decorations</li>
+                            <li>Lights and triggers</li>
+                            <li>Quest NPCs in specific locations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="background: #f3e5f5; border-left: 4px solid #9c27b0;">
+                        <h4>Dynamic Actors (Spawned at Runtime)</h4>
+                        <p><strong>Characteristics:</strong></p>
+                        <ul>
+                            <li>Created by Blueprints during gameplay</li>
+                            <li>Appear/disappear as needed</li>
+                            <li>Variable locations and quantities</li>
+                            <li>Memory efficient (only exist when needed)</li>
+                        </ul>
+                        <p><strong>Examples:</strong></p>
+                        <ul style="margin-bottom: 0;">
+                            <li>Enemies spawned in waves</li>
+                            <li>Projectiles (bullets, arrows)</li>
+                            <li>Loot drops from defeated enemies</li>
+                            <li>Particle effects and explosions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>The Actor Lifecycle</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Blueprint Calls Spawn Actor] --> B[Actor Created in Memory]
+    B --> C[Construction Script Runs]
+    C --> D[BeginPlay Event Fires]
+    D --> E[Actor Exists in World]
+    E --> F[Tick Events Fire Each Frame]
+    F --> E
+    E --> G[Destroy Actor Called]
+    G --> H[EndPlay Event Fires]
+    H --> I[Actor Removed from Memory]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style E fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style F fill:#2196F3,stroke:#1565c0,color:#fff
+    style G fill:#e74c3c,stroke:#c0392b,color:#fff
+    style H fill:#ff9800,stroke:#e65100,color:#fff
+    style I fill:#9e9e9e,stroke:#616161,color:#fff
+</pre>
+<p class="caption"><em>Figure: Complete lifecycle of a dynamically spawned Actor from creation to destruction.</em></p>
+                
+                <h3>Common Use Cases</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Use Case</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Enemy Spawning</strong></td>
+                            <td>Create enemies in waves or at spawn points</td>
+                            <td>Tower defense, wave shooters</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Projectiles</strong></td>
+                            <td>Spawn bullets, arrows, grenades when firing</td>
+                            <td>Any game with ranged combat</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loot Systems</strong></td>
+                            <td>Drop items when containers open or enemies die</td>
+                            <td>RPGs, looter shooters</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VFX & SFX</strong></td>
+                            <td>Spawn particle effects and sound emitters</td>
+                            <td>Explosions, impacts, ambient effects</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Procedural Content</strong></td>
+                            <td>Generate level elements at runtime</td>
+                            <td>Procedural dungeons, random obstacles</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Object Pooling</strong></td>
+                            <td>Reuse Actors instead of constant spawn/destroy</td>
+                            <td>Particle systems, frequent spawns</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 2: Spawning Actors -->
+            <section id="spawning-actors" class="lesson-section">
+                <h2>Spawning Actors</h2>
+                
+                <p>The <strong>Spawn Actor from Class</strong> node creates a new Actor instance at runtime and places it in the world.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Spawn Actor:</strong> The process of instantiating a new Actor Blueprint during gameplay and placing it at a specified location and rotation in the world. The spawned Actor is fully functional and behaves exactly like one placed in the editor, but it only exists at runtime.</p>
+                </div>
+                
+                <h3>The Spawn Actor Node</h3>
+                
+                <canvas id="spawn-actor-canvas" width="900" height="450" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Spawn Actor from Class node with all essential parameters.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('spawn-actor-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 20px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Spawn Actor from Class Node', 450, 30);
+                        
+                        // Spawn Actor Node
+                        ctx.save();
+                        ctx.translate(200, 80);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillRect(0, 0, 500, 280);
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(0, 0, 500, 280);
+                        
+                        ctx.fillStyle = '#2e7d32';
+                        ctx.fillRect(0, 0, 500, 28);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Spawn Actor from Class', 250, 19);
+                        
+                        // Input execution pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 140, 7, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Output execution pin
+                        ctx.beginPath();
+                        ctx.arc(500, 140, 7, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Input pins
+                        const inputs = [
+                            { name: 'Class', color: '#9c27b0', y: 60 },
+                            { name: 'Spawn Transform', color: '#2196F3', y: 90 },
+                            { name: 'Collision Handling', color: '#ff9800', y: 120 },
+                            { name: 'Owner', color: '#e74c3c', y: 150 },
+                            { name: 'Instigator', color: '#00bcd4', y: 180 }
+                        ];
+                        
+                        inputs.forEach(input => {
+                            ctx.fillStyle = input.color;
+                            ctx.beginPath();
+                            ctx.arc(0, input.y, 6, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.strokeStyle = input.color;
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+                            
+                            ctx.fillStyle = '#333';
+                            ctx.font = '12px Arial';
+                            ctx.textAlign = 'left';
+                            ctx.fillText(input.name, 15, input.y + 4);
+                        });
+                        
+                        // Output pin
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.arc(500, 100, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('Return Value', 485, 103);
+                        
+                        ctx.font = '10px Arial';
+                        ctx.fillText('(Spawned Actor)', 485, 118);
+                        
+                        ctx.restore();
+                        
+                        // Annotations
+                        ctx.fillStyle = '#9c27b0';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('1. Class:', 50, 150);
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Which Blueprint to spawn', 50, 167);
+                        
+                        ctx.fillStyle = '#2196F3';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('2. Spawn Transform:', 50, 190);
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Location & rotation in world', 50, 207);
+                        
+                        ctx.fillStyle = '#ff9800';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('3. Collision Handling:', 50, 230);
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('What if spawn location blocked?', 50, 247);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('Returns:', 850, 190);
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Reference to spawned Actor', 850, 207);
+                        ctx.fillText('(use to access/control it)', 850, 222);
+                        
+                        // Bottom section - example
+                        ctx.fillStyle = '#fffde7';
+                        ctx.fillRect(50, 385, 800, 50);
+                        ctx.strokeStyle = '#fbc02d';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(50, 385, 800, 50);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Example: Spawn enemy at player location', 450, 405);
+                        
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Class = BP_Enemy  |  Transform = Get Player Location  |  Collision = Adjust If Necessary', 450, 423);
+                    })();
+                </script>
+                
+                <h3>Using Spawn Actor</h3>
+                
+                <ol>
+                    <li>Right-click in Event Graph → search "Spawn Actor from Class"</li>
+                    <li>Select the node</li>
+                    <li>Set the <strong>Class</strong> input: Choose which Blueprint to spawn</li>
+                    <li>Provide <strong>Spawn Transform</strong>: Where and how to orient it</li>
+                    <li>Set <strong>Collision Handling Override</strong>: What to do if location is blocked</li>
+                    <li>The node returns a reference to the spawned Actor</li>
+                </ol>
+                
+                <h3>Essential Parameters</h3>
+                
+                <h4>1. Class (Required)</h4>
+                <p>The Blueprint class to instantiate. This must be an Actor-based Blueprint.</p>
+                <ul>
+                    <li>Click the dropdown to select from available Actor Blueprints</li>
+                    <li>Can be set to a variable for dynamic spawning</li>
+                    <li>Example: <code>BP_Enemy</code>, <code>BP_Projectile</code>, <code>BP_Pickup</code></li>
+                </ul>
+                
+                <h4>2. Spawn Transform (Required)</h4>
+                <p>Defines where and how the Actor appears in the world.</p>
+                <ul>
+                    <li><strong>Location:</strong> X, Y, Z coordinates in world space</li>
+                    <li><strong>Rotation:</strong> Pitch, Yaw, Roll orientation</li>
+                    <li><strong>Scale:</strong> Size multiplier (usually 1, 1, 1)</li>
+                </ul>
+                
+                <p><strong>Common sources for Spawn Transform:</strong></p>
+                <ul>
+                    <li><code>Get Actor Transform</code> - Spawn at another Actor's location</li>
+                    <li><code>Make Transform</code> - Build custom transform from separate values</li>
+                    <li><code>Get Socket Transform</code> - Spawn at skeletal mesh socket</li>
+                    <li>Manual values - Fixed world location</li>
+                </ul>
+                
+                <h4>3. Collision Handling Override</h4>
+                <p>Determines behavior when spawn location is blocked by collision:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Behavior</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Default</strong></td>
+                            <td>Use project settings</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Always Spawn</strong></td>
+                            <td>Spawn regardless of collision (may overlap)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adjust If Necessary</strong></td>
+                            <td>Move slightly to avoid collision</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Don't Spawn</strong></td>
+                            <td>Fail to spawn, return null reference</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Basic Spawn Example</h3>
+                
+                <pre><code class="language-plaintext">Event BeginPlay
+  → Get Actor Location (this spawner's position)
+  → Spawn Actor from Class:
+      Class = BP_Enemy
+      Spawn Transform = Actor Location (from above)
+      Collision = Adjust If Necessary
+  → Print String: "Enemy spawned!"
+</code></pre>
+                
+                <h3>Spawn at Multiple Locations</h3>
+                
+                <p>Use a For Loop to spawn multiple Actors:</p>
+                
+                <pre><code class="language-plaintext">Event: Spawn Wave
+  → For Loop (0 to 9)  // Spawn 10 enemies
+      Loop Body:
+        → Get Random Point in Radius (Center, Radius=1000)
+        → Spawn Actor:
+            Class = BP_Enemy
+            Transform = Random Point + Ground Height
+        → Print: "Spawned enemy " + Loop Index
+</code></pre>
+
+                
+                <h3>Storing the Spawned Actor Reference</h3>
+                
+                <p>The Spawn Actor node returns a reference to the newly created Actor. <strong>Always store this reference</strong> if you need to control the Actor later!</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Spawn Actor] --> B[Returns Reference]
+    B --> C[Store in Variable]
+    C --> D[Use Later to Control Actor]
+    
+    B --> E[Don't Store]
+    E --> F[Can't Access Later!]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style D fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E fill:#e74c3c,stroke:#c0392b,color:#fff
+    style F fill:#e74c3c,stroke:#c0392b,color:#fff
+</pre>
+<p class="caption"><em>Figure: Always store the returned Actor reference if you need to interact with it later.</em></p>
+                
+                <p><strong>Example: Store spawned enemy to control it:</strong></p>
+                <pre><code class="language-plaintext">Spawn Actor (BP_Enemy)
+  → Set Variable: SpawnedEnemy = Return Value
+  
+Later, in another event:
+  → Get SpawnedEnemy variable
+  → Call function on it: TakeDamage(50)
+</code></pre>
+                
+                <h3>Common Spawning Patterns</h3>
+                
+                <h4>Pattern 1: Spawn at Spawn Points</h4>
+                <pre><code class="language-plaintext">1. Place empty Actors in level as spawn points
+2. Tag them "EnemySpawn"
+3. Get All Actors of Class (TargetPoint)
+4. Filter by tag
+5. For each spawn point:
+   → Spawn enemy at that location
+</code></pre>
+                
+                <h4>Pattern 2: Spawn on Timer</h4>
+                <pre><code class="language-plaintext">Event BeginPlay
+  → Set Timer by Event:
+      Event = SpawnEnemy
+      Time = 5.0 seconds
+      Looping = True
+
+Custom Event: SpawnEnemy
+  → Spawn Actor at random location
+</code></pre>
+                
+                <h4>Pattern 3: Spawn with Custom Properties</h4>
+                <pre><code class="language-plaintext">Spawn Actor (BP_Enemy)
+  → Store reference
+  → Cast to BP_Enemy
+  → Set enemy properties:
+      Health = 100
+      Speed = 400
+      Difficulty = Hard
+</code></pre>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Spawning Best Practices</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li>Always check if spawn succeeded (reference not null)</li>
+                        <li>Store references if you need to control Actors later</li>
+                        <li>Use "Adjust If Necessary" collision handling for reliability</li>
+                        <li>Avoid spawning in Event Tick (performance issue)</li>
+                        <li>Consider object pooling for frequently spawned Actors</li>
+                        <li>Clean up spawned Actors when no longer needed</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 3: Destroying Actors -->
+            <section id="destroying-actors" class="lesson-section">
+                <h2>Destroying Actors</h2>
+                
+                <p>What goes up must come down—spawned Actors should be destroyed when no longer needed to free memory and maintain performance.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Destroy Actor:</strong> The process of removing an Actor from the world and cleaning up its memory. The Actor's EndPlay event fires, components are detached, and the Actor is marked for garbage collection. All references to the destroyed Actor become invalid.</p>
+                </div>
+                
+                <h3>The Destroy Actor Node</h3>
+                
+                <svg width="100%" height="300" viewBox="0 0 700 300" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Destroy Actor Node</text>
+                    
+                    <!-- Destroy Actor Node -->
+                    <g transform="translate(200, 80)">
+                        <rect x="0" y="0" width="300" height="100" fill="#e74c3c" stroke="#c0392b" stroke-width="3" rx="4"/>
+                        <rect x="0" y="0" width="300" height="28" fill="#c0392b"/>
+                        <text x="150" y="19" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Destroy Actor</text>
+                        
+                        <!-- Input execution pin -->
+                        <circle cx="0" cy="50" r="7" fill="#fff" stroke="#333" stroke-width="2"/>
+                        
+                        <!-- Target input -->
+                        <circle cx="0" cy="75" r="6" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+                        <text x="15" y="79" font-size="12" fill="#333">Target</text>
+                        <text x="15" y="92" font-size="9" fill="#666">(Actor to destroy)</text>
+                        
+                        <!-- Output execution pin -->
+                        <circle cx="300" cy="50" r="7" fill="#fff" stroke="#333" stroke-width="2"/>
+                    </g>
+                    
+                    <!-- Annotations -->
+                    <text x="100" y="140" text-anchor="end" font-size="11" fill="#666">Execution in →</text>
+                    <text x="100" y="165" text-anchor="end" font-size="11" fill="#666">Actor reference →</text>
+                    <text x="600" y="140" font-size="11" fill="#666">→ Continues after destroy</text>
+                    
+                    <!-- Info box -->
+                    <rect x="50" y="210" width="600" height="70" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="6"/>
+                    <text x="350" y="235" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">What Happens When Actor is Destroyed:</text>
+                    <text x="60" y="255" font-size="11" fill="#666">1. EndPlay event fires on the Actor</text>
+                    <text x="60" y="270" font-size="11" fill="#666">2. Actor removed from world (no longer visible/interactive)</text>
+                    <text x="350" y="255" font-size="11" fill="#666">3. Memory freed (eventually by garbage collection)</text>
+                    <text x="350" y="270" font-size="11" fill="#666">4. All references to Actor become invalid</text>
+                </svg>
+                <p class="caption"><em>Figure: Destroy Actor node removes an Actor from the world permanently.</em></p>
+                
+                <h3>Destroying Actors: The Basics</h3>
+                
+                <p><strong>To destroy an Actor:</strong></p>
+                <ol>
+                    <li>Right-click in Event Graph → search "Destroy Actor"</li>
+                    <li>Connect execution flow to it</li>
+                    <li>Provide Target: The Actor to destroy
+                        <ul>
+                            <li><code>Self</code> - Destroy this Blueprint</li>
+                            <li>Variable reference - Destroy another Actor</li>
+                            <li>Function return value - Destroy result of query</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <h3>Common Destroy Patterns</h3>
+                
+                <h4>Pattern 1: Self-Destruct</h4>
+                <p>An Actor destroys itself (e.g., projectile hits wall):</p>
+                <pre><code class="language-plaintext">Event: OnHit (projectile hits something)
+  → Spawn particle effect at impact
+  → Play sound at impact location
+  → Destroy Actor (Target = Self)
+</code></pre>
+                
+                <h4>Pattern 2: Destroy After Delay</h4>
+                <p>Automatically clean up after a set time:</p>
+                <pre><code class="language-plaintext">Event BeginPlay
+  → Delay (5.0 seconds)
+  → Destroy Actor (Self)
+  
+// Useful for: temporary VFX, timed pickups, decals
+</code></pre>
+                
+                <h4>Pattern 3: Destroy on Condition</h4>
+                <p>Remove Actor when it's no longer needed:</p>
+                <pre><code class="language-plaintext">Enemy Health reaches 0
+  → Play death animation
+  → Delay (2.0 seconds)  // Let animation play
+  → Spawn loot
+  → Destroy Actor (Self)
+</code></pre>
+                
+                <h4>Pattern 4: Destroy Multiple Actors</h4>
+                <pre><code class="language-plaintext">Get All Actors of Class (BP_Enemy)
+  → ForEach Loop:
+      → Destroy Actor (Array Element)
+      
+// Clears all enemies from level
+</code></pre>
+                
+                <h3>Destroy vs. Hide</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Destroy Actor</th>
+                            <th>Set Actor Hidden</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Visibility</strong></td>
+                            <td>Removed completely</td>
+                            <td>Invisible but still exists</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Collision</strong></td>
+                            <td>All collision removed</td>
+                            <td>Collision still active (unless disabled separately)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Memory</strong></td>
+                            <td>Freed (eventually)</td>
+                            <td>Still uses memory</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reversible</strong></td>
+                            <td>❌ Permanent</td>
+                            <td>✅ Can unhide</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Better for permanent removal</td>
+                            <td>Better for temporary hiding</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Dead enemies, used pickups, projectiles</td>
+                            <td>Temporary stealth, cutscenes, level streaming</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Important: Destroyed Actor References</h4>
+                    <p>After destroying an Actor, all references to it become <strong>invalid</strong>. Attempting to use them causes errors!</p>
+                    <p><strong>Always validate:</strong></p>
+                    <pre style="font-size: 0.85em; margin: 0.5rem 0;">Get stored enemy reference
+→ Branch (Is Valid?)
+   True: Call function on enemy
+   False: Do nothing (already destroyed)</pre>
+                    <p style="margin-top: 0.5rem;">Use the <strong>Is Valid</strong> node before accessing potentially destroyed Actors.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Getting References to Actors -->
+            <section id="getting-references" class="lesson-section">
+                <h2>Getting References to Actors</h2>
+                
+                <p>To interact with an Actor, you need a <strong>reference</strong> to it—a way to point to that specific Actor. There are multiple ways to get references.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Actor Reference:</strong> A variable that points to a specific Actor in the world, allowing you to access its properties, call its functions, and interact with it. Think of it like a contact in your phone—it's how you "reach" that Actor.</p>
+                </div>
+                
+                <h3>Five Ways to Get Actor References</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Need Actor Reference?] --> B[Method 1: Self]
+    A --> C[Method 2: Spawn Return]
+    A --> D[Method 3: Overlap Event]
+    A --> E[Method 4: Manual Selection]
+    A --> F[Method 5: Search Functions]
+    
+    B --> B1[Use Self node<br/>References this Blueprint]
+    C --> C1[Store Spawn Actor return<br/>References spawned Actor]
+    D --> D1[Overlap/Hit provides Other Actor<br/>References colliding Actor]
+    E --> E1[Instance Editable variable<br/>Assign in editor]
+    F --> F1[Get Actor of Class<br/>Get All Actors of Class<br/>Get Overlapping Actors]
+    
+    style A fill:#667eea,stroke:#4527a0,color:#fff
+    style B fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#ff9800,stroke:#e65100,color:#fff
+    style E fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style F fill:#e74c3c,stroke:#c0392b,color:#fff
+    style B1 fill:#e8f5e9,stroke:#4CAF50
+    style C1 fill:#e3f2fd,stroke:#2196F3
+    style D1 fill:#fff3e0,stroke:#ff9800
+    style E1 fill:#f3e5f5,stroke:#9c27b0
+    style F1 fill:#ffebee,stroke:#e74c3c
+</pre>
+<p class="caption"><em>Figure: Five common methods for obtaining Actor references in Blueprints.</em></p>
+                
+                <h3>Method 1: Self Reference</h3>
+                
+                <p>The <strong>Self</strong> node references the Blueprint you're currently in.</p>
+                
+                <ul>
+                    <li>Right-click → "Get a reference to self"</li>
+                    <li>Use when a Blueprint needs to reference itself</li>
+                    <li>Example: Pass yourself to another Actor</li>
+                </ul>
+                
+                <pre><code class="language-plaintext">Enemy Blueprint:
+  OnBeginPlay
+    → Get Self
+    → Call function on GameMode: RegisterEnemy(Self)
+    
+// GameMode now has reference to this enemy
+</code></pre>
+                
+                <h3>Method 2: Store Spawn Return Value</h3>
+                
+                <p>When you spawn an Actor, store the returned reference:</p>
+                
+                <pre><code class="language-plaintext">Create variable: SpawnedProjectile (Type: BP_Projectile)
+
+Fire Weapon:
+  → Spawn Actor (BP_Projectile)
+  → Set SpawnedProjectile = Return Value
+  
+Later:
+  → Get SpawnedProjectile
+  → Call SetVelocity on it
+</code></pre>
+                
+                <h3>Method 3: Collision Events Provide References</h3>
+                
+                <p>Overlap and Hit events automatically provide references to the other Actor:</p>
+                
+                <pre><code class="language-plaintext">Event: OnComponentBeginOverlap
+  → Other Actor (output pin) = the Actor that overlapped
+  → Use this reference directly
+  
+Example:
+  OnOverlap
+    → Get Other Actor
+    → Cast to BP_Player
+    → If successful: Apply damage to player
+</code></pre>
+                
+                <h3>Method 4: Manual Assignment (Instance Editable)</h3>
+                
+                <p>Create a variable and assign it manually in the editor:</p>
+                
+                <ol>
+                    <li>Create variable: <code>DoorToOpen</code> (Type: Actor or BP_Door)</li>
+                    <li>Check <strong>Instance Editable</strong></li>
+                    <li>Place Blueprint in level</li>
+                    <li>Select it, find variable in Details panel</li>
+                    <li>Use eyedropper to select target Actor in level</li>
+                </ol>
+                
+                <pre><code class="language-plaintext">Pressure Plate Blueprint:
+  Variable: DoorToOpen (Instance Editable)
+  
+  OnOverlap:
+    → Get DoorToOpen
+    → Call Open() on it
+</code></pre>
+                
+                <h3>Method 5: Search Functions</h3>
+                
+                <p>Find Actors dynamically using search functions:</p>
+                
+                <h4>Get Actor of Class</h4>
+                <p>Finds the first Actor of a specific class:</p>
+                <pre><code class="language-plaintext">Get Actor of Class (BP_Player)
+  → Returns first player Actor found
+  → Returns None if not found
+</code></pre>
+                
+                <h4>Get All Actors of Class</h4>
+                <p>Returns array of all Actors of a class (covered in detail next section)</p>
+                
+                <h4>Get Overlapping Actors</h4>
+                <p>Gets all Actors currently overlapping a component:</p>
+                <pre><code class="language-plaintext">Get Overlapping Actors (from collision component)
+  → Class Filter = BP_Enemy
+  → Returns array of overlapping enemies
+</code></pre>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Reference Best Practices</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Validate references:</strong> Always use Is Valid before accessing</li>
+                        <li><strong>Store wisely:</strong> Cache frequently-used references (e.g., player)</li>
+                        <li><strong>Clear when done:</strong> Set to None when Actor is destroyed</li>
+                        <li><strong>Avoid searches in Tick:</strong> Finding Actors is expensive</li>
+                        <li><strong>Use appropriate method:</strong> Manual for design, search for dynamic</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 5: Casting Explained -->
+            <section id="casting" class="lesson-section">
+                <h2>Casting Explained</h2>
+                
+                <p><strong>Casting</strong> is how you tell Unreal "I know this generic Actor is actually a specific type, let me access its unique features."</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Casting:</strong> The process of treating a generic Actor reference as a specific Blueprint type to access its unique variables and functions. It's like recognizing that a generic "person" is actually a "doctor" so you can ask medical questions. Casting either succeeds (it is that type) or fails (it's not).</p>
+                </div>
+                
+                <h3>Why Casting is Necessary</h3>
+                
+                <p>Many nodes return generic <strong>Actor</strong> references:</p>
+                <ul>
+                    <li>OnOverlap gives "Other Actor" (generic)</li>
+                    <li>Get Actor of Class returns "Actor" (generic)</li>
+                    <li>Spawn Actor returns "Actor" (generic)</li>
+                </ul>
+                
+                <p>But you need access to specific Blueprint's variables/functions!</p>
+                
+                <canvas id="casting-canvas" width="900" height="450" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Casting converts generic Actor reference to specific type with access to custom functionality.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('casting-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 20px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Casting: From Generic to Specific', 450, 30);
+                        
+                        // Generic Actor
+                        ctx.save();
+                        ctx.translate(100, 100);
+                        
+                        ctx.fillStyle = '#9e9e9e';
+                        ctx.fillRect(0, 0, 180, 100);
+                        ctx.strokeStyle = '#616161';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 180, 100);
+                        
+                        ctx.fillStyle = '#616161';
+                        ctx.fillRect(0, 0, 180, 25);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Generic Actor', 90, 17);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Basic properties:', 90, 45);
+                        ctx.font = '10px Arial';
+                        ctx.fillText('• Location', 90, 62);
+                        ctx.fillText('• Rotation', 90, 76);
+                        ctx.fillText('• Scale', 90, 90);
+                        
+                        ctx.restore();
+                        
+                        // Cast Node
+                        ctx.save();
+                        ctx.translate(350, 100);
+                        
+                        ctx.fillStyle = '#ff9800';
+                        ctx.fillRect(0, 0, 200, 100);
+                        ctx.strokeStyle = '#e65100';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(0, 0, 200, 100);
+                        
+                        ctx.fillStyle = '#e65100';
+                        ctx.fillRect(0, 0, 200, 25);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Cast To BP_Enemy', 100, 17);
+                        
+                        // Input pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 50, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#9e9e9e';
+                        ctx.beginPath();
+                        ctx.arc(0, 70, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#616161';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('Object', 10, 73);
+                        
+                        // Success output
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(200, 40, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('Success', 190, 35);
+                        
+                        // Cast output
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.arc(200, 60, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '9px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('As BP Enemy', 190, 63);
+                        
+                        // Failed output
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(200, 85, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('Failed', 190, 88);
+                        
+                        ctx.restore();
+                        
+                        // Arrow to cast
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(280, 150);
+                        ctx.lineTo(350, 150);
+                        ctx.stroke();
+                        
+                        // Specific Type (Success path)
+                        ctx.save();
+                        ctx.translate(620, 80);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillRect(0, 0, 220, 140);
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 220, 140);
+                        
+                        ctx.fillStyle = '#2e7d32';
+                        ctx.fillRect(0, 0, 220, 25);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('BP_Enemy (Specific)', 110, 17);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('All Actor properties +', 110, 45);
+                        ctx.font = '10px Arial';
+                        ctx.fillText('• Health variable', 110, 62);
+                        ctx.fillText('• TakeDamage function', 110, 76);
+                        ctx.fillText('• Attack function', 110, 90);
+                        ctx.fillText('• AIState variable', 110, 104);
+                        ctx.fillText('• And more...', 110, 118);
+                        
+                        ctx.restore();
+                        
+                        // Success arrow
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(550, 140);
+                        ctx.lineTo(620, 140);
+                        ctx.stroke();
+                        
+                        // Failed path
+                        ctx.save();
+                        ctx.translate(620, 250);
+                        
+                        ctx.fillStyle = '#ffebee';
+                        ctx.fillRect(0, 0, 220, 60);
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 220, 60);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Cast Failed', 110, 25);
+                        
+                        ctx.font = '10px Arial';
+                        ctx.fillText('Actor is NOT BP_Enemy', 110, 45);
+                        
+                        ctx.restore();
+                        
+                        // Failed arrow
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(550, 185);
+                        ctx.lineTo(590, 185);
+                        ctx.lineTo(590, 280);
+                        ctx.lineTo(620, 280);
+                        ctx.stroke();
+                        
+                        // Labels
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('If it IS BP_Enemy', 585, 125);
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('If it\'s NOT BP_Enemy', 500, 220);
+                        
+                        // Bottom note
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Casting verifies type and gives access to specialized functionality', 450, 420);
+                    })();
+                </script>
+
+                
+                <h3>How to Cast</h3>
+                
+                <ol>
+                    <li>Have an Actor reference (from overlap, spawn, variable, etc.)</li>
+                    <li>Right-click → search "Cast to [BlueprintName]"</li>
+                    <li>Connect the Actor reference to the <strong>Object</strong> input pin</li>
+                    <li>Use the two output execution pins:
+                        <ul>
+                            <li><strong>Cast Succeeded:</strong> It IS that type (use the typed reference)</li>
+                            <li><strong>Cast Failed:</strong> It's NOT that type (handle appropriately)</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <h3>Casting Example: Damage Only Players</h3>
+                
+                <pre><code class="language-plaintext">Event: OnComponentBeginOverlap (explosion radius)
+  → Get Other Actor (generic Actor reference)
+  → Cast to BP_Player
+     Cast Succeeded:
+       → Get "As BP Player" output (typed reference)
+       → Call TakeDamage(50) on player
+     Cast Failed:
+       → Do nothing (wasn't a player)
+</code></pre>
+                
+                <h3>When to Cast</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Situation</th>
+                            <th>Need to Cast?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Overlap gives generic "Other Actor"</td>
+                            <td>✅ Yes - Cast to specific type</td>
+                        </tr>
+                        <tr>
+                            <td>Need to access custom variables/functions</td>
+                            <td>✅ Yes - Cast to that Blueprint</td>
+                        </tr>
+                        <tr>
+                            <td>Only using basic Actor functions (Location, Rotation)</td>
+                            <td>❌ No - Generic Actor is fine</td>
+                        </tr>
+                        <tr>
+                            <td>Variable already correct type</td>
+                            <td>❌ No - Already specific</td>
+                        </tr>
+                        <tr>
+                            <td>Using Interface functions</td>
+                            <td>❌ No - Interface doesn't need casting</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Casting Best Practices</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Always handle Cast Failed:</strong> Don't leave it disconnected</li>
+                        <li><strong>Store cast results:</strong> Don't cast repeatedly if you need multiple accesses</li>
+                        <li><strong>Avoid casting in Tick:</strong> Performance cost—cache references in BeginPlay</li>
+                        <li><strong>Consider Interfaces:</strong> For flexible communication, interfaces are better than casting</li>
+                        <li><strong>Cast to parent classes:</strong> Cast to more general types when appropriate</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 6: Get All Actors of Class -->
+            <section id="get-all-actors" class="lesson-section">
+                <h2>Get All Actors of Class</h2>
+                
+                <p>Sometimes you need to find and interact with every Actor of a specific type in the level—all enemies, all pickups, all lights.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Get All Actors of Class:</strong> A function that searches the entire level and returns an array containing references to every Actor of the specified class. This is your "find all" tool—powerful but expensive, so use wisely.</p>
+                </div>
+                
+                <h3>Using Get All Actors of Class</h3>
+                
+                <svg width="100%" height="350" viewBox="0 0 800 350" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Get All Actors of Class Node</text>
+                    
+                    <!-- Node -->
+                    <g transform="translate(200, 80)">
+                        <rect x="0" y="0" width="400" height="120" fill="#2196F3" stroke="#1565c0" stroke-width="3" rx="4"/>
+                        <rect x="0" y="0" width="400" height="28" fill="#1565c0"/>
+                        <text x="200" y="19" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Get All Actors of Class</text>
+                        
+                        <!-- Input execution pin -->
+                        <circle cx="0" cy="60" r="7" fill="#fff" stroke="#333" stroke-width="2"/>
+                        
+                        <!-- Class input -->
+                        <circle cx="0" cy="90" r="6" fill="#9c27b0" stroke="#6a1b9a" stroke-width="2"/>
+                        <text x="15" y="94" font-size="12" fill="#333">Actor Class</text>
+                        
+                        <!-- Output execution pin -->
+                        <circle cx="400" cy="60" r="7" fill="#fff" stroke="#333" stroke-width="2"/>
+                        
+                        <!-- Output array -->
+                        <circle cx="400" cy="90" r="6" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+                        <text x="310" y="94" text-anchor="end" font-size="12" fill="#333">Out Actors</text>
+                        <text x="310" y="108" text-anchor="end" font-size="10" fill="#666">(Array of Actors)</text>
+                    </g>
+                    
+                    <!-- Visual representation of result -->
+                    <g transform="translate(100, 230)">
+                        <rect x="0" y="0" width="600" height="100" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2" rx="6"/>
+                        <text x="300" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Returns Array of All Matching Actors in Level</text>
+                        
+                        <!-- Array visualization -->
+                        <rect x="50" y="40" width="80" height="40" fill="#4CAF50" stroke="#2e7d32" stroke-width="2" rx="3"/>
+                        <text x="90" y="62" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">Enemy 1</text>
+                        
+                        <rect x="150" y="40" width="80" height="40" fill="#4CAF50" stroke="#2e7d32" stroke-width="2" rx="3"/>
+                        <text x="190" y="62" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">Enemy 2</text>
+                        
+                        <rect x="250" y="40" width="80" height="40" fill="#4CAF50" stroke="#2e7d32" stroke-width="2" rx="3"/>
+                        <text x="290" y="62" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">Enemy 3</text>
+                        
+                        <rect x="350" y="40" width="80" height="40" fill="#4CAF50" stroke="#2e7d32" stroke-width="2" rx="3"/>
+                        <text x="390" y="62" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">Enemy 4</text>
+                        
+                        <text x="460" y="62" font-size="12" fill="#666">...</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Get All Actors of Class returns an array with references to every matching Actor.</em></p>
+                
+                <h3>Basic Usage</h3>
+                
+                <pre><code class="language-plaintext">Get All Actors of Class
+  Actor Class = BP_Enemy
+  
+Returns: Array of all BP_Enemy instances in level
+</code></pre>
+                
+                <h3>Common Patterns with Get All Actors</h3>
+                
+                <h4>Pattern 1: Damage All Enemies</h4>
+                <pre><code class="language-plaintext">Explosion Event:
+  → Get All Actors of Class (BP_Enemy)
+  → ForEach Loop:
+      Array Element (each enemy):
+        → Get Distance between Explosion and Enemy
+        → Branch (Distance < ExplosionRadius)
+           True: Call TakeDamage on enemy
+</code></pre>
+                
+                <h4>Pattern 2: Count Specific Actors</h4>
+                <pre><code class="language-plaintext">Get All Actors of Class (BP_Collectible)
+  → Get array Length
+  → Display: "Collectibles remaining: " + Length
+</code></pre>
+                
+                <h4>Pattern 3: Find Closest Actor</h4>
+                <pre><code class="language-plaintext">Get All Actors of Class (BP_Enemy)
+  → ForEach Loop:
+      → Get Distance between Player and Enemy
+      → Branch (Distance < ClosestDistance):
+         True: 
+           → Set ClosestDistance = Distance
+           → Set ClosestEnemy = Enemy
+  After loop:
+    → ClosestEnemy contains nearest enemy reference
+</code></pre>
+                
+                <h4>Pattern 4: Modify All Actors</h4>
+                <pre><code class="language-plaintext">Night Mode Activated:
+  → Get All Actors of Class (PointLight)
+  → ForEach Loop:
+      → Set Light Intensity = 2.0
+      → Set Light Color = Blue
+</code></pre>
+                
+                <h3>Performance Considerations</h3>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Performance Warning</h4>
+                    <p><strong>Get All Actors of Class is expensive!</strong> It searches the entire level every time called.</p>
+                    <p><strong>Do:</strong></p>
+                    <ul>
+                        <li>✅ Call in BeginPlay or on player action</li>
+                        <li>✅ Cache results if needed frequently</li>
+                        <li>✅ Use for occasional queries</li>
+                    </ul>
+                    <p><strong>Don't:</strong></p>
+                    <ul style="margin-bottom: 0;">
+                        <li>❌ Call in Event Tick (every frame)</li>
+                        <li>❌ Call multiple times for same purpose</li>
+                        <li>❌ Use for very large Actor counts (100s+)</li>
+                    </ul>
+                </div>
+                
+                <h3>Alternatives to Get All Actors</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alternative</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Manual Array</strong></td>
+                            <td>Register Actors as they spawn, keep your own list</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Get Overlapping Actors</strong></td>
+                            <td>Only need Actors in specific area</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sphere/Box Overlap</strong></td>
+                            <td>Find Actors within radius</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tag System</strong></td>
+                            <td>Get Actors with specific tag (still uses search)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Event Dispatcher</strong></td>
+                            <td>Let Actors report to manager instead of searching</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 7: Actor Communication Patterns -->
+            <section id="actor-communication" class="lesson-section">
+                <h2>Actor Communication Patterns</h2>
+                
+                <p>Actors rarely work in isolation—they need to talk to each other. Here are the most common patterns.</p>
+                
+                <h3>Pattern 1: Direct Reference Communication</h3>
+                
+                <p><strong>When:</strong> You know exactly which Actors need to communicate<br>
+                <strong>How:</strong> Store reference, call functions directly</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Button] -->|Has Reference| B[Door]
+    A -->|Calls Function| C[Open Door]
+    
+    style A fill:#2196F3,stroke:#1565c0,color:#fff
+    style B fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+</pre>
+<p class="caption"><em>Figure: Direct reference—Button stores Door reference, calls function.</em></p>
+                
+                <pre><code class="language-plaintext">BP_Button:
+  Variable: DoorToOpen (Instance Editable, Type: BP_Door)
+  
+  OnInteract:
+    → Get DoorToOpen
+    → Call Open() function on door
+</code></pre>
+                
+                <h3>Pattern 2: Overlap-Based Communication</h3>
+                
+                <p><strong>When:</strong> Communication triggered by collision<br>
+                <strong>How:</strong> Use overlap events, cast to specific type</p>
+                
+                <pre><code class="language-plaintext">BP_DamageZone:
+  OnComponentBeginOverlap:
+    → Get Other Actor
+    → Cast to BP_Player
+       Success: Call TakeDamage on player
+       Failed: Ignore (not a player)
+</code></pre>
+                
+                <h3>Pattern 3: Search and Communicate</h3>
+                
+                <p><strong>When:</strong> Need to find and affect multiple Actors<br>
+                <strong>How:</strong> Get All Actors, loop, communicate</p>
+                
+                <pre><code class="language-plaintext">BP_PowerupManager:
+  OnPowerupActivated:
+    → Get All Actors of Class (BP_Enemy)
+    → ForEach Loop:
+        → Call SlowDown() on each enemy
+</code></pre>
+                
+                <h3>Pattern 4: Manager/Registry Pattern</h3>
+                
+                <p><strong>When:</strong> Many Actors need coordination<br>
+                <strong>How:</strong> Actors register with central manager</p>
+                
+                <pre><code class="language-plaintext">BP_Enemy:
+  BeginPlay:
+    → Get Actor of Class (BP_EnemyManager)
+    → Call RegisterEnemy(Self)
+    
+BP_EnemyManager:
+  Variable: EnemyArray (Array of BP_Enemy)
+  
+  Function: RegisterEnemy(Enemy)
+    → Add Enemy to EnemyArray
+  
+  Function: GetAllEnemies()
+    → Return EnemyArray
+</code></pre>
+                
+                <h3>Pattern 5: Interface Communication</h3>
+                
+                <p><strong>When:</strong> Multiple different Actor types need same message<br>
+                <strong>How:</strong> Create Blueprint Interface, implement in all types</p>
+                
+                <pre><code class="language-plaintext">BPI_Damageable Interface:
+  Function: TakeDamage(Amount)
+  
+Implement in: BP_Player, BP_Enemy, BP_Crate
+  
+BP_Weapon:
+  OnHit:
+    → Get Hit Actor
+    → Send interface message: TakeDamage(50)
+    → If Actor implements interface, it receives message
+    → If not, nothing happens (safe)
+</code></pre>
+                
+                <h3>Choosing Communication Pattern</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A{Know exact Actors?} -->|Yes| B[Direct Reference]
+    A -->|No| C{Triggered by collision?}
+    C -->|Yes| D[Overlap + Cast]
+    C -->|No| E{Many same-type Actors?}
+    E -->|Yes| F[Get All Actors + Loop]
+    E -->|No| G{Different types, same message?}
+    G -->|Yes| H[Interface]
+    G -->|No| I[Manager/Registry Pattern]
+    
+    style B fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style D fill:#2196F3,stroke:#1565c0,color:#fff
+    style F fill:#ff9800,stroke:#e65100,color:#fff
+    style H fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style I fill:#e74c3c,stroke:#c0392b,color:#fff
+</pre>
+<p class="caption"><em>Figure: Decision tree for selecting appropriate Actor communication pattern.</em></p>
+            </section>
+
+            <!-- Section 8: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Create a Spawner Blueprint</h2>
+                    
+                    <p>Build a complete enemy spawner system that demonstrates spawning, references, and Actor management.</p>
+                    
+                    <h3>Part 1: Create the Enemy Blueprint</h3>
+                    
+                    <ol>
+                        <li>Create <code>BP_SimpleEnemy</code> (Actor)</li>
+                        <li>Add <strong>Static Mesh Component</strong>:
+                            <ul>
+                                <li>Use Cube or any mesh</li>
+                                <li>Set Material to red color</li>
+                            </ul>
+                        </li>
+                        <li>Add variables:
+                            <ul>
+                                <li><code>Health</code> (Float) = 100.0</li>
+                                <li><code>MoveSpeed</code> (Float) = 200.0</li>
+                            </ul>
+                        </li>
+                        <li>Event BeginPlay:
+                            <ul>
+                                <li>Print: "Enemy spawned!"</li>
+                            </ul>
+                        </li>
+                        <li>Create function: <code>TakeDamage</code>
+                            <ul>
+                                <li>Input: <code>DamageAmount</code> (Float)</li>
+                                <li>Subtract from Health</li>
+                                <li>Branch: If Health <= 0
+                                    <ul>
+                                        <li>True: Print "Enemy died!" → Destroy Actor (Self)</li>
+                                        <li>False: Print "Enemy took damage, health: " + Health</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 2: Create the Spawner Blueprint</h3>
+                    
+                    <ol>
+                        <li>Create <code>BP_EnemySpawner</code> (Actor)</li>
+                        <li>Add <strong>Billboard Component</strong> (makes it visible in editor)</li>
+                        <li>Add variables:
+                            <ul>
+                                <li><code>EnemyClass</code> (Class Reference to Actor) = BP_SimpleEnemy</li>
+                                <li><code>SpawnCount</code> (Integer, Instance Editable) = 5</li>
+                                <li><code>SpawnRadius</code> (Float, Instance Editable) = 500.0</li>
+                                <li><code>SpawnInterval</code> (Float, Instance Editable) = 2.0</li>
+                                <li><code>SpawnedEnemies</code> (Array of BP_SimpleEnemy)</li>
+                                <li><code>CurrentSpawnCount</code> (Integer) = 0</li>
+                            </ul>
+                        </li>
+                        <li>Event BeginPlay:
+                            <pre><code>Set Timer by Event:
+  Event = SpawnSingleEnemy
+  Time = SpawnInterval
+  Looping = True</code></pre>
+                        </li>
+                        <li>Custom Event: <code>SpawnSingleEnemy</code>
+                            <pre><code>Branch: CurrentSpawnCount < SpawnCount
+  True:
+    → Get Actor Location (spawner position)
+    → Get Random Point in Navigable Radius:
+        Origin = Actor Location
+        Radius = SpawnRadius
+    → Spawn Actor from Class:
+        Class = EnemyClass
+        Spawn Transform = Random Point
+        Collision = Adjust If Necessary
+    → Store return value in variable: NewEnemy
+    → Add NewEnemy to SpawnedEnemies array
+    → Increment CurrentSpawnCount
+    → Print: "Spawned enemy " + CurrentSpawnCount + " of " + SpawnCount
+  False:
+    → Clear Timer by Handle (stop spawning)</code></pre>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 3: Add Spawner Management</h3>
+                    
+                    <p>Add keyboard controls to the spawner:</p>
+                    
+                    <ol>
+                        <li>Input Event: <strong>Keyboard K</strong> (Kill All Enemies)
+                            <pre><code>Get SpawnedEnemies array
+→ ForEach Loop:
+    → Is Valid? (check if enemy still exists)
+       True: Destroy Actor (Array Element)
+→ Clear SpawnedEnemies array
+→ Print: "All enemies destroyed!"</code></pre>
+                        </li>
+                        <li>Input Event: <strong>Keyboard D</strong> (Damage All Enemies)
+                            <pre><code>Get SpawnedEnemies array
+→ ForEach Loop:
+    → Is Valid? (check if enemy still exists)
+       True: 
+         → Cast to BP_SimpleEnemy
+            Success: Call TakeDamage(25)</code></pre>
+                        </li>
+                        <li>Input Event: <strong>Keyboard C</strong> (Count Living Enemies)
+                            <pre><code>Get All Actors of Class (BP_SimpleEnemy)
+→ Get array Length
+→ Print: "Living enemies: " + Length</code></pre>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 4: Test Your Spawner</h3>
+                    
+                    <ol>
+                        <li>Place <code>BP_EnemySpawner</code> in level</li>
+                        <li>Set SpawnCount to 10 in Details panel</li>
+                        <li>Play game</li>
+                        <li>Watch enemies spawn every 2 seconds</li>
+                        <li>Press <strong>D</strong> to damage all enemies</li>
+                        <li>Press <strong>K</strong> to kill all enemies</li>
+                        <li>Press <strong>C</strong> to count living enemies</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Checkpoint:</strong> What did you learn?</summary>
+                        <p>This exercise demonstrated:
+                            <ul>
+                                <li><strong>Spawning:</strong> Used Spawn Actor with random locations</li>
+                                <li><strong>References:</strong> Stored spawned enemies in array</li>
+                                <li><strong>Timers:</strong> Used Set Timer for repeated spawning</li>
+                                <li><strong>Casting:</strong> Cast to BP_SimpleEnemy to call TakeDamage</li>
+                                <li><strong>Is Valid:</strong> Checked if references still valid before using</li>
+                                <li><strong>Get All Actors:</strong> Found all enemies for counting</li>
+                                <li><strong>ForEach Loops:</strong> Processed arrays of Actors</li>
+                                <li><strong>Destroying:</strong> Cleaned up Actors properly</li>
+                            </ul>
+                            You've built a production-ready spawner system!
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Advanced Spawner Features</h3>
+                    
+                    <ol>
+                        <li><strong>Wave System:</strong> After spawning all enemies, wait for them to die, then start next wave</li>
+                        <li><strong>Spawn Points:</strong> Create multiple spawn locations, spawn at different points</li>
+                        <li><strong>Enemy Variety:</strong> Add SpawnableClasses array, randomly pick which enemy to spawn</li>
+                        <li><strong>Visual Feedback:</strong> Spawn particle effect at spawn location</li>
+                        <li><strong>Manager Integration:</strong> Create BP_GameManager that tracks total enemies spawned/killed</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Section 9: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Dynamic Actor management is fundamental to creating interactive, responsive games. You now know how to spawn, destroy, find, and communicate with Actors at runtime.</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>🎭 <strong>Dynamic Actors</strong> are created/destroyed at runtime vs. static placement in editor</li>
+                    <li>🌟 <strong>Spawn Actor from Class</strong> creates new Actors with transform and collision handling</li>
+                    <li>💥 <strong>Destroy Actor</strong> removes Actors and frees memory—always validate references afterward</li>
+                    <li>🔗 <strong>References</strong> are pointers to Actors obtained via Self, Spawn Return, Overlaps, Manual Assignment, or Search</li>
+                    <li>🎯 <strong>Casting</strong> converts generic Actor references to specific types to access custom functionality</li>
+                    <li>🔍 <strong>Get All Actors of Class</strong> finds every Actor of a type—powerful but expensive, avoid in Tick</li>
+                    <li>💬 <strong>Communication Patterns:</strong> Direct Reference, Overlap-Based, Search-Based, Manager/Registry, Interface</li>
+                    <li>✅ <strong>Best Practices:</strong> Store references, validate with Is Valid, avoid searches in Tick, handle Cast Failed, clean up properly</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>You've completed Module 5: Introduction to Blueprints! You've learned visual scripting fundamentals, variables, flow control, functions, and Actor management. The next module, <strong>Module 6: Player Interaction and Input</strong>, builds on this foundation by teaching you how to capture player input, control characters, detect collisions, and create interactive objects that respond to player actions.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What's the difference between static Actors and dynamic Actors?</li>
+                        <li>What are the three essential parameters for Spawn Actor from Class?</li>
+                        <li>Why should you store the return value from Spawn Actor?</li>
+                        <li>What happens when you Destroy Actor? Can you use its reference afterward?</li>
+                        <li>Name three ways to get a reference to an Actor.</li>
+                        <li>What is casting and why is it necessary?</li>
+                        <li>Why should you avoid calling Get All Actors of Class in Event Tick?</li>
+                        <li>What are two alternatives to Get All Actors of Class?</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Static Actors are placed manually in the editor and exist when the level loads. Dynamic Actors are spawned at runtime via Blueprints and only exist when created.</li>
+                            <li>Class (which Blueprint to spawn), Spawn Transform (location/rotation), and Collision Handling Override (what to do if location blocked).</li>
+                            <li>To control the Actor later—without storing the reference, you can't access the spawned Actor to call functions or modify it.</li>
+                            <li>The Actor is removed from the world, EndPlay fires, and memory is freed. All references become invalid—you must use Is Valid before accessing destroyed Actor references.</li>
+                            <li>Self node, Spawn Actor return value, Overlap events (Other Actor), Manual assignment (Instance Editable variables), Search functions (Get Actor of Class, Get All Actors of Class).</li>
+                            <li>Casting converts a generic Actor reference to a specific Blueprint type so you can access its unique variables and functions. It's necessary because many nodes return generic references but you need specific functionality.</li>
+                            <li>It searches the entire level every frame (60+ times per second), causing severe performance issues. Cache the result in BeginPlay instead.</li>
+                            <li>Manual array (register Actors as spawned), Manager/Registry pattern (Actors report to central manager), Get Overlapping Actors (for specific area), Sphere/Box Overlap (radius-based).</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m05_l04_flow_control.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">Flow Control</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="index.html#modules" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Module</span>
+                    <span class="title">Module 6: Player Interaction</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

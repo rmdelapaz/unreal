@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn how to import, manage, and work with Static Meshes in Unreal Engine 5. Master the fundamentals of 3D assets and the Content Browser.">
+    <meta name="author" content="Practical Ace">
+    <title>Static Meshes and Assets - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 2: Working with Levels and Actors</a></li>
+            <li aria-current="page">Lesson 2.4: Static Meshes and Assets</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>📦 Static Meshes and Assets</h1>
+                <p class="lead">Static Meshes are the building blocks of your 3D worlds—every object you see in an Unreal game, from characters to props to entire buildings, is composed of these 3D models. In this lesson, you'll learn what Static Meshes are, how to import them from external 3D modeling software, and how to manage your project's assets using the Content Browser.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Define what a Static Mesh is and explain how it differs from other geometry types</li>
+                        <li>Navigate and organize assets in the Content Browser</li>
+                        <li>Import 3D models from external software (FBX, OBJ formats)</li>
+                        <li>Understand mesh properties: vertices, edges, polygons, and materials</li>
+                        <li>Configure import settings for optimal results</li>
+                        <li>Use the Static Mesh Editor to inspect and modify meshes</li>
+                        <li>Apply materials and understand UV mapping basics</li>
+                        <li>Organize assets using folders, naming conventions, and metadata</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 60-75 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 2.3 - BSP Geometry</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-are-static-meshes" class="toc-link">What Are Static Meshes?</a></li>
+                        <li><a href="#content-browser" class="toc-link">The Content Browser</a></li>
+                        <li><a href="#importing-meshes" class="toc-link">Importing 3D Models</a></li>
+                        <li><a href="#mesh-anatomy" class="toc-link">Mesh Anatomy and Properties</a></li>
+                        <li><a href="#static-mesh-editor" class="toc-link">The Static Mesh Editor</a></li>
+                        <li><a href="#materials-and-uvs" class="toc-link">Materials and UV Mapping</a></li>
+                        <li><a href="#asset-organization" class="toc-link">Asset Organization Best Practices</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What Are Static Meshes? -->
+            <section id="what-are-static-meshes" class="lesson-section">
+                <h2>What Are Static Meshes?</h2>
+                
+                <p>If you've worked with any 3D software—Blender, Maya, 3ds Max, or even simpler tools—you've created 3D models made of vertices, edges, and faces. When you bring these models into Unreal Engine, they become <strong>Static Meshes</strong>.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Static Mesh:</strong> A 3D model composed of a fixed arrangement of vertices, edges, and polygons. "Static" means the mesh's geometry doesn't deform or animate—it maintains its shape. Static Meshes are the most common asset type in Unreal Engine and the foundation of almost every 3D scene.</p>
+                </div>
+                
+                <h3>Why "Static"?</h3>
+                
+                <p>The term "static" doesn't mean the object can't move—you can absolutely move, rotate, and scale Static Meshes. "Static" refers to the <strong>shape</strong> of the geometry itself. The vertices don't change position relative to each other. Think of it like a rigid object:</p>
+                
+                <ul>
+                    <li>✅ A <strong>table</strong> is a Static Mesh—its legs, top, and shape never change</li>
+                    <li>✅ A <strong>rock</strong> is a Static Mesh—solid and unchanging</li>
+                    <li>✅ A <strong>building</strong> is made of Static Meshes—walls, doors, windows are all rigid</li>
+                    <li>❌ A <strong>character's body</strong> needs deformation for animation—that's a Skeletal Mesh (covered later)</li>
+                    <li>❌ A <strong>cloth or flag</strong> that flaps in wind—that requires cloth simulation or animation</li>
+                </ul>
+                
+                <canvas id="static-vs-skeletal-canvas" width="700" height="350" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Static Meshes maintain their shape (left), while Skeletal Meshes can deform for animation (right).</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('static-vs-skeletal-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Static Mesh vs. Skeletal Mesh', 350, 30);
+                        
+                        // Left side - Static Mesh
+                        ctx.save();
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 15px Arial';
+                        ctx.fillText('Static Mesh', 175, 70);
+                        ctx.font = '12px Arial';
+                        ctx.fillText('(Fixed geometry)', 175, 88);
+                        
+                        // Draw a simple table (static)
+                        function drawTable(x, y, scale) {
+                            ctx.save();
+                            ctx.translate(x, y);
+                            ctx.scale(scale, scale);
+                            
+                            // Table top
+                            ctx.fillStyle = '#8B4513';
+                            ctx.fillRect(-50, -10, 100, 10);
+                            
+                            // Four legs
+                            ctx.fillStyle = '#654321';
+                            ctx.fillRect(-45, 0, 8, 50);
+                            ctx.fillRect(37, 0, 8, 50);
+                            ctx.fillRect(-45, 0, 8, 50);
+                            ctx.fillRect(37, 0, 8, 50);
+                            
+                            // Make it 3D-ish
+                            ctx.fillStyle = '#5c3a1f';
+                            ctx.fillRect(-45, 0, 8, 50);
+                            ctx.fillRect(-20, 0, 8, 50);
+                            ctx.fillRect(12, 0, 8, 50);
+                            ctx.fillRect(37, 0, 8, 50);
+                            
+                            ctx.restore();
+                        }
+                        
+                        drawTable(175, 150, 1);
+                        
+                        // Arrow showing it can transform
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.arc(175, 175, 60, -Math.PI/4, Math.PI/4);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        
+                        // Second table rotated
+                        ctx.save();
+                        ctx.translate(175, 175);
+                        ctx.rotate(Math.PI / 8);
+                        ctx.translate(-175, -175);
+                        ctx.globalAlpha = 0.5;
+                        drawTable(175, 150, 1);
+                        ctx.restore();
+                        
+                        // Explanation
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = '13px Arial';
+                        ctx.fillText('✓ Can move, rotate, scale', 175, 250);
+                        ctx.fillStyle = '#333';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Shape stays the same', 175, 268);
+                        ctx.fillText('Vertices don\'t move', 175, 284);
+                        
+                        // Examples box
+                        ctx.fillStyle = '#e8f5e9';
+                        ctx.fillRect(90, 300, 170, 35);
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(90, 300, 170, 35);
+                        ctx.fillStyle = '#333';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Examples: Props, buildings,', 175, 316);
+                        ctx.fillText('furniture, rocks, weapons', 175, 330);
+                        
+                        ctx.restore();
+                        
+                        // Right side - Skeletal Mesh
+                        ctx.save();
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 15px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Skeletal Mesh', 525, 70);
+                        ctx.font = '12px Arial';
+                        ctx.fillText('(Deformable geometry)', 525, 88);
+                        
+                        // Draw a simple character (skeletal)
+                        function drawCharacter(x, y, armAngle, legAngle) {
+                            ctx.save();
+                            ctx.translate(x, y);
+                            
+                            // Head
+                            ctx.fillStyle = '#f0c4a4';
+                            ctx.beginPath();
+                            ctx.arc(0, -35, 15, 0, Math.PI * 2);
+                            ctx.fill();
+                            
+                            // Body
+                            ctx.fillStyle = '#2196F3';
+                            ctx.fillRect(-12, -20, 24, 35);
+                            
+                            // Left arm (animated)
+                            ctx.save();
+                            ctx.translate(-12, -15);
+                            ctx.rotate(armAngle);
+                            ctx.fillStyle = '#2196F3';
+                            ctx.fillRect(-5, 0, 5, 25);
+                            ctx.restore();
+                            
+                            // Right arm (animated)
+                            ctx.save();
+                            ctx.translate(12, -15);
+                            ctx.rotate(-armAngle);
+                            ctx.fillStyle = '#2196F3';
+                            ctx.fillRect(0, 0, 5, 25);
+                            ctx.restore();
+                            
+                            // Left leg
+                            ctx.save();
+                            ctx.translate(-7, 15);
+                            ctx.rotate(legAngle);
+                            ctx.fillStyle = '#1976D2';
+                            ctx.fillRect(-3, 0, 6, 30);
+                            ctx.restore();
+                            
+                            // Right leg
+                            ctx.save();
+                            ctx.translate(7, 15);
+                            ctx.rotate(-legAngle);
+                            ctx.fillStyle = '#1976D2';
+                            ctx.fillRect(-3, 0, 6, 30);
+                            ctx.restore();
+                            
+                            ctx.restore();
+                        }
+                        
+                        // Draw character in neutral pose
+                        drawCharacter(475, 165, 0, 0);
+                        
+                        // Draw character in animated pose
+                        drawCharacter(575, 165, Math.PI / 6, Math.PI / 8);
+                        
+                        // Arrow showing animation
+                        ctx.strokeStyle = '#ff9800';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(495, 180);
+                        ctx.lineTo(555, 180);
+                        ctx.stroke();
+                        ctx.fillStyle = '#ff9800';
+                        ctx.beginPath();
+                        ctx.moveTo(555, 180);
+                        ctx.lineTo(545, 175);
+                        ctx.lineTo(545, 185);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Explanation
+                        ctx.fillStyle = '#ff9800';
+                        ctx.font = '13px Arial';
+                        ctx.fillText('✓ Vertices can deform', 525, 250);
+                        ctx.fillStyle = '#333';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Has bones/skeleton', 525, 268);
+                        ctx.fillText('Shape changes over time', 525, 284);
+                        
+                        // Examples box
+                        ctx.fillStyle = '#fff3e0';
+                        ctx.fillRect(440, 300, 170, 35);
+                        ctx.strokeStyle = '#ff9800';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(440, 300, 170, 35);
+                        ctx.fillStyle = '#333';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Examples: Characters, animals,', 525, 316);
+                        ctx.fillText('creatures, anything animated', 525, 330);
+                        
+                        ctx.restore();
+                    })();
+                </script>
+                
+                <h3>Static Meshes Are Everywhere</h3>
+                
+                <p>Open any game, and the vast majority of what you see is Static Meshes:</p>
+                
+                <ul>
+                    <li><strong>Environmental props:</strong> Trees, rocks, barrels, crates, furniture</li>
+                    <li><strong>Architecture:</strong> Walls, floors, doors, windows, roofs</li>
+                    <li><strong>Vehicles:</strong> The body of a car, truck, or spaceship (though wheels might rotate)</li>
+                    <li><strong>Weapons:</strong> Guns, swords, shields (held by characters)</li>
+                    <li><strong>User Interface elements:</strong> 3D buttons, holographic displays</li>
+                    <li><strong>Collectibles:</strong> Coins, health packs, ammo boxes</li>
+                </ul>
+                
+                <p>Essentially, if it's a rigid 3D object, it's a Static Mesh.</p>
+                
+                <h3>Advantages of Static Meshes</h3>
+                
+                <p>Why do Static Meshes dominate game development? Several key reasons:</p>
+                
+                <ol>
+                    <li><strong>Performance:</strong> Because they don't deform, GPUs can render them very efficiently. Modern engines like Unreal can draw thousands of Static Meshes per frame.</li>
+                    <li><strong>Instancing:</strong> You can place the same Static Mesh 1,000 times in a level, but it only loads into memory once. This is called "instancing" and saves massive amounts of memory.</li>
+                    <li><strong>Optimization:</strong> Static Meshes support LODs (Level of Detail), where distant objects use simpler versions to save performance.</li>
+                    <li><strong>Nanite (UE5):</strong> Unreal Engine 5's revolutionary Nanite system lets Static Meshes have millions of polygons with almost no performance cost—but only Static Meshes support it.</li>
+                    <li><strong>Collision:</strong> Static Meshes can have simplified collision shapes, making physics calculations fast and efficient.</li>
+                    <li><strong>Reusability:</strong> Create once, use everywhere. A Static Mesh is an asset you can drag into any level, any project.</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Nanite in Unreal Engine 5</h4>
+                    <p>One of UE5's biggest innovations is <strong>Nanite</strong>—a virtualized geometry system that allows Static Meshes to have film-quality detail (millions or even billions of polygons) without the traditional performance cost. A single statue can have more polygons than an entire PS4 game, and Nanite makes it render in real-time. This is <em>only</em> available for Static Meshes, which is another reason they're so important in modern Unreal projects.</p>
+                </div>
+                
+                <h3>Static Meshes vs. Other Geometry Types</h3>
+                
+                <p>Let's clarify how Static Meshes differ from other geometry types you might encounter:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Static Mesh</strong></td>
+                            <td>Rigid 3D model with fixed geometry</td>
+                            <td>99% of non-character objects (props, buildings, environment)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Skeletal Mesh</strong></td>
+                            <td>3D model with bones/skeleton for animation</td>
+                            <td>Characters, creatures, anything that needs to animate/deform</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BSP Geometry</strong></td>
+                            <td>Editor-created brushes (additive/subtractive)</td>
+                            <td>Prototyping/greyboxing only—convert to Static Mesh for production</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Procedural Mesh</strong></td>
+                            <td>Geometry generated by code at runtime</td>
+                            <td>Terrain, destructible objects, dynamically generated content</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Landscape</strong></td>
+                            <td>Specialized terrain system for large outdoor areas</td>
+                            <td>Outdoor environments, hills, mountains (covered in later module)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>For this lesson, we're focused exclusively on Static Meshes—the workhorse of Unreal Engine level design.</p>
+            </section>
+
+            <!-- Section 2: The Content Browser -->
+            <section id="content-browser" class="lesson-section">
+                <h2>The Content Browser</h2>
+                
+                <p>Before we dive into creating and importing Static Meshes, you need to understand where they live: the <strong>Content Browser</strong>. This is Unreal's asset management system—think of it as a file explorer specifically designed for game assets.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Content Browser:</strong> Unreal's primary interface for browsing, organizing, importing, and managing all project assets. It displays everything in your project: meshes, materials, textures, sounds, blueprints, animations, and more.</p>
+                </div>
+                
+                <h3>Opening the Content Browser</h3>
+                
+                <p>The Content Browser is usually open by default at the bottom of the editor. If you can't see it:</p>
+                
+                <ol>
+                    <li>Go to <strong>Window → Content Browser</strong> in the menu bar</li>
+                    <li>Or press <kbd>Ctrl+Space</kbd></li>
+                    <li>You can have multiple Content Browser tabs open simultaneously</li>
+                </ol>
+                
+                <h3>Content Browser Anatomy</h3>
+                
+                <p>Let's break down the different parts of the Content Browser interface:</p>
+                
+                <svg width="100%" height="500" viewBox="0 0 800 500" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <!-- Content Browser mockup -->
+                    <rect x="0" y="0" width="800" height="500" fill="#2d2d2d"/>
+                    
+                    <!-- Title Bar -->
+                    <rect x="0" y="0" width="800" height="35" fill="#1e1e1e"/>
+                    <text x="15" y="23" fill="#ffffff" font-size="14" font-weight="bold">Content Browser</text>
+                    <text x="700" y="23" fill="#aaa" font-size="12">🗖 ✕</text>
+                    
+                    <!-- Navigation Bar -->
+                    <rect x="0" y="35" width="800" height="40" fill="#252525"/>
+                    
+                    <!-- Back/Forward buttons -->
+                    <circle cx="20" cy="55" r="8" fill="#3c3c3c" stroke="#555" stroke-width="1"/>
+                    <text x="20" y="59" text-anchor="middle" fill="#aaa" font-size="12">←</text>
+                    <circle cx="45" cy="55" r="8" fill="#3c3c3c" stroke="#555" stroke-width="1"/>
+                    <text x="45" y="59" text-anchor="middle" fill="#aaa" font-size="12">→</text>
+                    
+                    <!-- Path display -->
+                    <rect x="65" y="45" width="500" height="22" fill="#3c3c3c" rx="3"/>
+                    <text x="75" y="60" fill="#e0e0e0" font-size="12">Content / MyProject / Meshes / Props</text>
+                    
+                    <!-- View options -->
+                    <rect x="580" y="45" width="30" height="22" fill="#3c3c3c" rx="3"/>
+                    <text x="595" y="60" text-anchor="middle" fill="#e0e0e0" font-size="14">⊞</text>
+                    <rect x="620" y="45" width="30" height="22" fill="#3c3c3c" rx="3"/>
+                    <text x="635" y="60" text-anchor="middle" fill="#e0e0e0" font-size="14">☰</text>
+                    
+                    <!-- Search -->
+                    <rect x="660" y="45" width="120" height="22" fill="#3c3c3c" rx="3"/>
+                    <text x="670" y="60" fill="#888" font-size="11">🔍 Search Assets...</text>
+                    
+                    <!-- Left Panel: Folder Tree -->
+                    <rect x="0" y="75" width="200" height="425" fill="#1e1e1e"/>
+                    <text x="10" y="95" fill="#aaa" font-size="11" font-weight="bold">SOURCES</text>
+                    
+                    <!-- Folder tree -->
+                    <g transform="translate(10, 105)">
+                        <text x="0" y="15" fill="#e0e0e0" font-size="12">▾ 📁 Content</text>
+                        <text x="20" y="35" fill="#e0e0e0" font-size="12">▾ 📁 MyProject</text>
+                        <text x="40" y="55" fill="#4CAF50" font-size="12" font-weight="bold">▸ 📁 Blueprints</text>
+                        <text x="40" y="75" fill="#4CAF50" font-size="12" font-weight="bold">▾ 📁 Meshes</text>
+                        <text x="60" y="95" fill="#e0e0e0" font-size="12">▸ 📁 Architecture</text>
+                        <text x="60" y="115" fill="#667eea" font-size="12" font-weight="bold">📁 Props</text>
+                        <text x="60" y="135" fill="#e0e0e0" font-size="12">▸ 📁 Vehicles</text>
+                        <text x="40" y="155" fill="#4CAF50" font-size="12" font-weight="bold">▸ 📁 Materials</text>
+                        <text x="40" y="175" fill="#4CAF50" font-size="12" font-weight="bold">▸ 📁 Textures</text>
+                    </g>
+                    
+                    <!-- Main Panel: Asset View -->
+                    <rect x="200" y="75" width="600" height="425" fill="#252525"/>
+                    
+                    <!-- Asset thumbnails (grid view) -->
+                    <!-- Row 1 -->
+                    <g transform="translate(220, 95)">
+                        <rect x="0" y="0" width="110" height="130" fill="#3a3a3a" rx="4"/>
+                        <rect x="5" y="5" width="100" height="100" fill="#667eea" opacity="0.3"/>
+                        <text x="55" y="60" text-anchor="middle" font-size="30" fill="#667eea">📦</text>
+                        <text x="55" y="120" text-anchor="middle" font-size="11" fill="#e0e0e0">SM_Chair_01</text>
+                    </g>
+                    
+                    <g transform="translate(350, 95)">
+                        <rect x="0" y="0" width="110" height="130" fill="#3a3a3a" rx="4"/>
+                        <rect x="5" y="5" width="100" height="100" fill="#667eea" opacity="0.3"/>
+                        <text x="55" y="60" text-anchor="middle" font-size="30" fill="#667eea">📦</text>
+                        <text x="55" y="120" text-anchor="middle" font-size="11" fill="#e0e0e0">SM_Table_02</text>
+                    </g>
+                    
+                    <g transform="translate(480, 95)">
+                        <rect x="0" y="0" width="110" height="130" fill="#3a3a3a" rx="4"/>
+                        <rect x="5" y="5" width="100" height="100" fill="#667eea" opacity="0.3"/>
+                        <text x="55" y="60" text-anchor="middle" font-size="30" fill="#667eea">📦</text>
+                        <text x="55" y="120" text-anchor="middle" font-size="11" fill="#e0e0e0">SM_Barrel_01</text>
+                    </g>
+                    
+                    <g transform="translate(610, 95)">
+                        <rect x="0" y="0" width="110" height="130" fill="#3a3a3a" rx="4"/>
+                        <rect x="5" y="5" width="100" height="100" fill="#667eea" opacity="0.3"/>
+                        <text x="55" y="60" text-anchor="middle" font-size="30" fill="#667eea">📦</text>
+                        <text x="55" y="120" text-anchor="middle" font-size="11" fill="#e0e0e0">SM_Crate_Large</text>
+                    </g>
+                    
+                    <!-- Row 2 -->
+                    <g transform="translate(220, 240)">
+                        <rect x="0" y="0" width="110" height="130" fill="#3a3a3a" rx="4"/>
+                        <rect x="5" y="5" width="100" height="100" fill="#667eea" opacity="0.3"/>
+                        <text x="55" y="60" text-anchor="middle" font-size="30" fill="#667eea">📦</text>
+                        <text x="55" y="120" text-anchor="middle" font-size="11" fill="#e0e0e0">SM_Door_Wood</text>
+                    </g>
+                    
+                    <g transform="translate(350, 240)">
+                        <rect x="0" y="0" width="110" height="130" fill="#3a3a3a" rx="4"/>
+                        <rect x="5" y="5" width="100" height="100" fill="#667eea" opacity="0.3"/>
+                        <text x="55" y="60" text-anchor="middle" font-size="30" fill="#667eea">📦</text>
+                        <text x="55" y="120" text-anchor="middle" font-size="11" fill="#e0e0e0">SM_Lamp_Desk</text>
+                    </g>
+                    
+                    <!-- Annotations -->
+                    <line x1="70" y1="85" x2="70" y2="45" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="70" cy="45" r="3" fill="#4CAF50"/>
+                    <text x="80" y="48" fill="#4CAF50" font-size="11">← Navigation buttons</text>
+                    
+                    <line x1="315" y1="85" x2="315" y2="50" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="315" cy="50" r="3" fill="#4CAF50"/>
+                    <text x="325" y="53" fill="#4CAF50" font-size="11">← Current folder path</text>
+                    
+                    <line x1="100" y1="180" x2="180" y2="180" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="180" cy="180" r="3" fill="#4CAF50"/>
+                    <text x="110" y="165" fill="#4CAF50" font-size="11" text-anchor="middle">Folder tree</text>
+                    <text x="110" y="178" fill="#4CAF50" font-size="11" text-anchor="middle">(organize</text>
+                    <text x="110" y="191" fill="#4CAF50" font-size="11" text-anchor="middle">assets)</text>
+                    
+                    <line x1="400" y1="400" x2="400" y2="430" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="400" cy="430" r="3" fill="#4CAF50"/>
+                    <text x="410" y="433" fill="#4CAF50" font-size="11">← Asset thumbnails (drag to level)</text>
+                    
+                    <line x1="720" y1="85" x2="720" y2="50" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="720" cy="50" r="3" fill="#4CAF50"/>
+                    <text x="650" y="48" fill="#4CAF50" font-size="11">Search →</text>
+                </svg>
+                <p class="caption"><em>Figure: The Content Browser interface with folder tree (left) and asset grid view (right).</em></p>
+
+                
+                <h3>Navigating the Content Browser</h3>
+                
+                <p>Understanding how to efficiently navigate the Content Browser is crucial for productivity:</p>
+                
+                <h4>Folder Navigation</h4>
+                
+                <ul>
+                    <li><strong>Click folders</strong> in the left panel to view their contents in the main area</li>
+                    <li><strong>Expand/collapse</strong> folders using the arrows (▸/▾)</li>
+                    <li><strong>Breadcrumb navigation:</strong> Click any folder in the path bar to jump there</li>
+                    <li><strong>Back/Forward buttons:</strong> Navigate your browsing history like a web browser</li>
+                    <li><strong>Right-click folders:</strong> Create new folders, rename, delete, or set folder color</li>
+                </ul>
+                
+                <h4>View Modes</h4>
+                
+                <p>The Content Browser offers several view modes to suit different workflows:</p>
+                
+                <ul>
+                    <li><strong>Tile View (⊞):</strong> Large thumbnails, best for visual assets like meshes and textures</li>
+                    <li><strong>List View (☰):</strong> Compact list with details, good for lots of assets</li>
+                    <li><strong>Column View:</strong> Multi-column browser-style navigation</li>
+                </ul>
+                
+                <p>Toggle between views using the buttons in the top-right corner.</p>
+                
+                <h4>Searching and Filtering</h4>
+                
+                <p>As your project grows, you'll need to find assets quickly:</p>
+                
+                <ul>
+                    <li><strong>Search bar:</strong> Type asset names—results appear instantly</li>
+                    <li><strong>Filters:</strong> Click "Filters" dropdown to show only specific asset types (Static Meshes, Materials, etc.)</li>
+                    <li><strong>Collections:</strong> Create custom collections of frequently-used assets</li>
+                    <li><strong>Advanced search:</strong> Use syntax like <code>Type=StaticMesh</code> or <code>Path=/Game/MyFolder</code></li>
+                </ul>
+                
+                <h3>Working with Assets</h3>
+                
+                <p>The Content Browser is where you perform most asset operations:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>How To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Place in level</strong></td>
+                            <td>Drag asset from Content Browser into viewport</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Open editor</strong></td>
+                            <td>Double-click asset to open appropriate editor</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rename</strong></td>
+                            <td>Right-click → Rename, or press <kbd>F2</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Duplicate</strong></td>
+                            <td><kbd>Ctrl+D</kbd> or right-click → Duplicate</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Delete</strong></td>
+                            <td><kbd>Delete</kbd> key or right-click → Delete</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Move to folder</strong></td>
+                            <td>Drag asset onto folder in left panel</td>
+                        </tr>
+                        <tr>
+                            <td><strong>View references</strong></td>
+                            <td>Right-click → Reference Viewer (see what uses this asset)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Export</strong></td>
+                            <td>Right-click → Asset Actions → Export</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Multiple Content Browsers</h4>
+                    <p>You can open multiple Content Browser windows by going to <strong>Window → Content Browser</strong> multiple times. This is incredibly useful—keep one browser showing your frequently-used assets folder, and use another to navigate around. Professional developers often have 2-3 Content Browsers open simultaneously, each docked in different parts of the screen.</p>
+                </div>
+                
+                <h3>Understanding the Content Folder</h3>
+                
+                <p>All your project's assets live in the <code>Content</code> folder. This folder exists both:</p>
+                
+                <ol>
+                    <li><strong>On disk:</strong> In your project directory as <code>YourProject/Content/</code></li>
+                    <li><strong>In the editor:</strong> As <code>/Game/</code> in the Content Browser path</li>
+                </ol>
+                
+                <p>When you see <code>/Game/MyProject/Meshes</code> in Unreal, it corresponds to <code>YourProject/Content/MyProject/Meshes</code> on your hard drive.</p>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Warning: Don't Modify Content Folder Externally</h4>
+                    <p>Never manually add, delete, or move files in the <code>Content</code> folder using Windows Explorer or other file managers. Unreal maintains an internal database of asset relationships, and external changes can break references. Always use the Content Browser for asset management. If you must import files externally, use the "Import" feature in the Content Browser afterward to register them.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Importing 3D Models -->
+            <section id="importing-meshes" class="lesson-section">
+                <h2>Importing 3D Models</h2>
+                
+                <p>Most Static Meshes are created in external 3D modeling software like Blender, Maya, 3ds Max, or ZBrush, then imported into Unreal. Let's walk through the import process step by step.</p>
+                
+                <h3>Supported File Formats</h3>
+                
+                <p>Unreal Engine supports several 3D file formats for importing meshes:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Format</th>
+                            <th>Extension</th>
+                            <th>Best For</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>FBX</strong></td>
+                            <td>.fbx</td>
+                            <td>Static Meshes, Skeletal Meshes, animations</td>
+                            <td>✅ Recommended—industry standard, supports materials, UVs, bones</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OBJ</strong></td>
+                            <td>.obj</td>
+                            <td>Simple Static Meshes</td>
+                            <td>Basic format—no materials, no animations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>USD</strong></td>
+                            <td>.usd, .usda</td>
+                            <td>High-fidelity assets, film workflows</td>
+                            <td>UE5 feature—supports complex scene hierarchies</td>
+                        </tr>
+                        <tr>
+                            <td><strong>glTF</strong></td>
+                            <td>.gltf, .glb</td>
+                            <td>Web-based 3D, lightweight assets</td>
+                            <td>Growing support—good for web exports</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datasmith</strong></td>
+                            <td>Various</td>
+                            <td>CAD, SketchUp, Revit, 3ds Max, Rhino</td>
+                            <td>Specialized importers for professional workflows</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>For this lesson, we'll focus on FBX</strong>—it's the most versatile and widely-supported format.</p>
+                
+                <h3>Preparing Models for Export (External Software)</h3>
+                
+                <p>Before importing into Unreal, ensure your 3D model follows these guidelines in your modeling software:</p>
+                
+                <ol>
+                    <li><strong>Scale:</strong> Export at 1:1 scale. In Blender/Maya, 1 unit = 1 cm for Unreal. If your object is wrong size, scale it in the modeling program before export.</li>
+                    <li><strong>Origin point:</strong> Set the pivot/origin to a sensible location (base center for props, hinge location for doors).</li>
+                    <li><strong>Rotation:</strong> Make sure the object is oriented correctly (typically Z-up in Blender, but FBX handles conversion).</li>
+                    <li><strong>Apply transformations:</strong> Apply all scale, rotation, and position transforms before export (in Blender: <kbd>Ctrl+A</kbd> → All Transforms).</li>
+                    <li><strong>Clean geometry:</strong> Remove overlapping faces, duplicate vertices, and non-manifold edges.</li>
+                    <li><strong>Triangulate (optional):</strong> Unreal will triangulate on import, but you can do it manually for more control.</li>
+                    <li><strong>Materials:</strong> Name your materials descriptively—they'll import with the mesh.</li>
+                    <li><strong>UVs:</strong> Ensure your model has UV maps for texturing (covered later this lesson).</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Blender to Unreal Quick Guide</h4>
+                    <p>If you're using Blender (free and open-source 3D software):</p>
+                    <ol style="margin-bottom: 0;">
+                        <li>Select your mesh</li>
+                        <li>File → Export → FBX (.fbx)</li>
+                        <li>In export settings: Select "Mesh" only (uncheck Camera, Lights)</li>
+                        <li>Set Scale to 1.0, Forward to -Y Forward, Up to Z Up</li>
+                        <li>Check "Apply Transform"</li>
+                        <li>Export to a location you'll remember</li>
+                    </ol>
+                </div>
+                
+                <h3>The Import Process</h3>
+                
+                <p>Once you have an FBX file ready, here's how to import it into Unreal:</p>
+                
+                <h4>Method 1: Drag and Drop (Quickest)</h4>
+                
+                <ol>
+                    <li>Open the Content Browser</li>
+                    <li>Navigate to the folder where you want the mesh (e.g., <code>Content/Meshes/Props</code>)</li>
+                    <li>Drag the FBX file from Windows Explorer directly into the Content Browser</li>
+                    <li>The FBX Import Options dialog appears</li>
+                    <li>Adjust settings (covered next section)</li>
+                    <li>Click "Import" or "Import All"</li>
+                </ol>
+                
+                <h4>Method 2: Import Button</h4>
+                
+                <ol>
+                    <li>In Content Browser, click the green <strong>"Import"</strong> button</li>
+                    <li>Browse to your FBX file in the file picker</li>
+                    <li>Select it and click "Open"</li>
+                    <li>The import dialog appears—configure and import</li>
+                </ol>
+                
+                <h3>FBX Import Options</h3>
+                
+                <p>When you import an FBX, Unreal shows an import dialog with many options. Here are the most important settings for Static Meshes:</p>
+                
+                <svg width="100%" height="600" viewBox="0 0 500 600" style="max-width: 500px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <!-- FBX Import Dialog mockup -->
+                    <rect x="0" y="0" width="500" height="600" fill="#2d2d2d"/>
+                    
+                    <!-- Title Bar -->
+                    <rect x="0" y="0" width="500" height="35" fill="#1e1e1e"/>
+                    <text x="15" y="23" fill="#ffffff" font-size="14" font-weight="bold">FBX Import Options</text>
+                    
+                    <!-- File info -->
+                    <rect x="20" y="50" width="460" height="40" fill="#3c3c3c" rx="4"/>
+                    <text x="30" y="70" fill="#e0e0e0" font-size="12">File: SM_Chair_Modern.fbx</text>
+                    <text x="30" y="85" fill="#888" font-size="11">Importing to: /Game/Meshes/Props</text>
+                    
+                    <!-- Mesh Section -->
+                    <rect x="20" y="105" width="460" height="180" fill="#252525" rx="4"/>
+                    <text x="30" y="125" fill="#4CAF50" font-size="13" font-weight="bold">MESH</text>
+                    
+                    <!-- Checkboxes and options -->
+                    <g transform="translate(30, 135)">
+                        <rect x="0" y="0" width="15" height="15" fill="#3c3c3c" stroke="#666" stroke-width="1" rx="2"/>
+                        <text x="8" y="12" text-anchor="middle" fill="#4CAF50" font-size="14">✓</text>
+                        <text x="22" y="12" fill="#e0e0e0" font-size="12">Import Mesh</text>
+                        
+                        <text x="0" y="35" fill="#aaa" font-size="11">Skeletal Mesh:</text>
+                        <rect x="100" y="23" width="100" height="18" fill="#3c3c3c" rx="2"/>
+                        <text x="150" y="36" text-anchor="middle" fill="#e0e0e0" font-size="11">Static Mesh ▾</text>
+                        
+                        <text x="0" y="58" fill="#aaa" font-size="11">Vertex Color Import:</text>
+                        <rect x="100" y="46" width="100" height="18" fill="#3c3c3c" rx="2"/>
+                        <text x="150" y="59" text-anchor="middle" fill="#e0e0e0" font-size="11">Replace ▾</text>
+                        
+                        <rect x="0" y="70" width="15" height="15" fill="#3c3c3c" stroke="#666" stroke-width="1" rx="2"/>
+                        <text x="8" y="82" text-anchor="middle" fill="#4CAF50" font-size="14">✓</text>
+                        <text x="22" y="82" fill="#e0e0e0" font-size="12">Auto Generate Collision</text>
+                        
+                        <rect x="0" y="95" width="15" height="15" fill="#3c3c3c" stroke="#666" stroke-width="1" rx="2"/>
+                        <text x="8" y="107" text-anchor="middle" fill="#4CAF50" font-size="14">✓</text>
+                        <text x="22" y="107" fill="#e0e0e0" font-size="12">Combine Meshes</text>
+                        
+                        <text x="0" y="130" fill="#aaa" font-size="11">Transform:</text>
+                        
+                        <text x="0" y="148" fill="#aaa" font-size="10">Import Translation: (0, 0, 0)</text>
+                        <text x="0" y="163" fill="#aaa" font-size="10">Import Rotation: (0, 0, 0)</text>
+                    </g>
+                    
+                    <!-- Material Section -->
+                    <rect x="20" y="300" width="460" height="110" fill="#252525" rx="4"/>
+                    <text x="30" y="320" fill="#ff9800" font-size="13" font-weight="bold">MATERIAL</text>
+                    
+                    <g transform="translate(30, 330)">
+                        <rect x="0" y="0" width="15" height="15" fill="#3c3c3c" stroke="#666" stroke-width="1" rx="2"/>
+                        <text x="8" y="12" text-anchor="middle" fill="#4CAF50" font-size="14">✓</text>
+                        <text x="22" y="12" fill="#e0e0e0" font-size="12">Import Materials</text>
+                        
+                        <rect x="0" y="25" width="15" height="15" fill="#3c3c3c" stroke="#666" stroke-width="1" rx="2"/>
+                        <text x="8" y="37" text-anchor="middle" fill="#4CAF50" font-size="14">✓</text>
+                        <text x="22" y="37" fill="#e0e0e0" font-size="12">Import Textures</text>
+                        
+                        <text x="0" y="60" fill="#aaa" font-size="11">Material Import Method:</text>
+                        <rect x="140" y="48" width="140" height="18" fill="#3c3c3c" rx="2"/>
+                        <text x="210" y="61" text-anchor="middle" fill="#e0e0e0" font-size="11">Create New Materials ▾</text>
+                    </g>
+                    
+                    <!-- Transform Section -->
+                    <rect x="20" y="425" width="460" height="80" fill="#252525" rx="4"/>
+                    <text x="30" y="445" fill="#2196F3" font-size="13" font-weight="bold">TRANSFORM</text>
+                    
+                    <g transform="translate(30, 455)">
+                        <text x="0" y="15" fill="#aaa" font-size="11">Import Uniform Scale: 1.0</text>
+                        
+                        <rect x="0" y="25" width="15" height="15" fill="#3c3c3c" stroke="#666" stroke-width="1" rx="2"/>
+                        <text x="8" y="37" text-anchor="middle" fill="#4CAF50" font-size="14">✓</text>
+                        <text x="22" y="37" fill="#e0e0e0" font-size="12">Convert Scene Unit</text>
+                        
+                        <text x="0" y="58" fill="#888" font-size="10">Scene Unit: Centimeters</text>
+                    </g>
+                    
+                    <!-- Buttons -->
+                    <rect x="280" y="525" width="90" height="30" fill="#667eea" rx="4"/>
+                    <text x="325" y="546" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">Import</text>
+                    
+                    <rect x="380" y="525" width="90" height="30" fill="#3c3c3c" rx="4"/>
+                    <text x="425" y="546" text-anchor="middle" fill="#e0e0e0" font-size="13">Cancel</text>
+                    
+                    <!-- Important settings highlight -->
+                    <line x1="490" y1="200" x2="520" y2="200" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="525" y="185" fill="#4CAF50" font-size="10" font-weight="bold">✓ Auto Generate Collision</text>
+                    <text x="525" y="198" fill="#4CAF50" font-size="9">Creates simple collision</text>
+                    <text x="525" y="209" fill="#4CAF50" font-size="9">automatically</text>
+                    
+                    <line x1="490" y1="360" x2="520" y2="360" stroke="#ff9800" stroke-width="2"/>
+                    <text x="525" y="355" fill="#ff9800" font-size="10" font-weight="bold">✓ Import Materials</text>
+                    <text x="525" y="368" fill="#ff9800" font-size="9">Brings in material names</text>
+                </svg>
+                <p class="caption"><em>Figure: The FBX Import Options dialog with key settings highlighted.</em></p>
+                
+                <h4>Key Import Settings Explained</h4>
+                
+                <p><strong>Mesh Section:</strong></p>
+                
+                <ul>
+                    <li><strong>Import Mesh:</strong> Always checked—you're importing a mesh!</li>
+                    <li><strong>Skeletal Mesh:</strong> Should be "Static Mesh" for props/environment. Choose "Skeletal Mesh" only for characters/creatures with bones.</li>
+                    <li><strong>Auto Generate Collision:</strong> ✅ Check this! Unreal will create a simplified collision mesh automatically. Essential for physics and player collision.</li>
+                    <li><strong>Combine Meshes:</strong> If your FBX contains multiple objects, this combines them into one mesh (usually what you want).</li>
+                </ul>
+                
+                <p><strong>Material Section:</strong></p>
+                
+                <ul>
+                    <li><strong>Import Materials:</strong> ✅ Check this to bring in material names/slots from your 3D software.</li>
+                    <li><strong>Import Textures:</strong> If your FBX has embedded textures or they're in the same folder, Unreal will import them too.</li>
+                    <li><strong>Material Import Method:</strong> "Create New Materials" makes Unreal create material assets. "Do Not Create Material" leaves slots empty for manual assignment.</li>
+                </ul>
+                
+                <p><strong>Transform Section:</strong></p>
+                
+                <ul>
+                    <li><strong>Import Uniform Scale:</strong> Multiplier for the entire mesh. Usually 1.0, but if your model is too small/large, adjust here (or better, fix in modeling software).</li>
+                    <li><strong>Convert Scene Unit:</strong> ✅ Check this—converts from your modeling software's units to Unreal's centimeters.</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommended Settings for First Import</h4>
+                    <p>For beginners, use these settings for most Static Meshes:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>✅ Import Mesh</li>
+                        <li>✅ Auto Generate Collision</li>
+                        <li>✅ Import Materials</li>
+                        <li>✅ Import Textures</li>
+                        <li>✅ Convert Scene Unit</li>
+                        <li>Import Uniform Scale: 1.0</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">You can always re-import with different settings later!</p>
+                </div>
+                
+                <h3>After Import: What You Get</h3>
+                
+                <p>After clicking "Import," several assets appear in your Content Browser:</p>
+                
+                <ol>
+                    <li><strong>Static Mesh asset:</strong> The 3D model itself (blue icon, typically starts with "SM_")</li>
+                    <li><strong>Material assets:</strong> One for each material slot (gray sphere icons, start with "M_")</li>
+                    <li><strong>Texture assets:</strong> If textures were included (image icons, start with "T_")</li>
+                </ol>
+                
+                <p>You can now drag the Static Mesh from the Content Browser into your level to place it!</p>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Common Import Issues</h4>
+                    <p><strong>Mesh too small/large:</strong> Check scale in modeling software. Unreal expects centimeters—1 unit in Blender should equal 1cm in Unreal.</p>
+                    <p><strong>Wrong orientation:</strong> Ensure Z-up export in modeling software, or manually rotate after import.</p>
+                    <p><strong>Black/missing textures:</strong> Materials imported but textures didn't. Manually assign textures in Material Editor.</p>
+                    <p><strong>Mesh is invisible:</strong> Check if normals are flipped—in modeling software, recalculate normals.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Mesh Anatomy and Properties -->
+            <section id="mesh-anatomy" class="lesson-section">
+                <h2>Mesh Anatomy and Properties</h2>
+                
+                <p>To work effectively with Static Meshes, you need to understand their fundamental components. Every 3D model is built from the same basic elements.</p>
+                
+                <h3>The Building Blocks: Vertices, Edges, and Polygons</h3>
+                
+                <p>Static Meshes are composed of three geometric primitives:</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definitions</h4>
+                    <p style="color: white;"><strong>Vertex (plural: vertices):</strong> A point in 3D space with X, Y, Z coordinates. The cornerstone of 3D geometry.</p>
+                    <p style="color: white;"><strong>Edge:</strong> A line connecting two vertices. Defines the boundaries of shapes.</p>
+                    <p style="color: white;"><strong>Polygon (or Face):</strong> A flat surface defined by 3 or more vertices connected by edges. In games, almost always triangles.</p>
+                </div>
+                
+                <canvas id="mesh-anatomy-canvas" width="700" height="400" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: The anatomy of a 3D mesh - vertices (points), edges (lines), and polygons (faces).</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('mesh-anatomy-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('3D Mesh Components', 350, 30);
+                        
+                        // Left: Wireframe view
+                        ctx.save();
+                        ctx.translate(150, 120);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('Wireframe View', 0, -30);
+                        
+                        // Define cube vertices in isometric
+                        const cubeVertices = [
+                            {x: -40, y: 40},   // 0: bottom-left-front
+                            {x: 40, y: 40},    // 1: bottom-right-front
+                            {x: 60, y: 10},    // 2: bottom-right-back
+                            {x: -20, y: 10},   // 3: bottom-left-back
+                            {x: -40, y: -40},  // 4: top-left-front
+                            {x: 40, y: -40},   // 5: top-right-front
+                            {x: 60, y: -70},   // 6: top-right-back
+                            {x: -20, y: -70}   // 7: top-left-back
+                        ];
+                        
+                        // Draw edges
+                        ctx.strokeStyle = '#667eea';
+                        ctx.lineWidth = 2;
+                        const edges = [
+                            [0,1], [1,2], [2,3], [3,0], // bottom
+                            [4,5], [5,6], [6,7], [7,4], // top
+                            [0,4], [1,5], [2,6], [3,7]  // vertical
+                        ];
+                        
+                        edges.forEach(([i, j]) => {
+                            ctx.beginPath();
+                            ctx.moveTo(cubeVertices[i].x, cubeVertices[i].y);
+                            ctx.lineTo(cubeVertices[j].x, cubeVertices[j].y);
+                            ctx.stroke();
+                        });
+                        
+                        // Draw vertices
+                        ctx.fillStyle = '#e74c3c';
+                        cubeVertices.forEach(v => {
+                            ctx.beginPath();
+                            ctx.arc(v.x, v.y, 4, 0, Math.PI * 2);
+                            ctx.fill();
+                        });
+                        
+                        // Labels
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Vertex', -60, 50);
+                        ctx.beginPath();
+                        ctx.moveTo(-50, 45);
+                        ctx.lineTo(-42, 42);
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#667eea';
+                        ctx.fillText('Edge', 55, -45);
+                        ctx.beginPath();
+                        ctx.moveTo(50, -42);
+                        ctx.lineTo(45, -40);
+                        ctx.stroke();
+                        
+                        ctx.restore();
+                        
+                        // Middle: Faces highlighted
+                        ctx.save();
+                        ctx.translate(350, 120);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('Polygons (Faces)', 0, -30);
+                        
+                        // Draw filled faces
+                        // Front face
+                        ctx.fillStyle = '#667eea';
+                        ctx.globalAlpha = 0.6;
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[0].x, cubeVertices[0].y);
+                        ctx.lineTo(cubeVertices[1].x, cubeVertices[1].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.lineTo(cubeVertices[4].x, cubeVertices[4].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Right face
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[1].x, cubeVertices[1].y);
+                        ctx.lineTo(cubeVertices[2].x, cubeVertices[2].y);
+                        ctx.lineTo(cubeVertices[6].x, cubeVertices[6].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Top face
+                        ctx.fillStyle = '#ff9800';
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[4].x, cubeVertices[4].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.lineTo(cubeVertices[6].x, cubeVertices[6].y);
+                        ctx.lineTo(cubeVertices[7].x, cubeVertices[7].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.globalAlpha = 1.0;
+                        
+                        // Draw edges over faces
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 1.5;
+                        edges.forEach(([i, j]) => {
+                            ctx.beginPath();
+                            ctx.moveTo(cubeVertices[i].x, cubeVertices[i].y);
+                            ctx.lineTo(cubeVertices[j].x, cubeVertices[j].y);
+                            ctx.stroke();
+                        });
+                        
+                        // Label
+                        ctx.fillStyle = '#ff9800';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Polygon', 0, -75);
+                        ctx.beginPath();
+                        ctx.moveTo(0, -72);
+                        ctx.lineTo(0, -68);
+                        ctx.stroke();
+                        
+                        ctx.restore();
+                        
+                        // Right: Triangulated
+                        ctx.save();
+                        ctx.translate(550, 120);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('Triangulated', 0, -30);
+                        ctx.font = '11px Arial';
+                        ctx.fillText('(How GPUs see it)', 0, -15);
+                        
+                        // Draw triangulated version
+                        // Front face as two triangles
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([3, 3]);
+                        
+                        // Diagonal split
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[0].x, cubeVertices[0].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[1].x, cubeVertices[1].y);
+                        ctx.lineTo(cubeVertices[6].x, cubeVertices[6].y);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[4].x, cubeVertices[4].y);
+                        ctx.lineTo(cubeVertices[6].x, cubeVertices[6].y);
+                        ctx.stroke();
+                        
+                        ctx.setLineDash([]);
+                        
+                        // Draw solid edges
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 1.5;
+                        edges.forEach(([i, j]) => {
+                            ctx.beginPath();
+                            ctx.moveTo(cubeVertices[i].x, cubeVertices[i].y);
+                            ctx.lineTo(cubeVertices[j].x, cubeVertices[j].y);
+                            ctx.stroke();
+                        });
+                        
+                        // Draw faces lightly
+                        ctx.fillStyle = '#667eea';
+                        ctx.globalAlpha = 0.3;
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[0].x, cubeVertices[0].y);
+                        ctx.lineTo(cubeVertices[1].x, cubeVertices[1].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.lineTo(cubeVertices[4].x, cubeVertices[4].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[1].x, cubeVertices[1].y);
+                        ctx.lineTo(cubeVertices[2].x, cubeVertices[2].y);
+                        ctx.lineTo(cubeVertices[6].x, cubeVertices[6].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#ff9800';
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[4].x, cubeVertices[4].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.lineTo(cubeVertices[6].x, cubeVertices[6].y);
+                        ctx.lineTo(cubeVertices[7].x, cubeVertices[7].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.globalAlpha = 1.0;
+                        
+                        // Label
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Triangles', 30, 0);
+                        
+                        ctx.restore();
+                        
+                        // Bottom explanation
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('A cube has 8 vertices, 12 edges, and 6 faces (12 triangles when GPU renders it)', 350, 270);
+                        
+                        // Info boxes
+                        const infoBoxes = [
+                            {x: 50, y: 300, color: '#e74c3c', title: 'Vertices', desc: 'Corner points', desc2: 'Define shape'},
+                            {x: 250, y: 300, color: '#667eea', title: 'Edges', desc: 'Connections', desc2: 'Form structure'},
+                            {x: 450, y: 300, color: '#4CAF50', title: 'Polygons', desc: 'Surfaces', desc2: 'Create volume'}
+                        ];
+                        
+                        infoBoxes.forEach(box => {
+                            ctx.fillStyle = box.color;
+                            ctx.globalAlpha = 0.1;
+                            ctx.fillRect(box.x, box.y, 160, 60);
+                            ctx.globalAlpha = 1.0;
+                            ctx.strokeStyle = box.color;
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(box.x, box.y, 160, 60);
+                            
+                            ctx.fillStyle = box.color;
+                            ctx.font = 'bold 13px Arial';
+                            ctx.textAlign = 'left';
+                            ctx.fillText(box.title, box.x + 10, box.y + 22);
+                            ctx.fillStyle = '#333';
+                            ctx.font = '11px Arial';
+                            ctx.fillText(box.desc, box.x + 10, box.y + 40);
+                            ctx.fillText(box.desc2, box.x + 10, box.y + 54);
+                        });
+                    })();
+                </script>
+                
+                <h3>Polygon Count and Performance</h3>
+                
+                <p>The number of polygons (often called "poly count" or "tri count") directly affects performance. More polygons = more detailed mesh = slower rendering.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Object Type</th>
+                            <th>Typical Poly Count</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Simple prop</strong></td>
+                            <td>100-500 triangles</td>
+                            <td>Boxes, barrels, simple furniture</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medium prop</strong></td>
+                            <td>500-2,000 triangles</td>
+                            <td>Detailed furniture, weapons, vehicles</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complex prop</strong></td>
+                            <td>2,000-10,000 triangles</td>
+                            <td>Hero objects, main characters (body only)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Environment piece</strong></td>
+                            <td>1,000-5,000 triangles</td>
+                            <td>Modular walls, pillars, stairs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nanite mesh (UE5)</strong></td>
+                            <td>100K-10M+ triangles</td>
+                            <td>Film-quality assets—Nanite handles optimization</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Nanite Changes Everything</h4>
+                    <p>Traditional game development required careful poly count management—you'd never put a 1 million polygon statue in your level. With Unreal Engine 5's Nanite system, those rules are upended. Nanite meshes can have insane detail (millions of polys) and render as fast as low-poly meshes. This is revolutionary for realism, but only works with Static Meshes, not Skeletal Meshes or translucent materials.</p>
+                </div>
+
+                
+                <h3>Normals and Smoothing</h3>
+                
+                <p>Beyond basic geometry, meshes have additional properties that affect how they're rendered:</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Normal:</strong> A vector perpendicular to a surface that tells the rendering engine which direction the surface is facing. Normals determine how light interacts with the mesh—they're crucial for realistic shading.</p>
+                </div>
+                
+                <p>Each vertex has a normal vector. When you see smooth, rounded surfaces (like spheres) or hard edges (like cubes), it's because of how normals are calculated:</p>
+                
+                <ul>
+                    <li><strong>Hard/Flat Shading:</strong> Each face has its own distinct normal—creates sharp edges, faceted look</li>
+                    <li><strong>Smooth Shading:</strong> Normals are averaged across connected faces—creates smooth, rounded appearance</li>
+                </ul>
+                
+                <p>In your 3D modeling software, you can control smoothing groups, auto-smooth angles, and normal recalculation. These settings carry over when you import into Unreal.</p>
+                
+                <h3>Materials and Material Slots</h3>
+                
+                <p>Every Static Mesh has one or more <strong>Material Slots</strong>—these are where you assign materials (shaders that define the surface appearance). When you import an FBX:</p>
+                
+                <ul>
+                    <li>Each material in your 3D software becomes a material slot in Unreal</li>
+                    <li>Different parts of the mesh can use different materials (e.g., a sword with metal blade and leather handle)</li>
+                    <li>You assign materials to slots in the Static Mesh Editor or Details panel</li>
+                </ul>
+                
+                <p>Materials are a huge topic—we'll cover them more in Section 6 and dedicate an entire later module to material creation.</p>
+                
+                <h3>LODs (Level of Detail)</h3>
+                
+                <p><strong>LODs</strong> are multiple versions of the same mesh with decreasing polygon counts. The engine automatically switches between LODs based on distance from camera:</p>
+                
+                <ul>
+                    <li><strong>LOD 0:</strong> Full detail—used when close to camera</li>
+                    <li><strong>LOD 1:</strong> Medium detail—used at medium distance</li>
+                    <li><strong>LOD 2:</strong> Low detail—used far away</li>
+                    <li><strong>LOD 3+:</strong> Very low detail—distant objects</li>
+                </ul>
+                
+                <p>Unreal can auto-generate LODs, or you can create custom ones in your 3D software for maximum control.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Performance Tip</h4>
+                    <p>LODs are one of the most effective performance optimizations. A tree that's 50 pixels tall on screen doesn't need 10,000 polygons—200 would be plenty. Proper LOD setup can double or triple your framerate in complex scenes with no visible quality loss.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: The Static Mesh Editor -->
+            <section id="static-mesh-editor" class="lesson-section">
+                <h2>The Static Mesh Editor</h2>
+                
+                <p>Every time you double-click a Static Mesh in the Content Browser, it opens in the <strong>Static Mesh Editor</strong>—a specialized interface for inspecting and configuring meshes.</p>
+                
+                <h3>Opening the Static Mesh Editor</h3>
+                
+                <ol>
+                    <li>Navigate to your mesh in the Content Browser</li>
+                    <li>Double-click the mesh asset</li>
+                    <li>The Static Mesh Editor window opens</li>
+                </ol>
+                
+                <h3>Static Mesh Editor Interface</h3>
+                
+                <svg width="100%" height="500" viewBox="0 0 800 500" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <!-- Static Mesh Editor mockup -->
+                    <rect x="0" y="0" width="800" height="500" fill="#2d2d2d"/>
+                    
+                    <!-- Title Bar -->
+                    <rect x="0" y="0" width="800" height="35" fill="#1e1e1e"/>
+                    <text x="15" y="23" fill="#ffffff" font-size="13" font-weight="bold">Static Mesh Editor - SM_Chair_Modern</text>
+                    
+                    <!-- Toolbar -->
+                    <rect x="0" y="35" width="800" height="40" fill="#252525"/>
+                    
+                    <!-- Toolbar buttons -->
+                    <g transform="translate(15, 47)">
+                        <rect x="0" y="0" width="30" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="15" y="18" text-anchor="middle" fill="#e0e0e0" font-size="16">💾</text>
+                        
+                        <rect x="40" y="0" width="30" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="55" y="18" text-anchor="middle" fill="#e0e0e0" font-size="16">🔄</text>
+                        
+                        <rect x="80" y="0" width="50" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="105" y="18" text-anchor="middle" fill="#aaa" font-size="10">Wireframe</text>
+                        
+                        <rect x="140" y="0" width="50" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="165" y="18" text-anchor="middle" fill="#aaa" font-size="10">Collision</text>
+                        
+                        <rect x="200" y="0" width="50" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="225" y="18" text-anchor="middle" fill="#aaa" font-size="10">Sockets</text>
+                    </g>
+                    
+                    <!-- Main Viewport (center) -->
+                    <rect x="200" y="75" width="450" height="425" fill="#1e1e1e"/>
+                    
+                    <!-- Viewport content - 3D chair preview -->
+                    <g transform="translate(425, 280)">
+                        <!-- Simple chair representation -->
+                        <!-- Seat -->
+                        <rect x="-60" y="-20" width="120" height="10" fill="#8B4513" opacity="0.8"/>
+                        <!-- Back -->
+                        <rect x="-60" y="-80" width="10" height="60" fill="#654321" opacity="0.8"/>
+                        <!-- Legs -->
+                        <rect x="-55" y="-10" width="8" height="40" fill="#654321" opacity="0.8"/>
+                        <rect x="-20" y="-10" width="8" height="40" fill="#654321" opacity="0.8"/>
+                        <rect x="12" y="-10" width="8" height="40" fill="#654321" opacity="0.8"/>
+                        <rect x="47" y="-10" width="8" height="40" fill="#654321" opacity="0.8"/>
+                        
+                        <!-- Lighting effect -->
+                        <rect x="-60" y="-20" width="120" height="5" fill="#a0702a" opacity="0.5"/>
+                    </g>
+                    
+                    <!-- Grid floor -->
+                    <g transform="translate(200, 75)">
+                        <line x1="0" y1="350" x2="450" y2="350" stroke="#333" stroke-width="1"/>
+                        <line x1="0" y1="375" x2="450" y2="375" stroke="#2a2a2a" stroke-width="1"/>
+                        <line x1="0" y1="400" x2="450" y2="400" stroke="#2a2a2a" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Viewport stats overlay -->
+                    <rect x="210" y="85" width="150" height="60" fill="#000" opacity="0.7" rx="4"/>
+                    <text x="220" y="105" fill="#4CAF50" font-size="10">Triangles: 2,847</text>
+                    <text x="220" y="120" fill="#4CAF50" font-size="10">Vertices: 1,542</text>
+                    <text x="220" y="135" fill="#4CAF50" font-size="10">UV Channels: 2</text>
+                    
+                    <!-- Left Panel: Details -->
+                    <rect x="0" y="75" width="200" height="425" fill="#252525"/>
+                    <text x="10" y="95" fill="#aaa" font-size="11" font-weight="bold">DETAILS</text>
+                    
+                    <!-- Details sections -->
+                    <g transform="translate(10, 105)">
+                        <text x="0" y="15" fill="#4CAF50" font-size="11" font-weight="bold">▾ LOD Settings</text>
+                        <text x="10" y="32" fill="#aaa" font-size="10">Number of LODs: 3</text>
+                        <text x="10" y="47" fill="#aaa" font-size="10">Auto Compute LOD: Yes</text>
+                        
+                        <text x="0" y="75" fill="#4CAF50" font-size="11" font-weight="bold">▾ Materials</text>
+                        <rect x="10" y="82" width="170" height="20" fill="#3c3c3c" rx="2"/>
+                        <text x="15" y="96" fill="#e0e0e0" font-size="10">0: M_Chair_Wood</text>
+                        
+                        <text x="0" y="120" fill="#4CAF50" font-size="11" font-weight="bold">▾ Collision</text>
+                        <text x="10" y="137" fill="#aaa" font-size="10">Complexity: Simple</text>
+                        <text x="10" y="152" fill="#aaa" font-size="10">Collision Presets: BlockAll</text>
+                        
+                        <text x="0" y="180" fill="#4CAF50" font-size="11" font-weight="bold">▾ Static Mesh Settings</text>
+                        <text x="10" y="197" fill="#aaa" font-size="10">Distance Field: Enabled</text>
+                        <text x="10" y="212" fill="#aaa" font-size="10">Nanite: Disabled</text>
+                        
+                        <text x="0" y="240" fill="#4CAF50" font-size="11" font-weight="bold">▾ Import Settings</text>
+                        <text x="10" y="257" fill="#aaa" font-size="10">Source File: chair_modern.fbx</text>
+                        <text x="10" y="272" fill="#aaa" font-size="10">Import Date: 2025-11-25</text>
+                    </g>
+                    
+                    <!-- Right Panel: Mesh Details -->
+                    <rect x="650" y="75" width="150" height="425" fill="#252525"/>
+                    <text x="660" y="95" fill="#aaa" font-size="11" font-weight="bold">MESH DETAILS</text>
+                    
+                    <g transform="translate(660, 105)">
+                        <text x="0" y="15" fill="#ff9800" font-size="11" font-weight="bold">Geometry</text>
+                        <text x="0" y="32" fill="#aaa" font-size="10">Triangles: 2,847</text>
+                        <text x="0" y="47" fill="#aaa" font-size="10">Vertices: 1,542</text>
+                        <text x="0" y="62" fill="#aaa" font-size="10">UV Channels: 2</text>
+                        
+                        <text x="0" y="90" fill="#ff9800" font-size="11" font-weight="bold">Bounds</text>
+                        <text x="0" y="107" fill="#aaa" font-size="10">X: 45.2 cm</text>
+                        <text x="0" y="122" fill="#aaa" font-size="10">Y: 48.6 cm</text>
+                        <text x="0" y="137" fill="#aaa" font-size="10">Z: 92.1 cm</text>
+                        
+                        <text x="0" y="165" fill="#ff9800" font-size="11" font-weight="bold">Approx Size</text>
+                        <text x="0" y="182" fill="#aaa" font-size="10">Memory: 124 KB</text>
+                        <text x="0" y="197" fill="#aaa" font-size="10">Disk: 96 KB</text>
+                    </g>
+                    
+                    <!-- Annotations -->
+                    <line x1="425" y1="85" x2="425" y2="65" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="425" cy="65" r="3" fill="#4CAF50"/>
+                    <text x="435" y="68" fill="#4CAF50" font-size="11">← Main viewport (rotate with RMB)</text>
+                    
+                    <line x1="100" y1="85" x2="100" y2="60" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="100" cy="60" r="3" fill="#4CAF50"/>
+                    <text x="110" y="63" fill="#4CAF50" font-size="11">← Configure LODs, materials, collision</text>
+                    
+                    <line x1="725" y1="85" x2="725" y2="60" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="725" cy="60" r="3" fill="#4CAF50"/>
+                    <text x="620" y="63" fill="#4CAF50" font-size="11">Geometry stats →</text>
+                </svg>
+                <p class="caption"><em>Figure: The Static Mesh Editor interface showing viewport, details panel, and mesh statistics.</em></p>
+                
+                <h3>Key Features of the Static Mesh Editor</h3>
+                
+                <h4>1. 3D Viewport</h4>
+                
+                <p>The center viewport shows a preview of your mesh:</p>
+                
+                <ul>
+                    <li><strong>Rotate camera:</strong> Right-click and drag</li>
+                    <li><strong>Pan camera:</strong> Middle-click and drag</li>
+                    <li><strong>Zoom:</strong> Scroll mouse wheel</li>
+                    <li><strong>View modes:</strong> Switch between Lit, Unlit, Wireframe</li>
+                    <li><strong>Show collision:</strong> Toggle collision mesh visibility</li>
+                    <li><strong>Stats overlay:</strong> See triangle count, vertex count, UV channels</li>
+                </ul>
+                
+                <h4>2. Details Panel</h4>
+                
+                <p>The left panel contains all mesh properties and settings:</p>
+                
+                <ul>
+                    <li><strong>LOD Settings:</strong> Configure Level of Detail meshes, auto-generation settings</li>
+                    <li><strong>Materials:</strong> Assign materials to material slots</li>
+                    <li><strong>Collision:</strong> Set up collision complexity, presets, custom collision meshes</li>
+                    <li><strong>Nanite (UE5):</strong> Enable/disable Nanite virtualized geometry</li>
+                    <li><strong>Import Settings:</strong> View source file info, re-import with different settings</li>
+                </ul>
+                
+                <h4>3. Mesh Details Panel</h4>
+                
+                <p>The right panel shows read-only information about the mesh:</p>
+                
+                <ul>
+                    <li><strong>Geometry stats:</strong> Triangle count, vertex count, UV channels</li>
+                    <li><strong>Bounds:</strong> Physical dimensions in centimeters</li>
+                    <li><strong>Memory usage:</strong> How much RAM/disk space the mesh uses</li>
+                </ul>
+                
+                <h3>Common Operations in Static Mesh Editor</h3>
+                
+                <h4>Assigning Materials</h4>
+                
+                <ol>
+                    <li>In Details panel, expand <strong>Materials</strong> section</li>
+                    <li>You'll see material slots (0, 1, 2, etc.)</li>
+                    <li>Click the dropdown next to a slot</li>
+                    <li>Select a material from your Content Browser, or drag one onto the slot</li>
+                    <li>The viewport updates immediately to show the new material</li>
+                </ol>
+                
+                <h4>Generating Collision</h4>
+                
+                <p>If your mesh doesn't have collision or you want to regenerate it:</p>
+                
+                <ol>
+                    <li>Go to <strong>Collision</strong> menu in the toolbar</li>
+                    <li>Choose an auto-generation method:
+                        <ul>
+                            <li><strong>Add Box Simplified Collision:</strong> Wraps mesh in a box</li>
+                            <li><strong>Add Sphere Simplified Collision:</strong> Wraps in a sphere</li>
+                            <li><strong>Add Capsule Simplified Collision:</strong> Wraps in a capsule</li>
+                            <li><strong>Auto Convex Collision:</strong> Creates convex hull(s) that closely follow the shape</li>
+                        </ul>
+                    </li>
+                    <li>Toggle "Show Simple Collision" to see the collision mesh (usually green wireframe)</li>
+                </ol>
+                
+                <h4>Enabling Nanite (UE5)</h4>
+                
+                <p>For high-detail Static Meshes in Unreal Engine 5:</p>
+                
+                <ol>
+                    <li>In Details panel, find <strong>Nanite Settings</strong></li>
+                    <li>Check <strong>"Enable Nanite Support"</strong></li>
+                    <li>Save the mesh</li>
+                    <li>Your mesh can now have millions of polygons with minimal performance cost</li>
+                </ol>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Nanite Limitations</h4>
+                    <p>Nanite doesn't work with: Skeletal Meshes, meshes with World Position Offset materials, meshes with translucent/masked materials, or meshes that need to deform. It's best for static environment geometry—rocks, buildings, statues, etc.</p>
+                </div>
+                
+                <h4>Generating LODs</h4>
+                
+                <ol>
+                    <li>In Details panel, expand <strong>LOD Settings</strong></li>
+                    <li>Set <strong>"Number of LODs"</strong> to desired count (typically 3-4)</li>
+                    <li>Click <strong>"Apply Changes"</strong></li>
+                    <li>Unreal auto-generates simplified versions of your mesh</li>
+                    <li>You can customize reduction percentages per LOD for fine control</li>
+                </ol>
+            </section>
+
+            <!-- Section 6: Materials and UV Mapping -->
+            <section id="materials-and-uvs" class="lesson-section">
+                <h2>Materials and UV Mapping</h2>
+                
+                <p>A mesh without materials is just a gray shape. Materials bring meshes to life with color, texture, reflectivity, and detail. But before materials can work properly, you need <strong>UV mapping</strong>.</p>
+                
+                <h3>What is UV Mapping?</h3>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>UV Mapping:</strong> The process of "unwrapping" a 3D mesh into a flat 2D space so that textures (images) can be applied to its surface. Think of it like unwrapping a cardboard box into a flat sheet—each part of the 3D mesh corresponds to a location on the 2D texture.</p>
+                </div>
+                
+                <canvas id="uv-mapping-canvas" width="700" height="350" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: UV mapping unwraps a 3D cube into a 2D layout so textures can be applied correctly.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('uv-mapping-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Understanding UV Mapping', 350, 30);
+                        
+                        // Left: 3D Cube
+                        ctx.save();
+                        ctx.translate(150, 180);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('3D Mesh', 0, -80);
+                        
+                        // Draw cube with different colored faces
+                        const cubeVertices = [
+                            {x: -40, y: 40},   // 0
+                            {x: 40, y: 40},    // 1
+                            {x: 60, y: 10},    // 2
+                            {x: -20, y: 10},   // 3
+                            {x: -40, y: -40},  // 4
+                            {x: 40, y: -40},   // 5
+                            {x: 60, y: -70},   // 6
+                            {x: -20, y: -70}   // 7
+                        ];
+                        
+                        // Front face (red)
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[0].x, cubeVertices[0].y);
+                        ctx.lineTo(cubeVertices[1].x, cubeVertices[1].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.lineTo(cubeVertices[4].x, cubeVertices[4].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.strokeStyle = '#c0392b';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Right face (green)
+                        ctx.fillStyle = '#2ecc71';
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[1].x, cubeVertices[1].y);
+                        ctx.lineTo(cubeVertices[2].x, cubeVertices[2].y);
+                        ctx.lineTo(cubeVertices[6].x, cubeVertices[6].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.strokeStyle = '#27ae60';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Top face (blue)
+                        ctx.fillStyle = '#3498db';
+                        ctx.beginPath();
+                        ctx.moveTo(cubeVertices[4].x, cubeVertices[4].y);
+                        ctx.lineTo(cubeVertices[5].x, cubeVertices[5].y);
+                        ctx.lineTo(cubeVertices[6].x, cubeVertices[6].y);
+                        ctx.lineTo(cubeVertices[7].x, cubeVertices[7].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.strokeStyle = '#2980b9';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Labels
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.fillText('Front', 0, 10);
+                        ctx.fillText('Right', 45, -20);
+                        ctx.fillText('Top', 15, -55);
+                        
+                        ctx.restore();
+                        
+                        // Arrow
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(250, 180);
+                        ctx.lineTo(320, 180);
+                        ctx.stroke();
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.moveTo(320, 180);
+                        ctx.lineTo(310, 175);
+                        ctx.lineTo(310, 185);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = '13px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('UV Unwrap', 285, 165);
+                        
+                        // Right: UV Layout (unwrapped cube)
+                        ctx.save();
+                        ctx.translate(500, 100);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('2D UV Layout', 0, -20);
+                        ctx.font = '11px Arial';
+                        ctx.fillText('(Texture space: 0-1)', 0, -5);
+                        
+                        // Draw UV grid background
+                        ctx.strokeStyle = '#ddd';
+                        ctx.lineWidth = 1;
+                        for (let i = 0; i <= 4; i++) {
+                            // Vertical lines
+                            ctx.beginPath();
+                            ctx.moveTo(i * 50 - 100, 0);
+                            ctx.lineTo(i * 50 - 100, 200);
+                            ctx.stroke();
+                            // Horizontal lines
+                            ctx.beginPath();
+                            ctx.moveTo(-100, i * 50);
+                            ctx.lineTo(100, i * 50);
+                            ctx.stroke();
+                        }
+                        
+                        // UV coordinates border
+                        ctx.strokeStyle = '#667eea';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(-100, 0, 200, 200);
+                        
+                        // Draw unwrapped faces
+                        // Front face (center)
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillRect(-50, 50, 50, 50);
+                        ctx.strokeStyle = '#c0392b';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(-50, 50, 50, 50);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('Front', -25, 80);
+                        
+                        // Right face
+                        ctx.fillStyle = '#2ecc71';
+                        ctx.fillRect(0, 50, 50, 50);
+                        ctx.strokeStyle = '#27ae60';
+                        ctx.strokeRect(0, 50, 50, 50);
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText('Right', 25, 80);
+                        
+                        // Top face
+                        ctx.fillStyle = '#3498db';
+                        ctx.fillRect(-50, 0, 50, 50);
+                        ctx.strokeStyle = '#2980b9';
+                        ctx.strokeRect(-50, 0, 50, 50);
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText('Top', -25, 30);
+                        
+                        // Left face
+                        ctx.fillStyle = '#f39c12';
+                        ctx.fillRect(-100, 50, 50, 50);
+                        ctx.strokeStyle = '#e67e22';
+                        ctx.strokeRect(-100, 50, 50, 50);
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText('Left', -75, 80);
+                        
+                        // Bottom face
+                        ctx.fillStyle = '#9b59b6';
+                        ctx.fillRect(-50, 100, 50, 50);
+                        ctx.strokeStyle = '#8e44ad';
+                        ctx.strokeRect(-50, 100, 50, 50);
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText('Bottom', -25, 130);
+                        
+                        // Back face
+                        ctx.fillStyle = '#34495e';
+                        ctx.fillRect(50, 50, 50, 50);
+                        ctx.strokeStyle = '#2c3e50';
+                        ctx.strokeRect(50, 50, 50, 50);
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText('Back', 75, 80);
+                        
+                        // UV coordinate labels
+                        ctx.fillStyle = '#666';
+                        ctx.font = '10px Arial';
+                        ctx.fillText('U: 0.0', -100, 215);
+                        ctx.fillText('U: 1.0', 100, 215);
+                        ctx.save();
+                        ctx.rotate(-Math.PI / 2);
+                        ctx.fillText('V: 0.0', -5, -105);
+                        ctx.fillText('V: 1.0', -205, -105);
+                        ctx.restore();
+                        
+                        ctx.restore();
+                        
+                        // Bottom explanation
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Each face of the 3D cube is mapped to a specific area in 2D UV space (0-1 range)', 350, 300);
+                        ctx.fillText('Textures are painted onto the UV layout and wrap onto the 3D mesh', 350, 318);
+                        
+                        // Note box
+                        ctx.fillStyle = '#e8f5e9';
+                        ctx.fillRect(150, 330, 400, 15);
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(150, 330, 400, 15);
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.fillText('💡 UV mapping is done in 3D software before import—Unreal uses the UVs', 350, 341);
+                    })();
+                </script>
+                
+                <p>The letters "U" and "V" are used instead of "X" and "Y" to distinguish 2D texture space from 3D world space. UV coordinates range from 0.0 to 1.0:</p>
+                
+                <ul>
+                    <li><strong>U = 0, V = 0:</strong> Bottom-left corner of the texture</li>
+                    <li><strong>U = 1, V = 0:</strong> Bottom-right corner</li>
+                    <li><strong>U = 0, V = 1:</strong> Top-left corner</li>
+                    <li><strong>U = 1, V = 1:</strong> Top-right corner</li>
+                </ul>
+                
+                <h3>Why UV Mapping Matters</h3>
+                
+                <p>Without proper UVs, textures won't display correctly—they'll be stretched, distorted, or missing entirely. Good UV mapping ensures:</p>
+                
+                <ul>
+                    <li>✅ Textures apply evenly without stretching</li>
+                    <li>✅ Details appear where intended (e.g., wood grain aligned with a plank)</li>
+                    <li>✅ Seams are hidden or minimized</li>
+                    <li>✅ Texture resolution is distributed appropriately (important areas get more pixels)</li>
+                </ul>
+                
+                <p>UV mapping is done in your 3D modeling software (Blender, Maya, etc.) before exporting. Unreal uses the UVs you created—it doesn't generate them automatically (except for some procedural meshes).</p>
+                
+                <h3>UV Channels</h3>
+                
+                <p>Meshes can have multiple UV channels (typically 2-3):</p>
+                
+                <ul>
+                    <li><strong>UV Channel 0:</strong> Main texture coordinates—used for diffuse, normal, roughness maps</li>
+                    <li><strong>UV Channel 1:</strong> Lightmap UVs—special non-overlapping layout for baked lighting (Unreal can auto-generate this)</li>
+                    <li><strong>UV Channel 2+:</strong> Optional additional channels for special effects or detail maps</li>
+                </ul>
+                
+                <h3>Materials: What Are They?</h3>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Material:</strong> A set of instructions (a shader) that tells the rendering engine how a surface should look—its color, reflectivity, roughness, transparency, and how it responds to light. Materials use textures (images) as input to create realistic or stylized surfaces.</p>
+                </div>
+                
+                <p>In Unreal, materials are visual programming systems. You connect nodes to define properties like:</p>
+                
+                <ul>
+                    <li><strong>Base Color:</strong> The inherent color/texture of the surface</li>
+                    <li><strong>Metallic:</strong> How metallic (0 = non-metal, 1 = pure metal)</li>
+                    <li><strong>Roughness:</strong> How rough/smooth (0 = mirror, 1 = matte)</li>
+                    <li><strong>Normal:</strong> Surface detail/bumps (from a normal map)</li>
+                    <li><strong>Emissive:</strong> Self-illumination/glow</li>
+                </ul>
+                
+                <p>Materials are a deep topic—Module 4 will cover them extensively. For now, just know:</p>
+                
+                <ol>
+                    <li>Meshes have material slots</li>
+                    <li>You assign materials to those slots in the Static Mesh Editor or Details panel</li>
+                    <li>Materials use the mesh's UV coordinates to apply textures correctly</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Quick Material Assignment</h4>
+                    <p>To quickly assign a material to a mesh in your level:</p>
+                    <ol style="margin-bottom: 0;">
+                        <li>Select the mesh Actor in the viewport</li>
+                        <li>In the Details panel, find <strong>Materials</strong> section</li>
+                        <li>Drag a material from Content Browser onto a material slot</li>
+                        <li>The mesh updates instantly with the new material</li>
+                    </ol>
+                    <p style="margin-top: 0.5rem;">This is instance-specific—changing the material on one instance doesn't affect others.</p>
+                </div>
+            </section>
+
+            <!-- Section 7: Asset Organization Best Practices -->
+            <section id="asset-organization" class="lesson-section">
+                <h2>Asset Organization Best Practices</h2>
+                
+                <p>As your project grows, you'll accumulate hundreds or thousands of assets. Without proper organization, finding anything becomes a nightmare. Let's look at industry-standard practices for keeping your Content Browser tidy.</p>
+                
+                <h3>Folder Structure</h3>
+                
+                <p>A well-organized project follows a consistent folder hierarchy:</p>
+                
+                <pre><code class="language-plaintext">Content/
+├── MyProject/
+│   ├── Blueprints/
+│   │   ├── Characters/
+│   │   ├── Gameplay/
+│   │   └── UI/
+│   ├── Maps/
+│   │   ├── Levels/
+│   │   └── TestMaps/
+│   ├── Meshes/
+│   │   ├── Architecture/
+│   │   │   ├── Walls/
+│   │   │   ├── Floors/
+│   │   │   └── Props/
+│   │   ├── Characters/
+│   │   ├── Vehicles/
+│   │   └── Weapons/
+│   ├── Materials/
+│   │   ├── Master/
+│   │   └── Instances/
+│   ├── Textures/
+│   │   ├── Architecture/
+│   │   ├── Characters/
+│   │   └── UI/
+│   ├── Audio/
+│   │   ├── Music/
+│   │   ├── SFX/
+│   │   └── Dialogue/
+│   └── VFX/
+│       ├── Particles/
+│       └── Niagara/
+</code></pre>
+                
+                <h3>Naming Conventions</h3>
+                
+                <p>Consistent naming makes assets searchable and recognizable at a glance. Here are industry-standard prefixes:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Asset Type</th>
+                            <th>Prefix</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Static Mesh</strong></td>
+                            <td>SM_</td>
+                            <td>SM_Chair_Modern, SM_Wall_Brick_01</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Skeletal Mesh</strong></td>
+                            <td>SK_</td>
+                            <td>SK_Character_Hero, SK_Enemy_Goblin</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Material</strong></td>
+                            <td>M_</td>
+                            <td>M_Wood_Oak, M_Metal_Rusty</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Material Instance</strong></td>
+                            <td>MI_</td>
+                            <td>MI_Wood_Oak_Light, MI_Metal_Copper</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Texture</strong></td>
+                            <td>T_</td>
+                            <td>T_Brick_Diffuse, T_Metal_Normal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Blueprint</strong></td>
+                            <td>BP_</td>
+                            <td>BP_PlayerCharacter, BP_Door_Automatic</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Level/Map</strong></td>
+                            <td>L_ or MAP_</td>
+                            <td>L_MainMenu, MAP_Forest_01</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Particle System</strong></td>
+                            <td>P_</td>
+                            <td>P_Fire_Torch, P_Explosion_Large</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sound</strong></td>
+                            <td>S_</td>
+                            <td>S_Footstep_Stone, S_Music_MainTheme</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>Additional naming tips:</strong></p>
+                
+                <ul>
+                    <li>Use underscores (_) to separate words, not spaces or hyphens</li>
+                    <li>Be descriptive but concise: <code>SM_Chair_Office_Leather</code> is better than <code>SM_Thing_01</code></li>
+                    <li>Number variants consistently: <code>_01</code>, <code>_02</code>, <code>_03</code> (not <code>_1</code>, <code>_2</code>)</li>
+                    <li>Group related assets with shared base names: <code>T_Brick_Diffuse</code>, <code>T_Brick_Normal</code>, <code>T_Brick_Roughness</code></li>
+                </ul>
+                
+                <h3>Asset Metadata and Tags</h3>
+                
+                <p>Unreal allows you to add metadata to assets for better searchability:</p>
+                
+                <ol>
+                    <li>Right-click an asset in Content Browser</li>
+                    <li>Select <strong>Edit Metadata...</strong></li>
+                    <li>Add tags like "medieval", "interactive", "lowpoly"</li>
+                    <li>Search for these tags later using the Filters menu</li>
+                </ol>
+                
+                <h3>Collections</h3>
+                
+                <p><strong>Collections</strong> are custom groups of assets that live outside the folder hierarchy:</p>
+                
+                <ul>
+                    <li>Great for "working sets"—all assets for a specific level or feature</li>
+                    <li>Assets can be in multiple collections simultaneously</li>
+                    <li>Collections don't move files—they're just virtual groupings</li>
+                </ul>
+                
+                <p>To create a collection: Right-click in Content Browser → Collections → Create Collection.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Team Workflow Tip</h4>
+                    <p>If working in a team, establish naming conventions and folder structures <em>before</em> anyone creates assets. Document them in a style guide. Consistency is 10x more important than the specific conventions you choose. A messy but consistent project is manageable; an inconsistent one is a disaster.</p>
+                </div>
+                
+                <h3>Asset Management Don'ts</h3>
+                
+                <p>Avoid these common mistakes:</p>
+                
+                <ul>
+                    <li>❌ Don't dump everything in the root Content folder—use subfolders!</li>
+                    <li>❌ Don't use generic names like "Mesh1", "Material2", "Test"</li>
+                    <li>❌ Don't leave unused assets in your project—delete or archive them</li>
+                    <li>❌ Don't manually move files on disk—always use Content Browser to move assets</li>
+                    <li>❌ Don't mix personal tests with production assets—use separate folders</li>
+                    <li>❌ Don't ignore the Reference Viewer—use it to find dependencies before deleting</li>
+                </ul>
+            </section>
+
+            <!-- Section 8: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Import and Configure Your First Static Mesh</h2>
+                    
+                    <p>Time to put everything you've learned into practice. In this exercise, you'll import a 3D model, configure its properties, and place it in your level.</p>
+                    
+                    <h3>Part 1: Organize Your Content</h3>
+                    
+                    <ol>
+                        <li>Open your Unreal project</li>
+                        <li>In the Content Browser, create a new folder structure:
+                            <ul>
+                                <li><code>Content/MyProject/Meshes/Props/</code></li>
+                                <li><code>Content/MyProject/Materials/</code></li>
+                                <li><code>Content/MyProject/Textures/</code></li>
+                            </ul>
+                        </li>
+                        <li>Use right-click → New Folder to create each directory</li>
+                    </ol>
+                    
+                    <h3>Part 2: Obtain a 3D Model</h3>
+                    
+                    <p>You have several options:</p>
+                    
+                    <ul>
+                        <li><strong>Option A:</strong> Create a simple model in Blender (cube, sphere, or basic furniture) and export as FBX</li>
+                        <li><strong>Option B:</strong> Download a free model from Sketchfab, TurboSquid, or CGTrader (filter for "free" and "FBX")</li>
+                        <li><strong>Option C:</strong> Use Unreal's Starter Content (skip import, use existing meshes)</li>
+                    </ul>
+                    
+                    <details>
+                        <summary>💡 <strong>Blender Quick Export:</strong></summary>
+                        <p>If using Blender:</p>
+                        <ol style="margin-bottom: 0;">
+                            <li>Create/select your mesh</li>
+                            <li>File → Export → FBX</li>
+                            <li>Settings: Scale 1.0, Forward -Y, Up Z, check "Apply Transform"</li>
+                            <li>Export to a memorable location</li>
+                        </ol>
+                    </details>
+                    
+                    <h3>Part 3: Import the Mesh</h3>
+                    
+                    <ol>
+                        <li>Navigate to <code>Content/MyProject/Meshes/Props/</code> in Content Browser</li>
+                        <li>Drag your FBX file from Windows Explorer into the Content Browser</li>
+                        <li>In the FBX Import Options dialog:
+                            <ul>
+                                <li>✅ Import Mesh</li>
+                                <li>✅ Auto Generate Collision</li>
+                                <li>✅ Import Materials</li>
+                                <li>✅ Convert Scene Unit</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>"Import"</strong></li>
+                        <li>Your mesh appears in the Content Browser!</li>
+                    </ol>
+                    
+                    <h3>Part 4: Inspect the Static Mesh</h3>
+                    
+                    <ol>
+                        <li>Double-click your imported mesh to open the Static Mesh Editor</li>
+                        <li>Look at the stats in the Mesh Details panel:
+                            <ul>
+                                <li>How many triangles does it have?</li>
+                                <li>How many UV channels?</li>
+                                <li>What are its dimensions (X, Y, Z)?</li>
+                            </ul>
+                        </li>
+                        <li>In the toolbar, click "Show Simple Collision" to see the collision mesh (green wireframe)</li>
+                        <li>If collision looks wrong, go to Collision → Add Box/Sphere/Capsule Simplified Collision</li>
+                    </ol>
+                    
+                    <h3>Part 5: Generate LODs (Optional)</h3>
+                    
+                    <ol>
+                        <li>In the Details panel, expand <strong>LOD Settings</strong></li>
+                        <li>Set "Number of LODs" to 3</li>
+                        <li>Click "Apply Changes"</li>
+                        <li>Unreal generates simplified versions for distant viewing</li>
+                        <li>Save the mesh (<kbd>Ctrl+S</kbd>)</li>
+                    </ol>
+                    
+                    <h3>Part 6: Place in Level</h3>
+                    
+                    <ol>
+                        <li>Drag your mesh from Content Browser into the viewport</li>
+                        <li>Use the Move (<kbd>W</kbd>), Rotate (<kbd>E</kbd>), and Scale (<kbd>R</kbd>) gizmos to position it</li>
+                        <li>Duplicate it a few times (<kbd>Ctrl+W</kbd> or <kbd>Alt+Drag</kbd>)</li>
+                        <li>Arrange them in a pleasing layout</li>
+                    </ol>
+                    
+                    <h3>Part 7: Assign a Material (Optional)</h3>
+                    
+                    <ol>
+                        <li>Select one of your placed meshes</li>
+                        <li>In the Details panel, find the <strong>Materials</strong> section</li>
+                        <li>Click the dropdown next to Material Slot 0</li>
+                        <li>Choose a material from Starter Content (if enabled) or Content Browser</li>
+                        <li>The mesh updates with the new material</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Checkpoint:</strong> What should you have now?</summary>
+                        <p>Your project should contain:
+                            <ul>
+                                <li>An organized folder structure in Content Browser</li>
+                                <li>An imported Static Mesh with proper collision</li>
+                                <li>The mesh placed in your level (multiple instances)</li>
+                                <li>Understanding of mesh properties (tri count, UVs, LODs)</li>
+                            </ul>
+                            You've successfully completed the full Static Mesh workflow from import to placement!
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Create a Simple Scene</h3>
+                    
+                    <p>Using multiple Static Meshes (imported or from Starter Content):</p>
+                    
+                    <ul>
+                        <li>Build a small environment (room corner, outdoor area, etc.)</li>
+                        <li>Use at least 3 different mesh types</li>
+                        <li>Organize assets in appropriate folders</li>
+                        <li>Name everything with proper prefixes (SM_)</li>
+                        <li>Test play the level (<kbd>Alt+P</kbd>) and walk through it</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 9: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Static Meshes are the foundation of 3D game environments. Understanding how to import, configure, and manage them is essential for any Unreal Engine developer. Let's recap the key concepts:</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>📦 <strong>Static Meshes</strong> are 3D models with fixed geometry—they don't deform, but can move, rotate, and scale</li>
+                    <li>🗂️ <strong>Content Browser</strong> is your asset management hub—learn to navigate it efficiently with folders, search, and filters</li>
+                    <li>📥 <strong>Importing</strong> uses FBX format—always check import settings for collision, materials, and scale conversion</li>
+                    <li>🔺 <strong>Mesh anatomy:</strong> Vertices (points), edges (lines), polygons (faces)—polygon count affects performance</li>
+                    <li>⚡ <strong>Nanite (UE5)</strong> allows millions of polygons with minimal performance cost—revolutionizes detail levels</li>
+                    <li>🛠️ <strong>Static Mesh Editor</strong> is where you configure LODs, materials, collision, and mesh properties</li>
+                    <li>🗺️ <strong>UV mapping</strong> unwraps 3D meshes into 2D space so textures can be applied correctly</li>
+                    <li>🎨 <strong>Materials</strong> define surface appearance—assigned to material slots on meshes</li>
+                    <li>📁 <strong>Organization matters:</strong> Use consistent folder structures, naming conventions, and prefixes</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>Now that you understand Static Meshes, the next lesson will introduce <strong>Lesson 2.5: Materials and Lighting Basics</strong>. You'll learn how to create materials from scratch, work with textures, and set up basic lighting to bring your scenes to life.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What's the difference between a Static Mesh and a Skeletal Mesh?</li>
+                        <li>What file format is most commonly used for importing 3D models into Unreal?</li>
+                        <li>What are the three fundamental components of 3D geometry?</li>
+                        <li>Why is UV mapping important for texturing?</li>
+                        <li>What is Nanite and what are its limitations?</li>
+                        <li>What are LODs and why do they improve performance?</li>
+                        <li>What prefix should you use when naming a Static Mesh asset?</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Static Meshes have fixed geometry (don't deform) while Skeletal Meshes have bones/skeleton for animation and deformation.</li>
+                            <li>FBX (.fbx) format—supports geometry, materials, UVs, animations, and bones.</li>
+                            <li>Vertices (points in 3D space), Edges (connections between vertices), and Polygons/Faces (surfaces defined by vertices and edges).</li>
+                            <li>UV mapping unwraps the 3D mesh into 2D space so textures (images) can be correctly applied to the surface without stretching or distortion.</li>
+                            <li>Nanite is UE5's virtualized geometry system allowing millions of polygons with minimal performance cost. Limitations: only works with Static Meshes, not with translucent materials, World Position Offset, or deforming geometry.</li>
+                            <li>LODs (Level of Detail) are simplified versions of a mesh used at different distances. They improve performance by reducing polygon count for distant objects that don't need full detail.</li>
+                            <li>SM_ (e.g., SM_Chair_Modern, SM_Rock_Large)</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m02_l03_bsp_geometry.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">BSP Geometry</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="m02_l05_materials_and_lighting.html" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Lesson</span>
+                    <span class="title">Materials and Lighting Basics</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

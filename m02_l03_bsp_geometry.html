@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn how to use BSP (Binary Space Partitioning) geometry and brush modeling to create architectural spaces and level geometry in Unreal Engine.">
+    <meta name="author" content="Practical Ace">
+    <title>BSP Geometry (Brush Modeling) - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 2: Working with Levels and Actors</a></li>
+            <li aria-current="page">Lesson 2.3: BSP Geometry (Brush Modeling)</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🏗️ BSP Geometry (Brush Modeling)</h1>
+                <p class="lead">Before diving into 3D modeling software, Unreal Engine provides a built-in way to create architectural spaces and level geometry directly in the editor. BSP (Binary Space Partitioning) geometry lets you rapidly prototype rooms, corridors, and basic structures using simple shapes called "brushes."</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what BSP geometry is and when to use it in your projects</li>
+                        <li>Differentiate between additive and subtractive brushes</li>
+                        <li>Create rooms, corridors, and basic architectural structures using BSP</li>
+                        <li>Understand BSP limitations and performance considerations</li>
+                        <li>Convert BSP geometry to Static Meshes for final production use</li>
+                        <li>Apply best practices for using BSP in modern Unreal projects</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 2.2 - Actors and Components</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-is-bsp" class="toc-link">What is BSP?</a></li>
+                        <li><a href="#additive-subtractive" class="toc-link">Additive vs. Subtractive Brushes</a></li>
+                        <li><a href="#creating-architecture" class="toc-link">Creating Basic Architecture</a></li>
+                        <li><a href="#bsp-operations" class="toc-link">BSP Operations and Tools</a></li>
+                        <li><a href="#limitations" class="toc-link">BSP Limitations and Performance</a></li>
+                        <li><a href="#converting-to-static-mesh" class="toc-link">Converting BSP to Static Mesh</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What is BSP? -->
+            <section id="what-is-bsp" class="lesson-section">
+                <h2>What is BSP Geometry?</h2>
+                
+                <p>Imagine you're a level designer in the early days of game development. You have an idea for a complex multi-room dungeon, but you don't have time to model every wall, floor, and ceiling in a 3D modeling program like Blender or Maya. You need to prototype quickly, test your layout, and iterate on the design. This is where <strong>BSP geometry</strong> comes in.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>BSP (Binary Space Partitioning):</strong> A technique for constructing 3D geometry directly within the Unreal Editor using simple geometric shapes called "brushes." BSP allows you to add or subtract volumes of space to carve out rooms, corridors, and architectural features without needing external 3D modeling software.</p>
+                </div>
+                
+                <p>BSP has been part of Unreal Engine since the very beginning—it was the primary way to build levels in Unreal Engine 1 and 2. While modern workflows have largely replaced BSP with Static Meshes and modular level design, BSP remains a powerful tool for rapid prototyping and blocking out level layouts.</p>
+                
+                <h3>The Core Concept: Building with Volumes</h3>
+                
+                <p>Think of BSP like working with clay or foam blocks. You start with empty space (or a solid mass), and you either:</p>
+                
+                <ul>
+                    <li><strong>Add material</strong> to create solid shapes (walls, floors, pillars)</li>
+                    <li><strong>Remove material</strong> to carve out hollow spaces (rooms, doorways, alcoves)</li>
+                </ul>
+                
+                <p>This additive and subtractive approach is fundamentally different from traditional 3D modeling, where you work with surfaces and polygons. With BSP, you're sculpting space itself.</p>
+                
+                <canvas id="bsp-concept-canvas" width="700" height="350" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: BSP concept - Additive brushes create solid geometry (left), subtractive brushes carve out hollow spaces (right).</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('bsp-concept-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('BSP Geometry: Additive vs. Subtractive', 350, 30);
+                        
+                        // Left side - Additive
+                        ctx.save();
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillText('Additive Brush', 175, 70);
+                        ctx.font = '13px Arial';
+                        ctx.fillText('Adds solid geometry', 175, 90);
+                        
+                        // Draw empty space
+                        ctx.strokeStyle = '#ddd';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.strokeRect(50, 110, 250, 200);
+                        ctx.setLineDash([]);
+                        ctx.font = '12px Arial';
+                        ctx.fillStyle = '#999';
+                        ctx.fillText('Empty World Space', 175, 140);
+                        
+                        // Arrow pointing down
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.moveTo(175, 165);
+                        ctx.lineTo(165, 185);
+                        ctx.lineTo(175, 180);
+                        ctx.lineTo(185, 185);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Additive brush result
+                        ctx.fillStyle = '#667eea';
+                        ctx.fillRect(100, 200, 150, 80);
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(100, 200, 150, 80);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Solid Wall', 175, 245);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('+ Adds Geometry', 175, 300);
+                        
+                        ctx.restore();
+                        
+                        // Right side - Subtractive
+                        ctx.save();
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Subtractive Brush', 525, 70);
+                        ctx.font = '13px Arial';
+                        ctx.fillText('Removes/carves out space', 525, 90);
+                        
+                        // Draw solid block
+                        ctx.fillStyle = '#95a5a6';
+                        ctx.fillRect(400, 110, 250, 200);
+                        ctx.font = '12px Arial';
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText('Solid Mass', 525, 140);
+                        
+                        // Arrow pointing down
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.beginPath();
+                        ctx.moveTo(525, 165);
+                        ctx.lineTo(515, 185);
+                        ctx.lineTo(525, 180);
+                        ctx.lineTo(535, 185);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Show carved out space
+                        ctx.fillStyle = '#95a5a6';
+                        ctx.fillRect(400, 200, 250, 80);
+                        
+                        // Hollow room carved out
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(450, 210, 150, 60);
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 3;
+                        ctx.setLineDash([5, 5]);
+                        ctx.strokeRect(450, 210, 150, 60);
+                        ctx.setLineDash([]);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('Hollow Room', 525, 245);
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('- Removes Geometry', 525, 300);
+                        
+                        ctx.restore();
+                        
+                        // Bottom legend
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('BSP lets you construct levels by combining additive and subtractive volumes', 350, 335);
+                    })();
+                </script>
+                
+                <h3>Why BSP Still Matters</h3>
+                
+                <p>You might wonder: if BSP is an "old" technique, why learn it? Here are the compelling reasons:</p>
+                
+                <ol>
+                    <li><strong>Rapid Prototyping:</strong> BSP is incredibly fast for blocking out level layouts. You can test the flow and pacing of your level before committing to detailed art assets.</li>
+                    <li><strong>No External Tools Required:</strong> Everything happens inside Unreal. No need to switch to Blender, export files, re-import, and iterate—just build and test immediately.</li>
+                    <li><strong>Perfect for Greyboxing:</strong> "Greyboxing" (or "blockout") is the industry-standard practice of building levels with simple geometry to test gameplay before creating final art. BSP is ideal for this.</li>
+                    <li><strong>Learning Tool:</strong> Understanding BSP helps you grasp spatial reasoning and level construction principles that apply to all 3D development.</li>
+                    <li><strong>Quick Edits:</strong> Need to adjust a room size or add a wall? BSP changes happen in seconds, while reimporting a Static Mesh takes longer.</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Real-World Workflow</h4>
+                    <p>Professional game studios often use this workflow: Start with BSP to prototype the level layout and test gameplay. Once the design is solid, convert the BSP to Static Meshes or replace it with modular art assets. This way, designers can iterate quickly without waiting for artists, and artists can create assets that perfectly fit the proven level design.</p>
+                </div>
+                
+                <h3>BSP in Modern Unreal Engine</h3>
+                
+                <p>It's important to set proper expectations: <strong>BSP is primarily a prototyping tool in modern Unreal workflows</strong>. For final shipped games, you'll typically use Static Meshes created in external 3D software or Unreal's built-in modeling tools. BSP has some limitations:</p>
+                
+                <ul>
+                    <li>Less efficient rendering compared to optimized Static Meshes</li>
+                    <li>Can create visual artifacts (cracks, Z-fighting) if not carefully managed</li>
+                    <li>Limited support for advanced features like Nanite (UE5's virtualized geometry)</li>
+                    <li>Harder to create complex organic shapes</li>
+                </ul>
+                
+                <p>That said, BSP remains an invaluable tool for the early stages of level design and for creating simple architectural spaces quickly.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ When to Use BSP</h4>
+                    <p><strong>Good for:</strong> Prototyping level layouts, blocking out gameplay spaces, creating simple rooms for testing, greyboxing levels, teaching yourself level design</p>
+                    <p><strong>Not ideal for:</strong> Final production geometry, complex organic shapes, areas that need to scale to massive sizes, performance-critical sections</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Additive vs. Subtractive Brushes -->
+            <section id="additive-subtractive" class="lesson-section">
+                <h2>Additive vs. Subtractive Brushes</h2>
+                
+                <p>The foundation of BSP geometry is understanding the two types of brushes: <strong>Additive</strong> and <strong>Subtractive</strong>. Every piece of BSP geometry you create falls into one of these categories.</p>
+                
+                <h3>Additive Brushes</h3>
+                
+                <p>An <strong>Additive Brush</strong> creates solid geometry—it adds matter to the world. When you place an additive brush, you're saying "this space is now filled with solid material."</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Additive Brush:</strong> A volume that creates solid, visible geometry in your level. Additive brushes are the building blocks—walls, floors, ceilings, pillars, and any solid structure.</p>
+                </div>
+                
+                <p>Think of additive brushes as the LEGO bricks you stack to build structures. Common uses include:</p>
+                
+                <ul>
+                    <li><strong>Walls:</strong> Vertical planes that block movement and sight</li>
+                    <li><strong>Floors:</strong> Horizontal surfaces players walk on</li>
+                    <li><strong>Ceilings:</strong> Overhead surfaces that define room boundaries</li>
+                    <li><strong>Pillars and columns:</strong> Vertical supports and decorative elements</li>
+                    <li><strong>Platforms:</strong> Raised areas players can climb onto</li>
+                </ul>
+                
+                <p>When you first place a BSP brush in Unreal, it defaults to <strong>Additive</strong>. In the editor, additive brushes typically appear with a subtle blue tint (when in Wireframe or BSP mode) to distinguish them from the world.</p>
+                
+                <h3>Subtractive Brushes</h3>
+                
+                <p>A <strong>Subtractive Brush</strong> does the opposite—it carves out space, removing geometry to create hollow areas. When you place a subtractive brush, you're saying "this space should be empty air."</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Subtractive Brush:</strong> A volume that removes geometry, creating hollow spaces. Subtractive brushes carve out rooms, doorways, windows, and any area where you need empty space within solid geometry.</p>
+                </div>
+                
+                <p>Think of subtractive brushes like a sculptor's chisel—they remove material to reveal the form underneath. Common uses include:</p>
+                
+                <ul>
+                    <li><strong>Rooms:</strong> Carving interior spaces from solid blocks</li>
+                    <li><strong>Doorways:</strong> Cutting openings in walls for passage</li>
+                    <li><strong>Windows:</strong> Creating openings for visibility and light</li>
+                    <li><strong>Alcoves and niches:</strong> Indentations in walls for decoration or pickups</li>
+                    <li><strong>Tunnels and passages:</strong> Carving paths through terrain</li>
+                </ul>
+                
+                <p>Subtractive brushes appear with a reddish/pink tint in the editor, making them easy to distinguish from additive brushes.</p>
+
+                
+                <h3>How They Work Together</h3>
+                
+                <p>The real power of BSP comes from combining additive and subtractive brushes. Here's a typical workflow:</p>
+                
+                <ol>
+                    <li>Start with a large <strong>additive brush</strong> to create a solid block of geometry</li>
+                    <li>Use <strong>subtractive brushes</strong> to carve out rooms and corridors within that block</li>
+                    <li>Add more <strong>additive brushes</strong> for internal walls, pillars, or details</li>
+                    <li>Use additional <strong>subtractive brushes</strong> for doorways, windows, or decorative cutouts</li>
+                </ol>
+                
+                <svg width="100%" height="450" viewBox="0 0 800 450" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Building a Simple Room with BSP</text>
+                    
+                    <!-- Step 1: Start with additive block -->
+                    <g transform="translate(100, 70)">
+                        <text x="100" y="-20" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Step 1: Additive Block</text>
+                        
+                        <!-- 3D box (isometric view) -->
+                        <!-- Front face -->
+                        <path d="M 30,80 L 170,80 L 170,160 L 30,160 Z" fill="#667eea" opacity="0.7" stroke="#4CAF50" stroke-width="3"/>
+                        <!-- Top face -->
+                        <path d="M 30,80 L 80,50 L 220,50 L 170,80 Z" fill="#667eea" opacity="0.9" stroke="#4CAF50" stroke-width="3"/>
+                        <!-- Right face -->
+                        <path d="M 170,80 L 220,50 L 220,130 L 170,160 Z" fill="#667eea" opacity="0.8" stroke="#4CAF50" stroke-width="3"/>
+                        
+                        <text x="100" y="190" text-anchor="middle" font-size="12" fill="#4CAF50" font-weight="bold">Additive Brush</text>
+                        <text x="100" y="205" text-anchor="middle" font-size="11" fill="#666">(Solid block)</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <g transform="translate(280, 140)">
+                        <line x1="0" y1="0" x2="40" y2="0" stroke="#333" stroke-width="2"/>
+                        <polygon points="40,0 30,-5 30,5" fill="#333"/>
+                    </g>
+                    
+                    <!-- Step 2: Subtract interior -->
+                    <g transform="translate(350, 70)">
+                        <text x="100" y="-20" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Step 2: Carve Interior</text>
+                        
+                        <!-- Outer block (thinner walls) -->
+                        <path d="M 30,80 L 170,80 L 170,160 L 30,160 Z" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="2"/>
+                        <path d="M 30,80 L 80,50 L 220,50 L 170,80 Z" fill="#667eea" opacity="0.5" stroke="#667eea" stroke-width="2"/>
+                        <path d="M 170,80 L 220,50 L 220,130 L 170,160 Z" fill="#667eea" opacity="0.4" stroke="#667eea" stroke-width="2"/>
+                        
+                        <!-- Hollow interior (subtractive) -->
+                        <path d="M 50,90 L 150,90 L 150,150 L 50,150 Z" fill="#f9f9f9" stroke="#e74c3c" stroke-width="3" stroke-dasharray="5,5"/>
+                        <path d="M 50,90 L 90,70 L 190,70 L 150,90 Z" fill="#f9f9f9" stroke="#e74c3c" stroke-width="3" stroke-dasharray="5,5"/>
+                        <path d="M 150,90 L 190,70 L 190,130 L 150,150 Z" fill="#f9f9f9" stroke="#e74c3c" stroke-width="3" stroke-dasharray="5,5"/>
+                        
+                        <text x="100" y="190" text-anchor="middle" font-size="12" fill="#e74c3c" font-weight="bold">Subtractive Brush</text>
+                        <text x="100" y="205" text-anchor="middle" font-size="11" fill="#666">(Hollow room)</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <g transform="translate(530, 140)">
+                        <line x1="0" y1="0" x2="40" y2="0" stroke="#333" stroke-width="2"/>
+                        <polygon points="40,0 30,-5 30,5" fill="#333"/>
+                    </g>
+                    
+                    <!-- Step 3: Add doorway -->
+                    <g transform="translate(600, 70)">
+                        <text x="100" y="-20" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Step 3: Add Doorway</text>
+                        
+                        <!-- Room with walls -->
+                        <path d="M 30,80 L 170,80 L 170,160 L 30,160 Z" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="2"/>
+                        <path d="M 30,80 L 80,50 L 220,50 L 170,80 Z" fill="#667eea" opacity="0.5" stroke="#667eea" stroke-width="2"/>
+                        <path d="M 170,80 L 220,50 L 220,130 L 170,160 Z" fill="#667eea" opacity="0.4" stroke="#667eea" stroke-width="2"/>
+                        
+                        <!-- Interior -->
+                        <path d="M 50,90 L 150,90 L 150,150 L 50,150 Z" fill="#f9f9f9" stroke="#ddd" stroke-width="1"/>
+                        <path d="M 50,90 L 90,70 L 190,70 L 150,90 Z" fill="#f9f9f9" stroke="#ddd" stroke-width="1"/>
+                        <path d="M 150,90 L 190,70 L 190,130 L 150,150 Z" fill="#f9f9f9" stroke="#ddd" stroke-width="1"/>
+                        
+                        <!-- Doorway (subtractive) -->
+                        <rect x="85" y="140" width="30" height="20" fill="#f9f9f9" stroke="#e74c3c" stroke-width="3" stroke-dasharray="5,5"/>
+                        
+                        <text x="100" y="190" text-anchor="middle" font-size="12" fill="#e74c3c" font-weight="bold">+ Doorway</text>
+                        <text x="100" y="205" text-anchor="middle" font-size="11" fill="#666">(Another subtractive)</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(400, 270)">
+                        <rect x="-250" y="0" width="500" height="150" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2" rx="8"/>
+                        
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Brush Order Matters!</text>
+                        
+                        <g transform="translate(-200, 45)">
+                            <rect x="0" y="0" width="20" height="20" fill="#667eea" opacity="0.7" stroke="#4CAF50" stroke-width="2"/>
+                            <text x="30" y="15" font-size="12" fill="#333">Additive Brush (solid line) = Creates geometry</text>
+                        </g>
+                        
+                        <g transform="translate(-200, 75)">
+                            <rect x="0" y="0" width="20" height="20" fill="#f9f9f9" stroke="#e74c3c" stroke-width="2" stroke-dasharray="3,3"/>
+                            <text x="30" y="15" font-size="12" fill="#333">Subtractive Brush (dashed line) = Removes geometry</text>
+                        </g>
+                        
+                        <text x="0" y="120" text-anchor="middle" font-size="11" fill="#666">💡 Subtractive brushes only remove geometry from additive brushes</text>
+                        <text x="0" y="138" text-anchor="middle" font-size="11" fill="#666">They cannot create "floating" empty space in the void</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: The typical BSP workflow - start with additive blocks, carve out interiors with subtractive brushes, then add details.</em></p>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Important Rule</h4>
+                    <p>Subtractive brushes can only remove geometry that already exists. They work by "cutting away" from additive brushes. You cannot place a subtractive brush in empty space and expect it to create a void—there needs to be something there to subtract from first.</p>
+                </div>
+                
+                <h3>Brush Order and Priority</h3>
+                
+                <p>When multiple brushes overlap, Unreal processes them in a specific order. Understanding this order helps you predict how your geometry will look:</p>
+                
+                <ol>
+                    <li><strong>Base assumption:</strong> The world starts as empty space (void)</li>
+                    <li><strong>Additive brushes</strong> are processed first, creating solid geometry</li>
+                    <li><strong>Subtractive brushes</strong> are processed second, carving away from the additive geometry</li>
+                    <li>If brushes of the same type overlap, the order they were created matters (later ones take priority)</li>
+                </ol>
+                
+                <p>Think of it like working with layers in Photoshop or painting on a canvas—earlier layers can be covered or modified by later ones.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>If your BSP geometry looks wrong (unexpected holes or solid areas), check the brush types and creation order. You can select a brush and view its properties in the Details panel—there's a "Brush Type" dropdown where you can switch between Additive and Subtractive if needed. You can also use the <strong>Order</strong> buttons to change the processing priority.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Creating Basic Architecture -->
+            <section id="creating-architecture" class="lesson-section">
+                <h2>Creating Basic Architecture with BSP</h2>
+                
+                <p>Now that you understand the theory, let's look at the practical steps for creating BSP geometry in Unreal Engine. We'll build up from simple shapes to a complete room.</p>
+                
+                <h3>Accessing BSP Brushes</h3>
+                
+                <p>BSP brushes are found in the <strong>Place Actors</strong> panel under the <strong>Geometry</strong> category:</p>
+                
+                <ol>
+                    <li>Open the Place Actors panel (left side, or press <kbd>Shift+1</kbd>)</li>
+                    <li>Click on the <strong>Geometry</strong> category</li>
+                    <li>You'll see several brush shapes: Box, Cone, Cylinder, Sphere, and more</li>
+                    <li>Drag any brush into your viewport to place it</li>
+                </ol>
+                
+                <svg width="100%" height="500" viewBox="0 0 380 500" style="max-width: 380px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <!-- Place Actors Panel -->
+                    <rect x="0" y="0" width="380" height="500" fill="#2d2d2d"/>
+                    
+                    <!-- Title Bar -->
+                    <rect x="0" y="0" width="380" height="35" fill="#1e1e1e"/>
+                    <text x="15" y="23" fill="#ffffff" font-size="15" font-weight="bold">Place Actors</text>
+                    
+                    <!-- Search Bar -->
+                    <rect x="15" y="45" width="350" height="28" fill="#3c3c3c" rx="3"/>
+                    <text x="20" y="64" fill="#888" font-size="12">Search Classes</text>
+                    
+                    <!-- Categories -->
+                    <g transform="translate(0, 85)">
+                        <!-- Recently Placed (collapsed) -->
+                        <rect x="15" y="0" width="350" height="30" fill="#383838"/>
+                        <text x="25" y="20" fill="#aaa" font-size="13">▸ Recently Placed</text>
+                    </g>
+                    
+                    <g transform="translate(0, 120)">
+                        <!-- Basic (collapsed) -->
+                        <rect x="15" y="0" width="350" height="30" fill="#383838"/>
+                        <text x="25" y="20" fill="#aaa" font-size="13">▸ Basic</text>
+                    </g>
+                    
+                    <g transform="translate(0, 155)">
+                        <!-- Geometry (expanded) -->
+                        <rect x="15" y="0" width="350" height="30" fill="#4a4a4a"/>
+                        <text x="25" y="20" fill="#fff" font-size="13" font-weight="bold">▾ Geometry</text>
+                    </g>
+                    
+                    <!-- Geometry Items -->
+                    <!-- Box -->
+                    <g transform="translate(35, 200)">
+                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
+                        <rect x="10" y="10" width="30" height="30" fill="#667eea"/>
+                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Box</text>
+                        <text x="50" y="38" fill="#888" font-size="10">Rectangular brush</text>
+                    </g>
+                    
+                    <!-- Cylinder -->
+                    <g transform="translate(35, 260)">
+                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
+                        <circle cx="25" cy="25" r="15" fill="#667eea"/>
+                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Cylinder</text>
+                        <text x="50" y="38" fill="#888" font-size="10">Cylindrical brush</text>
+                    </g>
+                    
+                    <!-- Cone -->
+                    <g transform="translate(35, 320)">
+                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
+                        <polygon points="25,10 10,40 40,40" fill="#667eea"/>
+                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Cone</text>
+                        <text x="50" y="38" fill="#888" font-size="10">Conical brush</text>
+                    </g>
+                    
+                    <!-- Sphere -->
+                    <g transform="translate(35, 380)">
+                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
+                        <circle cx="25" cy="25" r="15" fill="#667eea"/>
+                        <ellipse cx="25" cy="25" rx="15" ry="8" fill="#4a5a9a"/>
+                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Sphere</text>
+                        <text x="50" y="38" fill="#888" font-size="10">Spherical brush</text>
+                    </g>
+                    
+                    <!-- Linear Stair -->
+                    <g transform="translate(35, 440)">
+                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
+                        <!-- Simple stair icon -->
+                        <rect x="10" y="30" width="8" height="10" fill="#667eea"/>
+                        <rect x="18" y="23" width="8" height="17" fill="#667eea"/>
+                        <rect x="26" y="16" width="8" height="24" fill="#667eea"/>
+                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Linear Stair</text>
+                        <text x="50" y="38" fill="#888" font-size="10">Staircase brush</text>
+                    </g>
+                    
+                    <!-- Note at bottom -->
+                    <rect x="15" y="500" width="350" height="0" fill="transparent"/>
+                </svg>
+                <p class="caption"><em>Figure: The Place Actors panel showing the Geometry category with common BSP brush types.</em></p>
+                
+                <h3>Building Your First Room</h3>
+                
+                <p>Let's walk through creating a simple room step by step. This is the foundational technique you'll use for all BSP work.</p>
+                
+                <h4>Step 1: Create the Outer Walls</h4>
+                
+                <ol>
+                    <li>From Place Actors → Geometry, drag a <strong>Box</strong> brush into your level</li>
+                    <li>This creates an additive box (you'll see it as a blue/purple solid cube)</li>
+                    <li>Select the box and look at the Details panel</li>
+                    <li>Find the <strong>Brush Settings</strong> section</li>
+                    <li>Set the dimensions:
+                        <ul>
+                            <li>X (length): 400 cm (4 meters)</li>
+                            <li>Y (width): 600 cm (6 meters)</li>
+                            <li>Z (height): 300 cm (3 meters)</li>
+                        </ul>
+                    </li>
+                    <li>This creates a solid block that will become your room's outer shell</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Understanding Units</h4>
+                    <p>Remember: Unreal uses centimeters. A typical room height is 250-300cm (8-10 feet). A door is usually 200cm tall and 90cm wide. An adult character is roughly 180cm tall. Keep these proportions in mind when building levels—it helps create spaces that feel natural and appropriately scaled.</p>
+                </div>
+                
+                <h4>Step 2: Carve Out the Interior</h4>
+                
+                <ol>
+                    <li>Place another <strong>Box</strong> brush inside the first one</li>
+                    <li>Position it in the center (you can use the move gizmo)</li>
+                    <li>With this new box selected, look at the Details panel</li>
+                    <li>Find <strong>Brush Type</strong> and change it from "Additive" to <strong>"Subtractive"</strong></li>
+                    <li>The box should change color (usually to pink/red)</li>
+                    <li>Set its dimensions slightly smaller than the outer box:
+                        <ul>
+                            <li>X: 340 cm (leaves 30cm thick walls on front/back)</li>
+                            <li>Y: 540 cm (leaves 30cm thick walls on sides)</li>
+                            <li>Z: 240 cm (leaves 30cm floor, 30cm ceiling)</li>
+                        </ul>
+                    </li>
+                    <li>Position it so there's equal spacing all around (30cm walls, floor, ceiling)</li>
+                </ol>
+                
+                <p>Congratulations! You've created your first BSP room—a hollow box with walls, floor, and ceiling.</p>
+                
+                <h4>Step 3: Add a Doorway</h4>
+                
+                <ol>
+                    <li>Place another <strong>Box</strong> brush</li>
+                    <li>Set it to <strong>Subtractive</strong></li>
+                    <li>Size it like a doorway:
+                        <ul>
+                            <li>X: 100 cm (depth—extends through the wall)</li>
+                            <li>Y: 90 cm (standard door width)</li>
+                            <li>Z: 200 cm (standard door height)</li>
+                        </ul>
+                    </li>
+                    <li>Position it at one of the walls, at floor level</li>
+                    <li>It should cut through the wall, creating an opening</li>
+                </ol>
+                
+                <p>You now have a complete room with an entrance!</p>
+                
+                <h3>Common BSP Shapes and Their Uses</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Brush Shape</th>
+                            <th>Best Uses</th>
+                            <th>Tips</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Box</strong></td>
+                            <td>Rooms, walls, floors, ceilings, rectangular structures</td>
+                            <td>Most versatile—90% of BSP work uses boxes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cylinder</strong></td>
+                            <td>Pillars, towers, round rooms, tunnels</td>
+                            <td>Adjust "Sides" parameter for smoothness (more sides = rounder)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cone</strong></td>
+                            <td>Roofs, spires, pyramids</td>
+                            <td>Can be used upside-down for funnel shapes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sphere</strong></td>
+                            <td>Domes, spherical rooms, decorative elements</td>
+                            <td>Combine with subtractive to create hollow domes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Curved Stair</strong></td>
+                            <td>Staircases (straight or curved)</td>
+                            <td>Specialized—saves time vs building steps manually</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Spiral Stair</strong></td>
+                            <td>Circular staircases, helical passages</td>
+                            <td>Great for towers and vertical spaces</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>You can adjust BSP brush properties even after placing them. Select any brush and look at the Details panel—there's a "Brush Settings" section where you can change dimensions, number of sides (for cylinders/cones), hollow status, and more. This makes iteration fast: place, test, adjust, repeat.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: BSP Operations and Tools -->
+            <section id="bsp-operations" class="lesson-section">
+                <h2>BSP Operations and Tools</h2>
+                
+                <p>Beyond simply placing additive and subtractive brushes, Unreal provides several tools for manipulating and refining your BSP geometry. These operations give you greater control over the final result.</p>
+                
+                <h3>CSG Operations</h3>
+                
+                <p><strong>CSG (Constructive Solid Geometry)</strong> is the technical term for the Boolean operations that BSP uses. While Unreal handles most CSG automatically, understanding the underlying operations helps you troubleshoot issues and create complex shapes.</p>
+                
+                <svg width="100%" height="400" viewBox="0 0 750 400" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="375" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">CSG Operations in BSP</text>
+                    
+                    <!-- Union (Additive) -->
+                    <g transform="translate(125, 80)">
+                        <text x="0" y="-20" text-anchor="middle" font-size="15" font-weight="bold" fill="#333">Union (Add)</text>
+                        
+                        <!-- Two overlapping boxes -->
+                        <rect x="-40" y="20" width="60" height="60" fill="#667eea" opacity="0.5" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="-10" y="40" width="60" height="60" fill="#667eea" opacity="0.5" stroke="#4CAF50" stroke-width="2"/>
+                        
+                        <!-- Result -->
+                        <text x="0" y="130" text-anchor="middle" font-size="13" fill="#333">↓</text>
+                        <path d="M -40,150 L -40,190 L -10,190 L -10,220 L 50,220 L 50,160 L 20,160 L 20,150 Z" fill="#667eea" opacity="0.7" stroke="#4CAF50" stroke-width="3"/>
+                        
+                        <text x="0" y="250" text-anchor="middle" font-size="12" fill="#666">Combined into one</text>
+                        <text x="0" y="265" text-anchor="middle" font-size="12" fill="#666">solid shape</text>
+                    </g>
+                    
+                    <!-- Subtraction -->
+                    <g transform="translate(375, 80)">
+                        <text x="0" y="-20" text-anchor="middle" font-size="15" font-weight="bold" fill="#333">Subtraction (Carve)</text>
+                        
+                        <!-- Solid box -->
+                        <rect x="-50" y="20" width="80" height="80" fill="#667eea" opacity="0.7" stroke="#667eea" stroke-width="2"/>
+                        <!-- Subtractive box -->
+                        <rect x="-10" y="40" width="60" height="60" fill="#f9f9f9" stroke="#e74c3c" stroke-width="2" stroke-dasharray="5,5"/>
+                        
+                        <!-- Result -->
+                        <text x="0" y="130" text-anchor="middle" font-size="13" fill="#333">↓</text>
+                        <!-- L-shaped result -->
+                        <path d="M -50,150 L -50,220 L 30,220 L 30,190 L -10,190 L -10,150 Z" fill="#667eea" opacity="0.7" stroke="#667eea" stroke-width="2"/>
+                        
+                        <text x="0" y="250" text-anchor="middle" font-size="12" fill="#666">Material removed</text>
+                        <text x="0" y="265" text-anchor="middle" font-size="12" fill="#666">from solid</text>
+                    </g>
+                    
+                    <!-- Intersection -->
+                    <g transform="translate(625, 80)">
+                        <text x="0" y="-20" text-anchor="middle" font-size="15" font-weight="bold" fill="#333">Intersection</text>
+                        
+                        <!-- Two overlapping boxes -->
+                        <rect x="-40" y="20" width="60" height="60" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="2"/>
+                        <rect x="-10" y="40" width="60" height="60" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="2"/>
+                        <!-- Overlap area highlighted -->
+                        <rect x="-10" y="40" width="30" height="40" fill="#667eea" opacity="0.7" stroke="#4CAF50" stroke-width="2"/>
+                        
+                        <!-- Result -->
+                        <text x="0" y="130" text-anchor="middle" font-size="13" fill="#333">↓</text>
+                        <rect x="-15" y="150" width="30" height="40" fill="#667eea" opacity="0.7" stroke="#4CAF50" stroke-width="3"/>
+                        
+                        <text x="0" y="250" text-anchor="middle" font-size="12" fill="#666">Only overlapping</text>
+                        <text x="0" y="265" text-anchor="middle" font-size="12" fill="#666">area remains</text>
+                    </g>
+                    
+                    <!-- Bottom note -->
+                    <rect x="75" y="300" width="600" height="80" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2" rx="8"/>
+                    <text x="375" y="325" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">How Unreal Uses These:</text>
+                    <text x="375" y="345" text-anchor="middle" font-size="12" fill="#333">• Additive brushes = Union (automatically combines overlapping additive geometry)</text>
+                    <text x="375" y="362" text-anchor="middle" font-size="12" fill="#333">• Subtractive brushes = Subtraction (carves from additive geometry)</text>
+                    <text x="375" y="379" text-anchor="middle" font-size="12" fill="#333">• Intersection = Special tool (Select brushes → Brush Settings → Intersect)</text>
+                </svg>
+                <p class="caption"><em>Figure: The three main CSG operations. Unreal automatically applies Union and Subtraction based on brush type.</em></p>
+                
+                <h3>Brush Editing Tools</h3>
+                
+                <p>Once you've placed BSP brushes, you can modify them in several ways:</p>
+                
+                <h4>1. Geometry Editing Mode</h4>
+                
+                <p>Geometry Editing Mode lets you manipulate individual vertices, edges, and faces of a BSP brush:</p>
+                
+                <ol>
+                    <li>Select a BSP brush</li>
+                    <li>Press <kbd>Shift+5</kbd> or click the "Geometry Editing" button in the toolbar</li>
+                    <li>You'll see the brush's vertices (corner points) appear as small boxes</li>
+                    <li>Click and drag vertices to reshape the brush</li>
+                    <li>Hold <kbd>Ctrl</kbd> to select multiple vertices</li>
+                    <li>Press <kbd>Shift+5</kbd> again to exit Geometry Editing Mode</li>
+                </ol>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Geometry Editing Caution</h4>
+                    <p>While powerful, Geometry Editing can create irregular shapes that may cause BSP errors (cracks, Z-fighting, rendering issues). Use it sparingly and test your geometry frequently. For complex shapes, consider using Static Meshes from a 3D modeling program instead.</p>
+                </div>
+                
+                <h4>2. Brush Properties</h4>
+                
+                <p>Every BSP brush has properties you can adjust in the Details panel:</p>
+                
+                <ul>
+                    <li><strong>Brush Type:</strong> Switch between Additive and Subtractive</li>
+                    <li><strong>X, Y, Z:</strong> Change dimensions</li>
+                    <li><strong>Hollow:</strong> Makes the brush hollow (walls with thickness)</li>
+                    <li><strong>Wall Thickness:</strong> When Hollow is enabled, controls wall thickness</li>
+                    <li><strong>Tessellation:</strong> For curves (cylinders, spheres), controls smoothness</li>
+                </ul>
+                
+                <h4>3. Build Geometry</h4>
+                
+                <p>After making changes to BSP, you need to <strong>rebuild geometry</strong> for the changes to take effect:</p>
+                
+                <ol>
+                    <li>Click <strong>Build</strong> in the toolbar (or press <kbd>Ctrl+Shift+;</kbd>)</li>
+                    <li>You can also go to <strong>Build → Build Geometry</strong> in the menu</li>
+                    <li>Unreal will process all BSP and update lighting/visibility</li>
+                    <li>Watch the bottom-right corner for the build progress</li>
+                </ol>
+                
+                <p>Think of "building" like compiling code—you're telling Unreal to process all the BSP brushes and generate the final geometry that will render in-game.</p>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Quick Build</h4>
+                    <p>For faster iteration during prototyping, you can do a "Geometry Only" build which skips lighting calculations. Go to <strong>Build → Build Options → Geometry Only</strong>. This speeds up testing but won't show accurate lighting until you do a full build.</p>
+                </div>
+                
+                <h3>Aligning Brushes</h3>
+                
+                <p>Unreal provides tools to align brushes precisely:</p>
+                
+                <ul>
+                    <li><strong>Snap to Grid:</strong> Hold <kbd>Ctrl</kbd> while dragging to snap to grid increments</li>
+                    <li><strong>Grid Settings:</strong> Change grid size in the toolbar (common values: 10, 25, 50, 100)</li>
+                    <li><strong>Align to Actor:</strong> Right-click brush → Align → Align to Floor/Ceiling/Wall</li>
+                    <li><strong>Make Coplanar:</strong> Select two brushes, right-click → Make Coplanar to align their faces</li>
+                </ul>
+                
+                <p>Proper alignment prevents gaps, cracks, and visual glitches in your BSP geometry.</p>
+            </section>
+
+            <!-- Section 5: BSP Limitations and Performance -->
+            <section id="limitations" class="lesson-section">
+                <h2>BSP Limitations and Performance Considerations</h2>
+                
+                <p>While BSP is great for prototyping, it has several limitations you should understand—especially if you're tempted to use it for final production geometry.</p>
+                
+                <h3>Why BSP Has Fallen Out of Favor</h3>
+                
+                <p>In early Unreal Engine versions (UE1, UE2), BSP was the primary way to build levels. Modern game development has largely moved away from BSP for several reasons:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Limitation</th>
+                            <th>Why It Matters</th>
+                            <th>Modern Alternative</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Rendering Performance</strong></td>
+                            <td>BSP geometry is less optimized than Static Meshes. More draw calls, harder for GPU to batch</td>
+                            <td>Use Static Meshes with proper LODs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visual Artifacts</strong></td>
+                            <td>BSP can create cracks, Z-fighting (flickering), and seams—especially at corners and intersections</td>
+                            <td>Static Meshes with proper UVs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>No Nanite Support</strong></td>
+                            <td>Unreal Engine 5's virtualized geometry (Nanite) doesn't work with BSP, losing massive performance benefits</td>
+                            <td>Convert BSP to Static Mesh, enable Nanite</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Material Limitations</strong></td>
+                            <td>Each BSP surface can only have one material. Complex texturing requires many brushes</td>
+                            <td>Static Meshes support material slots and complex UVs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Collision Complexity</strong></td>
+                            <td>BSP collision is always complex (per-polygon), which is expensive for physics</td>
+                            <td>Static Meshes with simplified collision meshes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Build Times</strong></td>
+                            <td>Large amounts of BSP increase level build times, especially for lighting</td>
+                            <td>Static Meshes with Lightmap UVs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Organic Shapes</strong></td>
+                            <td>BSP is terrible for curved, organic forms—everything is geometric and blocky</td>
+                            <td>Model complex shapes in Blender/Maya</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reusability</strong></td>
+                            <td>Each BSP structure is unique to that level—can't easily reuse across projects</td>
+                            <td>Static Meshes can be assets in a library</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Important Performance Note</h4>
+                    <p>If you're building a game you plan to ship, avoid using BSP for final geometry. It's fine (and encouraged!) for greyboxing and prototyping, but convert to Static Meshes before optimization passes. AAA studios almost never ship with BSP—it's purely a design tool.</p>
+                </div>
+                
+                <h3>Common BSP Problems</h3>
+                
+                <p>When working with BSP, you'll likely encounter these issues:</p>
+                
+                <h4>1. BSP Holes / Cracks</h4>
+                
+                <p>Thin black lines appearing at brush intersections. <strong>Causes:</strong> Floating-point precision errors, non-coplanar surfaces, overlapping brushes. <strong>Fix:</strong> Rebuild geometry, align brushes to grid, ensure surfaces are flush.</p>
+                
+                <h4>2. Z-Fighting</h4>
+                
+                <p>Flickering between two overlapping surfaces. <strong>Causes:</strong> Two brush faces occupying the same space. <strong>Fix:</strong> Offset one surface slightly, or merge brushes into one.</p>
+                
+                <h4>3. Invalid Brush</h4>
+                
+                <p>Error message after editing geometry. <strong>Causes:</strong> Creating non-planar faces, self-intersecting geometry, degenerate triangles. <strong>Fix:</strong> Undo changes, rebuild from simpler brushes, avoid extreme vertex editing.</p>
+                
+                <h4>4. Lighting Artifacts</h4>
+                
+                <p>Splotchy shadows, light leaks, or black surfaces. <strong>Causes:</strong> BSP doesn't have explicit lightmap UVs, small surfaces, overlapping geometry. <strong>Fix:</strong> Increase lightmap resolution, rebuild lighting, convert to Static Mesh with proper UVs.</p>
+                
+                <canvas id="bsp-problems-canvas" width="700" height="280" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Common BSP issues - cracks at seams, Z-fighting flicker, and lighting artifacts.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('bsp-problems-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Common BSP Visual Problems', 350, 25);
+                        
+                        // Problem 1: Cracks/Seams
+                        ctx.save();
+                        ctx.translate(120, 90);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.fillText('BSP Cracks', 0, -30);
+                        
+                        // Two walls meeting with a crack
+                        ctx.fillStyle = '#667eea';
+                        ctx.fillRect(-60, 0, 55, 100);
+                        ctx.fillRect(5, 0, 55, 100);
+                        
+                        // Exaggerated crack
+                        ctx.fillStyle = '#000';
+                        ctx.fillRect(-5, 0, 10, 100);
+                        
+                        // Arrow pointing to crack
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(-40, 130);
+                        ctx.lineTo(-10, 105);
+                        ctx.stroke();
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Black seam', -60, 145);
+                        
+                        ctx.restore();
+                        
+                        // Problem 2: Z-Fighting
+                        ctx.save();
+                        ctx.translate(350, 90);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.fillText('Z-Fighting', 0, -30);
+                        
+                        // Overlapping surfaces with alternating pattern to show flicker
+                        for (let i = 0; i < 5; i++) {
+                            for (let j = 0; j < 5; j++) {
+                                ctx.fillStyle = (i + j) % 2 === 0 ? '#667eea' : '#4CAF50';
+                                ctx.fillRect(-50 + i * 20, j * 20, 20, 20);
+                            }
+                        }
+                        
+                        // Border
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(-50, 0, 100, 100);
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Flickering between', 0, 130);
+                        ctx.fillText('two overlapping faces', 0, 145);
+                        
+                        ctx.restore();
+                        
+                        // Problem 3: Lighting Artifacts
+                        ctx.save();
+                        ctx.translate(580, 90);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.fillText('Light Artifacts', 0, -30);
+                        
+                        // Wall with splotchy lighting
+                        ctx.fillStyle = '#667eea';
+                        ctx.fillRect(-50, 0, 100, 100);
+                        
+                        // Dark splotches
+                        ctx.fillStyle = '#1a1a3a';
+                        ctx.beginPath();
+                        ctx.arc(-20, 30, 15, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(25, 60, 20, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(0, 80, 12, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Border
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(-50, 0, 100, 100);
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Splotchy shadows', 0, 130);
+                        ctx.fillText('& light leaks', 0, 145);
+                        
+                        ctx.restore();
+                        
+                        // Bottom tip
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('💡 Most BSP problems can be avoided by converting to Static Meshes for final production', 350, 210);
+                        
+                        // Solutions box
+                        ctx.fillStyle = '#e8f5e9';
+                        ctx.fillRect(50, 230, 600, 40);
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(50, 230, 600, 40);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('Quick Fixes:', 350, 248);
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Rebuild Geometry • Align to Grid • Offset Overlaps • Convert to Static Mesh', 350, 263);
+                    })();
+                </script>
+                
+                <h3>Best Practices for BSP</h3>
+                
+                <p>If you're using BSP (for prototyping or otherwise), follow these guidelines to minimize problems:</p>
+                
+                <ol>
+                    <li><strong>Keep it simple:</strong> Avoid complex intersecting geometry—use clean, orthogonal shapes</li>
+                    <li><strong>Align to grid:</strong> Always snap brushes to grid (10, 25, 50, 100cm increments)</li>
+                    <li><strong>Rebuild frequently:</strong> Press <kbd>Ctrl+Shift+;</kbd> often to catch errors early</li>
+                    <li><strong>Avoid small details:</strong> Don't use BSP for trim, molding, or fine details—use Static Meshes</li>
+                    <li><strong>Limit brush count:</strong> Fewer, larger brushes perform better than many small ones</li>
+                    <li><strong>Test collision:</strong> Add a player character and physically walk through your spaces</li>
+                    <li><strong>Plan for conversion:</strong> Design with the knowledge you'll convert to Static Meshes later</li>
+                </ol>
+            </section>
+
+            <!-- Section 6: Converting BSP to Static Mesh -->
+            <section id="converting-to-static-mesh" class="lesson-section">
+                <h2>Converting BSP to Static Mesh</h2>
+                
+                <p>Once you've prototyped your level with BSP and you're happy with the layout, it's time to convert it to Static Meshes for better performance and fewer visual issues. Unreal makes this process straightforward.</p>
+                
+                <h3>Why Convert?</h3>
+                
+                <p>Converting BSP to Static Meshes gives you several advantages:</p>
+                
+                <ul>
+                    <li>✅ <strong>Better performance:</strong> Static Meshes render more efficiently</li>
+                    <li>✅ <strong>Cleaner visuals:</strong> No more BSP cracks or Z-fighting</li>
+                    <li>✅ <strong>Nanite support:</strong> Can enable UE5's virtualized geometry for extreme detail</li>
+                    <li>✅ <strong>Better lighting:</strong> Proper lightmap UVs eliminate artifacts</li>
+                    <li>✅ <strong>Simplified collision:</strong> Can create custom, optimized collision meshes</li>
+                    <li>✅ <strong>Reusability:</strong> Converted meshes become assets you can use elsewhere</li>
+                </ul>
+                
+                <h3>The Conversion Process</h3>
+                
+                <p>Here's how to convert BSP geometry to Static Meshes:</p>
+                
+                <ol>
+                    <li><strong>Select the BSP brushes</strong> you want to convert (you can select multiple)</li>
+                    <li>Go to <strong>Brush → Create Static Mesh</strong> in the menu (or right-click and choose "Convert to Static Mesh")</li>
+                    <li>A dialog will appear asking where to save the new mesh</li>
+                    <li>Choose a location in your Content Browser (create a "Geometry" folder if needed)</li>
+                    <li>Name the mesh descriptively (e.g., "SM_Room_Prototype_01")</li>
+                    <li>Click <strong>Create Static Mesh</strong></li>
+                    <li>The original BSP brushes remain in the level—you can delete them or keep them as reference</li>
+                    <li>A new Static Mesh Actor is created in the same location with the geometry</li>
+                </ol>
+                
+                <svg width="100%" height="350" viewBox="0 0 750 350" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="375" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">BSP to Static Mesh Workflow</text>
+                    
+                    <!-- Step 1: BSP Prototype -->
+                    <g transform="translate(100, 80)">
+                        <rect x="-60" y="0" width="120" height="100" fill="#e3f2fd" stroke="#2196F3" stroke-width="3" rx="8"/>
+                        <text x="0" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Step 1</text>
+                        <text x="0" y="50" text-anchor="middle" font-size="13" fill="#333">Build with BSP</text>
+                        
+                        <!-- Simple BSP boxes -->
+                        <g transform="translate(0, 70)">
+                            <rect x="-25" y="-10" width="20" height="20" fill="#667eea" opacity="0.5"/>
+                            <rect x="-5" y="-10" width="20" height="20" fill="#667eea" opacity="0.5"/>
+                            <rect x="5" y="-10" width="20" height="20" fill="#667eea" opacity="0.5"/>
+                        </g>
+                        
+                        <text x="0" y="130" text-anchor="middle" font-size="11" fill="#666">Fast prototyping</text>
+                        <text x="0" y="145" text-anchor="middle" font-size="11" fill="#666">Test gameplay</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <g transform="translate(175, 130)">
+                        <line x1="0" y1="0" x2="70" y2="0" stroke="#4CAF50" stroke-width="3"/>
+                        <polygon points="70,0 60,-6 60,6" fill="#4CAF50"/>
+                        <text x="35" y="-10" text-anchor="middle" font-size="12" fill="#4CAF50" font-weight="bold">Convert</text>
+                    </g>
+                    
+                    <!-- Step 2: Static Mesh -->
+                    <g transform="translate(325, 80)">
+                        <rect x="-60" y="0" width="120" height="100" fill="#e8f5e9" stroke="#4CAF50" stroke-width="3" rx="8"/>
+                        <text x="0" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Step 2</text>
+                        <text x="0" y="50" text-anchor="middle" font-size="13" fill="#333">Create Static Mesh</text>
+                        
+                        <!-- Static mesh icon -->
+                        <g transform="translate(0, 70)">
+                            <rect x="-15" y="-15" width="30" height="30" fill="#4CAF50" opacity="0.7" stroke="#2e7d32" stroke-width="2"/>
+                            <text x="0" y="5" text-anchor="middle" font-size="16" fill="#fff">📦</text>
+                        </g>
+                        
+                        <text x="0" y="130" text-anchor="middle" font-size="11" fill="#666">Optimized geometry</text>
+                        <text x="0" y="145" text-anchor="middle" font-size="11" fill="#666">Better performance</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <g transform="translate(400, 130)">
+                        <line x1="0" y1="0" x2="70" y2="0" stroke="#ff9800" stroke-width="3"/>
+                        <polygon points="70,0 60,-6 60,6" fill="#ff9800"/>
+                        <text x="35" y="-10" text-anchor="middle" font-size="12" fill="#ff9800" font-weight="bold">Refine</text>
+                    </g>
+                    
+                    <!-- Step 3: Final Assets -->
+                    <g transform="translate(550, 80)">
+                        <rect x="-60" y="0" width="120" height="100" fill="#fff3e0" stroke="#ff9800" stroke-width="3" rx="8"/>
+                        <text x="0" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Step 3</text>
+                        <text x="0" y="50" text-anchor="middle" font-size="13" fill="#333">Polish & Ship</text>
+                        
+                        <!-- Polished assets -->
+                        <g transform="translate(0, 70)">
+                            <circle cx="-15" cy="-5" r="8" fill="#ff9800" opacity="0.7"/>
+                            <circle cx="0" cy="-5" r="8" fill="#ff9800" opacity="0.7"/>
+                            <circle cx="15" cy="-5" r="8" fill="#ff9800" opacity="0.7"/>
+                            <text x="0" y="5" text-anchor="middle" font-size="14" fill="#333">✨</text>
+                        </g>
+                        
+                        <text x="0" y="130" text-anchor="middle" font-size="11" fill="#666">Production quality</text>
+                        <text x="0" y="145" text-anchor="middle" font-size="11" fill="#666">Detailed materials</text>
+                    </g>
+                    
+                    <!-- Bottom workflow note -->
+                    <rect x="75" y="230" width="600" height="100" fill="#e3f2fd" stroke="#2196F3" stroke-width="2" rx="8"/>
+                    <text x="375" y="255" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Industry-Standard Workflow</text>
+                    <text x="375" y="275" text-anchor="middle" font-size="12" fill="#333">1. Designers block out levels with BSP (fast iteration)</text>
+                    <text x="375" y="292" text-anchor="middle" font-size="12" fill="#333">2. Convert to Static Mesh once layout is approved</text>
+                    <text x="375" y="309" text-anchor="middle" font-size="12" fill="#333">3. Artists replace with modular art assets or detailed meshes</text>
+                    <text x="375" y="326" text-anchor="middle" font-size="12" fill="#333">4. Lighting artists optimize and add final polish</text>
+                </svg>
+                <p class="caption"><em>Figure: The professional workflow from BSP prototype to final production assets.</em></p>
+                
+                <h3>Post-Conversion Steps</h3>
+                
+                <p>After converting to Static Mesh, you'll want to refine the mesh:</p>
+                
+                <ol>
+                    <li><strong>Open the Static Mesh Editor:</strong> Double-click the new mesh in Content Browser</li>
+                    <li><strong>Generate Lightmap UVs:</strong> Go to Details → LOD0 → Generate Lightmap UVs (fixes lighting artifacts)</li>
+                    <li><strong>Create collision:</strong> Collision → Add Box/Capsule Simplified Collision (or auto-generate)</li>
+                    <li><strong>Apply materials:</strong> Replace the default BSP material with proper materials</li>
+                    <li><strong>Set up LODs:</strong> For distant viewing, create Level of Detail meshes (optional but recommended)</li>
+                    <li><strong>Enable Nanite (UE5):</strong> In Details, enable "Nanite" for massive performance gains with complex geometry</li>
+                </ol>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Workflow Tip</h4>
+                    <p>Many professional studios use BSP only in the "pre-production" phase. Once a level layout is proven fun through playtesting, they completely replace BSP with modular Static Mesh sets created by environment artists. The BSP serves as a "blueprint" that artists follow when building the final level. This separation of concerns lets designers and artists work efficiently in parallel.</p>
+                </div>
+                
+                <h3>Alternative: Replace with Modular Assets</h3>
+                
+                <p>Instead of converting BSP directly, you might choose to <strong>replace</strong> it with modular mesh pieces:</p>
+                
+                <ol>
+                    <li>Keep your BSP as a reference (make it invisible or put in a "Reference" folder)</li>
+                    <li>Create or obtain modular wall, floor, ceiling, and door pieces</li>
+                    <li>Place these meshes to match your BSP layout</li>
+                    <li>Delete the original BSP once replacement is complete</li>
+                </ol>
+                
+                <p>This approach gives you more control over the final look and often results in better visual quality, but takes longer than simply converting.</p>
+            </section>
+
+            <!-- Section 7: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Build a Multi-Room Dungeon</h2>
+                    
+                    <p>Put your BSP skills to the test by building a small dungeon with multiple rooms, corridors, and doorways. This exercise covers everything you've learned about additive/subtractive brushes, BSP operations, and conversion to Static Meshes.</p>
+                    
+                    <h3>Part 1: Create the Main Structure</h3>
+                    
+                    <ol>
+                        <li>Create a new level or open your existing test level</li>
+                        <li>From Place Actors → Geometry, drag a <strong>Box</strong> brush into the level</li>
+                        <li>Scale it to: X=1000cm, Y=800cm, Z=300cm (this will contain your whole dungeon)</li>
+                        <li>This is your solid "mountain" you'll carve rooms from</li>
+                    </ol>
+                    
+                    <h3>Part 2: Carve the First Room</h3>
+                    
+                    <ol>
+                        <li>Place another Box brush inside the first</li>
+                        <li>Set its Brush Type to <strong>Subtractive</strong> (it should turn pink/red)</li>
+                        <li>Size: X=400cm, Y=400cm, Z=250cm</li>
+                        <li>Position it in one corner of the large block (use Move gizmo)</li>
+                        <li>You've carved out your first room!</li>
+                    </ol>
+                    
+                    <h3>Part 3: Add a Corridor</h3>
+                    
+                    <ol>
+                        <li>Add another Subtractive Box</li>
+                        <li>Size: X=300cm, Y=150cm, Z=250cm (a narrow hallway)</li>
+                        <li>Position it extending from the first room toward the center</li>
+                        <li>Make sure it overlaps with the first room so they connect</li>
+                    </ol>
+                    
+                    <h3>Part 4: Carve a Second Room</h3>
+                    
+                    <ol>
+                        <li>Add another Subtractive Box at the end of the corridor</li>
+                        <li>Size: X=350cm, Y=350cm, Z=250cm</li>
+                        <li>Position it so the corridor connects both rooms</li>
+                        <li>Press <kbd>Ctrl+Shift+;</kbd> to rebuild geometry and see the result</li>
+                    </ol>
+                    
+                    <h3>Part 5: Add Doorways</h3>
+                    
+                    <ol>
+                        <li>Place small Subtractive Box brushes to create door openings</li>
+                        <li>Typical door size: X=100cm, Y=90cm, Z=200cm</li>
+                        <li>Position them where you want doorways between rooms and corridor</li>
+                        <li>They'll cut through the remaining wall sections</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>💡 <strong>Hint:</strong> Doors not appearing?</summary>
+                        <p>Make sure your doorway brushes are set to <strong>Subtractive</strong> and that they actually intersect with the walls you want to cut through. Also, rebuild geometry (<kbd>Ctrl+Shift+;</kbd>) to see changes take effect.</p>
+                    </details>
+                    
+                    <h3>Part 6: Add Details</h3>
+                    
+                    <ol>
+                        <li>Try adding an <strong>Additive Cylinder</strong> in one room as a pillar (Size: Radius=40cm, Height=250cm)</li>
+                        <li>Create a small alcove: place a Subtractive Box in a wall (X=120cm, Y=80cm, Z=120cm)</li>
+                        <li>Experiment with other shapes: Cone for a ceiling detail, Sphere for decorative elements</li>
+                    </ol>
+                    
+                    <h3>Part 7: Test Your Dungeon</h3>
+                    
+                    <ol>
+                        <li>Place a <strong>Player Start</strong> Actor in one of your rooms (from Place Actors → Basic)</li>
+                        <li>Press <kbd>Alt+P</kbd> to Play in Editor (PIE)</li>
+                        <li>Walk through your dungeon using WASD and mouse</li>
+                        <li>Check for any visual issues (cracks, holes, z-fighting)</li>
+                        <li>Press <kbd>Esc</kbd> to stop playtest</li>
+                    </ol>
+                    
+                    <h3>Part 8: Convert to Static Mesh</h3>
+                    
+                    <ol>
+                        <li>Select all your BSP brushes (hold <kbd>Ctrl</kbd> and click each one, or box-select)</li>
+                        <li>Right-click and choose <strong>Create Static Mesh</strong></li>
+                        <li>Save to Content → Geometry → <code>SM_DungeonPrototype</code></li>
+                        <li>A new Static Mesh is created—compare it to the original BSP</li>
+                        <li>You can now delete the BSP brushes if you want</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Solution Checkpoint:</strong> What should you have?</summary>
+                        <p>Your level should contain:
+                            <ul>
+                                <li>A solid block with carved-out interior spaces (2 rooms + 1 corridor)</li>
+                                <li>Doorways connecting the spaces</li>
+                                <li>At least one detail element (pillar, alcove, or decoration)</li>
+                                <li>A Static Mesh version saved in your Content Browser</li>
+                            </ul>
+                            The dungeon should be walkable when you press Alt+P to play. If you can't walk through, check that your Player Start is inside a carved-out room, not in solid geometry.
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Expand Your Dungeon</h3>
+                    
+                    <p>Try these advanced techniques:</p>
+                    
+                    <ul>
+                        <li><strong>Multi-level design:</strong> Create a second floor by carving rooms at a higher Z location, then add a Linear Stair brush to connect them</li>
+                        <li><strong>Curved corridors:</strong> Use Cylinder brushes (Subtractive) to create rounded passages</li>
+                        <li><strong>Vaulted ceilings:</strong> Use a Subtractive Cone (point down) to carve a peaked ceiling</li>
+                        <li><strong>Secret room:</strong> Create a hidden alcove accessible only by squeezing through a narrow gap</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 8: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>BSP geometry is a powerful prototyping tool that has been part of Unreal Engine since the beginning. While modern workflows favor Static Meshes for final production, BSP remains essential for rapid level design iteration. Let's recap what you've learned:</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>🏗️ <strong>BSP (Binary Space Partitioning)</strong> lets you create 3D geometry directly in Unreal using additive and subtractive volumes called "brushes"</li>
+                    <li>➕ <strong>Additive brushes</strong> create solid geometry (walls, floors, ceilings)</li>
+                    <li>➖ <strong>Subtractive brushes</strong> carve out hollow spaces (rooms, doorways, windows)</li>
+                    <li>🎯 <strong>Best use case:</strong> Greyboxing and prototyping level layouts before creating final art assets</li>
+                    <li>🛠️ <strong>CSG operations:</strong> Union (add), Subtraction (carve), and Intersection combine brushes to create complex shapes</li>
+                    <li>⚠️ <strong>Limitations:</strong> BSP has performance issues, visual artifacts, and lacks Nanite support—not ideal for final production</li>
+                    <li>🔄 <strong>Conversion workflow:</strong> Prototype with BSP → Convert to Static Mesh → Polish with materials and lighting</li>
+                    <li>✅ <strong>Best practices:</strong> Align to grid, keep geometry simple, rebuild frequently, and plan to convert or replace BSP before shipping</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>Now that you can create basic architectural geometry with BSP, the next lesson will introduce <strong>Lesson 2.4: Static Meshes and Assets</strong>. You'll learn how to import 3D models from external software, work with Unreal's built-in modeling tools, and build levels using modular mesh sets—the modern approach to level construction.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What's the difference between an additive and subtractive brush?</li>
+                        <li>Why is BSP considered a prototyping tool rather than a final production tool?</li>
+                        <li>What are the three main CSG operations, and how does Unreal apply them?</li>
+                        <li>Name three common visual problems with BSP and how to fix them.</li>
+                        <li>What are the benefits of converting BSP to Static Mesh?</li>
+                        <li>What's the typical wall thickness for BSP rooms, and why does it matter?</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Additive brushes create solid geometry; subtractive brushes carve out hollow spaces by removing geometry from additive brushes.</li>
+                            <li>BSP has performance limitations, visual artifacts (cracks, Z-fighting), no Nanite support, complex collision, and is harder to reuse across projects compared to Static Meshes.</li>
+                            <li>Union (combines overlapping geometry), Subtraction (removes volume), and Intersection (keeps only overlapping area). Unreal automatically applies Union for additive brushes and Subtraction for subtractive brushes.</li>
+                            <li>BSP Cracks (rebuild geometry, align to grid), Z-Fighting (offset overlapping surfaces), Lighting Artifacts (increase lightmap resolution or convert to Static Mesh with proper UVs).</li>
+                            <li>Better rendering performance, cleaner visuals, Nanite support, proper lightmap UVs, simplified collision, and reusability as library assets.</li>
+                            <li>Typically 30cm (or 25-50cm depending on scale). This creates realistic wall proportions and provides enough thickness to prevent visual holes or overlapping issues.</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m02_l02_actors_and_components.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">Actors and Components</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="m02_l04_static_meshes_and_assets.html" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Lesson</span>
+                    <span class="title">Static Meshes and Assets</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master Blueprint communication and variable management in Unreal Engine 5. Learn casting, references, interfaces, event dispatchers, and data types.">
+    <meta name="author" content="Practical Ace">
+    <title>Blueprint Communication and Variables - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 3: Blueprint Visual Scripting</a></li>
+            <li aria-current="page">Lesson 3.2: Blueprint Communication and Variables</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🔗 Blueprint Communication and Variables</h1>
+                <p class="lead">Blueprints don't exist in isolation—they need to communicate with each other to create complex, interconnected gameplay systems. In this lesson, you'll master how Blueprints talk to one another using references, casting, interfaces, and event dispatchers. You'll also dive deep into variables—the data containers that hold everything from player health to enemy positions. By the end, you'll be able to build sophisticated multi-Blueprint systems that work together seamlessly.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Understand and use Blueprint variables (local, instance, and class variables)</li>
+                        <li>Work with all major data types (Boolean, Integer, Float, String, Vector, etc.)</li>
+                        <li>Create references between Blueprints to enable communication</li>
+                        <li>Use casting to access specific Blueprint functionality</li>
+                        <li>Implement direct Blueprint communication patterns</li>
+                        <li>Understand Blueprint Interfaces and when to use them</li>
+                        <li>Create and use Event Dispatchers for decoupled communication</li>
+                        <li>Choose the right communication method for different scenarios</li>
+                        <li>Manage variable scope and access levels</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 90-105 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 3.1 - Introduction to Blueprints</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#why-communication-matters" class="toc-link">Why Blueprint Communication Matters</a></li>
+                        <li><a href="#variables-fundamentals" class="toc-link">Variables: Fundamentals</a></li>
+                        <li><a href="#data-types" class="toc-link">Blueprint Data Types</a></li>
+                        <li><a href="#variable-scope" class="toc-link">Variable Scope and Access</a></li>
+                        <li><a href="#references" class="toc-link">Blueprint References</a></li>
+                        <li><a href="#casting" class="toc-link">Casting: Type-Safe Communication</a></li>
+                        <li><a href="#direct-communication" class="toc-link">Direct Blueprint Communication</a></li>
+                        <li><a href="#interfaces" class="toc-link">Blueprint Interfaces</a></li>
+                        <li><a href="#event-dispatchers" class="toc-link">Event Dispatchers</a></li>
+                        <li><a href="#communication-patterns" class="toc-link">Choosing Communication Methods</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Why Blueprint Communication Matters -->
+            <section id="why-communication-matters" class="lesson-section">
+                <h2>Why Blueprint Communication Matters</h2>
+                
+                <p>Imagine building a game where:</p>
+                
+                <ul>
+                    <li>A pressure plate needs to tell a door to open</li>
+                    <li>An enemy needs to know the player's location to chase them</li>
+                    <li>A UI widget needs to display the player's current health</li>
+                    <li>A collectible needs to notify the score manager when picked up</li>
+                    <li>Multiple lights need to turn on when the player flips a switch</li>
+                </ul>
+                
+                <p>Every one of these scenarios requires <strong>Blueprint communication</strong>—Blueprints sending messages, sharing data, or triggering actions in other Blueprints.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Blueprint Communication:</strong> The methods and systems that allow one Blueprint to access, modify, or trigger functionality in another Blueprint. Without communication, every Blueprint would be an isolated island—unable to affect anything beyond itself. Communication is what turns individual Blueprints into cohesive gameplay systems.</p>
+                </div>
+                
+                <h3>The Communication Challenge</h3>
+                
+                <p>Consider this scenario: You have a pressure plate Blueprint and a door Blueprint. The plate needs to tell the door "Player stepped on me—open up!" But how?</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[BP_PressurePlate] -->|How to communicate?| B[BP_Door]
+    C[Player Character] -->|Steps on| A
+    B -->|Opens| D[Door Opens]
+    
+    style A fill:#ff9800,stroke:#e65100,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style D fill:#9c27b0,stroke:#6a1b9a,color:#fff
+</pre>
+<p class="caption"><em>Figure: Blueprints need mechanisms to communicate actions and data between each other.</em></p>
+                
+                <p>The pressure plate can't just say "open the door" into thin air. It needs:</p>
+                
+                <ol>
+                    <li><strong>A reference:</strong> "Which door am I talking to?"</li>
+                    <li><strong>A communication method:</strong> "How do I tell it to open?"</li>
+                    <li><strong>Data sharing:</strong> "Does it need any information from me?"</li>
+                </ol>
+                
+                <p>This lesson teaches you all the ways Blueprints can communicate, from simple direct references to advanced event dispatching systems.</p>
+                
+                <h3>Communication Methods Overview</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Best For</th>
+                            <th>Complexity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Direct Reference</strong></td>
+                            <td>One Blueprint controlling another (lever → door)</td>
+                            <td>⭐ Simple</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Casting</strong></td>
+                            <td>Accessing specific Blueprint functionality</td>
+                            <td>⭐⭐ Medium</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Blueprint Interface</strong></td>
+                            <td>Multiple different Blueprints implementing same action</td>
+                            <td>⭐⭐⭐ Advanced</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Event Dispatcher</strong></td>
+                            <td>Broadcasting to multiple listeners (publish-subscribe)</td>
+                            <td>⭐⭐⭐ Advanced</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>We'll cover each method in depth, starting with the foundation: <strong>variables</strong>.</p>
+            </section>
+
+            <!-- Section 2: Variables Fundamentals -->
+            <section id="variables-fundamentals" class="lesson-section">
+                <h2>Variables: Fundamentals</h2>
+                
+                <p>Before Blueprints can communicate effectively, you need to understand <strong>variables</strong>—the containers that store data.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Variable:</strong> A named storage location that holds a value which can change during gameplay. Think of it as a labeled box: the variable name is the label, the data type is what kind of thing can go in the box, and the value is what's currently inside.</p>
+                </div>
+                
+                <h3>Why Variables Matter</h3>
+                
+                <p>Variables are how Blueprints remember information:</p>
+                
+                <ul>
+                    <li>💚 <strong>Player health:</strong> An integer variable (e.g., Health = 100)</li>
+                    <li>🚪 <strong>Door state:</strong> A boolean variable (e.g., bIsOpen = false)</li>
+                    <li>🎯 <strong>Enemy position:</strong> A vector variable (e.g., TargetLocation = (500, 200, 100))</li>
+                    <li>📝 <strong>Player name:</strong> A string variable (e.g., PlayerName = "Hero")</li>
+                    <li>🔗 <strong>Door reference:</strong> An object reference variable (e.g., DoorToOpen = BP_Door_Instance)</li>
+                </ul>
+                
+                <p>Without variables, Blueprints would have amnesia—unable to remember anything from one frame to the next.</p>
+                
+                <h3>Creating a Variable</h3>
+                
+                <ol>
+                    <li>Open a Blueprint</li>
+                    <li>In <strong>My Blueprint</strong> panel, click <strong>+ Variable</strong></li>
+                    <li>Name the variable (e.g., <code>Health</code>)</li>
+                    <li>In Details panel, set the <strong>Variable Type</strong> (e.g., Integer)</li>
+                    <li>Set <strong>Default Value</strong> (e.g., 100)</li>
+                    <li>Click <strong>Compile</strong> to save</li>
+                </ol>
+                
+                <h3>Using Variables in Blueprints</h3>
+                
+                <p>Once created, variables can be accessed in the Event Graph:</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Get Variable] -->|Reads current value| B[Use in Logic]
+    C[Set Variable] -->|Writes new value| D[Variable Updated]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#9c27b0,stroke:#6a1b9a,color:#fff
+</pre>
+<p class="caption"><em>Figure: Variables have two primary operations—Get (read) and Set (write).</em></p>
+                
+                <p><strong>Get Variable:</strong></p>
+                <ul>
+                    <li>Drag variable from My Blueprint panel into Event Graph</li>
+                    <li>Choose <strong>"Get"</strong></li>
+                    <li>Creates a getter node that outputs the variable's current value</li>
+                    <li>Getters are "pure" (no execution pins)—they just return data</li>
+                </ul>
+                
+                <p><strong>Set Variable:</strong></p>
+                <ul>
+                    <li>Drag variable from My Blueprint panel into Event Graph</li>
+                    <li>Choose <strong>"Set"</strong></li>
+                    <li>Creates a setter node with execution pins</li>
+                    <li>Connect a new value to the input pin</li>
+                    <li>When executed, updates the variable</li>
+                </ul>
+                
+                <canvas id="variable-get-set-canvas" width="700" height="280" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Get node reads variable value (pure function), Set node writes new value (requires execution).</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('variable-get-set-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Get vs Set Variable Nodes', 350, 30);
+                        
+                        // Get Variable Node
+                        ctx.save();
+                        ctx.translate(120, 80);
+                        
+                        // Node background
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillRect(0, 0, 140, 50);
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 140, 50);
+                        
+                        // Title bar
+                        ctx.fillStyle = '#2e7d32';
+                        ctx.fillRect(0, 0, 140, 20);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('GET Health', 70, 14);
+                        
+                        // Output pin
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.arc(140, 35, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Value display
+                        ctx.fillStyle = '#fff';
+                        ctx.font = '14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('100', 70, 40);
+                        
+                        ctx.restore();
+                        
+                        // Label
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Get Variable', 120 + 70, 155);
+                        ctx.font = '11px Arial';
+                        ctx.fillText('(Pure - no execution pin)', 120 + 70, 172);
+                        ctx.fillText('Returns current value', 120 + 70, 187);
+                        
+                        // Arrow from Get
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(260, 115);
+                        ctx.lineTo(320, 115);
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.moveTo(320, 115);
+                        ctx.lineTo(310, 110);
+                        ctx.lineTo(310, 120);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = '11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Data flow', 290, 108);
+                        
+                        // Set Variable Node
+                        ctx.save();
+                        ctx.translate(430, 80);
+                        
+                        // Node background
+                        ctx.fillStyle = '#ff9800';
+                        ctx.fillRect(0, 0, 160, 80);
+                        ctx.strokeStyle = '#e65100';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 160, 80);
+                        
+                        // Title bar
+                        ctx.fillStyle = '#e65100';
+                        ctx.fillRect(0, 0, 160, 22);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('SET Health', 80, 15);
+                        
+                        // Input execution pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 40, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Output execution pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(160, 40, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Value input pin
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.arc(0, 60, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Value box
+                        ctx.fillStyle = '#3c3c3c';
+                        ctx.fillRect(10, 50, 140, 20);
+                        ctx.strokeStyle = '#666';
+                        ctx.strokeRect(10, 50, 140, 20);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('New Value: 75', 15, 64);
+                        
+                        ctx.restore();
+                        
+                        // Label
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 13px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Set Variable', 430 + 80, 185);
+                        ctx.font = '11px Arial';
+                        ctx.fillText('(Requires execution)', 430 + 80, 202);
+                        ctx.fillText('Writes new value', 430 + 80, 217);
+                        
+                        // Execution flow arrow
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 3;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(380, 120);
+                        ctx.lineTo(430, 120);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.beginPath();
+                        ctx.moveTo(430, 120);
+                        ctx.lineTo(420, 115);
+                        ctx.lineTo(420, 125);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Execution', 405, 113);
+                        
+                        // Bottom explanation
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Get reads without changing • Set requires execution to write', 350, 255);
+                    })();
+                </script>
+                
+                <h3>Variable Properties</h3>
+                
+                <p>When you select a variable in My Blueprint, the Details panel shows configuration options:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Variable Type</strong></td>
+                            <td>What kind of data (Integer, Boolean, String, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Default Value</strong></td>
+                            <td>Starting value when Blueprint spawns</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Instance Editable</strong></td>
+                            <td>Can be set per-instance in level (shows in Details panel)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Blueprint Read Only</strong></td>
+                            <td>Can only be read, not written (protects from accidental changes)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Expose on Spawn</strong></td>
+                            <td>Must be set when spawning the Blueprint</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Private</strong></td>
+                            <td>Only accessible within this Blueprint (not by others)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Category</strong></td>
+                            <td>Organizes variables into groups</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tooltip</strong></td>
+                            <td>Description shown when hovering (for documentation)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </section>
+
+            <!-- Section 3: Blueprint Data Types -->
+            <section id="data-types" class="lesson-section">
+                <h2>Blueprint Data Types</h2>
+                
+                <p>Blueprint variables can hold many different types of data. Understanding data types is crucial for effective communication and data management.</p>
+                
+                <h3>Primitive Data Types</h3>
+                
+                <p>The basic building blocks—simple values:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>What It Stores</th>
+                            <th>Examples</th>
+                            <th>Common Uses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Boolean</strong></td>
+                            <td>True or False</td>
+                            <td>true, false</td>
+                            <td>Switches, states (bIsOpen, bIsDead, bCanJump)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Integer</strong></td>
+                            <td>Whole numbers</td>
+                            <td>-100, 0, 42, 1000</td>
+                            <td>Health, ammo count, level number, score</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Float</strong></td>
+                            <td>Decimal numbers</td>
+                            <td>0.5, 3.14, 100.25</td>
+                            <td>Speed, damage, timer, distance</td>
+                        </tr>
+                        <tr>
+                            <td><strong>String</strong></td>
+                            <td>Text</td>
+                            <td>"Hello", "Player1", "Victory!"</td>
+                            <td>Names, messages, UI text, tags</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Name</strong></td>
+                            <td>Lightweight text identifier</td>
+                            <td>'PlayerTag', 'EnemyType'</td>
+                            <td>Tags, identifiers (more efficient than String)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Text</strong></td>
+                            <td>Localized text</td>
+                            <td>Localizable strings</td>
+                            <td>UI text that needs translation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Byte</strong></td>
+                            <td>Small integer (0-255)</td>
+                            <td>0, 128, 255</td>
+                            <td>Enumerations, small counts, flags</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Structural Data Types</h3>
+                
+                <p>Complex types that hold multiple related values:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>What It Stores</th>
+                            <th>Examples</th>
+                            <th>Common Uses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Vector</strong></td>
+                            <td>3D coordinate (X, Y, Z)</td>
+                            <td>(100.0, 200.0, 50.0)</td>
+                            <td>Position, direction, velocity, scale</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rotator</strong></td>
+                            <td>3D rotation (Pitch, Yaw, Roll)</td>
+                            <td>(0.0, 90.0, 0.0)</td>
+                            <td>Actor rotation, aim direction</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transform</strong></td>
+                            <td>Position + Rotation + Scale</td>
+                            <td>Complete 3D transformation</td>
+                            <td>Full Actor placement, spawn transforms</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vector2D</strong></td>
+                            <td>2D coordinate (X, Y)</td>
+                            <td>(500.0, 300.0)</td>
+                            <td>Screen positions, UV coordinates</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color</strong></td>
+                            <td>RGBA color (Red, Green, Blue, Alpha)</td>
+                            <td>(1.0, 0.5, 0.0, 1.0)</td>
+                            <td>Material colors, light colors, UI tints</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <svg width="100%" height="400" viewBox="0 0 800 400" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Structural Data Types Visualized</text>
+                    
+                    <!-- Vector -->
+                    <g transform="translate(150, 80)">
+                        <rect x="-80" y="0" width="160" height="120" fill="#e3f2fd" stroke="#2196F3" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Vector</text>
+                        
+                        <!-- 3D axes visualization -->
+                        <line x1="-40" y1="90" x2="40" y2="90" stroke="#e74c3c" stroke-width="2"/>
+                        <text x="45" y="93" fill="#e74c3c" font-size="10" font-weight="bold">X</text>
+                        
+                        <line x1="0" y1="90" x2="0" y2="45" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="5" y="40" fill="#4CAF50" font-size="10" font-weight="bold">Z</text>
+                        
+                        <line x1="0" y1="90" x2="-25" y2="105" stroke="#2196F3" stroke-width="2"/>
+                        <text x="-30" y="110" fill="#2196F3" font-size="10" font-weight="bold">Y</text>
+                        
+                        <text x="0" y="105" text-anchor="middle" font-size="9" fill="#666">(X, Y, Z)</text>
+                    </g>
+                    
+                    <!-- Rotator -->
+                    <g transform="translate(400, 80)">
+                        <rect x="-80" y="0" width="160" height="120" fill="#f3e5f5" stroke="#9c27b0" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Rotator</text>
+                        
+                        <!-- Rotation arrows -->
+                        <g transform="translate(0, 65)">
+                            <!-- Pitch (X-axis) -->
+                            <path d="M -30,-10 A 15,15 0 0,1 -30,10" fill="none" stroke="#e74c3c" stroke-width="2"/>
+                            <polygon points="-30,10 -35,5 -25,8" fill="#e74c3c"/>
+                            <text x="-45" y="5" fill="#e74c3c" font-size="9">Pitch</text>
+                            
+                            <!-- Yaw (Z-axis) -->
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#4CAF50" stroke-width="2" stroke-dasharray="2,2"/>
+                            <path d="M 20,0 A 20,20 0 0,1 0,20" fill="none" stroke="#4CAF50" stroke-width="2"/>
+                            <polygon points="0,20 -5,15 3,13" fill="#4CAF50"/>
+                            <text x="25" y="5" fill="#4CAF50" font-size="9">Yaw</text>
+                            
+                            <!-- Roll (Y-axis) -->
+                            <path d="M 10,-15 A 15,15 0 0,1 10,15" fill="none" stroke="#2196F3" stroke-width="2"/>
+                            <polygon points="10,15 5,10 13,13" fill="#2196F3"/>
+                            <text x="15" y="-10" fill="#2196F3" font-size="9">Roll</text>
+                        </g>
+                    </g>
+                    
+                    <!-- Transform -->
+                    <g transform="translate(650, 80)">
+                        <rect x="-80" y="0" width="160" height="120" fill="#fff3e0" stroke="#ff9800" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Transform</text>
+                        
+                        <text x="0" y="50" text-anchor="middle" font-size="10" fill="#666">Location</text>
+                        <text x="0" y="63" text-anchor="middle" font-size="9" fill="#999">(Vector)</text>
+                        
+                        <text x="0" y="80" text-anchor="middle" font-size="10" fill="#666">Rotation</text>
+                        <text x="0" y="93" text-anchor="middle" font-size="9" fill="#999">(Rotator)</text>
+                        
+                        <text x="0" y="110" text-anchor="middle" font-size="10" fill="#666">Scale</text>
+                    </g>
+                    
+                    <!-- Vector2D -->
+                    <g transform="translate(150, 260)">
+                        <rect x="-80" y="0" width="160" height="100" fill="#e8f5e9" stroke="#4CAF50" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Vector2D</text>
+                        
+                        <!-- 2D axes -->
+                        <line x1="-40" y1="75" x2="40" y2="75" stroke="#e74c3c" stroke-width="2"/>
+                        <polygon points="40,75 35,70 35,80" fill="#e74c3c"/>
+                        <text x="43" y="78" fill="#e74c3c" font-size="10">X</text>
+                        
+                        <line x1="0" y1="85" x2="0" y2="40" stroke="#4CAF50" stroke-width="2"/>
+                        <polygon points="0,40 -5,45 5,45" fill="#4CAF50"/>
+                        <text x="5" y="38" fill="#4CAF50" font-size="10">Y</text>
+                        
+                        <text x="0" y="92" text-anchor="middle" font-size="9" fill="#666">(X, Y)</text>
+                    </g>
+                    
+                    <!-- Color -->
+                    <g transform="translate(400, 260)">
+                        <rect x="-80" y="0" width="160" height="100" fill="#fce4ec" stroke="#e91e63" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Color (RGBA)</text>
+                        
+                        <!-- Color squares -->
+                        <rect x="-60" y="40" width="25" height="25" fill="#ff0000"/>
+                        <text x="-47" y="72" text-anchor="middle" font-size="8" fill="#666">R</text>
+                        
+                        <rect x="-30" y="40" width="25" height="25" fill="#00ff00"/>
+                        <text x="-17" y="72" text-anchor="middle" font-size="8" fill="#666">G</text>
+                        
+                        <rect x="0" y="40" width="25" height="25" fill="#0000ff"/>
+                        <text x="12" y="72" text-anchor="middle" font-size="8" fill="#666">B</text>
+                        
+                        <rect x="30" y="40" width="25" height="25" fill="#cccccc"/>
+                        <text x="42" y="72" text-anchor="middle" font-size="8" fill="#666">A</text>
+                        
+                        <text x="0" y="88" text-anchor="middle" font-size="9" fill="#666">(0-1 for each)</text>
+                    </g>
+                    
+                    <!-- Note -->
+                    <text x="400" y="385" text-anchor="middle" font-size="11" fill="#666">These types store multiple related values as a single unit</text>
+                </svg>
+                <p class="caption"><em>Figure: Structural data types combine multiple values into cohesive units.</em></p>
+                
+                <h3>Reference Types</h3>
+                
+                <p>Variables that point to objects in the world:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>What It References</th>
+                            <th>Common Uses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Object Reference</strong></td>
+                            <td>Any Unreal object</td>
+                            <td>Base type for all references</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Actor Reference</strong></td>
+                            <td>Any Actor in the level</td>
+                            <td>Doors, enemies, props to control</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Class Reference</strong></td>
+                            <td>A Blueprint class (not an instance)</td>
+                            <td>Spawning—"which type to spawn"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Component Reference</strong></td>
+                            <td>A specific Component</td>
+                            <td>Accessing mesh, collision, audio components</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Soft Object Reference</strong></td>
+                            <td>Async-loaded reference</td>
+                            <td>Large assets loaded on demand</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 References vs Values</h4>
+                    <p><strong>Value types</strong> (Integer, Float, Boolean) store the actual data. When you copy them, you duplicate the value.</p>
+                    <p><strong>Reference types</strong> (Actor, Object) store a pointer to an object. When you copy them, both variables point to the same object—changing one affects what the other sees.</p>
+                    <p>Think: A locker number (reference) vs. the contents inside (value).</p>
+                </div>
+                
+                <h3>Container Types (Collections)</h3>
+                
+                <p>Types that hold multiple values:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Structure</th>
+                            <th>Use Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Array</strong></td>
+                            <td>Ordered list of same type</td>
+                            <td>Inventory items, enemy list, waypoints</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Set</strong></td>
+                            <td>Unordered collection, no duplicates</td>
+                            <td>Unique tags, visited locations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Map</strong></td>
+                            <td>Key-value pairs</td>
+                            <td>Player scores (name → score), damage types → multipliers</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>Array example:</strong> An array of Actor references to store all enemies in a level.</p>
+                <pre><code class="language-plaintext">EnemyArray[0] = Enemy_1
+EnemyArray[1] = Enemy_2
+EnemyArray[2] = Enemy_3
+</code></pre>
+                
+                <p>Access by index: <code>EnemyArray[0]</code> gets first enemy.</p>
+                
+                <h3>Choosing the Right Data Type</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A{What data do you need?} --> B{True/False state?}
+    B -->|Yes| C[Boolean]
+    B -->|No| D{Whole number?}
+    D -->|Yes| E[Integer]
+    D -->|No| F{Decimal number?}
+    F -->|Yes| G[Float]
+    F -->|No| H{Text?}
+    H -->|Yes| I[String/Name/Text]
+    H -->|No| J{3D position/direction?}
+    J -->|Yes| K[Vector]
+    J -->|No| L{Rotation?}
+    L -->|Yes| M[Rotator]
+    L -->|No| N{Reference to object?}
+    N -->|Yes| O[Actor/Object Reference]
+    N -->|No| P{Multiple items?}
+    P -->|Yes| Q[Array/Set/Map]
+    
+    style C fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E fill:#2196F3,stroke:#1565c0,color:#fff
+    style G fill:#ff9800,stroke:#e65100,color:#fff
+    style I fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style K fill:#00bcd4,stroke:#006064,color:#fff
+    style M fill:#f44336,stroke:#c62828,color:#fff
+    style O fill:#ff5722,stroke:#d84315,color:#fff
+    style Q fill:#795548,stroke:#4e342e,color:#fff
+</pre>
+<p class="caption"><em>Figure: Decision tree for selecting the appropriate data type.</em></p>
+            </section>
+
+            <!-- Section 4: Variable Scope and Access -->
+            <section id="variable-scope" class="lesson-section">
+                <h2>Variable Scope and Access</h2>
+                
+                <p>Not all variables are created equal—where and how they can be accessed depends on their <strong>scope</strong>.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Variable Scope:</strong> Defines where a variable can be accessed and modified. Scope controls whether a variable is visible only within one function, across the entire Blueprint, or even to other Blueprints. Understanding scope prevents bugs and enables proper Blueprint communication.</p>
+                </div>
+                
+                <h3>The Three Levels of Scope</h3>
+                
+                <pre class="mermaid">
+graph TD
+    A[Variable Scopes] --> B[Local Variables]
+    A --> C[Instance Variables]
+    A --> D[Class Variables Static]
+    
+    B --> B1[Function/Macro only]
+    B --> B2[Temporary data]
+    B --> B3[Can't be accessed outside]
+    
+    C --> C1[Entire Blueprint]
+    C --> C2[Each instance unique]
+    C --> C3[Can expose to other BPs]
+    
+    D --> D1[Shared across all instances]
+    D --> D2[Class-wide data]
+    D --> D3[Rarely used in BP]
+    
+    style A fill:#667eea,stroke:#4527a0,color:#fff
+    style B fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#ff9800,stroke:#e65100,color:#fff
+    style B1 fill:#e8f5e9,stroke:#4CAF50
+    style B2 fill:#e8f5e9,stroke:#4CAF50
+    style B3 fill:#e8f5e9,stroke:#4CAF50
+    style C1 fill:#e3f2fd,stroke:#2196F3
+    style C2 fill:#e3f2fd,stroke:#2196F3
+    style C3 fill:#e3f2fd,stroke:#2196F3
+    style D1 fill:#fff3e0,stroke:#ff9800
+    style D2 fill:#fff3e0,stroke:#ff9800
+    style D3 fill:#fff3e0,stroke:#ff9800
+</pre>
+<p class="caption"><em>Figure: The hierarchy of variable scope from local (narrowest) to class (widest).</em></p>
+                
+                <h3>1. Local Variables</h3>
+                
+                <p><strong>Local variables</strong> exist only within a single function or macro. They're created when the function starts and destroyed when it ends.</p>
+                
+                <p><strong>Creating local variables:</strong></p>
+                <ol>
+                    <li>Inside a function, add a node that creates a variable (like "Make Vector")</li>
+                    <li>Or: Right-click → "Promote to Variable" → Choose "Local Variable"</li>
+                    <li>Local variables appear in the function's local variable list</li>
+                </ol>
+                
+                <p><strong>Use cases:</strong></p>
+                <ul>
+                    <li>✅ Temporary calculations within a function</li>
+                    <li>✅ Loop counters</li>
+                    <li>✅ Intermediate values you don't need to keep</li>
+                    <li>✅ Prevents cluttering the Blueprint with unnecessary variables</li>
+                </ul>
+                
+                <h3>2. Instance Variables (Most Common)</h3>
+                
+                <p><strong>Instance variables</strong> are what you typically create—they're accessible throughout the entire Blueprint and unique to each instance.</p>
+                
+                <p><strong>Example:</strong> You place 3 doors in your level from <code>BP_Door</code>. Each door has its own <code>bIsOpen</code> variable—one door opening doesn't affect the others.</p>
+                
+                <p><strong>Use cases:</strong></p>
+                <ul>
+                    <li>✅ Actor state (health, speed, isOpen)</li>
+                    <li>✅ Configuration values (damage, range, color)</li>
+                    <li>✅ References to other Actors</li>
+                    <li>✅ Data that persists across function calls</li>
+                </ul>
+                
+                <h3>3. Class Variables (Static)</h3>
+                
+                <p><strong>Class variables</strong> are shared across ALL instances of a Blueprint. Changing one instance's class variable changes it for all.</p>
+                
+                <p><strong>Use cases:</strong></p>
+                <ul>
+                    <li>⚠️ Rarely used in Blueprints (more common in C++)</li>
+                    <li>✅ Global counters (e.g., total enemies spawned)</li>
+                    <li>✅ Shared configuration data</li>
+                </ul>
+                
+                <p><strong>Note:</strong> In Blueprints, you typically use a Game Instance or Game Mode for truly global data instead of class variables.</p>
+                
+                <h3>Access Levels</h3>
+                
+                <p>Variables also have <strong>access levels</strong> that control who can see and modify them:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Access Level</th>
+                            <th>Who Can Access</th>
+                            <th>Set By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Private</strong></td>
+                            <td>Only this Blueprint</td>
+                            <td>Check "Private" in variable details</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Public (Default)</strong></td>
+                            <td>This Blueprint + child Blueprints</td>
+                            <td>Default state</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Instance Editable</strong></td>
+                            <td>Can be set per-instance in editor</td>
+                            <td>Check "Instance Editable"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Blueprint Read Only</strong></td>
+                            <td>Can read, cannot write (get only)</td>
+                            <td>Check "Blueprint Read Only"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Expose on Spawn</strong></td>
+                            <td>Must be set when spawning</td>
+                            <td>Check "Expose on Spawn"</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Best Practices for Variable Scope</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                        <h4>✅ Do This</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li>Use local variables for temporary calculations</li>
+                            <li>Use instance variables for Actor state</li>
+                            <li>Mark variables Private when they're internal only</li>
+                            <li>Use Instance Editable for designer-tweakable values</li>
+                            <li>Group related variables with Categories</li>
+                            <li>Add tooltips to document purpose</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                        <h4>❌ Avoid This</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li>Making everything Instance Editable (clutters Details panel)</li>
+                            <li>Using instance variables for temporary values</li>
+                            <li>Exposing internal implementation details publicly</li>
+                            <li>Creating variables without descriptive names</li>
+                            <li>Overusing class/static variables</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Example: Variable Scope in Action</h3>
+                
+                <p>Consider a <code>CalculateDamage</code> function in a weapon Blueprint:</p>
+                
+                <pre><code class="language-plaintext">Instance Variables (accessible everywhere in Blueprint):
+  - BaseDamage (Float) = 50.0
+  - DamageMultiplier (Float) = 1.5
+  - LastDamageDealt (Float)
+
+Function: CalculateDamage
+  Local Variables (only exist in this function):
+    - RandomBonus (Float) = Random between 0 and 10
+    - FinalDamage (Float) = BaseDamage * DamageMultiplier + RandomBonus
+  
+  Set LastDamageDealt = FinalDamage
+  Return FinalDamage
+</code></pre>
+                
+                <p><strong>Why this structure?</strong></p>
+                <ul>
+                    <li><code>BaseDamage</code> and <code>DamageMultiplier</code> are instance variables—they persist and can be configured per weapon</li>
+                    <li><code>RandomBonus</code> and <code>FinalDamage</code> are local—temporary calculations, no need to store</li>
+                    <li><code>LastDamageDealt</code> is instance—we want to remember it for debugging or UI display</li>
+                </ul>
+            </section>
+
+            <!-- Section 5: Blueprint References -->
+            <section id="references" class="lesson-section">
+                <h2>Blueprint References</h2>
+                
+                <p>To make one Blueprint control another, you need a <strong>reference</strong>—a variable that points to the specific Blueprint instance you want to affect.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Blueprint Reference:</strong> A variable that holds a pointer to a specific Actor or object in your game. Think of it like a phone number—you need someone's number (reference) to call them (communicate with them). Without a reference, your Blueprint can't interact with another.</p>
+                </div>
+                
+                <h3>Why References Are Necessary</h3>
+                
+                <p>You can't just say "open the door" into the void. You need to specify <em>which</em> door. References solve this:</p>
+                
+                <pre class="mermaid">
+sequenceDiagram
+    participant Lever as BP_Lever
+    participant Door as BP_Door
+    
+    Note over Lever: Needs reference to Door
+    
+    Lever->>Lever: Get DoorReference variable
+    Lever->>Door: Call "Open" function
+    Door->>Door: Execute open logic
+    Door-->>Lever: Done
+    
+    Note over Lever,Door: Communication succeeded because Lever had Door reference
+</pre>
+<p class="caption"><em>Figure: References enable direct communication between Blueprint instances.</em></p>
+
+                
+                <h3>Creating References</h3>
+                
+                <p>There are several ways to establish references between Blueprints:</p>
+                
+                <h4>Method 1: Manual Assignment (Instance Editable)</h4>
+                
+                <ol>
+                    <li>In <code>BP_Lever</code>, create a variable: <code>DoorToControl</code></li>
+                    <li>Set type to <strong>Actor → BP_Door</strong> (object reference)</li>
+                    <li>Check <strong>"Instance Editable"</strong></li>
+                    <li>Place both lever and door in your level</li>
+                    <li>Select the lever instance</li>
+                    <li>In Details panel, you'll see "Door To Control"</li>
+                    <li>Click the eyedropper, then click the door in viewport to assign</li>
+                </ol>
+                
+                <p>Now the lever has a reference to that specific door!</p>
+                
+                <h4>Method 2: Search and Store (BeginPlay)</h4>
+                
+                <ol>
+                    <li>Create variable: <code>PlayerReference</code> (Actor → Character)</li>
+                    <li>In Event BeginPlay:
+                        <ul>
+                            <li>Use <strong>"Get Player Character"</strong> node</li>
+                            <li>Store result in <code>PlayerReference</code> variable</li>
+                        </ul>
+                    </li>
+                    <li>Now you can access player from anywhere in the Blueprint</li>
+                </ol>
+                
+                <h4>Method 3: Collision/Overlap Detection</h4>
+                
+                <ol>
+                    <li>OnBeginOverlap event provides "Other Actor" pin</li>
+                    <li>This is a reference to whatever touched you</li>
+                    <li>You can store it or use it immediately</li>
+                </ol>
+                
+                <h4>Method 4: Spawning</h4>
+                
+                <ol>
+                    <li>When you spawn an Actor, the Spawn node returns a reference to it</li>
+                    <li>Store this reference to control the spawned Actor later</li>
+                </ol>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Best Practice: Validate References</h4>
+                    <p>Always check if a reference is valid before using it:</p>
+                    <pre style="font-size: 0.85em; margin: 0;">Get DoorReference → IsValid? → If valid, use it
+                                    → If invalid, handle error</pre>
+                    <p style="margin-top: 0.5rem;">References can become invalid if the Actor is destroyed. The "IsValid" node prevents crashes.</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Casting -->
+            <section id="casting" class="lesson-section">
+                <h2>Casting: Type-Safe Communication</h2>
+                
+                <p>Having a reference is step one. But what if you have a generic "Actor" reference and need to access specific Blueprint functionality? That's where <strong>casting</strong> comes in.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Casting:</strong> The process of treating a generic reference (like "Actor") as a more specific type (like "BP_Door") so you can access its unique variables and functions. Think of it like this: you know someone is "a person" (Actor), but casting confirms they're specifically "a doctor" (BP_Door) so you can call doctor-specific functions like "PerformSurgery".</p>
+                </div>
+                
+                <h3>Why Casting Is Necessary</h3>
+                
+                <p>When you get a reference from events like OnBeginOverlap, you often get a generic "Actor" reference. This could be anything—a player, a rock, a light, anything. To access specific functionality, you need to cast:</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Generic Actor Reference] --> B{Cast to Specific Type}
+    B -->|Success| C[Access Specific Functions/Variables]
+    B -->|Failure| D[Not that type - handle accordingly]
+    
+    style A fill:#9e9e9e,stroke:#616161,color:#fff
+    style B fill:#ff9800,stroke:#e65100,color:#fff
+    style C fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style D fill:#e74c3c,stroke:#c0392b,color:#fff
+</pre>
+<p class="caption"><em>Figure: Casting converts generic references to specific types, enabling type-specific access.</em></p>
+                
+                <h3>How to Cast</h3>
+                
+                <ol>
+                    <li>Have a reference (e.g., from OnBeginOverlap's "Other Actor" pin)</li>
+                    <li>Right-click in graph → search "Cast to [BlueprintName]"</li>
+                    <li>Example: "Cast to BP_Player"</li>
+                    <li>Connect the reference to the cast node's Object input</li>
+                    <li>The cast has two execution outputs:
+                        <ul>
+                            <li><strong>Cast Succeeded:</strong> It was that type—proceed</li>
+                            <li><strong>Cast Failed:</strong> It wasn't that type—handle error</li>
+                        </ul>
+                    </li>
+                    <li>From "Cast Succeeded" output pin, you get a typed reference</li>
+                </ol>
+                
+                <h3>Casting Example: Pressure Plate</h3>
+                
+                <p>Scenario: A pressure plate should only activate when the <em>player</em> steps on it, not enemies or props.</p>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[OnBeginOverlap Event] --> B[Get Other Actor]
+    B --> C{Cast to BP_Player}
+    C -->|Success| D[It's the player!]
+    C -->|Failed| E[Not the player - ignore]
+    D --> F[Open Door]
+    E --> G[Do Nothing]
+    
+    style A fill:#e74c3c,stroke:#c0392b,color:#fff
+    style B fill:#9e9e9e,stroke:#616161,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E fill:#9e9e9e,stroke:#616161,color:#fff
+    style F fill:#2196F3,stroke:#1565c0,color:#fff
+    style G fill:#757575,stroke:#424242,color:#fff
+</pre>
+<p class="caption"><em>Figure: Casting filters overlaps to only respond to specific Actor types.</em></p>
+                
+                <p><strong>Blueprint nodes:</strong></p>
+                <ol>
+                    <li>OnBeginOverlap (CollisionComponent) → Other Actor pin</li>
+                    <li>Cast to BP_Player → Object = Other Actor</li>
+                    <li>If cast succeeds → Player stepped on plate → Trigger door</li>
+                    <li>If cast fails → Something else → Ignore</li>
+                </ol>
+                
+                <h3>Casting Best Practices</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                        <h4>✅ Good Casting</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li>Cast when you need specific functionality</li>
+                            <li>Use cast failed branch to handle non-matches</li>
+                            <li>Store successful cast results for reuse</li>
+                            <li>Cast to interfaces instead of classes when possible (more flexible)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                        <h4>⚠️ Casting Pitfalls</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li>Don't cast every frame (expensive)</li>
+                            <li>Don't ignore cast failed branch (can cause bugs)</li>
+                            <li>Avoid casting chains (A→B→C→D gets messy)</li>
+                            <li>Consider interfaces for loose coupling</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Performance Note</h3>
+                
+                <p>Casting has a small performance cost. If you're casting every frame (Event Tick), consider caching the result:</p>
+                
+                <pre><code class="language-plaintext">❌ Bad:
+Event Tick
+  Get Other Actor → Cast to Player → Use Player
+
+✅ Good:
+Event BeginPlay
+  Get Player → Cast to Player → Store in PlayerRef
+
+Event Tick
+  Use PlayerRef (no casting needed)
+</code></pre>
+            </section>
+
+            <!-- Section 7: Direct Blueprint Communication -->
+            <section id="direct-communication" class="lesson-section">
+                <h2>Direct Blueprint Communication</h2>
+                
+                <p>Once you have a reference and optionally cast it, you can <strong>directly communicate</strong>—call functions, access variables, trigger events.</p>
+                
+                <h3>Calling Functions</h3>
+                
+                <p>If BP_Door has a function called <code>OpenDoor()</code>, and you have a reference to it:</p>
+                
+                <ol>
+                    <li>Drag the DoorReference variable into the graph (Get)</li>
+                    <li>Drag from its output pin → search "OpenDoor"</li>
+                    <li>Unreal shows all functions available on that Blueprint</li>
+                    <li>Connect execution flow to call it</li>
+                </ol>
+                
+                <p>The function executes on that specific door instance.</p>
+                
+                <h3>Getting and Setting Variables</h3>
+                
+                <p>If a variable is public or instance editable, you can access it:</p>
+                
+                <ul>
+                    <li><strong>Get variable:</strong> Drag from reference → search "Get [VariableName]"</li>
+                    <li><strong>Set variable:</strong> Drag from reference → search "Set [VariableName]"</li>
+                </ul>
+                
+                <p><strong>Example:</strong> Check if door is open:</p>
+                <pre><code class="language-plaintext">Get DoorReference → Get bIsOpen → Branch (if true, do something)
+</code></pre>
+                
+                <h3>Common Communication Pattern</h3>
+                
+                <pre class="mermaid">
+sequenceDiagram
+    participant A as BP_Button
+    participant B as BP_Door
+    
+    Note over A: Player presses button
+    A->>A: OnInteract Event fires
+    A->>A: Get DoorReference
+    A->>B: Call OpenDoor()
+    B->>B: Set bIsOpen = true
+    B->>B: Play animation
+    B->>B: Play sound
+    B-->>A: Function complete
+    
+    Note over A,B: Direct communication via reference + function call
+</pre>
+<p class="caption"><em>Figure: Complete direct communication sequence from button press to door opening.</em></p>
+            </section>
+
+            <!-- Section 8: Blueprint Interfaces -->
+            <section id="interfaces" class="lesson-section">
+                <h2>Blueprint Interfaces</h2>
+                
+                <p>What if you want to send the same message to many different Blueprint types without casting to each one? Use <strong>Blueprint Interfaces</strong>.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Blueprint Interface:</strong> A contract that defines function signatures without implementation. Multiple Blueprints can "implement" the interface, each providing their own version of the functions. This allows you to send messages to diverse objects without knowing their specific types.</p>
+                </div>
+                
+                <h3>The Interface Problem</h3>
+                
+                <p>Imagine a game where explosions should damage nearby objects. But different objects respond differently:</p>
+                
+                <ul>
+                    <li>Player: Reduce health, play hurt animation</li>
+                    <li>Enemy: Reduce health, ragdoll if dead</li>
+                    <li>Crate: Break apart, spawn loot</li>
+                    <li>Door: Take damage, open when health reaches 0</li>
+                </ul>
+                
+                <p>Without interfaces, you'd need to cast to each type and call different functions. With interfaces, you create one "TakeDamage" message that all implement.</p>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Explosion Blueprint] --> B[Send TakeDamage message]
+    B --> C[Interface: I_Damageable]
+    C --> D[BP_Player implements]
+    C --> E[BP_Enemy implements]
+    C --> F[BP_Crate implements]
+    C --> G[BP_Door implements]
+    
+    D --> D1[Reduce health]
+    E --> E1[Reduce health + ragdoll]
+    F --> F1[Break apart]
+    G --> G1[Damage door]
+    
+    style A fill:#ff9800,stroke:#e65100,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style D fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style F fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style G fill:#4CAF50,stroke:#2e7d32,color:#fff
+</pre>
+<p class="caption"><em>Figure: Interfaces allow one message to reach multiple Blueprint types, each responding uniquely.</em></p>
+                
+                <h3>Creating a Blueprint Interface</h3>
+                
+                <ol>
+                    <li>Content Browser → Right-click → <strong>Blueprint Interface</strong></li>
+                    <li>Name it (e.g., <code>BPI_Damageable</code>)</li>
+                    <li>Open it</li>
+                    <li>Add functions (e.g., "TakeDamage")
+                        <ul>
+                            <li>Define inputs (DamageAmount, DamageType)</li>
+                            <li>Define outputs (if needed)</li>
+                            <li>No implementation—just signatures</li>
+                        </ul>
+                    </li>
+                    <li>Save and close</li>
+                </ol>
+                
+                <h3>Implementing an Interface</h3>
+                
+                <ol>
+                    <li>Open a Blueprint (e.g., BP_Player)</li>
+                    <li>Class Settings → Interfaces → Add → Choose your interface</li>
+                    <li>In Event Graph or Functions, you'll see interface functions listed</li>
+                    <li>Right-click → Implement event "TakeDamage"</li>
+                    <li>Add your custom logic (for player: reduce health, play sound, etc.)</li>
+                </ol>
+                
+                <h3>Calling Interface Functions</h3>
+                
+                <p>Instead of casting, you call the interface directly:</p>
+                
+                <ol>
+                    <li>Have a reference to an Actor (any Actor)</li>
+                    <li>Drag from it → search "TakeDamage" (the interface message)</li>
+                    <li>Choose the <strong>interface version</strong> (blue icon)</li>
+                    <li>Connect inputs (DamageAmount, etc.)</li>
+                    <li>If the Actor implements the interface, it receives and handles the message</li>
+                    <li>If it doesn't implement it, nothing happens (no error)</li>
+                </ol>
+                
+                <h3>Interface vs. Casting</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Casting</th>
+                            <th>Interface</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Specificity</strong></td>
+                            <td>Knows exact Blueprint type</td>
+                            <td>Doesn't know or care about type</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Flexibility</strong></td>
+                            <td>Rigid—only works with that type</td>
+                            <td>Flexible—works with any implementer</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Accessing specific Blueprint variables/functions</td>
+                            <td>Sending common messages to diverse types</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Coupling</strong></td>
+                            <td>Tight—depends on specific Blueprint</td>
+                            <td>Loose—only depends on interface contract</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Failure Handling</strong></td>
+                            <td>Cast Failed branch required</td>
+                            <td>Silent if not implemented</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 9: Event Dispatchers -->
+            <section id="event-dispatchers" class="lesson-section">
+                <h2>Event Dispatchers</h2>
+                
+                <p><strong>Event Dispatchers</strong> are Unreal's publish-subscribe system—one Blueprint broadcasts an event, multiple others can listen and respond.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Event Dispatcher:</strong> A special type of event that can be broadcast to multiple listeners. The broadcaster doesn't need to know who's listening—it just announces "something happened" and all subscribers respond. Think of it like a radio station: it broadcasts, and anyone tuned in receives the signal.</p>
+                </div>
+                
+                <h3>When to Use Event Dispatchers</h3>
+                
+                <p>Perfect for one-to-many communication where the sender doesn't know (or care) who's listening:</p>
+                
+                <ul>
+                    <li>✅ Player collects a coin → Update UI, play sound, trigger achievement check</li>
+                    <li>✅ Boss dies → Close doors, spawn loot, start victory sequence, update quest</li>
+                    <li>✅ Button pressed → Open multiple doors, activate lights, trigger cutscene</li>
+                    <li>✅ Wave completed → Update score, spawn next wave, display message</li>
+                </ul>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Event Dispatcher: OnBossDeath] --> B[Broadcast]
+    B --> C[Listener 1: UI Widget]
+    B --> D[Listener 2: Level Door]
+    B --> E[Listener 3: Quest Manager]
+    B --> F[Listener 4: Music Controller]
+    
+    C --> C1[Show Victory Screen]
+    D --> D1[Open Exit Door]
+    E --> E1[Complete Quest]
+    F --> F1[Play Victory Music]
+    
+    style A fill:#ff9800,stroke:#e65100,color:#fff
+    style B fill:#e74c3c,stroke:#c0392b,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#2196F3,stroke:#1565c0,color:#fff
+    style E fill:#2196F3,stroke:#1565c0,color:#fff
+    style F fill:#2196F3,stroke:#1565c0,color:#fff
+    style C1 fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style D1 fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E1 fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style F1 fill:#4CAF50,stroke:#2e7d32,color:#fff
+</pre>
+<p class="caption"><em>Figure: Event Dispatchers broadcast to multiple listeners simultaneously.</em></p>
+                
+                <h3>Creating an Event Dispatcher</h3>
+                
+                <ol>
+                    <li>Open the broadcasting Blueprint (e.g., BP_Boss)</li>
+                    <li>My Blueprint panel → Event Dispatchers → <strong>+ Event Dispatcher</strong></li>
+                    <li>Name it (e.g., <code>OnBossDeath</code>)</li>
+                    <li>In Details, add inputs if needed (e.g., DeathLocation, LootToSpawn)</li>
+                    <li>Compile</li>
+                </ol>
+                
+                <h3>Broadcasting (Calling) the Dispatcher</h3>
+                
+                <ol>
+                    <li>In the broadcaster's Event Graph, when the event occurs:</li>
+                    <li>Drag the Event Dispatcher into the graph</li>
+                    <li>Choose <strong>"Call [DispatcherName]"</strong></li>
+                    <li>Connect execution flow</li>
+                    <li>Provide any input values</li>
+                </ol>
+                
+                <p><strong>Example:</strong> Boss death logic:</p>
+                <pre><code class="language-plaintext">Health <= 0 → Call OnBossDeath → Pass (DeathLocation, LootType)
+</code></pre>
+                
+                <h3>Binding to (Listening to) the Dispatcher</h3>
+                
+                <p>In the listening Blueprint (e.g., Level Blueprint, UI Widget):</p>
+                
+                <ol>
+                    <li>Get a reference to the broadcasting Actor (Boss)</li>
+                    <li>Drag from that reference → search for the dispatcher name</li>
+                    <li>Choose <strong>"Bind Event to [DispatcherName]"</strong></li>
+                    <li>This creates a custom event node</li>
+                    <li>Wire your response logic to that custom event</li>
+                </ol>
+                
+                <p>When the broadcaster calls the dispatcher, all bound custom events fire.</p>
+                
+                <h3>Event Dispatcher Example: Collectible System</h3>
+                
+                <p><strong>Scenario:</strong> When player collects a coin, multiple systems need to know.</p>
+                
+                <p><strong>BP_Coin (Broadcaster):</strong></p>
+                <pre><code class="language-plaintext">1. Create Event Dispatcher: OnCoinCollected (inputs: CoinValue)
+2. OnBeginOverlap (player touches coin):
+   → Call OnCoinCollected (Value = 10)
+   → Destroy Actor
+</code></pre>
+                
+                <p><strong>BP_ScoreManager (Listener 1):</strong></p>
+                <pre><code class="language-plaintext">BeginPlay:
+  Get All Actors of Class (BP_Coin)
+  For each coin:
+    → Bind to OnCoinCollected
+    → When fired: Add CoinValue to TotalScore
+</code></pre>
+                
+                <p><strong>WBP_HUD (Listener 2 - UI Widget):</strong></p>
+                <pre><code class="language-plaintext">Construct:
+  Get All Actors of Class (BP_Coin)
+  For each coin:
+    → Bind to OnCoinCollected
+    → When fired: Update score text display
+</code></pre>
+                
+                <p>Result: One coin collection triggers multiple responses—score increases, UI updates, sound plays—without the coin knowing about any of them!</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Event Dispatcher Benefits</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Decoupling:</strong> Broadcaster doesn't need references to listeners</li>
+                        <li><strong>Flexibility:</strong> Add/remove listeners without touching broadcaster</li>
+                        <li><strong>One-to-many:</strong> Single broadcast reaches unlimited listeners</li>
+                        <li><strong>Dynamic:</strong> Bind/unbind at runtime as needed</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 10: Choosing Communication Methods -->
+            <section id="communication-patterns" class="lesson-section">
+                <h2>Choosing the Right Communication Method</h2>
+                
+                <p>With multiple communication options, how do you choose? Here's a decision guide:</p>
+                
+                <pre class="mermaid">
+flowchart TD
+    A{Communication Scenario} --> B{One sender, one receiver?}
+    B -->|Yes| C{Do you have direct reference?}
+    C -->|Yes| D[Direct Communication: Call functions/set variables]
+    C -->|No| E{Can you get reference easily?}
+    E -->|Yes| F[Get reference + Direct Communication]
+    E -->|No| G{Same message to different types?}
+    
+    B -->|No| H{One sender, many receivers?}
+    H -->|Yes| I[Event Dispatcher]
+    
+    G -->|Yes| J[Blueprint Interface]
+    G -->|No| K{Need specific Blueprint functionality?}
+    K -->|Yes| L[Casting + Direct Communication]
+    K -->|No| M[Consider redesigning architecture]
+    
+    style D fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style F fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style I fill:#ff9800,stroke:#e65100,color:#fff
+    style J fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style L fill:#2196F3,stroke:#1565c0,color:#fff
+</pre>
+<p class="caption"><em>Figure: Decision tree for selecting the appropriate Blueprint communication method.</em></p>
+                
+                <h3>Method Comparison</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>When to Use</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Direct Reference</strong></td>
+                            <td>Simple 1-to-1 relationships</td>
+                            <td>Simple, fast, clear</td>
+                            <td>Requires knowing target, tight coupling</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Casting</strong></td>
+                            <td>Access specific Blueprint features</td>
+                            <td>Type-safe, full access</td>
+                            <td>Rigid, performance cost, tight coupling</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interface</strong></td>
+                            <td>Same message to different types</td>
+                            <td>Flexible, loose coupling, extensible</td>
+                            <td>Setup overhead, can't access variables directly</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Event Dispatcher</strong></td>
+                            <td>Broadcast to multiple unknown listeners</td>
+                            <td>Decoupled, dynamic, one-to-many</td>
+                            <td>Setup complexity, harder to debug</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Real-World Examples</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Best Method</th>
+                            <th>Why</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Lever controls one specific door</td>
+                            <td>Direct Reference</td>
+                            <td>Simple 1-to-1, door is known at design time</td>
+                        </tr>
+                        <tr>
+                            <td>Pressure plate checks if player stepped on it</td>
+                            <td>Casting</td>
+                            <td>Need to verify it's the player specifically</td>
+                        </tr>
+                        <tr>
+                            <td>Explosion damages everything nearby</td>
+                            <td>Interface</td>
+                            <td>Damage message to diverse types (player, enemy, props)</td>
+                        </tr>
+                        <tr>
+                            <td>Boss death triggers multiple systems</td>
+                            <td>Event Dispatcher</td>
+                            <td>One event, many unknown listeners (UI, doors, quests)</td>
+                        </tr>
+                        <tr>
+                            <td>AI needs player location</td>
+                            <td>Direct Reference (cached)</td>
+                            <td>Get player once, store reference, use repeatedly</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 11: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Multi-Button Door System</h2>
+                    
+                    <p>Build a door that requires multiple buttons to be pressed before opening. This exercises references, variables, and communication.</p>
+                    
+                    <h3>Part 1: Create BP_Door</h3>
+                    
+                    <ol>
+                        <li>Create Blueprint Class → Actor → <code>BP_MultiButtonDoor</code></li>
+                        <li>Add Static Mesh Component (door visual)</li>
+                        <li>Create variables:
+                            <ul>
+                                <li><code>bIsOpen</code> (Boolean) = false</li>
+                                <li><code>RequiredButtons</code> (Integer) = 3</li>
+                                <li><code>PressedButtons</code> (Integer) = 0</li>
+                            </ul>
+                        </li>
+                        <li>Create function: <code>CheckButtonPress()</code>
+                            <ul>
+                                <li>Increment PressedButtons by 1</li>
+                                <li>If PressedButtons >= RequiredButtons:
+                                    <ul>
+                                        <li>Set bIsOpen = true</li>
+                                        <li>Print "Door Opening!"</li>
+                                        <li>Move door up (SetRelativeLocation)</li>
+                                    </ul>
+                                </li>
+                                <li>Else: Print "X buttons remaining"</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 2: Create BP_Button</h3>
+                    
+                    <ol>
+                        <li>Create Blueprint Class → Actor → <code>BP_Button</code></li>
+                        <li>Add Static Mesh Component (button visual)</li>
+                        <li>Add Box Collision Component</li>
+                        <li>Create variable:
+                            <ul>
+                                <li><code>DoorToControl</code> (Object Reference → BP_MultiButtonDoor)</li>
+                                <li>Check "Instance Editable"</li>
+                            </ul>
+                        </li>
+                        <li>Add OnComponentBeginOverlap event:
+                            <ul>
+                                <li>Cast to Player Character</li>
+                                <li>If success:
+                                    <ul>
+                                        <li>Check if DoorToControl is valid</li>
+                                        <li>If valid: Call DoorToControl → CheckButtonPress()</li>
+                                        <li>Print "Button Pressed!"</li>
+                                        <li>Disable collision (prevent re-pressing)</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 3: Set Up in Level</h3>
+                    
+                    <ol>
+                        <li>Place <code>BP_MultiButtonDoor</code> in level</li>
+                        <li>Place 3 instances of <code>BP_Button</code> around the level</li>
+                        <li>For each button:
+                            <ul>
+                                <li>Select it</li>
+                                <li>In Details → Door To Control → Use eyedropper to select the door</li>
+                            </ul>
+                        </li>
+                        <li>Play (<kbd>Alt+P</kbd>)</li>
+                        <li>Walk to each button—door opens after all 3 are pressed!</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Checkpoint:</strong> What did you practice?</summary>
+                        <p>This exercise covered:
+                            <ul>
+                                <li><strong>Variables:</strong> Boolean, Integer for state tracking</li>
+                                <li><strong>References:</strong> Button stores reference to door</li>
+                                <li><strong>Casting:</strong> Verify player triggered button</li>
+                                <li><strong>Direct Communication:</strong> Call door's CheckButtonPress function</li>
+                                <li><strong>Instance Editable:</strong> Assign door per button instance</li>
+                            </ul>
+                            You've built a complete multi-Blueprint interaction system!
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Add Event Dispatcher</h3>
+                    
+                    <p>Enhance the system with a dispatcher:</p>
+                    <ol>
+                        <li>In BP_MultiButtonDoor, create Event Dispatcher: <code>OnDoorOpened</code></li>
+                        <li>When door opens, call the dispatcher</li>
+                        <li>In Level Blueprint:
+                            <ul>
+                                <li>Get reference to door</li>
+                                <li>Bind to OnDoorOpened</li>
+                                <li>When fired: Print "Victory!" + play sound</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Section 12: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Blueprint communication and variables are the glue that connects individual Blueprints into cohesive gameplay systems. Master these concepts and you can build anything from simple door mechanics to complex multiplayer games.</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>📦 <strong>Variables</strong> store data—from simple booleans to complex object references—with three scope levels (local, instance, class)</li>
+                    <li>🔢 <strong>Data Types</strong> include primitives (Boolean, Integer, Float, String), structures (Vector, Rotator, Transform), references (Actor, Object), and containers (Array, Set, Map)</li>
+                    <li>🔗 <strong>References</strong> are pointers to specific Actors—without them, Blueprints can't communicate</li>
+                    <li>🎯 <strong>Casting</strong> converts generic references to specific types, enabling type-safe access to unique functionality</li>
+                    <li>📞 <strong>Direct Communication</strong> via references allows calling functions and accessing variables on other Blueprints</li>
+                    <li>🔌 <strong>Blueprint Interfaces</strong> define contracts that multiple types implement, enabling flexible messaging without tight coupling</li>
+                    <li>📡 <strong>Event Dispatchers</strong> broadcast events to multiple listeners without the broadcaster needing references—perfect for one-to-many communication</li>
+                    <li>🧭 <strong>Choosing Methods:</strong> Direct reference for 1-to-1, interfaces for same-message-different-types, dispatchers for broadcasting</li>
+                    <li>✅ <strong>Best Practices:</strong> Validate references, cache frequently-used references, use appropriate scope, minimize casting in Tick</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>Now that you understand how Blueprints communicate, the next lesson explores <strong>Lesson 3.3: Blueprint Flow Control and Logic</strong>. You'll learn conditionals (Branch, Switch), loops (For, While), sequences, gates, and how to build complex decision-making systems that bring your gameplay to life.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What's the difference between Get and Set variable nodes?</li>
+                        <li>Name three primitive data types and their uses.</li>
+                        <li>What are the three levels of variable scope?</li>
+                        <li>Why do you need references to communicate between Blueprints?</li>
+                        <li>What does casting do and when do you use it?</li>
+                        <li>When should you use a Blueprint Interface instead of casting?</li>
+                        <li>What's the advantage of Event Dispatchers?</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Get reads the current value (pure function, no execution pins). Set writes a new value (requires execution).</li>
+                            <li>Boolean (true/false for states like bIsOpen), Integer (whole numbers for health/ammo), Float (decimals for speed/damage), String (text for names/messages).</li>
+                            <li>Local (function-only), Instance (entire Blueprint, unique per instance), Class/Static (shared across all instances).</li>
+                            <li>References are pointers to specific Actors. Without them, you can't specify which Actor to communicate with—like needing a phone number to call someone.</li>
+                            <li>Casting converts a generic reference (Actor) to a specific type (BP_Player) so you can access type-specific functions and variables. Use it when you need specific Blueprint functionality from a generic reference.</li>
+                            <li>Use Interfaces when you want to send the same message to multiple different Blueprint types without knowing their specific classes—enables loose coupling and flexibility.</li>
+                            <li>Event Dispatchers allow one-to-many broadcasting without the sender needing references to listeners—decouples sender from receivers and allows dynamic binding.</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m05_l01_what_are_blueprints.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">Introduction to Blueprints</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="m05_l03_events_and_functions.html" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Lesson</span>
+                    <span class="title">Blueprint Flow Control</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

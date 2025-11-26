@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete Introduction to Unreal Engine 5 course - Learn game development from beginner to confident creator. 10 modules covering interface, levels, materials, lighting, Blueprints, and more.">
+    <meta name="author" content="Practical Ace">
+    <title>Introduction to Unreal Engine 5 - Complete Course</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin: -2rem -2rem 2rem -2rem;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-box strong {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        .stat-box span {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .module-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .module-icon {
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+        .module-info h2 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        .module-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .progress-bar {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #66BB6A);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        .lesson-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .lesson-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+        .lesson-item.available {
+            background: #e8f5e9;
+            cursor: pointer;
+        }
+        .lesson-item.available:hover {
+            background: #c8e6c9;
+        }
+        .lesson-item.coming-soon {
+            opacity: 0.6;
+        }
+        .lesson-item a {
+            text-decoration: none;
+            color: #333;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .lesson-number {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 4rem;
+        }
+        .lesson-title {
+            flex: 1;
+        }
+        .lesson-status {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .status-complete {
+            background: #4CAF50;
+            color: white;
+        }
+        .status-coming {
+            background: #e0e0e0;
+            color: #666;
+        }
+        .cta-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 3rem 0;
+        }
+        .cta-section h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #f5576c;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .info-card h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .stats {
+                gap: 1rem;
+            }
+            .stat-box {
+                padding: 0.75rem 1rem;
+            }
+            .module-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>🎮 Introduction to Unreal Engine 5</h1>
+        <p>Master game development from beginner to confident creator</p>
+        <p style="font-size: 1rem; opacity: 0.9;">A comprehensive course covering everything from installation to publishing your own interactive experiences</p>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <strong>10</strong>
+                <span>Modules</span>
+            </div>
+            <div class="stat-box">
+                <strong>45+</strong>
+                <span>Lessons</span>
+            </div>
+            <div class="stat-box">
+                <strong>40-50</strong>
+                <span>Hours</span>
+            </div>
+            <div class="stat-box">
+                <strong>100%</strong>
+                <span>Free</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            
+            <!-- Course Overview -->
+            <section style="margin-bottom: 3rem;">
+                <h2>📚 Course Overview</h2>
+                <p>This course is designed for complete beginners with no prior game development experience. Through hands-on lessons, you'll learn to navigate Unreal Engine's interface, build 3D environments, apply materials and lighting, create interactive gameplay with Blueprints, and package your projects for distribution.</p>
+                
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h3>🎯 Target Audience</h3>
+                        <p>Beginners with basic computer skills; no programming required</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>💻 Requirements</h3>
+                        <p>Windows 10/11, 16GB RAM, DirectX 12 GPU, 100GB storage</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>🛠️ Software</h3>
+                        <p>Unreal Engine 5.4+ (free via Epic Games Launcher)</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>🏆 Outcome</h3>
+                        <p>Build and package your own interactive game experience</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to Action -->
+            <div class="cta-section">
+                <h2>Ready to Start Your Journey?</h2>
+                <p>Begin with Module 1 and learn the fundamentals of Unreal Engine</p>
+                <a href="m01_l01_what_is_unreal_engine.html" class="cta-button">Start Learning →</a>
+            </div>
+
+            <!-- Modules Section -->
+            <section id="modules">
+                <h2 style="text-align: center; margin-bottom: 3rem;">📖 Complete Curriculum</h2>
+
+                <!-- Module 1: Getting Started -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🚀</div>
+                        <div class="module-info">
+                            <h2>Module 1: Getting Started with Unreal Engine</h2>
+                            <div class="module-meta">4 Lessons • Installation, Interface, First Project</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m01_l01_what_is_unreal_engine.html">
+                                <span class="lesson-number">Lesson 1.1</span>
+                                <span class="lesson-title">What is Unreal Engine?</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m01_l02_installation_and_setup.html">
+                                <span class="lesson-number">Lesson 1.2</span>
+                                <span class="lesson-title">Installation and Setup</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m01_l03_your_first_project.html">
+                                <span class="lesson-number">Lesson 1.3</span>
+                                <span class="lesson-title">Your First Project</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m01_l04_unreal_editor_interface.html">
+                                <span class="lesson-number">Lesson 1.4</span>
+                                <span class="lesson-title">The Unreal Editor Interface</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 2: Working with Levels and Actors -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🏗️</div>
+                        <div class="module-info">
+                            <h2>Module 2: Working with Levels and Actors</h2>
+                            <div class="module-meta">5 Lessons • Levels, Actors, BSP, Static Meshes, Modeling Tools</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m02_l01_understanding_levels.html">
+                                <span class="lesson-number">Lesson 2.1</span>
+                                <span class="lesson-title">Understanding Levels</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m02_l02_actors_and_components.html">
+                                <span class="lesson-number">Lesson 2.2</span>
+                                <span class="lesson-title">Actors and Components</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m02_l03_bsp_geometry.html">
+                                <span class="lesson-number">Lesson 2.3</span>
+                                <span class="lesson-title">BSP Geometry (Brush Modeling)</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m02_l04_working_with_static_meshes.html">
+                                <span class="lesson-number">Lesson 2.4</span>
+                                <span class="lesson-title">Working with Static Meshes</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m02_l05_modeling_tools.html">
+                                <span class="lesson-number">Lesson 2.5</span>
+                                <span class="lesson-title">The Modeling Tools</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 3: Materials and Textures -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🎨</div>
+                        <div class="module-info">
+                            <h2>Module 3: Materials and Textures</h2>
+                            <div class="module-meta">5 Lessons • PBR, Material Editor, Textures, Instances, Special Materials</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m03_l01_material_fundamentals.html">
+                                <span class="lesson-number">Lesson 3.1</span>
+                                <span class="lesson-title">Material Fundamentals</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m03_l02_texture_basics.html">
+                                <span class="lesson-number">Lesson 3.2</span>
+                                <span class="lesson-title">Texture Basics</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m03_l03_building_complex_materials.html">
+                                <span class="lesson-number">Lesson 3.3</span>
+                                <span class="lesson-title">Building Complex Materials</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m03_l04_material_instances_and_parameters.html">
+                                <span class="lesson-number">Lesson 3.4</span>
+                                <span class="lesson-title">Material Instances and Parameters</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m03_l05_special_material_types.html">
+                                <span class="lesson-number">Lesson 3.5</span>
+                                <span class="lesson-title">Special Material Types</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 4: Lighting Your World -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">💡</div>
+                        <div class="module-info">
+                            <h2>Module 4: Lighting Your World</h2>
+                            <div class="module-meta">5 Lessons • Light Types, Sky, Interior Lighting, Lumen, Post-Process</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m04_l01_lighting_fundamentals.html">
+                                <span class="lesson-number">Lesson 4.1</span>
+                                <span class="lesson-title">Lighting Fundamentals</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m04_l02_directional_light_and_sky.html">
+                                <span class="lesson-number">Lesson 4.2</span>
+                                <span class="lesson-title">The Directional Light and Sky</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m04_l03_interior_lighting.html">
+                                <span class="lesson-number">Lesson 4.3</span>
+                                <span class="lesson-title">Interior Lighting</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m04_l04_lumen_global_illumination.html">
+                                <span class="lesson-number">Lesson 4.4</span>
+                                <span class="lesson-title">Lumen Global Illumination</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m04_l05_post_process_effects.html">
+                                <span class="lesson-number">Lesson 4.5</span>
+                                <span class="lesson-title">Post-Process Effects</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 5: Introduction to Blueprints -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🔷</div>
+                        <div class="module-info">
+                            <h2>Module 5: Introduction to Blueprints</h2>
+                            <div class="module-meta">5 Lessons • Visual Scripting, Variables, Events, Flow Control, Actor Communication</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m05_l01_what_are_blueprints.html">
+                                <span class="lesson-number">Lesson 5.1</span>
+                                <span class="lesson-title">What are Blueprints?</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m05_l02_blueprint_fundamentals.html">
+                                <span class="lesson-number">Lesson 5.2</span>
+                                <span class="lesson-title">Blueprint Fundamentals</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m05_l03_events_and_functions.html">
+                                <span class="lesson-number">Lesson 5.3</span>
+                                <span class="lesson-title">Events and Functions</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m05_l04_flow_control.html">
+                                <span class="lesson-number">Lesson 5.4</span>
+                                <span class="lesson-title">Flow Control</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m05_l05_working_with_actors_in_blueprints.html">
+                                <span class="lesson-number">Lesson 5.5</span>
+                                <span class="lesson-title">Working with Actors in Blueprints</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 6: Player Interaction and Input -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🎮</div>
+                        <div class="module-info">
+                            <h2>Module 6: Player Interaction and Input</h2>
+                            <div class="module-meta">5 Lessons • Player Controllers, Enhanced Input, Movement, Collision, Interactables</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m06_l01_player_controllers_and_pawns.html">
+                                <span class="lesson-number">Lesson 6.1</span>
+                                <span class="lesson-title">Player Controllers and Pawns</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m06_l02_enhanced_input_system.html">
+                                <span class="lesson-number">Lesson 6.2</span>
+                                <span class="lesson-title">Enhanced Input System</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m06_l03_character_movement.html">
+                                <span class="lesson-number">Lesson 6.3</span>
+                                <span class="lesson-title">Character Movement</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m06_l04_collision_and_physics_interaction.html">
+                                <span class="lesson-number">Lesson 6.4</span>
+                                <span class="lesson-title">Collision and Physics Interaction</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m06_l05_interactable_objects.html">
+                                <span class="lesson-number">Lesson 6.5</span>
+                                <span class="lesson-title">Interactable Objects</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 7: User Interface with UMG -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🖼️</div>
+                        <div class="module-info">
+                            <h2>Module 7: User Interface with UMG</h2>
+                            <div class="module-meta">5 Lessons • UMG Basics, Widgets, Runtime Display, Data Binding, Menus</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m07_l01_umg_fundamentals.html">
+                                <span class="lesson-number">Lesson 7.1</span>
+                                <span class="lesson-title">UMG Fundamentals</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m07_l02_common_ui_widgets.html">
+                                <span class="lesson-number">Lesson 7.2</span>
+                                <span class="lesson-title">Common UI Widgets</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m07_l03_displaying_ui_at_runtime.html">
+                                <span class="lesson-number">Lesson 7.3</span>
+                                <span class="lesson-title">Displaying UI at Runtime</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m07_l04_ui_data_binding.html">
+                                <span class="lesson-number">Lesson 7.4</span>
+                                <span class="lesson-title">UI Data Binding</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m07_l05_menu_systems.html">
+                                <span class="lesson-number">Lesson 7.5</span>
+                                <span class="lesson-title">Menu Systems</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 8: Audio Basics -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🔊</div>
+                        <div class="module-info">
+                            <h2>Module 8: Audio Basics</h2>
+                            <div class="module-meta">3 Lessons • Sound System, Playing Sounds, Ambient Audio</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m08_l01_sound_in_unreal.html">
+                                <span class="lesson-number">Lesson 8.1</span>
+                                <span class="lesson-title">Sound in Unreal</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m08_l02_playing_sounds.html">
+                                <span class="lesson-number">Lesson 8.2</span>
+                                <span class="lesson-title">Playing Sounds</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m08_l03_ambient_audio.html">
+                                <span class="lesson-number">Lesson 8.3</span>
+                                <span class="lesson-title">Ambient Audio</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 9: Particles and Visual Effects -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">✨</div>
+                        <div class="module-info">
+                            <h2>Module 9: Particles and Visual Effects</h2>
+                            <div class="module-meta">3 Lessons • Niagara System, Creating Effects, Using Effects</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m09_l01_niagara_overview.html">
+                                <span class="lesson-number">Lesson 9.1</span>
+                                <span class="lesson-title">Niagara Overview</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m09_l02_creating_basic_effects.html">
+                                <span class="lesson-number">Lesson 9.2</span>
+                                <span class="lesson-title">Creating Basic Effects</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m09_l03_using_effects_in_levels.html">
+                                <span class="lesson-number">Lesson 9.3</span>
+                                <span class="lesson-title">Using Effects in Levels</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 10: Packaging and Publishing -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📦</div>
+                        <div class="module-info">
+                            <h2>Module 10: Packaging and Publishing</h2>
+                            <div class="module-meta">4 Lessons • Project Preparation, Settings, Building, Distribution</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="m10_l01_preparing_your_project.html">
+                                <span class="lesson-number">Lesson 10.1</span>
+                                <span class="lesson-title">Preparing Your Project</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m10_l02_project_settings_for_packaging.html">
+                                <span class="lesson-number">Lesson 10.2</span>
+                                <span class="lesson-title">Project Settings for Packaging</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m10_l03_building_and_packaging.html">
+                                <span class="lesson-number">Lesson 10.3</span>
+                                <span class="lesson-title">Building and Packaging</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="m10_l04_distribution_basics.html">
+                                <span class="lesson-number">Lesson 10.4</span>
+                                <span class="lesson-title">Distribution Basics</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Capstone Project -->
+                <div class="module-card" style="border: 3px solid #667eea;">
+                    <div class="module-header">
+                        <div class="module-icon">🏆</div>
+                        <div class="module-info">
+                            <h2>Capstone Project: Mini Game Experience</h2>
+                            <div class="module-meta">Final Project • Build Your Own Playable Game</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin: 1rem 0;">Create a complete, playable experience demonstrating all skills learned throughout the course. Choose from projects like an escape room, collectathon, shooter gallery, walking simulator, or puzzle room.</p>
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section style="margin-top: 4rem;">
+                <h2>📚 Additional Resources</h2>
+                <div class="card" style="background: #f8f9fa; padding: 2rem;">
+                    <h3>Learning Resources</h3>
+                    <ul>
+                        <li><strong>Official Documentation:</strong> <a href="https://docs.unrealengine.com" target="_blank" rel="noopener">docs.unrealengine.com</a></li>
+                        <li><strong>Unreal Learning Portal:</strong> <a href="https://dev.epicgames.com/community/learning" target="_blank" rel="noopener">dev.epicgames.com/community/learning</a></li>
+                        <li><strong>Unreal Engine YouTube:</strong> Official tutorials and showcases</li>
+                        <li><strong>Community:</strong> Unreal Slackers Discord, r/unrealengine subreddit</li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 2rem;">System Requirements</h3>
+                    <ul>
+                        <li><strong>OS:</strong> Windows 10/11 64-bit</li>
+                        <li><strong>RAM:</strong> 16GB recommended (8GB minimum)</li>
+                        <li><strong>GPU:</strong> DirectX 12 compatible with 4GB VRAM minimum</li>
+                        <li><strong>Storage:</strong> 100GB free space (SSD recommended)</li>
+                        <li><strong>Software:</strong> Unreal Engine 5.4+ (free download)</li>
+                    </ul>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; margin-top: 4rem;">
+        <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; opacity: 0.9;">Empowering creators to build amazing experiences with Unreal Engine.</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            <a href="index.html" style="color: white; text-decoration: underline;">Course Home</a> | 
+            <a href="#modules" style="color: white; text-decoration: underline;">All Modules</a> | 
+            <a href="#main-content" style="color: white; text-decoration: underline;">Back to Top ↑</a>
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

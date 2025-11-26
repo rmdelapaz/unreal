@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn Blueprint visual scripting in Unreal Engine 5. Master visual programming, event-driven logic, and interactive gameplay without writing code.">
+    <meta name="author" content="Practical Ace">
+    <title>Introduction to Blueprints - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 3: Blueprint Visual Scripting</a></li>
+            <li aria-current="page">Lesson 3.1: Introduction to Blueprints</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎨 Introduction to Blueprints</h1>
+                <p class="lead">Blueprints are Unreal Engine's powerful visual scripting system that lets you create gameplay logic, interactions, and complex behaviors without writing a single line of code. Using a node-based interface, you'll connect blocks of functionality to build everything from simple door mechanics to complete game systems. In this lesson, you'll discover what makes Blueprints special and create your first interactive Blueprint from scratch.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what Blueprint visual scripting is and why it's powerful</li>
+                        <li>Understand the different Blueprint types (Level Blueprint, Blueprint Classes, Actor Components)</li>
+                        <li>Navigate the Blueprint Editor interface</li>
+                        <li>Understand event-driven programming and how Blueprints execute</li>
+                        <li>Create a simple interactive Blueprint Actor</li>
+                        <li>Distinguish between Blueprints and C++ and when to use each</li>
+                        <li>Compile and test Blueprint logic</li>
+                        <li>Debug Blueprint execution with print statements</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 75-90 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 2.5 - Materials and Lighting Basics</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-are-blueprints" class="toc-link">What Are Blueprints?</a></li>
+                        <li><a href="#visual-scripting" class="toc-link">Visual Scripting Explained</a></li>
+                        <li><a href="#blueprint-types" class="toc-link">Blueprint Types</a></li>
+                        <li><a href="#blueprint-editor" class="toc-link">The Blueprint Editor</a></li>
+                        <li><a href="#event-driven" class="toc-link">Event-Driven Programming</a></li>
+                        <li><a href="#first-blueprint" class="toc-link">Creating Your First Blueprint</a></li>
+                        <li><a href="#blueprints-vs-cpp" class="toc-link">Blueprints vs C++</a></li>
+                        <li><a href="#best-practices" class="toc-link">Blueprint Best Practices</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What Are Blueprints? -->
+            <section id="what-are-blueprints" class="lesson-section">
+                <h2>What Are Blueprints?</h2>
+                
+                <p>Imagine you want a door that opens when the player presses a button. In traditional programming, you'd write code in a text editor—lines of functions, variables, if-statements, and loops. In Unreal Engine, you can do the same thing visually by connecting boxes (nodes) that represent actions, checks, and data.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Blueprint Visual Scripting:</strong> A complete visual programming language built into Unreal Engine that uses a node-based interface to create gameplay logic, interactions, and systems. Instead of typing code, you drag and drop nodes representing functions, events, variables, and logic, then wire them together to define behavior.</p>
+                </div>
+                
+                <h3>Why Blueprints Are Revolutionary</h3>
+                
+                <p>Before visual scripting, game development was divided into two camps:</p>
+                
+                <ul>
+                    <li><strong>Programmers:</strong> Could write code and build complex systems, but needed to compile and restart to see changes</li>
+                    <li><strong>Designers/Artists:</strong> Had creative vision but couldn't implement ideas without a programmer's help</li>
+                </ul>
+                
+                <p>Blueprints changed everything. Now:</p>
+                
+                <ul>
+                    <li>✅ <strong>Anyone can script:</strong> No programming background required—if you understand "when this happens, do that," you can Blueprint</li>
+                    <li>✅ <strong>Instant feedback:</strong> Make changes and see results immediately without recompiling</li>
+                    <li>✅ <strong>Visual debugging:</strong> Watch values update in real-time, see execution flow highlighted</li>
+                    <li>✅ <strong>Rapid prototyping:</strong> Build and test gameplay mechanics in minutes, not hours</li>
+                    <li>✅ <strong>Powerful yet accessible:</strong> Can create everything from simple door logic to entire AI systems</li>
+                    <li>✅ <strong>Full engine integration:</strong> Every Unreal feature is accessible through Blueprint nodes</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Real-World Success Stories</h4>
+                    <p>Many commercially successful games use Blueprints extensively:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Fortnite:</strong> Epic's own battle royale uses Blueprints for gameplay mechanics, weapons, and interactive objects</li>
+                        <li><strong>Sea of Thieves:</strong> Rare used Blueprints for ship physics, water interaction, and player mechanics</li>
+                        <li><strong>Gears of War 4/5:</strong> Heavy Blueprint usage for AI behavior and gameplay systems</li>
+                        <li><strong>Indie games:</strong> Countless indie titles built entirely with Blueprints, no C++ required</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">Blueprints aren't just for prototyping—they're production-ready.</p>
+                </div>
+                
+                <h3>What Can Blueprints Do?</h3>
+                
+                <p>Blueprints can handle virtually any gameplay task:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Player Mechanics</strong></td>
+                            <td>Character movement, jumping, shooting, inventory systems</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AI Behavior</strong></td>
+                            <td>Enemy patrol routes, chase logic, decision-making</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interactive Objects</strong></td>
+                            <td>Doors, levers, buttons, pickups, destructible objects</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Game Systems</strong></td>
+                            <td>Scoring, health/damage, quest tracking, save/load</td>
+                        </tr>
+                        <tr>
+                            <td><strong>UI/Menus</strong></td>
+                            <td>Main menus, HUD elements, pause screens, inventory screens</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visual Effects</strong></td>
+                            <td>Spawn particles, trigger animations, material parameter changes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Audio</strong></td>
+                            <td>Play sounds, music systems, spatial audio triggers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multiplayer</strong></td>
+                            <td>Client-server communication, replication, network events</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 2: Visual Scripting Explained -->
+            <section id="visual-scripting" class="lesson-section">
+                <h2>Visual Scripting Explained</h2>
+                
+                <p>Let's understand how visual scripting works by comparing it to traditional text-based programming.</p>
+                
+                <h3>Text Code vs. Visual Nodes</h3>
+                
+                <p>Here's the same simple logic expressed both ways:</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div>
+                        <h4>C++ Code (Text)</h4>
+                        <pre><code class="language-cpp">void AMyDoor::OnInteract()
+{
+    if (!bIsOpen)
+    {
+        bIsOpen = true;
+        PlaySound(OpenSound);
+        RotateDoor(90.0f);
+    }
+}
+</code></pre>
+                    </div>
+                    
+                    <div>
+                        <h4>Blueprint (Visual)</h4>
+                        <p style="font-size: 0.9em; color: #666;">A node graph showing:</p>
+                        <ul style="font-size: 0.85em;">
+                            <li><strong>Event:</strong> "OnInteract" (starting point)</li>
+                            <li><strong>Branch node:</strong> "Is Open?" (if-check)</li>
+                            <li><strong>Set node:</strong> "Set Is Open = True"</li>
+                            <li><strong>Function calls:</strong> "Play Sound", "Rotate Door"</li>
+                            <li><strong>Wires:</strong> Connect execution flow</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <p>Both accomplish the exact same thing. The visual version:</p>
+                <ul>
+                    <li>✅ Is easier to read for non-programmers</li>
+                    <li>✅ Shows the flow visually—you can see the path execution takes</li>
+                    <li>✅ Can be modified without recompiling C++</li>
+                    <li>✅ Provides visual debugging (nodes light up during execution)</li>
+                </ul>
+                
+                <h3>How Visual Scripting Works</h3>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Event Triggered] --> B{Condition Check}
+    B -->|True| C[Execute Actions]
+    B -->|False| D[Do Nothing]
+    C --> E[Action 1: Play Sound]
+    E --> F[Action 2: Rotate Door]
+    F --> G[Action 3: Set Variable]
+    G --> H[Complete]
+    D --> H
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#ff9800,stroke:#e65100,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#9e9e9e,stroke:#616161,color:#fff
+    style E fill:#667eea,stroke:#4527a0,color:#fff
+    style F fill:#667eea,stroke:#4527a0,color:#fff
+    style G fill:#667eea,stroke:#4527a0,color:#fff
+    style H fill:#4CAF50,stroke:#2e7d32,color:#fff
+</pre>
+<p class="caption"><em>Figure: Blueprint execution flow from event trigger through conditional logic to actions.</em></p>
+                
+                <h3>Key Visual Scripting Concepts</h3>
+                
+                <h4>1. Nodes</h4>
+                
+                <p><strong>Nodes</strong> are the building blocks—boxes that represent actions, functions, variables, or events. Each node has:</p>
+                
+                <ul>
+                    <li><strong>Execution pins</strong> (white): Control flow—which node runs next</li>
+                    <li><strong>Data pins</strong> (colored): Input/output values (numbers, text, objects)</li>
+                    <li><strong>Name/title</strong>: What the node does</li>
+                </ul>
+                
+                <p><strong>Example nodes:</strong></p>
+                <ul>
+                    <li>"Print String" - Displays text on screen</li>
+                    <li>"Add" - Adds two numbers</li>
+                    <li>"Play Sound" - Plays an audio file</li>
+                    <li>"Spawn Actor" - Creates a new object in the world</li>
+                </ul>
+                
+                <h4>2. Pins and Wires</h4>
+                
+                <p><strong>Pins</strong> are connection points on nodes. You drag wires between pins to connect nodes:</p>
+                
+                <ul>
+                    <li><strong>Execution wires</strong> (white): Define the order nodes execute</li>
+                    <li><strong>Data wires</strong> (colored): Pass values between nodes</li>
+                </ul>
+                
+                <p>The flow is left-to-right: Execution starts at an event node (left) and flows right through connected nodes.</p>
+                
+                <h4>3. Events</h4>
+                
+                <p><strong>Events</strong> are starting points—they fire when something happens, triggering a chain of nodes:</p>
+                
+                <ul>
+                    <li>"BeginPlay" - Fires when the Actor starts (game begins)</li>
+                    <li>"Event Tick" - Fires every frame (~60 times per second)</li>
+                    <li>"OnBeginOverlap" - Fires when something touches a collision volume</li>
+                    <li>"OnClicked" - Fires when player clicks on the Actor</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Think of it Like a Flowchart</h4>
+                    <p>If you've ever drawn a flowchart with boxes and arrows, you already understand Blueprints! Each box is a node, each arrow is a wire. "Start" boxes are events, diamond-shaped decision boxes are Branch nodes, and action boxes are function call nodes.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Blueprint Types -->
+            <section id="blueprint-types" class="lesson-section">
+                <h2>Blueprint Types</h2>
+                
+                <p>Unreal offers several types of Blueprints, each suited for different purposes. Understanding which to use is essential.</p>
+                
+                <pre class="mermaid">
+graph TD
+    A[Blueprint Types] --> B[Level Blueprint]
+    A --> C[Blueprint Class]
+    A --> D[Blueprint Component]
+    A --> E[Blueprint Interface]
+    A --> F[Blueprint Macro Library]
+    
+    C --> C1[Actor Blueprint]
+    C --> C2[Pawn/Character Blueprint]
+    C --> C3[Game Mode Blueprint]
+    C --> C4[Widget Blueprint UI]
+    
+    style A fill:#667eea,stroke:#4527a0,color:#fff
+    style B fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#ff9800,stroke:#e65100,color:#fff
+    style E fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style F fill:#00bcd4,stroke:#006064,color:#fff
+    style C1 fill:#e3f2fd,stroke:#2196F3
+    style C2 fill:#e3f2fd,stroke:#2196F3
+    style C3 fill:#e3f2fd,stroke:#2196F3
+    style C4 fill:#e3f2fd,stroke:#2196F3
+</pre>
+<p class="caption"><em>Figure: The hierarchy of Blueprint types in Unreal Engine.</em></p>
+                
+                <h3>1. Level Blueprint</h3>
+                
+                <p>Every level has one <strong>Level Blueprint</strong>—it's level-specific logic that only exists in that particular map.</p>
+                
+                <p><strong>Use cases:</strong></p>
+                <ul>
+                    <li>Level-specific events (opening a door when player enters an area)</li>
+                    <li>Cinematics and scripted sequences</li>
+                    <li>Controlling specific Actors in the level</li>
+                    <li>Win/lose conditions for that level</li>
+                </ul>
+                
+                <p><strong>Access:</strong> Blueprints menu → Open Level Blueprint</p>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Level Blueprint Limitation</h4>
+                    <p>Level Blueprints can't be reused—they're tied to one level. If you want reusable logic (a door that works in any level), use a Blueprint Class instead.</p>
+                </div>
+
+                
+                <h3>2. Blueprint Class</h3>
+                
+                <p><strong>Blueprint Classes</strong> are reusable templates—you create them once, then place multiple instances in any level. They're the most common Blueprint type.</p>
+                
+                <p><strong>Use cases:</strong></p>
+                <ul>
+                    <li><strong>Interactive objects:</strong> Doors, chests, buttons, levers, pickups</li>
+                    <li><strong>Props with behavior:</strong> Spinning coins, flickering lights, moving platforms</li>
+                    <li><strong>Characters and enemies:</strong> Player controller, AI enemies, NPCs</li>
+                    <li><strong>Projectiles:</strong> Bullets, arrows, magic spells</li>
+                    <li><strong>Game systems:</strong> Spawn points, checkpoints, trigger volumes</li>
+                </ul>
+                
+                <p><strong>Common Blueprint Class types:</strong></p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Parent Class</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Actor Blueprint</strong></td>
+                            <td>Actor</td>
+                            <td>Generic objects placed in the world (doors, props, systems)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pawn Blueprint</strong></td>
+                            <td>Pawn</td>
+                            <td>Objects that can be possessed/controlled (characters, vehicles)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Character Blueprint</strong></td>
+                            <td>Character</td>
+                            <td>Humanoid characters with built-in movement (players, NPCs)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Game Mode Blueprint</strong></td>
+                            <td>Game Mode Base</td>
+                            <td>Defines game rules, win conditions, spawning</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Player Controller BP</strong></td>
+                            <td>Player Controller</td>
+                            <td>Handles player input and camera control</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Widget Blueprint</strong></td>
+                            <td>User Widget</td>
+                            <td>UI elements (menus, HUD, health bars)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>Creating a Blueprint Class:</strong> Content Browser → Right-click → Blueprint Class → Choose parent class</p>
+                
+                <h3>3. Blueprint Component</h3>
+                
+                <p><strong>Blueprint Components</strong> are reusable pieces of functionality you can add to any Actor Blueprint.</p>
+                
+                <p><strong>Think of Components as LEGO bricks:</strong> You snap them onto Actors to add abilities.</p>
+                
+                <p><strong>Example Components:</strong></p>
+                <ul>
+                    <li><strong>Point Light Component:</strong> Makes the Actor emit light</li>
+                    <li><strong>Static Mesh Component:</strong> Gives the Actor visible geometry</li>
+                    <li><strong>Collision Component:</strong> Adds collision detection</li>
+                    <li><strong>Movement Component:</strong> Handles physics and movement</li>
+                    <li><strong>Audio Component:</strong> Plays sounds</li>
+                    <li><strong>Custom Blueprint Components:</strong> You can create your own!</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Component Example: Rotating Pickup</h4>
+                    <p>Imagine a collectible coin Actor:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Static Mesh Component:</strong> The coin's 3D model</li>
+                        <li><strong>Rotating Movement Component:</strong> Makes it spin slowly</li>
+                        <li><strong>Box Collision Component:</strong> Detects when player touches it</li>
+                        <li><strong>Particle System Component:</strong> Adds a sparkle effect</li>
+                        <li><strong>Audio Component:</strong> Plays "ding!" when collected</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">Five components snapped together = one complete collectible!</p>
+                </div>
+                
+                <h3>4. Blueprint Interface</h3>
+                
+                <p><strong>Blueprint Interfaces</strong> define functions that multiple Blueprint Classes can implement differently.</p>
+                
+                <p><strong>Use case:</strong> You want to send a message "React to Damage" to many different Actors (players, enemies, destructible crates), but each responds differently.</p>
+                
+                <ul>
+                    <li>Player: Reduce health, play hurt animation</li>
+                    <li>Enemy: Reduce health, play hit effect, aggro player</li>
+                    <li>Crate: Break apart, spawn loot</li>
+                </ul>
+                
+                <p>With an Interface, you can call "TakeDamage" on any Actor, and each implements it their own way. This is advanced—we'll cover it in Module 4.</p>
+                
+                <h3>5. Blueprint Macro Library and Function Library</h3>
+                
+                <p><strong>Macro Libraries</strong> and <strong>Function Libraries</strong> are collections of reusable Blueprint snippets you can call from anywhere.</p>
+                
+                <ul>
+                    <li><strong>Macros:</strong> Collapse commonly used node groups into a single reusable node</li>
+                    <li><strong>Functions:</strong> Reusable logic with inputs/outputs, like a mini-program</li>
+                    <li><strong>Function Libraries:</strong> Collections of utility functions available project-wide</li>
+                </ul>
+                
+                <p><strong>Example:</strong> A "CalculateDistance" function library node you can use anywhere to find distance between two points.</p>
+                
+                <h3>Which Blueprint Type Should I Use?</h3>
+                
+                <p>Quick decision guide:</p>
+                
+                <pre class="mermaid">
+flowchart TD
+    A{What are you making?} --> B{Does it exist only in one level?}
+    B -->|Yes| C[Level Blueprint]
+    B -->|No| D{Is it a reusable object?}
+    D -->|Yes| E[Blueprint Class]
+    D -->|No| F{Is it reusable functionality?}
+    F -->|Yes| G[Component or Function Library]
+    
+    E --> H{What kind of object?}
+    H -->|Interactive prop| I[Actor Blueprint]
+    H -->|Player/enemy character| J[Character or Pawn BP]
+    H -->|UI element| K[Widget Blueprint]
+    H -->|Game rules| L[Game Mode Blueprint]
+    
+    style A fill:#667eea,stroke:#4527a0,color:#fff
+    style C fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E fill:#2196F3,stroke:#1565c0,color:#fff
+    style G fill:#ff9800,stroke:#e65100,color:#fff
+    style I fill:#e3f2fd,stroke:#2196F3
+    style J fill:#e3f2fd,stroke:#2196F3
+    style K fill:#e3f2fd,stroke:#2196F3
+    style L fill:#e3f2fd,stroke:#2196F3
+</pre>
+<p class="caption"><em>Figure: Decision tree for choosing the right Blueprint type.</em></p>
+            </section>
+
+            <!-- Section 4: The Blueprint Editor -->
+            <section id="blueprint-editor" class="lesson-section">
+                <h2>The Blueprint Editor</h2>
+                
+                <p>When you open a Blueprint Class, the <strong>Blueprint Editor</strong> launches—this is your visual programming workspace.</p>
+                
+                <h3>Opening the Blueprint Editor</h3>
+                
+                <ol>
+                    <li>In Content Browser, find a Blueprint asset (blue icon)</li>
+                    <li>Double-click to open</li>
+                    <li>The Blueprint Editor window appears</li>
+                </ol>
+                
+                <h3>Blueprint Editor Interface</h3>
+                
+                <svg width="100%" height="600" viewBox="0 0 1000 600" style="max-width: 1000px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <!-- Blueprint Editor mockup -->
+                    <rect x="0" y="0" width="1000" height="600" fill="#2d2d2d"/>
+                    
+                    <!-- Title Bar -->
+                    <rect x="0" y="0" width="1000" height="35" fill="#1e1e1e"/>
+                    <text x="15" y="23" fill="#ffffff" font-size="13" font-weight="bold">Blueprint Editor - BP_Door</text>
+                    
+                    <!-- Toolbar -->
+                    <rect x="0" y="35" width="1000" height="40" fill="#252525"/>
+                    
+                    <!-- Toolbar buttons -->
+                    <g transform="translate(15, 47)">
+                        <rect x="0" y="0" width="50" height="26" fill="#4CAF50" rx="3"/>
+                        <text x="25" y="18" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Compile</text>
+                        
+                        <rect x="60" y="0" width="35" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="77" y="18" text-anchor="middle" fill="#e0e0e0" font-size="11">Save</text>
+                        
+                        <rect x="105" y="0" width="60" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="135" y="18" text-anchor="middle" fill="#e0e0e0" font-size="10">Class Settings</text>
+                        
+                        <rect x="175" y="0" width="40" height="26" fill="#2196F3" rx="3"/>
+                        <text x="195" y="18" text-anchor="middle" fill="#fff" font-size="10">Play</text>
+                    </g>
+                    
+                    <!-- Tab Bar -->
+                    <rect x="0" y="75" width="1000" height="30" fill="#1e1e1e"/>
+                    <rect x="10" y="80" width="120" height="25" fill="#667eea" rx="3"/>
+                    <text x="70" y="98" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Event Graph</text>
+                    
+                    <rect x="140" y="80" width="100" height="25" fill="#3c3c3c" rx="3"/>
+                    <text x="190" y="98" text-anchor="middle" fill="#aaa" font-size="11">Construction</text>
+                    
+                    <rect x="250" y="80" width="100" height="25" fill="#3c3c3c" rx="3"/>
+                    <text x="300" y="98" text-anchor="middle" fill="#aaa" font-size="11">Viewport</text>
+                    
+                    <!-- Left Panel: Components (Viewport mode) -->
+                    <rect x="0" y="105" width="200" height="495" fill="#1e1e1e"/>
+                    <text x="10" y="125" fill="#aaa" font-size="11" font-weight="bold">COMPONENTS</text>
+                    
+                    <g transform="translate(10, 135)">
+                        <text x="0" y="15" fill="#4CAF50" font-size="11">▾ BP_Door (self)</text>
+                        <text x="15" y="32" fill="#e0e0e0" font-size="10">▸ DefaultSceneRoot</text>
+                        <text x="30" y="49" fill="#e0e0e0" font-size="10">▸ DoorMesh (Static Mesh)</text>
+                        <text x="30" y="66" fill="#e0e0e0" font-size="10">▸ TriggerBox (Box)</text>
+                        <text x="30" y="83" fill="#e0e0e0" font-size="10">▸ OpenSound (Audio)</text>
+                    </g>
+                    
+                    <text x="10" y="250" fill="#aaa" font-size="11" font-weight="bold">MY BLUEPRINT</text>
+                    <g transform="translate(10, 260)">
+                        <text x="0" y="15" fill="#4CAF50" font-size="10" font-weight="bold">▾ Variables</text>
+                        <text x="10" y="30" fill="#2196F3" font-size="9">• bIsOpen (Boolean)</text>
+                        <text x="10" y="44" fill="#4CAF50" font-size="9">• RotationSpeed (Float)</text>
+                        
+                        <text x="0" y="70" fill="#4CAF50" font-size="10" font-weight="bold">▾ Functions</text>
+                        <text x="10" y="85" fill="#9c27b0" font-size="9">ƒ OpenDoor()</text>
+                        <text x="10" y="99" fill="#9c27b0" font-size="9">ƒ CloseDoor()</text>
+                        
+                        <text x="0" y="125" fill="#4CAF50" font-size="10" font-weight="bold">▾ Event Graphs</text>
+                        <text x="10" y="140" fill="#e74c3c" font-size="9">Event Graph</text>
+                    </g>
+                    
+                    <!-- Main Canvas: Event Graph -->
+                    <rect x="200" y="105" width="600" height="495" fill="#252525"/>
+                    
+                    <!-- Grid lines -->
+                    <g opacity="0.1">
+                        <line x1="200" y1="155" x2="800" y2="155" stroke="#fff" stroke-width="1"/>
+                        <line x1="200" y1="205" x2="800" y2="205" stroke="#fff" stroke-width="1"/>
+                        <line x1="200" y1="255" x2="800" y2="255" stroke="#fff" stroke-width="1"/>
+                        <line x1="200" y1="305" x2="800" y2="305" stroke="#fff" stroke-width="1"/>
+                        <line x1="200" y1="355" x2="800" y2="355" stroke="#fff" stroke-width="1"/>
+                        <line x1="200" y1="405" x2="800" y2="405" stroke="#fff" stroke-width="1"/>
+                        <line x1="200" y1="455" x2="800" y2="455" stroke="#fff" stroke-width="1"/>
+                        <line x1="200" y1="505" x2="800" y2="505" stroke="#fff" stroke-width="1"/>
+                        <line x1="200" y1="555" x2="800" y2="555" stroke="#fff" stroke-width="1"/>
+                        
+                        <line x1="300" y1="105" x2="300" y2="600" stroke="#fff" stroke-width="1"/>
+                        <line x1="400" y1="105" x2="400" y2="600" stroke="#fff" stroke-width="1"/>
+                        <line x1="500" y1="105" x2="500" y2="600" stroke="#fff" stroke-width="1"/>
+                        <line x1="600" y1="105" x2="600" y2="600" stroke="#fff" stroke-width="1"/>
+                        <line x1="700" y1="105" x2="700" y2="600" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Sample nodes in Event Graph -->
+                    <!-- BeginPlay Event -->
+                    <g transform="translate(230, 200)">
+                        <rect x="0" y="0" width="120" height="50" fill="#e74c3c" stroke="#c0392b" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="120" height="20" fill="#c0392b"/>
+                        <text x="60" y="14" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Event BeginPlay</text>
+                        <circle cx="120" cy="25" r="5" fill="#fff"/>
+                    </g>
+                    
+                    <!-- Branch node -->
+                    <g transform="translate(400, 185)">
+                        <rect x="0" y="0" width="100" height="80" fill="#3c3c3c" stroke="#ff9800" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="100" height="20" fill="#ff9800"/>
+                        <text x="50" y="14" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Branch</text>
+                        <circle cx="0" cy="40" r="5" fill="#fff"/>
+                        <text x="10" y="43" fill="#e0e0e0" font-size="8">Condition</text>
+                        <circle cx="100" cy="30" r="5" fill="#fff"/>
+                        <text x="80" y="28" text-anchor="end" fill="#e0e0e0" font-size="8">True</text>
+                        <circle cx="100" cy="55" r="5" fill="#fff"/>
+                        <text x="80" y="53" text-anchor="end" fill="#e0e0e0" font-size="8">False</text>
+                    </g>
+                    
+                    <!-- Print String node -->
+                    <g transform="translate(550, 150)">
+                        <rect x="0" y="0" width="120" height="60" fill="#3c3c3c" stroke="#2196F3" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="120" height="20" fill="#2196F3"/>
+                        <text x="60" y="14" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Print String</text>
+                        <circle cx="0" cy="30" r="5" fill="#fff"/>
+                        <circle cx="120" cy="30" r="5" fill="#fff"/>
+                        <text x="10" y="50" fill="#e0e0e0" font-size="8">In String</text>
+                    </g>
+                    
+                    <!-- Connection wires -->
+                    <line x1="350" y1="225" x2="400" y2="225" stroke="#fff" stroke-width="3"/>
+                    <line x1="500" y1="215" x2="550" y2="180" stroke="#fff" stroke-width="3"/>
+                    
+                    <!-- Right Panel: Details -->
+                    <rect x="800" y="105" width="200" height="495" fill="#1e1e1e"/>
+                    <text x="810" y="125" fill="#aaa" font-size="11" font-weight="bold">DETAILS</text>
+                    
+                    <g transform="translate(810, 140)">
+                        <text x="0" y="15" fill="#4CAF50" font-size="10" font-weight="bold">▾ Selected Node</text>
+                        <text x="0" y="35" fill="#e0e0e0" font-size="9">Print String</text>
+                        
+                        <text x="0" y="60" fill="#4CAF50" font-size="10" font-weight="bold">▾ Inputs</text>
+                        <text x="0" y="77" fill="#aaa" font-size="9">In String:</text>
+                        <rect x="0" y="82" width="170" height="20" fill="#3c3c3c" rx="2"/>
+                        <text x="5" y="96" fill="#e0e0e0" font-size="9">"Door is open!"</text>
+                        
+                        <text x="0" y="122" fill="#4CAF50" font-size="10" font-weight="bold">▾ Options</text>
+                        <text x="0" y="139" fill="#aaa" font-size="9">☑ Print to Screen</text>
+                        <text x="0" y="154" fill="#aaa" font-size="9">☐ Print to Log</text>
+                        <text x="0" y="169" fill="#aaa" font-size="9">Duration: 2.0</text>
+                    </g>
+                    
+                    <!-- Annotations -->
+                    <line x1="100" y1="115" x2="100" y2="95" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="100" cy="95" r="3" fill="#4CAF50"/>
+                    <text x="110" y="98" fill="#4CAF50" font-size="10">← Components & variables</text>
+                    
+                    <line x1="500" y1="115" x2="500" y2="90" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="500" cy="90" r="3" fill="#4CAF50"/>
+                    <text x="350" y="93" fill="#4CAF50" font-size="10">Main node graph canvas →</text>
+                    
+                    <line x1="900" y1="115" x2="900" y2="95" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="900" cy="95" r="3" fill="#4CAF50"/>
+                    <text x="810" y="98" fill="#4CAF50" font-size="10">Details panel →</text>
+                </svg>
+                <p class="caption"><em>Figure: The Blueprint Editor interface showing components, event graph canvas, and details panel.</em></p>
+                
+                <h3>Key Areas of the Blueprint Editor</h3>
+                
+                <h4>1. Toolbar (Top)</h4>
+                
+                <p>Main actions:</p>
+                
+                <ul>
+                    <li><strong>Compile:</strong> Converts your visual script into executable code (green = success, red = errors)</li>
+                    <li><strong>Save:</strong> Saves your Blueprint changes</li>
+                    <li><strong>Class Settings:</strong> Configure Blueprint properties (parent class, replication, etc.)</li>
+                    <li><strong>Play:</strong> Quick test—launches the game to test your Blueprint</li>
+                </ul>
+                
+                <h4>2. Tabs (Below Toolbar)</h4>
+                
+                <p>Different modes/views:</p>
+                
+                <ul>
+                    <li><strong>Event Graph:</strong> Main visual scripting canvas (where you spend most time)</li>
+                    <li><strong>Construction Script:</strong> Runs when the Actor is placed/moved in editor (setup logic)</li>
+                    <li><strong>Viewport:</strong> 3D preview of your Actor with Components</li>
+                    <li><strong>Functions:</strong> Custom functions you create</li>
+                </ul>
+                
+                <h4>3. Components Panel (Left)</h4>
+                
+                <p>Shows all Components attached to this Blueprint:</p>
+                
+                <ul>
+                    <li>Hierarchy of Components (parent-child relationships)</li>
+                    <li>Add new Components with "+ Add" button</li>
+                    <li>Select Components to configure in Details panel</li>
+                </ul>
+                
+                <h4>4. My Blueprint Panel (Left, Below Components)</h4>
+                
+                <p>Overview of your Blueprint's structure:</p>
+                
+                <ul>
+                    <li><strong>Variables:</strong> Data storage (health, speed, isOpen, etc.)</li>
+                    <li><strong>Functions:</strong> Reusable logic chunks</li>
+                    <li><strong>Macros:</strong> Collapsed node groups</li>
+                    <li><strong>Event Graphs:</strong> All your event graphs listed</li>
+                </ul>
+                
+                <h4>5. Event Graph Canvas (Center)</h4>
+                
+                <p>The main workspace—where you place and connect nodes:</p>
+                
+                <ul>
+                    <li><strong>Navigation:</strong> Right-click drag to pan, scroll wheel to zoom</li>
+                    <li><strong>Add nodes:</strong> Right-click in empty space, search for nodes</li>
+                    <li><strong>Connect nodes:</strong> Drag from output pin to input pin</li>
+                    <li><strong>Select nodes:</strong> Click to select, drag to move, Ctrl+Click for multi-select</li>
+                </ul>
+                
+                <h4>6. Details Panel (Right)</h4>
+                
+                <p>Shows properties of the selected node or Component:</p>
+                
+                <ul>
+                    <li>Input values for function nodes</li>
+                    <li>Settings and options</li>
+                    <li>Component properties (transforms, materials, collision)</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Context-Sensitive Right-Click</h4>
+                    <p>Right-clicking in the Event Graph is your superpower. The menu shows nodes relevant to your current context:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>Right-click from a variable → Get, Set, operators for that type</li>
+                        <li>Right-click from execution pin → Events, flow control</li>
+                        <li>Right-click from data pin → Nodes that use that data type</li>
+                        <li>Right-click in empty space → All available nodes (searchable)</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">Master context-sensitive search and you'll be 10x faster!</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Event-Driven Programming -->
+            <section id="event-driven" class="lesson-section">
+                <h2>Event-Driven Programming</h2>
+                
+                <p>Blueprints use <strong>event-driven programming</strong>—logic doesn't run continuously, it runs in response to specific events. Understanding this is crucial.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Event-Driven Programming:</strong> Code executes in response to events (things that happen) rather than running in a continuous loop. An event fires → its connected nodes execute → execution stops until the next event. This is efficient and mirrors how games actually work.</p>
+                </div>
+                
+                <h3>How Events Work</h3>
+                
+                <pre class="mermaid">
+sequenceDiagram
+    participant Engine as Unreal Engine
+    participant Blueprint as Your Blueprint
+    participant Player as Game/Player
+    
+    Note over Engine,Player: Game Running (60 FPS)
+    
+    Player->>Engine: Press 'E' key
+    Engine->>Blueprint: Fire "InputAction E" Event
+    Blueprint->>Blueprint: Execute connected nodes
+    Blueprint->>Engine: Play door animation
+    Blueprint->>Engine: Play sound
+    Note over Blueprint: Execution complete
+    
+    Note over Engine,Player: Waiting for next event...
+    
+    Player->>Engine: Collide with trigger
+    Engine->>Blueprint: Fire "OnBeginOverlap" Event
+    Blueprint->>Blueprint: Check if player
+    Blueprint->>Engine: Display message
+    Note over Blueprint: Execution complete
+</pre>
+<p class="caption"><em>Figure: Event-driven execution sequence showing how events trigger Blueprint logic.</em></p>
+                
+                <h3>Common Blueprint Events</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>When It Fires</th>
+                            <th>Use Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Event BeginPlay</strong></td>
+                            <td>When the Actor spawns or level starts</td>
+                            <td>Initialization, setup, cache references</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Event Tick</strong></td>
+                            <td>Every frame (~60 times/second)</td>
+                            <td>Continuous movement, rotation, timers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OnBeginOverlap</strong></td>
+                            <td>When something enters a collision volume</td>
+                            <td>Triggers, pickups, damage zones</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OnEndOverlap</strong></td>
+                            <td>When something leaves a collision volume</td>
+                            <td>Exit triggers, area effects ending</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OnClicked</strong></td>
+                            <td>When player clicks on the Actor</td>
+                            <td>Interactive objects, buttons, selection</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OnHit</strong></td>
+                            <td>When the Actor collides with something</td>
+                            <td>Physics collisions, projectile impacts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OnDestroyed</strong></td>
+                            <td>Right before Actor is destroyed</td>
+                            <td>Cleanup, spawn effects, save state</td>
+                        </tr>
+                        <tr>
+                            <td><strong>InputAction/Axis</strong></td>
+                            <td>When player presses a mapped key/button</td>
+                            <td>Player controls, interaction prompts</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Execution Flow</h3>
+                
+                <p>When an event fires, execution flows left-to-right through connected nodes:</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Event Fires] -->|White wire| B[Node 1]
+    B -->|Executes| C[Node 2]
+    C -->|Executes| D[Node 3]
+    D -->|Complete| E((End))
+    
+    style A fill:#e74c3c,stroke:#c0392b,color:#fff
+    style B fill:#667eea,stroke:#4527a0,color:#fff
+    style C fill:#667eea,stroke:#4527a0,color:#fff
+    style D fill:#667eea,stroke:#4527a0,color:#fff
+    style E fill:#4CAF50,stroke:#2e7d32,color:#fff
+</pre>
+<p class="caption"><em>Figure: Blueprint execution flows left-to-right through connected nodes until complete.</em></p>
+                
+                <p><strong>Key points:</strong></p>
+                <ul>
+                    <li>Execution follows white wires (execution pins)</li>
+                    <li>Nodes execute in order, one after another</li>
+                    <li>If there's no white wire connection, execution stops</li>
+                    <li>Multiple outputs (Branch node: True/False) create different execution paths</li>
+                </ul>
+                
+                <h3>Event Tick vs. Event-Based Logic</h3>
+                
+                <p>A common beginner mistake: overusing Event Tick.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                        <h4>❌ Bad: Event Tick Every Frame</h4>
+                        <pre style="font-size: 0.8em; margin: 0;">Event Tick (60 times/sec)
+  Check if player pressed 'E'
+  Check if door is closed
+  If both true, open door</pre>
+                        <p style="margin-top: 0.5rem; font-size: 0.9em;">This checks 60 times per second even if nothing happens. Wasteful!</p>
+                    </div>
+                    
+                    <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                        <h4>✅ Good: Event-Based</h4>
+                        <pre style="font-size: 0.8em; margin: 0;">Event InputAction 'E'
+  Check if door is closed
+  If true, open door</pre>
+                        <p style="margin-top: 0.5rem; font-size: 0.9em;">Only runs when 'E' is actually pressed. Efficient!</p>
+                    </div>
+                </div>
+                
+                <p><strong>When to use Event Tick:</strong></p>
+                <ul>
+                    <li>✅ Continuous smooth movement (rotating platforms, scrolling textures)</li>
+                    <li>✅ Following/tracking (camera following player, enemy AI tracking)</li>
+                    <li>✅ Countdown timers</li>
+                    <li>✅ Interpolation (smooth transitions)</li>
+                </ul>
+                
+                <p><strong>When NOT to use Event Tick:</strong></p>
+                <ul>
+                    <li>❌ Waiting for player input (use Input events instead)</li>
+                    <li>❌ Collision detection (use Overlap/Hit events instead)</li>
+                    <li>❌ One-time setup (use BeginPlay instead)</li>
+                    <li>❌ Checking for rare conditions (use event dispatchers or timers instead)</li>
+                </ul>
+
+            </section>
+
+            <!-- Section 6: Creating Your First Blueprint -->
+            <section id="first-blueprint" class="lesson-section">
+                <h2>Creating Your First Blueprint</h2>
+                
+                <p>Let's walk through creating a simple interactive Blueprint Actor—a spinning collectible coin that disappears when touched.</p>
+                
+                <h3>Step-by-Step: Spinning Coin Blueprint</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Create Blueprint Class] --> B[Add Static Mesh Component]
+    B --> C[Configure Mesh & Collision]
+    C --> D[Create Variables]
+    D --> E[Add Event BeginPlay]
+    E --> F[Add Event Tick for Rotation]
+    F --> G[Add OnBeginOverlap Event]
+    G --> H[Add Collection Logic]
+    H --> I[Test & Debug]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#ff9800,stroke:#e65100,color:#fff
+    style E fill:#667eea,stroke:#4527a0,color:#fff
+    style F fill:#667eea,stroke:#4527a0,color:#fff
+    style G fill:#667eea,stroke:#4527a0,color:#fff
+    style H fill:#667eea,stroke:#4527a0,color:#fff
+    style I fill:#4CAF50,stroke:#2e7d32,color:#fff
+</pre>
+<p class="caption"><em>Figure: Workflow for creating your first Blueprint Actor.</em></p>
+                
+                <h4>Part 1: Create the Blueprint Class</h4>
+                
+                <ol>
+                    <li>In Content Browser, navigate to <code>Content/MyProject/Blueprints/</code></li>
+                    <li>Right-click in empty space → <strong>Blueprint Class</strong></li>
+                    <li>Select <strong>Actor</strong> as parent class</li>
+                    <li>Name it <code>BP_Collectible_Coin</code></li>
+                    <li>Double-click to open in Blueprint Editor</li>
+                </ol>
+                
+                <h4>Part 2: Add Visual Mesh</h4>
+                
+                <ol>
+                    <li>In Components panel, click <strong>+ Add</strong></li>
+                    <li>Search for "Static Mesh", add it</li>
+                    <li>Rename component to <code>CoinMesh</code></li>
+                    <li>With CoinMesh selected, in Details panel:
+                        <ul>
+                            <li>Set Static Mesh to a cylinder or coin mesh (or use Starter Content)</li>
+                            <li>Adjust scale if needed (e.g., 0.5, 0.5, 0.1 for flat coin)</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <h4>Part 3: Add Collision</h4>
+                
+                <ol>
+                    <li>Click <strong>+ Add</strong> → <strong>Sphere Collision</strong></li>
+                    <li>Rename to <code>CollectionTrigger</code></li>
+                    <li>In Details panel:
+                        <ul>
+                            <li>Set Sphere Radius to cover the coin (e.g., 50)</li>
+                            <li>Under Collision, check <strong>Generate Overlap Events</strong></li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <h4>Part 4: Create Variables</h4>
+                
+                <ol>
+                    <li>Switch to <strong>Event Graph</strong> tab</li>
+                    <li>In My Blueprint panel, click <strong>+ Variable</strong></li>
+                    <li>Name it <code>RotationSpeed</code></li>
+                    <li>In Details panel, set type to <strong>Float</strong></li>
+                    <li>Check <strong>"Instance Editable"</strong> (allows setting per-instance)</li>
+                    <li>Set Default Value to <code>100.0</code></li>
+                    <li>Click <strong>Compile</strong> to save</li>
+                </ol>
+                
+                <h4>Part 5: Add Rotation Logic (Event Tick)</h4>
+                
+                <ol>
+                    <li>Right-click in Event Graph → <strong>Add Event</strong> → <strong>Event Tick</strong></li>
+                    <li>This event fires every frame with a "Delta Seconds" output (time since last frame)</li>
+                    <li>Drag from Event Tick's execution pin → search "Add Relative Rotation"</li>
+                    <li>Connect it</li>
+                    <li>On the AddRelativeRotation node:
+                        <ul>
+                            <li>Click the "Delta Rotation" pin</li>
+                            <li>In Details, set Yaw (Z-axis) to connect to RotationSpeed variable</li>
+                            <li>Multiply RotationSpeed by Delta Seconds (for smooth frame-independent rotation)</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <p><strong>Node setup:</strong></p>
+                <ul>
+                    <li>Event Tick → AddRelativeRotation</li>
+                    <li>Get RotationSpeed → Multiply (by Delta Seconds) → Make Rotator (Yaw input) → AddRelativeRotation</li>
+                </ul>
+                
+                <h4>Part 6: Add Collection Logic</h4>
+                
+                <ol>
+                    <li>In Components panel, select <code>CollectionTrigger</code></li>
+                    <li>In Details panel, scroll down to <strong>Events</strong></li>
+                    <li>Click the green <strong>+</strong> next to <strong>"On Component Begin Overlap"</strong></li>
+                    <li>This creates an event in the Event Graph</li>
+                    <li>From the event's execution pin:
+                        <ul>
+                            <li>Add <strong>Print String</strong> node → set text to "Coin Collected!"</li>
+                            <li>Then add <strong>Play Sound at Location</strong> (optional, choose a pickup sound)</li>
+                            <li>Then add <strong>Destroy Actor</strong> node (removes the coin from the world)</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <h4>Part 7: Compile and Test</h4>
+                
+                <ol>
+                    <li>Click <strong>Compile</strong> button (should turn green)</li>
+                    <li>Click <strong>Save</strong></li>
+                    <li>Close Blueprint Editor</li>
+                    <li>Drag <code>BP_Collectible_Coin</code> from Content Browser into your level</li>
+                    <li>Press <kbd>Alt+P</kbd> to Play</li>
+                    <li>Walk into the coin—it should spin, display "Coin Collected!", and disappear!</li>
+                </ol>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Congratulations!</h4>
+                    <p>You've just created your first functioning Blueprint Actor with:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>Custom Components (mesh + collision)</li>
+                        <li>A variable (RotationSpeed)</li>
+                        <li>Event-driven logic (Tick for rotation, Overlap for collection)</li>
+                        <li>Multiple node connections</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">This same pattern—setup, events, logic—applies to all Blueprint Actors!</p>
+                </div>
+                
+                <h3>Common First Blueprint Issues</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Issue</th>
+                            <th>Cause</th>
+                            <th>Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Blueprint won't compile</td>
+                            <td>Syntax error, disconnected pins</td>
+                            <td>Check Compiler Results at bottom, fix red errors</td>
+                        </tr>
+                        <tr>
+                            <td>Coin doesn't spin</td>
+                            <td>Event Tick not connected, wrong axis</td>
+                            <td>Verify white wire connects Tick → AddRelativeRotation</td>
+                        </tr>
+                        <tr>
+                            <td>Overlap doesn't trigger</td>
+                            <td>Collision not configured</td>
+                            <td>Check "Generate Overlap Events" on collision component</td>
+                        </tr>
+                        <tr>
+                            <td>Can't find node</td>
+                            <td>Wrong context or typo in search</td>
+                            <td>Right-click from correct pin type, check spelling</td>
+                        </tr>
+                        <tr>
+                            <td>Changes don't show in level</td>
+                            <td>Blueprint not compiled/saved</td>
+                            <td>Compile, Save, and restart Play session</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 7: Blueprints vs C++ -->
+            <section id="blueprints-vs-cpp" class="lesson-section">
+                <h2>Blueprints vs C++</h2>
+                
+                <p>A common question: Should I use Blueprints or C++? The answer: Often both! They're designed to work together.</p>
+                
+                <h3>Comparison Table</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Blueprints</th>
+                            <th>C++</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Learning Curve</strong></td>
+                            <td>✅ Low—visual, intuitive</td>
+                            <td>❌ Steep—requires programming knowledge</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Iteration Speed</strong></td>
+                            <td>✅ Instant—no compilation</td>
+                            <td>❌ Slow—compile C++ takes minutes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visual Debugging</strong></td>
+                            <td>✅ Excellent—see values in real-time</td>
+                            <td>⚠️ Traditional debugger</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prototyping</strong></td>
+                            <td>✅ Perfect—rapid testing</td>
+                            <td>❌ Slower workflow</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>⚠️ Good for most tasks</td>
+                            <td>✅ Faster execution</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complex Math/Logic</strong></td>
+                            <td>⚠️ Can get messy</td>
+                            <td>✅ Clean, readable code</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Team Accessibility</strong></td>
+                            <td>✅ Designers/artists can contribute</td>
+                            <td>❌ Programmers only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Version Control</strong></td>
+                            <td>⚠️ Binary files (harder to merge)</td>
+                            <td>✅ Text files (easy to merge)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Low-Level Access</strong></td>
+                            <td>❌ Limited to exposed functions</td>
+                            <td>✅ Full engine access</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>When to Use Each</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                        <h4>Use Blueprints For:</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li>✅ Rapid prototyping and iteration</li>
+                            <li>✅ Gameplay mechanics and interactions</li>
+                            <li>✅ Level-specific logic</li>
+                            <li>✅ UI and menus</li>
+                            <li>✅ Animation logic and blending</li>
+                            <li>✅ Sequencing and cinematics</li>
+                            <li>✅ Designer/artist-created content</li>
+                            <li>✅ Visual debugging and tuning</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="background: #f3e5f5; border-left: 4px solid #9c27b0;">
+                        <h4>Use C++ For:</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li>✅ Core systems (inventory, save/load)</li>
+                            <li>✅ Performance-critical code</li>
+                            <li>✅ Complex algorithms and math</li>
+                            <li>✅ Custom engine features</li>
+                            <li>✅ Networking/replication logic</li>
+                            <li>✅ Plugin development</li>
+                            <li>✅ Third-party integrations</li>
+                            <li>✅ Functions Blueprints will call</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>The Hybrid Approach (Recommended)</h3>
+                
+                <p>Professional teams typically use both together:</p>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[C++ Base Classes] --> B[Blueprint Child Classes]
+    A --> C[Blueprint-Callable Functions]
+    B --> D[Designers/Artists Extend]
+    C --> D
+    D --> E[Final Game Content]
+    
+    A1[Example: C++ Character Base] --> B1[BP_Player inherits]
+    A1 --> C1[Jump Function in C++]
+    B1 --> D1[Designers add double-jump]
+    C1 --> D1
+    
+    style A fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style D fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E fill:#ff9800,stroke:#e65100,color:#fff
+</pre>
+<p class="caption"><em>Figure: Hybrid workflow where C++ provides foundation and Blueprints extend functionality.</em></p>
+                
+                <p><strong>Workflow example:</strong></p>
+                <ol>
+                    <li>Programmer creates <code>AWeapon</code> C++ class with functions like <code>Fire()</code>, <code>Reload()</code></li>
+                    <li>These functions are marked <code>BlueprintCallable</code></li>
+                    <li>Designer creates <code>BP_RocketLauncher</code> Blueprint inheriting from <code>AWeapon</code></li>
+                    <li>Designer adds rocket-specific visuals, sounds, fire rate in Blueprint</li>
+                    <li>Designer calls C++ <code>Fire()</code> function but customizes behavior in Blueprint</li>
+                </ol>
+                
+                <p>This combines the best of both: C++ performance and structure, Blueprint flexibility and iteration speed.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Best Practice: Start with Blueprints</h4>
+                    <p>For new developers: Start with 100% Blueprints. You can build entire games without touching C++. Only move to C++ when you:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>Hit performance bottlenecks (rare)</li>
+                        <li>Need features not exposed to Blueprints</li>
+                        <li>Have grown comfortable with Unreal and want deeper control</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">Many successful indie games are 100% Blueprint with zero C++!</p>
+                </div>
+            </section>
+
+            <!-- Section 8: Blueprint Best Practices -->
+            <section id="best-practices" class="lesson-section">
+                <h2>Blueprint Best Practices</h2>
+                
+                <p>As your Blueprints grow, following best practices keeps them maintainable and performant.</p>
+                
+                <h3>Organization and Readability</h3>
+                
+                <h4>1. Use Comments</h4>
+                
+                <p>Add comment boxes to explain sections of logic:</p>
+                <ul>
+                    <li>Select nodes → <kbd>C</kbd> key to create comment box</li>
+                    <li>Type descriptive text: "Check if player has key"</li>
+                    <li>Color-code comments for different sections</li>
+                </ul>
+                
+                <h4>2. Group Related Logic into Functions</h4>
+                
+                <p>Instead of one giant Event Graph, break logic into functions:</p>
+                <ul>
+                    <li>My Blueprint panel → Functions → <strong>+ Function</strong></li>
+                    <li>Name descriptively: <code>OpenDoor</code>, <code>CalculateDamage</code>, <code>SpawnPickup</code></li>
+                    <li>Call functions from events—keeps graphs clean</li>
+                </ul>
+                
+                <h4>3. Naming Conventions</h4>
+                
+                <p>Use consistent, descriptive names:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Convention</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Variables (boolean)</strong></td>
+                            <td>b prefix</td>
+                            <td><code>bIsOpen</code>, <code>bHasKey</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Variables (float)</strong></td>
+                            <td>f prefix (optional)</td>
+                            <td><code>fSpeed</code>, <code>Health</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Functions</strong></td>
+                            <td>Verb + Object</td>
+                            <td><code>OpenDoor</code>, <code>DealDamage</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Custom Events</strong></td>
+                            <td>Descriptive action</td>
+                            <td><code>OnPlayerDeath</code>, <code>TriggerExplosion</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>4. Keep Graphs Clean</h4>
+                
+                <ul>
+                    <li>✅ Align nodes horizontally/vertically (select multiple → <kbd>Q</kbd> to align)</li>
+                    <li>✅ Avoid wire spaghetti—use Reroute nodes for long wires</li>
+                    <li>✅ Delete unused nodes</li>
+                    <li>✅ Straighten wires (double-click wire to add bend point, drag to shape)</li>
+                </ul>
+                
+                <h3>Performance Best Practices</h3>
+                
+                <h4>1. Minimize Event Tick Usage</h4>
+                
+                <p>Event Tick runs every frame—use sparingly:</p>
+                <ul>
+                    <li>❌ Bad: Check for conditions every tick</li>
+                    <li>✅ Good: Use Timers for periodic checks (Set Timer by Function Name)</li>
+                    <li>✅ Good: Use event-based triggers instead</li>
+                </ul>
+                
+                <h4>2. Cache References</h4>
+                
+                <p>Don't repeatedly search for Actors—store references:</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                        <h4>❌ Bad: Repeated Searches</h4>
+                        <pre style="font-size: 0.8em; margin: 0;">Event Tick
+  Get All Actors of Class (Player)
+  Do something with player</pre>
+                        <p style="margin-top: 0.5rem; font-size: 0.9em;">Searches every frame—expensive!</p>
+                    </div>
+                    
+                    <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                        <h4>✅ Good: Cache Once</h4>
+                        <pre style="font-size: 0.8em; margin: 0;">Event BeginPlay
+  Get Player Controller
+  Store in PlayerRef variable
+
+Event Tick
+  Use PlayerRef variable</pre>
+                        <p style="margin-top: 0.5rem; font-size: 0.9em;">One search at start, then fast access!</p>
+                    </div>
+                </div>
+                
+                <h4>3. Use Pure Functions</h4>
+                
+                <p><strong>Pure functions</strong> (no execution pins, colored nodes) don't execute—they just return values. They're free!</p>
+                <ul>
+                    <li>Get Variable → Pure function (just returns value)</li>
+                    <li>Math operations → Pure (Add, Multiply, etc.)</li>
+                </ul>
+                
+                <h4>4. Profile and Optimize</h4>
+                
+                <p>Use Blueprint profiling tools:</p>
+                <ul>
+                    <li>Console command: <code>stat game</code> (shows performance stats)</li>
+                    <li>Blueprint Profiler: Tools → Blueprint Profiler (shows which Blueprints are slow)</li>
+                    <li>Focus optimization where profiler shows bottlenecks</li>
+                </ul>
+                
+                <h3>Debugging Best Practices</h3>
+                
+                <h4>1. Use Print String Liberally</h4>
+                
+                <p>Print String is your best friend for debugging:</p>
+                <ul>
+                    <li>Add Print String nodes to see execution flow</li>
+                    <li>Print variable values: "Health: " + ToString(Health)</li>
+                    <li>Use different colors for different messages</li>
+                </ul>
+                
+                <h4>2. Use Breakpoints</h4>
+                
+                <p>Right-click a node → <strong>Add Breakpoint</strong>:</p>
+                <ul>
+                    <li>Game pauses when execution hits breakpoint</li>
+                    <li>Inspect all variable values at that moment</li>
+                    <li>Step through nodes one at a time (<kbd>F10</kbd>)</li>
+                </ul>
+                
+                <h4>3. Watch Variables</h4>
+                
+                <p>Right-click a variable → <strong>Watch This Value</strong>:</p>
+                <ul>
+                    <li>Variable's value displays during Play</li>
+                    <li>Updates in real-time</li>
+                    <li>Great for seeing state changes</li>
+                </ul>
+            </section>
+
+            <!-- Section 9: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Interactive Door Blueprint</h2>
+                    
+                    <p>Build a door that opens when the player approaches and closes when they leave.</p>
+                    
+                    <h3>Part 1: Create the Blueprint</h3>
+                    
+                    <ol>
+                        <li>Content Browser → Right-click → Blueprint Class → Actor</li>
+                        <li>Name: <code>BP_SlidingDoor</code></li>
+                        <li>Double-click to open</li>
+                    </ol>
+                    
+                    <h3>Part 2: Add Components</h3>
+                    
+                    <ol>
+                        <li><strong>Static Mesh Component:</strong> Add a Static Mesh, name it <code>DoorFrame</code>
+                            <ul>
+                                <li>Assign a wall/frame mesh</li>
+                                <li>This stays stationary</li>
+                            </ul>
+                        </li>
+                        <li><strong>Static Mesh Component:</strong> Add another, name it <code>DoorPanel</code>
+                            <ul>
+                                <li>Assign a door mesh</li>
+                                <li>Make it a child of DoorFrame (drag onto DoorFrame in hierarchy)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Box Collision:</strong> Add Box Collision, name it <code>TriggerVolume</code>
+                            <ul>
+                                <li>Scale it to extend in front of door (where player approaches)</li>
+                                <li>Enable <strong>Generate Overlap Events</strong></li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 3: Create Variables</h3>
+                    
+                    <p>In My Blueprint panel, add these variables:</p>
+                    <ol>
+                        <li><code>bIsOpen</code> (Boolean) - Tracks door state</li>
+                        <li><code>DoorOpenPosition</code> (Vector) - Where door slides to when open
+                            <ul>
+                                <li>Set default: (0, 0, 200) - 200cm up</li>
+                            </ul>
+                        </li>
+                        <li><code>DoorClosedPosition</code> (Vector) - Original position
+                            <ul>
+                                <li>Set default: (0, 0, 0)</li>
+                            </ul>
+                        </li>
+                        <li><code>DoorSpeed</code> (Float) - How fast door moves
+                            <ul>
+                                <li>Set default: 2.0</li>
+                                <li>Check "Instance Editable"</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 4: Create OpenDoor Function</h3>
+                    
+                    <ol>
+                        <li>My Blueprint → Functions → + Function</li>
+                        <li>Name it <code>OpenDoor</code></li>
+                        <li>In the function graph:
+                            <ul>
+                                <li>Get <code>DoorPanel</code> reference</li>
+                                <li>Call <code>SetRelativeLocation</code> on it</li>
+                                <li>Connect <code>DoorOpenPosition</code> to New Location</li>
+                                <li>Set <code>bIsOpen</code> to True</li>
+                                <li>Add <code>Print String</code>: "Door Opening"</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 5: Create CloseDoor Function</h3>
+                    
+                    <ol>
+                        <li>Create another function: <code>CloseDoor</code></li>
+                        <li>Similar to OpenDoor, but:
+                            <ul>
+                                <li>Use <code>DoorClosedPosition</code></li>
+                                <li>Set <code>bIsOpen</code> to False</li>
+                                <li>Print "Door Closing"</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 6: Hook Up Overlap Events</h3>
+                    
+                    <ol>
+                        <li>Select <code>TriggerVolume</code> in Components</li>
+                        <li>In Details → Events → <strong>OnComponentBeginOverlap</strong></li>
+                        <li>In the Event Graph:
+                            <ul>
+                                <li>Add a <strong>Branch</strong> node</li>
+                                <li>Condition: NOT <code>bIsOpen</code> (only open if closed)</li>
+                                <li>True branch: Call <code>OpenDoor</code> function</li>
+                            </ul>
+                        </li>
+                        <li>Back to TriggerVolume Details → <strong>OnComponentEndOverlap</strong></li>
+                        <li>In Event Graph:
+                            <ul>
+                                <li>Branch: Check if <code>bIsOpen</code></li>
+                                <li>True branch: Call <code>CloseDoor</code> function</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 7: Test</h3>
+                    
+                    <ol>
+                        <li>Compile and Save</li>
+                        <li>Drag <code>BP_SlidingDoor</code> into your level</li>
+                        <li>Play (<kbd>Alt+P</kbd>)</li>
+                        <li>Walk toward door → it should slide up</li>
+                        <li>Walk away → it should slide down</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Checkpoint:</strong> What should you have?</summary>
+                        <p>Your Blueprint should have:
+                            <ul>
+                                <li>3 Components: DoorFrame, DoorPanel, TriggerVolume</li>
+                                <li>4 Variables: bIsOpen, positions, speed</li>
+                                <li>2 Functions: OpenDoor, CloseDoor</li>
+                                <li>2 Overlap Events: BeginOverlap, EndOverlap</li>
+                                <li>Door moves when you approach/leave</li>
+                            </ul>
+                            Congratulations—you've built a fully interactive prop!
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Add Smooth Animation</h3>
+                    
+                    <p>Current door teleports instantly. Make it slide smoothly:</p>
+                    
+                    <ol>
+                        <li>Instead of <code>SetRelativeLocation</code>, use <code>VInterp To</code> (Vector Interpolate)</li>
+                        <li>Call it from Event Tick (only when door is moving)</li>
+                        <li>Interpolate from current position toward target position</li>
+                        <li>Use <code>DoorSpeed</code> as the InterpSpeed parameter</li>
+                    </ol>
+                    
+                    <p><strong>Hint:</strong> You'll need a "TargetPosition" variable and check if DoorPanel has reached it.</p>
+                </div>
+            </section>
+
+            <!-- Section 10: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Blueprints are Unreal Engine's visual scripting superpower, enabling anyone to create complex gameplay without writing traditional code. You've learned the foundations—now it's time to build!</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>🎨 <strong>Blueprint Visual Scripting</strong> uses nodes and wires instead of text code—accessible to everyone</li>
+                    <li>📦 <strong>Blueprint Types:</strong> Level Blueprints (level-specific), Blueprint Classes (reusable), Components (modular)</li>
+                    <li>🖥️ <strong>Blueprint Editor</strong> has Components panel, Event Graph canvas, and Details panel for visual programming</li>
+                    <li>⚡ <strong>Event-Driven:</strong> Logic executes in response to events (BeginPlay, Tick, Overlap, Input), not continuously</li>
+                    <li>🔗 <strong>Execution Flow:</strong> White wires connect nodes left-to-right, defining execution order</li>
+                    <li>🔧 <strong>Components</strong> are LEGO bricks—snap them onto Actors to add functionality</li>
+                    <li>⚖️ <strong>Blueprints vs C++:</strong> Use Blueprints for rapid iteration and gameplay, C++ for core systems and performance</li>
+                    <li>📏 <strong>Best Practices:</strong> Use comments, create functions, cache references, minimize Tick usage</li>
+                    <li>🐛 <strong>Debugging:</strong> Print String, breakpoints, and watch values are your debugging toolkit</li>
+                    <li>🎯 <strong>Hybrid Approach:</strong> C++ provides foundation, Blueprints extend and customize</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>Now that you understand Blueprint basics, the next lesson will dive deeper into <strong>Lesson 3.2: Blueprint Communication and Variables</strong>. You'll learn how to make Blueprints talk to each other, manage data with variables, and create complex interactions between multiple Actors.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What's the difference between a Level Blueprint and a Blueprint Class?</li>
+                        <li>What are the three main panels in the Blueprint Editor?</li>
+                        <li>What's an event and how does it trigger Blueprint execution?</li>
+                        <li>Why should you avoid overusing Event Tick?</li>
+                        <li>What are Blueprint Components and how do they work?</li>
+                        <li>When should you use Blueprints vs. C++?</li>
+                        <li>What's the purpose of the white execution wires vs. colored data wires?</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Level Blueprints are level-specific and can't be reused. Blueprint Classes are reusable templates you can place in any level multiple times.</li>
+                            <li>Components panel (left), Event Graph canvas (center), and Details panel (right).</li>
+                            <li>An event is a starting point that fires when something happens (like BeginPlay, Tick, or Overlap). When it fires, execution flows through its connected nodes.</li>
+                            <li>Event Tick runs every frame (~60 times/second). Overusing it wastes performance checking conditions that rarely change. Use event-based triggers instead.</li>
+                            <li>Components are modular pieces of functionality (like Static Mesh, Collision, Audio) that you snap onto Actors to give them abilities. They're like LEGO bricks.</li>
+                            <li>Use Blueprints for rapid prototyping, gameplay mechanics, level-specific logic, and designer-accessible content. Use C++ for core systems, performance-critical code, complex algorithms, and features Blueprints will call.</li>
+                            <li>White execution wires control the order nodes execute (flow control). Colored data wires pass values (numbers, objects, etc.) between nodes.</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m02_l05_materials_and_lighting.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">Materials and Lighting Basics</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="m05_l02_blueprint_fundamentals.html" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Lesson</span>
+                    <span class="title">Blueprint Communication</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

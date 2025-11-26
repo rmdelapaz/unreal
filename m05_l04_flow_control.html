@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master Blueprint flow control and logic in Unreal Engine 5. Learn conditionals, loops, sequences, gates, and advanced decision-making systems.">
+    <meta name="author" content="Practical Ace">
+    <title>Blueprint Flow Control and Logic - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 3: Blueprint Visual Scripting</a></li>
+            <li aria-current="page">Lesson 3.3: Blueprint Flow Control and Logic</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🔀 Blueprint Flow Control and Logic</h1>
+                <p class="lead">Every game requires decision-making: "If the player has the key, open the door. If not, display a message." Flow control nodes are the building blocks of logical thinking in Blueprints—they let you create branches, loops, sequences, and complex decision trees. In this lesson, you'll master the tools that transform simple Blueprint scripts into intelligent, responsive gameplay systems that react appropriately to any situation.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Use Branch nodes to create conditional logic (if/then/else)</li>
+                        <li>Implement Switch statements for multi-option decision-making</li>
+                        <li>Build loops with For, While, and ForEach nodes</li>
+                        <li>Control execution flow with Sequence, Delay, and Gate nodes</li>
+                        <li>Create complex boolean logic with AND, OR, NOT operations</li>
+                        <li>Use comparison operators to evaluate conditions</li>
+                        <li>Implement state machines for AI and gameplay logic</li>
+                        <li>Optimize flow control for performance</li>
+                        <li>Debug complex logic chains effectively</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 90-105 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 3.2 - Blueprint Communication and Variables</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#flow-control-fundamentals" class="toc-link">Flow Control Fundamentals</a></li>
+                        <li><a href="#branch-conditionals" class="toc-link">Branch: If/Then/Else Logic</a></li>
+                        <li><a href="#comparison-operators" class="toc-link">Comparison Operators</a></li>
+                        <li><a href="#boolean-logic" class="toc-link">Boolean Logic (AND, OR, NOT)</a></li>
+                        <li><a href="#switch-statements" class="toc-link">Switch Statements</a></li>
+                        <li><a href="#loops" class="toc-link">Loops: For, While, ForEach</a></li>
+                        <li><a href="#sequence-delay" class="toc-link">Sequence and Delay Nodes</a></li>
+                        <li><a href="#gates-flipflops" class="toc-link">Gates and FlipFlops</a></li>
+                        <li><a href="#advanced-patterns" class="toc-link">Advanced Flow Control Patterns</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Flow Control Fundamentals -->
+            <section id="flow-control-fundamentals" class="lesson-section">
+                <h2>Flow Control Fundamentals</h2>
+                
+                <p>By default, Blueprint nodes execute in a straight line—left to right, one after another. But games need intelligence: make decisions, repeat actions, handle different scenarios. That's where <strong>flow control</strong> comes in.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Flow Control:</strong> Mechanisms that determine which nodes execute and in what order based on conditions, loops, or explicit control. Flow control transforms linear scripts into dynamic, intelligent systems that respond differently depending on the situation. Without it, every Blueprint would do the exact same thing every time.</p>
+                </div>
+                
+                <h3>The Need for Flow Control</h3>
+                
+                <p>Consider a door Blueprint without flow control:</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Player Interacts] --> B[Play Opening Sound]
+    B --> C[Open Door]
+    C --> D[End]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#9e9e9e,stroke:#616161,color:#fff
+</pre>
+<p class="caption"><em>Figure: Linear execution—always does the same thing, no intelligence.</em></p>
+                
+                <p>This door always opens, even if it's already open, locked, or requires a key. Not smart!</p>
+                
+                <p>Now with flow control:</p>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Player Interacts] --> B{Is Already Open?}
+    B -->|Yes| C[Print Already Open]
+    B -->|No| D{Is Locked?}
+    D -->|Yes| E{Player Has Key?}
+    D -->|No| F[Play Opening Sound]
+    E -->|Yes| G[Unlock and Open]
+    E -->|No| H[Print Need Key]
+    F --> I[Open Door]
+    G --> I
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#ff9800,stroke:#e65100,color:#fff
+    style E fill:#ff9800,stroke:#e65100,color:#fff
+    style C fill:#9e9e9e,stroke:#616161,color:#fff
+    style F fill:#2196F3,stroke:#1565c0,color:#fff
+    style G fill:#2196F3,stroke:#1565c0,color:#fff
+    style H fill:#9e9e9e,stroke:#616161,color:#fff
+    style I fill:#4CAF50,stroke:#2e7d32,color:#fff
+</pre>
+<p class="caption"><em>Figure: Intelligent execution—makes decisions, handles multiple scenarios appropriately.</em></p>
+                
+                <p>Now the door checks conditions and responds appropriately. That's the power of flow control!</p>
+                
+                <h3>Categories of Flow Control</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Purpose</th>
+                            <th>Key Nodes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Conditionals</strong></td>
+                            <td>Make decisions based on conditions</td>
+                            <td>Branch, Switch, Select</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loops</strong></td>
+                            <td>Repeat actions multiple times</td>
+                            <td>For Loop, While Loop, ForEach</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sequencing</strong></td>
+                            <td>Control execution order and timing</td>
+                            <td>Sequence, Delay, Retriggerable Delay</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gates</strong></td>
+                            <td>Open/close execution paths</td>
+                            <td>Gate, MultiGate, Do Once, Do N</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Boolean Logic</strong></td>
+                            <td>Combine multiple conditions</td>
+                            <td>AND, OR, NOT, XOR</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Execution Flow Basics</h3>
+                
+                <p>Remember: Execution follows white wires. Flow control nodes have multiple white output pins, routing execution down different paths based on conditions.</p>
+                
+                <canvas id="flow-control-basics-canvas" width="800" height="300" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Flow control nodes route execution down different paths based on conditions.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('flow-control-basics-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Flow Control Routes Execution', 400, 30);
+                        
+                        // Event node
+                        ctx.save();
+                        ctx.translate(80, 120);
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillRect(0, 0, 100, 50);
+                        ctx.strokeStyle = '#c0392b';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 100, 50);
+                        
+                        ctx.fillStyle = '#c0392b';
+                        ctx.fillRect(0, 0, 100, 18);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Event', 50, 12);
+                        
+                        // Execution pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(100, 25, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.restore();
+                        
+                        // Branch node
+                        ctx.save();
+                        ctx.translate(250, 90);
+                        
+                        ctx.fillStyle = '#ff9800';
+                        ctx.fillRect(0, 0, 120, 110);
+                        ctx.strokeStyle = '#e65100';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 120, 110);
+                        
+                        ctx.fillStyle = '#e65100';
+                        ctx.fillRect(0, 0, 120, 22);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Branch', 60, 15);
+                        
+                        // Input execution pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 55, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Condition input pin
+                        ctx.fillStyle = '#c0392b';
+                        ctx.beginPath();
+                        ctx.arc(0, 75, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#a93226';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('Condition', 10, 78);
+                        
+                        // True output
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(120, 40, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('True', 110, 43);
+                        
+                        // False output
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(120, 90, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('False', 110, 93);
+                        
+                        ctx.restore();
+                        
+                        // Connection from Event to Branch
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(180, 145);
+                        ctx.lineTo(250, 145);
+                        ctx.stroke();
+                        
+                        // True path node
+                        ctx.save();
+                        ctx.translate(450, 80);
+                        
+                        ctx.fillStyle = '#2196F3';
+                        ctx.fillRect(0, 0, 140, 50);
+                        ctx.strokeStyle = '#1565c0';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 140, 50);
+                        
+                        ctx.fillStyle = '#1565c0';
+                        ctx.fillRect(0, 0, 140, 18);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Action: Open Door', 70, 12);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 25, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.restore();
+                        
+                        // False path node
+                        ctx.save();
+                        ctx.translate(450, 170);
+                        
+                        ctx.fillStyle = '#9e9e9e';
+                        ctx.fillRect(0, 0, 140, 50);
+                        ctx.strokeStyle = '#616161';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 140, 50);
+                        
+                        ctx.fillStyle = '#616161';
+                        ctx.fillRect(0, 0, 140, 18);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Action: Show Message', 70, 12);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 25, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.restore();
+                        
+                        // True path connection
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(370, 130);
+                        ctx.lineTo(410, 130);
+                        ctx.lineTo(410, 105);
+                        ctx.lineTo(450, 105);
+                        ctx.stroke();
+                        
+                        // False path connection
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(370, 180);
+                        ctx.lineTo(410, 180);
+                        ctx.lineTo(410, 195);
+                        ctx.lineTo(450, 195);
+                        ctx.stroke();
+                        
+                        // Labels
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('If condition TRUE', 410, 90);
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('If condition FALSE', 410, 210);
+                        
+                        // Bottom note
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Flow control nodes split execution into multiple possible paths', 400, 270);
+                    })();
+                </script>
+            </section>
+
+            <!-- Section 2: Branch - Conditionals -->
+            <section id="branch-conditionals" class="lesson-section">
+                <h2>Branch: If/Then/Else Logic</h2>
+                
+                <p>The <strong>Branch</strong> node is your most fundamental flow control tool—it's the Blueprint equivalent of "if/then/else" in traditional programming.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Branch Node:</strong> A decision point that evaluates a boolean condition and routes execution down one of two paths: "True" if the condition is true, "False" if not. Every game decision—"Does the player have enough gold?", "Is the door locked?", "Is health below 20?"—uses a Branch node.</p>
+                </div>
+                
+                <h3>Branch Node Structure</h3>
+                
+                <svg width="100%" height="200" viewBox="0 0 500 200" style="max-width: 500px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="250" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Branch Node Anatomy</text>
+                    
+                    <!-- Branch node -->
+                    <g transform="translate(190, 60)">
+                        <rect x="0" y="0" width="120" height="110" fill="#ff9800" stroke="#e65100" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="120" height="22" fill="#e65100"/>
+                        <text x="60" y="15" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Branch</text>
+                        
+                        <!-- Input execution pin -->
+                        <circle cx="0" cy="55" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="10" y="58" font-size="10" fill="#333">In</text>
+                        
+                        <!-- Condition input pin -->
+                        <circle cx="0" cy="75" r="5" fill="#c0392b" stroke="#a93226" stroke-width="2"/>
+                        <text x="10" y="78" font-size="10" fill="#333">Condition</text>
+                        
+                        <!-- True output pin -->
+                        <circle cx="120" cy="40" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="105" y="43" text-anchor="end" font-size="10" fill="#4CAF50" font-weight="bold">True</text>
+                        
+                        <!-- False output pin -->
+                        <circle cx="120" cy="90" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="105" y="93" text-anchor="end" font-size="10" fill="#e74c3c" font-weight="bold">False</text>
+                    </g>
+                    
+                    <!-- Annotations -->
+                    <g>
+                        <!-- Input execution -->
+                        <line x1="140" y1="115" x2="190" y2="115" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="135" y="118" text-anchor="end" font-size="9" fill="#666">Execution in</text>
+                        
+                        <!-- Condition -->
+                        <line x1="140" y1="135" x2="190" y2="135" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="135" y="138" text-anchor="end" font-size="9" fill="#666">Boolean condition</text>
+                        
+                        <!-- True -->
+                        <line x1="310" y1="100" x2="360" y2="100" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="365" y="103" font-size="9" fill="#666">If condition = true</text>
+                        
+                        <!-- False -->
+                        <line x1="310" y1="150" x2="360" y2="150" stroke="#e74c3c" stroke-width="2"/>
+                        <text x="365" y="153" font-size="9" fill="#666">If condition = false</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Branch node with labeled inputs and outputs.</em></p>
+                
+                <h3>Using Branch Nodes</h3>
+                
+                <p><strong>Basic pattern:</strong></p>
+                <ol>
+                    <li>Right-click in Event Graph → search "Branch"</li>
+                    <li>Connect execution flow to the Branch input</li>
+                    <li>Connect a boolean condition to the Condition pin</li>
+                    <li>Wire the True output to actions that should happen if true</li>
+                    <li>Wire the False output to actions that should happen if false</li>
+                </ol>
+                
+                <h3>Branch Examples</h3>
+                
+                <h4>Example 1: Door with Lock Check</h4>
+                
+                <pre><code class="language-plaintext">Event OnInteract
+  → Branch (Condition = bIsLocked)
+     → True: Print "Door is locked!"
+     → False: Open Door + Play Sound
+</code></pre>
+                
+                <h4>Example 2: Health Check</h4>
+                
+                <pre><code class="language-plaintext">TakeDamage(DamageAmount)
+  → Subtract DamageAmount from Health
+  → Branch (Condition = Health <= 0)
+     → True: Player Dies + Game Over
+     → False: Update Health Bar
+</code></pre>
+                
+                <h4>Example 3: Inventory Check</h4>
+                
+                <pre><code class="language-plaintext">Try to Buy Item
+  → Branch (Condition = Gold >= ItemCost)
+     → True: Subtract Gold + Add Item to Inventory + Print "Purchased!"
+     → False: Print "Not enough gold!"
+</code></pre>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Chaining Branches</h4>
+                    <p>You can connect the output of one Branch to the input of another to create nested conditions:</p>
+                    <pre style="font-size: 0.85em; margin: 0.5rem 0;">Event → Branch (Is Door Locked?)
+         → True: Branch (Player Has Key?)
+                  → True: Unlock + Open
+                  → False: Show "Need Key" Message
+         → False: Open Door Directly</pre>
+                    <p style="margin-top: 0.5rem;">This creates an if-within-if structure—check locked state, then check key possession.</p>
+                </div>
+
+            </section>
+
+            <!-- Section 3: Comparison Operators -->
+            <section id="comparison-operators" class="lesson-section">
+                <h2>Comparison Operators</h2>
+                
+                <p>Branch nodes need boolean conditions. Often, you create these conditions by <strong>comparing values</strong>—"Is health greater than 50?", "Is the player's name equal to 'Hero'?", "Is score less than 1000?"</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Comparison Operators:</strong> Nodes that compare two values and output a boolean result (true/false). They answer questions like "is A bigger than B?" or "are these two things equal?" The result feeds directly into Branch nodes to make decisions.</p>
+                </div>
+                
+                <h3>The Six Comparison Operators</h3>
+                
+                <svg width="100%" height="500" viewBox="0 0 900 500" style="max-width: 900px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Comparison Operators Reference</text>
+                    
+                    <!-- Equal To -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="250" height="110" fill="#e3f2fd" stroke="#2196F3" stroke-width="3" rx="8"/>
+                        <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">== (Equal To)</text>
+                        <text x="125" y="55" text-anchor="middle" font-size="12" fill="#666">Are two values exactly the same?</text>
+                        <text x="10" y="75" font-size="11" fill="#333" font-weight="bold">Examples:</text>
+                        <text x="15" y="90" font-size="10" fill="#666">5 == 5 → True</text>
+                        <text x="15" y="103" font-size="10" fill="#666">"Hello" == "Goodbye" → False</text>
+                    </g>
+                    
+                    <!-- Not Equal To -->
+                    <g transform="translate(330, 60)">
+                        <rect x="0" y="0" width="250" height="110" fill="#f3e5f5" stroke="#9c27b0" stroke-width="3" rx="8"/>
+                        <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">!= (Not Equal To)</text>
+                        <text x="125" y="55" text-anchor="middle" font-size="12" fill="#666">Are two values different?</text>
+                        <text x="10" y="75" font-size="11" fill="#333" font-weight="bold">Examples:</text>
+                        <text x="15" y="90" font-size="10" fill="#666">5 != 3 → True</text>
+                        <text x="15" y="103" font-size="10" fill="#666">100 != 100 → False</text>
+                    </g>
+                    
+                    <!-- Greater Than -->
+                    <g transform="translate(610, 60)">
+                        <rect x="0" y="0" width="250" height="110" fill="#e8f5e9" stroke="#4CAF50" stroke-width="3" rx="8"/>
+                        <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">> (Greater Than)</text>
+                        <text x="125" y="55" text-anchor="middle" font-size="12" fill="#666">Is first value larger?</text>
+                        <text x="10" y="75" font-size="11" fill="#333" font-weight="bold">Examples:</text>
+                        <text x="15" y="90" font-size="10" fill="#666">10 > 5 → True</text>
+                        <text x="15" y="103" font-size="10" fill="#666">3 > 10 → False</text>
+                    </g>
+                    
+                    <!-- Less Than -->
+                    <g transform="translate(50, 200)">
+                        <rect x="0" y="0" width="250" height="110" fill="#fff3e0" stroke="#ff9800" stroke-width="3" rx="8"/>
+                        <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">< (Less Than)</text>
+                        <text x="125" y="55" text-anchor="middle" font-size="12" fill="#666">Is first value smaller?</text>
+                        <text x="10" y="75" font-size="11" fill="#333" font-weight="bold">Examples:</text>
+                        <text x="15" y="90" font-size="10" fill="#666">3 < 10 → True</text>
+                        <text x="15" y="103" font-size="10" fill="#666">10 < 5 → False</text>
+                    </g>
+                    
+                    <!-- Greater Than or Equal -->
+                    <g transform="translate(330, 200)">
+                        <rect x="0" y="0" width="250" height="110" fill="#fce4ec" stroke="#e91e63" stroke-width="3" rx="8"/>
+                        <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">>= (Greater or Equal)</text>
+                        <text x="125" y="55" text-anchor="middle" font-size="12" fill="#666">Is first value larger or same?</text>
+                        <text x="10" y="75" font-size="11" fill="#333" font-weight="bold">Examples:</text>
+                        <text x="15" y="90" font-size="10" fill="#666">10 >= 10 → True</text>
+                        <text x="15" y="103" font-size="10" fill="#666">5 >= 10 → False</text>
+                    </g>
+                    
+                    <!-- Less Than or Equal -->
+                    <g transform="translate(610, 200)">
+                        <rect x="0" y="0" width="250" height="110" fill="#e0f2f1" stroke="#00bcd4" stroke-width="3" rx="8"/>
+                        <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333"><= (Less or Equal)</text>
+                        <text x="125" y="55" text-anchor="middle" font-size="12" fill="#666">Is first value smaller or same?</text>
+                        <text x="10" y="75" font-size="11" fill="#333" font-weight="bold">Examples:</text>
+                        <text x="15" y="90" font-size="10" fill="#666">5 <= 10 → True</text>
+                        <text x="15" y="103" font-size="10" fill="#666">10 <= 5 → False</text>
+                    </g>
+                    
+                    <!-- Usage notes -->
+                    <g transform="translate(50, 340)">
+                        <rect x="0" y="0" width="810" height="130" fill="#fffde7" stroke="#fbc02d" stroke-width="2" rx="8"/>
+                        <text x="405" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Common Use Cases</text>
+                        
+                        <text x="10" y="50" font-size="11" fill="#333" font-weight="bold">Health checks:</text>
+                        <text x="15" y="65" font-size="10" fill="#666">Health <= 0 → Player is dead</text>
+                        <text x="15" y="78" font-size="10" fill="#666">Health < 20 → Show low health warning</text>
+                        
+                        <text x="280" y="50" font-size="11" fill="#333" font-weight="bold">Inventory/Currency:</text>
+                        <text x="285" y="65" font-size="10" fill="#666">Gold >= ItemCost → Can afford</text>
+                        <text x="285" y="78" font-size="10" fill="#666">AmmoCount > 0 → Can shoot</text>
+                        
+                        <text x="550" y="50" font-size="11" fill="#333" font-weight="bold">State checks:</text>
+                        <text x="555" y="65" font-size="10" fill="#666">CurrentLevel == 10 → Show boss</text>
+                        <text x="555" y="78" font-size="10" fill="#666">PlayerName != "Guest" → Is registered</text>
+                        
+                        <text x="10" y="105" font-size="11" fill="#333" font-weight="bold">⚠️ Important:</text>
+                        <text x="15" y="120" font-size="10" fill="#666">For floats, avoid == due to precision issues. Use "Nearly Equal" node instead (checks within tolerance).</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: All comparison operators with examples and common use cases.</em></p>
+                
+                <h3>Using Comparison Operators</h3>
+                
+                <p><strong>To create a comparison:</strong></p>
+                <ol>
+                    <li>Right-click in Event Graph</li>
+                    <li>Search for the operator: "==", ">", "<", etc.</li>
+                    <li>Or search by type: "Integer > Integer", "Float <= Float"</li>
+                    <li>Connect the two values you want to compare</li>
+                    <li>The output is a boolean (true/false)</li>
+                    <li>Connect output to a Branch node's Condition pin</li>
+                </ol>
+                
+                <h3>Practical Example: Health System</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[TakeDamage Event] --> B[Subtract Damage from Health]
+    B --> C{Health <= 0?}
+    C -->|True| D[Player Dies]
+    C -->|False| E{Health < 20?}
+    E -->|True| F[Show Warning: Low Health!]
+    E -->|False| G[Update Health Bar]
+    D --> H[Game Over Screen]
+    F --> G
+    
+    style A fill:#e74c3c,stroke:#c0392b,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#e74c3c,stroke:#c0392b,color:#fff
+    style E fill:#ff9800,stroke:#e65100,color:#fff
+    style F fill:#ffc107,stroke:#f57c00,color:#fff
+    style G fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style H fill:#9e9e9e,stroke:#616161,color:#fff
+</pre>
+<p class="caption"><em>Figure: Health system using multiple comparison operators to make layered decisions.</em></p>
+                
+                <h3>Special Comparison Nodes</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Node</th>
+                            <th>Purpose</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Nearly Equal (float)</strong></td>
+                            <td>Compares floats within tolerance</td>
+                            <td>Checking if player reached exact position (floats rarely exactly equal)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>In Range</strong></td>
+                            <td>Checks if value is between min and max</td>
+                            <td>Is score between 100 and 500? Is angle between 0 and 90?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Is Valid</strong></td>
+                            <td>Checks if reference is valid (not null)</td>
+                            <td>Does this Actor reference point to something that exists?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Equal (Object)</strong></td>
+                            <td>Checks if two references point to same object</td>
+                            <td>Is this the same Actor I stored earlier?</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 4: Boolean Logic -->
+            <section id="boolean-logic" class="lesson-section">
+                <h2>Boolean Logic (AND, OR, NOT)</h2>
+                
+                <p>Real-world conditions are often complex: "Open the door if the player has the key AND the door isn't locked" or "Give a powerup if health is low OR time is running out." <strong>Boolean logic operators</strong> let you combine multiple conditions.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Boolean Logic:</strong> Operations that combine or modify boolean values (true/false). The three fundamental operators—AND, OR, NOT—allow you to build complex conditional statements from simpler ones. They're the building blocks of intelligent decision-making.</p>
+                </div>
+                
+                <h3>The Three Boolean Operators</h3>
+                
+                <canvas id="boolean-logic-canvas" width="800" height="500" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Visual truth tables for AND, OR, and NOT operations.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('boolean-logic-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 20px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Boolean Logic Operators', 400, 30);
+                        
+                        // AND Operator
+                        ctx.save();
+                        ctx.translate(100, 70);
+                        
+                        // Box
+                        ctx.fillStyle = '#e3f2fd';
+                        ctx.fillRect(0, 0, 200, 130);
+                        ctx.strokeStyle = '#2196F3';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(0, 0, 200, 130);
+                        
+                        ctx.fillStyle = '#2196F3';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('AND', 100, 25);
+                        
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Both must be true', 100, 42);
+                        
+                        // Truth table
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillStyle = '#333';
+                        
+                        ctx.fillText('A', 20, 65);
+                        ctx.fillText('B', 60, 65);
+                        ctx.fillText('Result', 105, 65);
+                        
+                        // True/True
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillText('True', 10, 80);
+                        ctx.fillText('True', 50, 80);
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('True', 105, 80);
+                        
+                        // True/False
+                        ctx.font = '10px Arial';
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillText('True', 10, 95);
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('False', 50, 95);
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('False', 105, 95);
+                        
+                        // False/True
+                        ctx.font = '10px Arial';
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('False', 10, 110);
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillText('True', 50, 110);
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('False', 105, 110);
+                        
+                        // False/False
+                        ctx.font = '10px Arial';
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('False', 10, 125);
+                        ctx.fillText('False', 50, 125);
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('False', 105, 125);
+                        
+                        ctx.restore();
+                        
+                        // OR Operator
+                        ctx.save();
+                        ctx.translate(330, 70);
+                        
+                        ctx.fillStyle = '#f3e5f5';
+                        ctx.fillRect(0, 0, 200, 130);
+                        ctx.strokeStyle = '#9c27b0';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(0, 0, 200, 130);
+                        
+                        ctx.fillStyle = '#9c27b0';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('OR', 100, 25);
+                        
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('At least one must be true', 100, 42);
+                        
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillStyle = '#333';
+                        
+                        ctx.fillText('A', 20, 65);
+                        ctx.fillText('B', 60, 65);
+                        ctx.fillText('Result', 105, 65);
+                        
+                        // True/True
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillText('True', 10, 80);
+                        ctx.fillText('True', 50, 80);
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('True', 105, 80);
+                        
+                        // True/False
+                        ctx.font = '10px Arial';
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillText('True', 10, 95);
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('False', 50, 95);
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('True', 105, 95);
+                        
+                        // False/True
+                        ctx.font = '10px Arial';
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('False', 10, 110);
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillText('True', 50, 110);
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('True', 105, 110);
+                        
+                        // False/False
+                        ctx.font = '10px Arial';
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('False', 10, 125);
+                        ctx.fillText('False', 50, 125);
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('False', 105, 125);
+                        
+                        ctx.restore();
+                        
+                        // NOT Operator
+                        ctx.save();
+                        ctx.translate(560, 70);
+                        
+                        ctx.fillStyle = '#fff3e0';
+                        ctx.fillRect(0, 0, 200, 130);
+                        ctx.strokeStyle = '#ff9800';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(0, 0, 200, 130);
+                        
+                        ctx.fillStyle = '#ff9800';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('NOT', 100, 25);
+                        
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Flips the value', 100, 42);
+                        
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillStyle = '#333';
+                        
+                        ctx.fillText('Input', 40, 65);
+                        ctx.fillText('Result', 110, 65);
+                        
+                        // True
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillText('True', 40, 85);
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('False', 110, 85);
+                        
+                        // False
+                        ctx.font = '10px Arial';
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('False', 40, 110);
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('True', 110, 110);
+                        
+                        ctx.restore();
+                        
+                        // Examples section
+                        ctx.fillStyle = '#fffde7';
+                        ctx.fillRect(50, 230, 700, 240);
+                        ctx.strokeStyle = '#fbc02d';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(50, 230, 700, 240);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Practical Examples', 400, 255);
+                        
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'left';
+                        
+                        // AND examples
+                        ctx.fillStyle = '#2196F3';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('AND Examples:', 70, 280);
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('• Open door if player HasKey AND door IsUnlocked', 80, 297);
+                        ctx.fillText('• Attack if enemy InRange AND player IsAlive', 80, 312);
+                        ctx.fillText('• Buy item if Gold >= Cost AND Inventory NotFull', 80, 327);
+                        
+                        // OR examples
+                        ctx.fillStyle = '#9c27b0';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('OR Examples:', 70, 355);
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('• Show powerup if Health < 20 OR Time < 10', 80, 372);
+                        ctx.fillText('• End game if PlayerDead OR TimerExpired', 80, 387);
+                        ctx.fillText('• Grant access if IsAdmin OR HasPermission', 80, 402);
+                        
+                        // NOT examples
+                        ctx.fillStyle = '#ff9800';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('NOT Examples:', 420, 280);
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('• Continue if NOT GameOver', 430, 297);
+                        ctx.fillText('• Attack if NOT IsFriendly', 430, 312);
+                        ctx.fillText('• Show tutorial if NOT HasSeenBefore', 430, 327);
+                        
+                        // Combined example
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('Complex (Combined):', 420, 355);
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('• Open vault if (HasRedKey AND HasBlueKey)', 430, 372);
+                        ctx.fillText('  OR IsAdmin', 430, 387);
+                        ctx.fillText('• Shoot if (AmmoCount > 0 AND NOT Reloading)', 430, 402);
+                        ctx.fillText('  AND TargetInSight', 430, 417);
+                        
+                        // Bottom note
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Combine operators to build complex decision logic from simple conditions', 400, 455);
+                    })();
+                </script>
+                
+                <h3>Using Boolean Operators in Blueprints</h3>
+                
+                <p><strong>To create boolean logic:</strong></p>
+                <ol>
+                    <li>Right-click in Event Graph</li>
+                    <li>Search: "AND", "OR", "NOT"</li>
+                    <li>Connect boolean inputs (comparison results, variables, etc.)</li>
+                    <li>Output is a combined boolean</li>
+                    <li>Connect to Branch condition</li>
+                </ol>
+                
+                <h3>Complex Logic Example: Vault Door</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Player Interacts with Vault] --> B{Has Red Key?}
+    B -->|No| C[Show: Need Keys]
+    B -->|Yes| D{Has Blue Key?}
+    D -->|No| C
+    D -->|Yes| E{Is Admin?}
+    E -->|Yes| F[Open Vault]
+    E -->|No| G{Door Unlocked?}
+    G -->|Yes| F
+    G -->|No| H[Show: Locked]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#ff9800,stroke:#e65100,color:#fff
+    style E fill:#ff9800,stroke:#e65100,color:#fff
+    style G fill:#ff9800,stroke:#e65100,color:#fff
+    style F fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style C fill:#e74c3c,stroke:#c0392b,color:#fff
+    style H fill:#e74c3c,stroke:#c0392b,color:#fff
+</pre>
+<p class="caption"><em>Figure: Complex vault logic using multiple AND/OR conditions.</em></p>
+                
+                <p><strong>In Blueprints:</strong></p>
+                <pre><code class="language-plaintext">Condition = (HasRedKey AND HasBlueKey AND NOT IsLocked) OR IsAdmin
+Branch (Condition)
+  → True: Open Vault
+  → False: Show Error Message
+</code></pre>
+                
+                <h3>Order of Operations</h3>
+                
+                <p>When combining operators, Blueprints evaluate left-to-right, but you can control order with parentheses (nesting):</p>
+                
+                <ul>
+                    <li><strong>A AND B OR C</strong> — evaluates (A AND B) first, then OR with C</li>
+                    <li><strong>A AND (B OR C)</strong> — evaluates (B OR C) first, then AND with A</li>
+                </ul>
+                
+                <p>In visual Blueprints, nesting is explicit—you wire outputs into inputs to create the structure you want.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Simplify Complex Logic</h4>
+                    <p>If your boolean logic gets too tangled:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>Break it into intermediate variables: <code>bCanOpenDoor = HasKey AND IsUnlocked</code></li>
+                        <li>Create helper functions: <code>CheckDoorRequirements()</code> returns boolean</li>
+                        <li>Use comment boxes to document what each section checks</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">Readable logic is debuggable logic!</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Switch Statements -->
+            <section id="switch-statements" class="lesson-section">
+                <h2>Switch Statements</h2>
+                
+                <p>Branch nodes are great for two-way decisions (true/false). But what if you have multiple options—"What happens based on the player's difficulty level: Easy, Normal, Hard, Expert?" Enter <strong>Switch</strong> nodes.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Switch Statement:</strong> A multi-way branch that checks a single value against multiple possible options and executes different code for each match. Instead of nested if/else chains, Switch provides a clean, readable way to handle many distinct cases.</p>
+                </div>
+                
+                <h3>Switch vs. Multiple Branches</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                        <h4>❌ Multiple Branches (Messy)</h4>
+                        <pre style="font-size: 0.8em; margin: 0;">Branch (Level == 1)
+  → True: Spawn 5 enemies
+  → False: Branch (Level == 2)
+    → True: Spawn 10 enemies
+    → False: Branch (Level == 3)
+      → True: Spawn 20 enemies
+      → False: ...</pre>
+                        <p style="margin-top: 0.5rem; font-size: 0.9em;">Deeply nested, hard to read, error-prone!</p>
+                    </div>
+                    
+                    <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                        <h4>✅ Switch (Clean)</h4>
+                        <pre style="font-size: 0.8em; margin: 0;">Switch on Integer (Level)
+  Case 1: Spawn 5 enemies
+  Case 2: Spawn 10 enemies
+  Case 3: Spawn 20 enemies
+  Default: Spawn 30 enemies</pre>
+                        <p style="margin-top: 0.5rem; font-size: 0.9em;">Clean, readable, easy to extend!</p>
+                    </div>
+                </div>
+                
+                <h3>Switch Types</h3>
+                
+                <p>Unreal provides Switch nodes for different data types:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Switch Type</th>
+                            <th>Checks Against</th>
+                            <th>Use Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Switch on Int</strong></td>
+                            <td>Integer values</td>
+                            <td>Levels, difficulty settings, player states (0=idle, 1=walk, 2=run)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Switch on String</strong></td>
+                            <td>String values</td>
+                            <td>Character names, team names, item types</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Switch on Name</strong></td>
+                            <td>Name values</td>
+                            <td>Tags, identifiers (more efficient than String)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Switch on Enum</strong></td>
+                            <td>Enumeration values</td>
+                            <td>Weapon types, game states, AI behaviors (best practice)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Switch on Byte</strong></td>
+                            <td>Byte values</td>
+                            <td>Small integer ranges (0-255)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Using Switch Nodes</h3>
+                
+                <ol>
+                    <li>Right-click in Event Graph → search "Switch on [Type]"</li>
+                    <li>Example: "Switch on Int"</li>
+                    <li>Connect the value to check to the Selection input</li>
+                    <li>The Switch node shows multiple output execution pins</li>
+                    <li>To add cases: Right-click node → <strong>Add Pin</strong></li>
+                    <li>Name each pin with the value to match (0, 1, 2, etc.)</li>
+                    <li>Connect each case to its appropriate logic</li>
+                    <li>Use the "Default" pin for unmatched cases</li>
+                </ol>
+                
+                <h3>Switch Example: Difficulty Settings</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+                    A[Game Start] --> B[Get Difficulty Setting]
+    B --> C{Switch on Int: Difficulty}
+    C -->|0: Easy| D[EnemyHealth = 50<br/>PlayerDamage = 150]
+    C -->|1: Normal| E[EnemyHealth = 100<br/>PlayerDamage = 100]
+    C -->|2: Hard| F[EnemyHealth = 200<br/>PlayerDamage = 75]
+    C -->|3: Expert| G[EnemyHealth = 300<br/>PlayerDamage = 50]
+    C -->|Default| H[Use Normal Settings]
+    
+    D --> I[Start Level]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E fill:#2196F3,stroke:#1565c0,color:#fff
+    style F fill:#ff9800,stroke:#e65100,color:#fff
+    style G fill:#e74c3c,stroke:#c0392b,color:#fff
+    style H fill:#9e9e9e,stroke:#616161,color:#fff
+    style I fill:#9c27b0,stroke:#6a1b9a,color:#fff
+</pre>
+<p class="caption"><em>Figure: Switch statement routing to different difficulty configurations.</em></p>
+
+                
+                <h3>Best Practice: Use Enums with Switch</h3>
+                
+                <p>Instead of integers or strings, create an <strong>Enumeration (Enum)</strong> for cleaner, safer code:</p>
+                
+                <ol>
+                    <li>Content Browser → Right-click → <strong>Blueprints → Enumeration</strong></li>
+                    <li>Name it (e.g., <code>E_DifficultyLevel</code>)</li>
+                    <li>Add enumerators: Easy, Normal, Hard, Expert</li>
+                    <li>Save</li>
+                    <li>Use <strong>Switch on Enum</strong> node</li>
+                    <li>Automatically creates pins for each enum value</li>
+                </ol>
+                
+                <p><strong>Benefits of enums:</strong></p>
+                <ul>
+                    <li>✅ Type-safe—can't accidentally pass invalid values</li>
+                    <li>✅ Self-documenting—"Easy" is clearer than "0"</li>
+                    <li>✅ Auto-complete—shows all valid options</li>
+                    <li>✅ Refactoring-safe—rename once, updates everywhere</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Switch Best Practices</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li>Always implement the Default case (fallback for unexpected values)</li>
+                        <li>Prefer enums over integers for readability</li>
+                        <li>Keep individual cases simple—call functions instead of cramming logic</li>
+                        <li>Document what each case represents with comments</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 6: Loops -->
+            <section id="loops" class="lesson-section">
+                <h2>Loops: For, While, ForEach</h2>
+                
+                <p>Sometimes you need to repeat an action multiple times—"Spawn 10 enemies," "Damage all enemies in range," "Check every item in inventory." <strong>Loops</strong> execute a block of code repeatedly.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Loop:</strong> A control structure that repeats a section of code multiple times. Loops are essential for working with collections, performing batch operations, and any task that requires repetition. The three main types—For, While, and ForEach—handle different looping scenarios.</p>
+                </div>
+                
+                <h3>The Three Loop Types</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Loop Types] --> B[For Loop]
+    A --> C[While Loop]
+    A --> D[ForEach Loop]
+    
+    B --> B1[Fixed number of iterations]
+    B --> B2[Uses index counter]
+    B --> B3[Example: Spawn 10 enemies]
+    
+    C --> C1[Loop until condition false]
+    C --> C2[Unknown iteration count]
+    C --> C3[Example: Search until found]
+    
+    D --> D1[Iterate through array]
+    D --> D2[Process each element]
+    D --> D3[Example: Damage all enemies]
+    
+    style A fill:#667eea,stroke:#4527a0,color:#fff
+    style B fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#2196F3,stroke:#1565c0,color:#fff
+    style B1 fill:#e8f5e9,stroke:#4CAF50
+    style B2 fill:#e8f5e9,stroke:#4CAF50
+    style B3 fill:#e8f5e9,stroke:#4CAF50
+    style C1 fill:#fff3e0,stroke:#ff9800
+    style C2 fill:#fff3e0,stroke:#ff9800
+    style C3 fill:#fff3e0,stroke:#ff9800
+    style D1 fill:#e3f2fd,stroke:#2196F3
+    style D2 fill:#e3f2fd,stroke:#2196F3
+    style D3 fill:#e3f2fd,stroke:#2196F3
+</pre>
+<p class="caption"><em>Figure: Three loop types with their characteristics and use cases.</em></p>
+                
+                <h3>1. For Loop</h3>
+                
+                <p><strong>For Loop</strong> repeats a fixed number of times, using an index counter.</p>
+                
+                <p><strong>Structure:</strong></p>
+                <ul>
+                    <li><strong>First Index:</strong> Starting number (usually 0)</li>
+                    <li><strong>Last Index:</strong> Ending number (exclusive in some languages, inclusive in UE)</li>
+                    <li><strong>Loop Body:</strong> Execution pin that runs each iteration</li>
+                    <li><strong>Index:</strong> Current iteration number (output)</li>
+                    <li><strong>Completed:</strong> Execution pin after loop finishes</li>
+                </ul>
+                
+                <p><strong>Example: Spawn Multiple Enemies</strong></p>
+                <pre><code class="language-plaintext">For Loop (First Index = 0, Last Index = 9)
+  Loop Body:
+    → Spawn Enemy at Random Location
+    → Index output shows current number (0, 1, 2, ... 9)
+  Completed:
+    → Print "All enemies spawned!"
+</code></pre>
+                
+                <p>This spawns 10 enemies (indices 0 through 9).</p>
+                
+                <h3>2. While Loop</h3>
+                
+                <p><strong>While Loop</strong> repeats as long as a condition remains true—useful when you don't know how many iterations you need.</p>
+                
+                <p><strong>Structure:</strong></p>
+                <ul>
+                    <li><strong>Condition:</strong> Boolean input—loop continues while true</li>
+                    <li><strong>Loop Body:</strong> Execution pin that runs each iteration</li>
+                    <li><strong>Completed:</strong> Execution pin after condition becomes false</li>
+                </ul>
+                
+                <p><strong>Example: Search for Item</strong></p>
+                <pre><code class="language-plaintext">While Loop (Condition = NOT Found AND Index < ArrayLength)
+  Loop Body:
+    → Check current inventory slot
+    → If item matches, set Found = true
+    → Increment Index
+  Completed:
+    → If Found: Use item
+    → Else: Print "Item not found"
+</code></pre>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ While Loop Warning: Infinite Loops</h4>
+                    <p>While Loops can run forever if the condition never becomes false:</p>
+                    <pre style="font-size: 0.85em; margin: 0.5rem 0;">❌ BAD:
+While (bIsSearching == true)
+  → Do nothing that changes bIsSearching
+  → Infinite loop! Game freezes!</pre>
+                    <p style="margin-top: 0.5rem;">Always ensure the loop body eventually makes the condition false or use a safety counter.</p>
+                </div>
+                
+                <h3>3. ForEach Loop</h3>
+                
+                <p><strong>ForEach Loop</strong> iterates through every element in an array—perfect for processing collections.</p>
+                
+                <p><strong>Structure:</strong></p>
+                <ul>
+                    <li><strong>Array:</strong> The array to iterate through</li>
+                    <li><strong>Loop Body:</strong> Runs once per element</li>
+                    <li><strong>Array Element:</strong> Current element (output)</li>
+                    <li><strong>Array Index:</strong> Current position in array</li>
+                    <li><strong>Completed:</strong> After all elements processed</li>
+                </ul>
+                
+                <p><strong>Example: Damage All Enemies</strong></p>
+                <pre><code class="language-plaintext">ForEach Loop (Array = EnemiesInRange)
+  Loop Body:
+    → Get current enemy (Array Element output)
+    → Call TakeDamage(50) on enemy
+  Completed:
+    → Print "All enemies damaged"
+</code></pre>
+                
+<pre class="mermaid">
+flowchart TD
+    A[ForEach Loop Starts] --> B[Get Enemy 1 from Array]
+    B --> C[Call TakeDamage on Enemy 1]
+    C --> D[Get Enemy 2 from Array]
+    D --> E[Call TakeDamage on Enemy 2]
+    E --> F[Get Enemy 3 from Array]
+    F --> G[Call TakeDamage on Enemy 3]
+    G --> H[All Elements Processed]
+    H --> I[Completed Pin Fires]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#2196F3,stroke:#1565c0,color:#fff
+    style E fill:#ff9800,stroke:#e65100,color:#fff
+    style F fill:#2196F3,stroke:#1565c0,color:#fff
+    style G fill:#ff9800,stroke:#e65100,color:#fff
+    style H fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style I fill:#4CAF50,stroke:#2e7d32,color:#fff
+</pre>
+<p class="caption"><em>Figure: ForEach Loop processes every element in an array sequentially.</em></p>
+                
+                <h3>Loop Control Nodes</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Node</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Break</strong></td>
+                            <td>Exit the loop immediately (skip remaining iterations)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Continue</strong></td>
+                            <td>Skip current iteration, move to next</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>Example with Break:</strong></p>
+                <pre><code class="language-plaintext">ForEach Loop (Array = Enemies)
+  Loop Body:
+    → If enemy health <= 0: Continue (skip dead enemies)
+    → If enemy is boss: Apply damage, then Break (stop after boss)
+    → Else: Apply damage
+</code></pre>
+                
+                <h3>Loop Performance Notes</h3>
+                
+                <ul>
+                    <li>⚠️ Avoid loops in Event Tick when possible (runs 60+ times/second)</li>
+                    <li>✅ Use loops in BeginPlay, function calls, or timer events</li>
+                    <li>⚠️ Large loops (1000+ iterations) can cause frame hitches</li>
+                    <li>✅ For massive operations, spread across multiple frames using timers</li>
+                </ul>
+            </section>
+
+            <!-- Section 7: Sequence and Delay -->
+            <section id="sequence-delay" class="lesson-section">
+                <h2>Sequence and Delay Nodes</h2>
+                
+                <p>Sometimes you need to control the <em>order</em> and <em>timing</em> of execution. <strong>Sequence</strong> manages order, <strong>Delay</strong> manages timing.</p>
+                
+                <h3>Sequence Node</h3>
+                
+                <p>The <strong>Sequence</strong> node has multiple output pins that fire in order—perfect for executing actions step-by-step.</p>
+                
+                <p><strong>Structure:</strong></p>
+                <ul>
+                    <li>One input execution pin</li>
+                    <li>Multiple output pins (Then 0, Then 1, Then 2, etc.)</li>
+                    <li>Each output fires in sequence</li>
+                    <li>Right-click → Add pin to add more outputs</li>
+                </ul>
+                
+                <p><strong>Example: Opening a Treasure Chest</strong></p>
+                <pre><code class="language-plaintext">OnInteract → Sequence
+  Then 0: Play Opening Animation
+  Then 1: Spawn Particles (sparkles)
+  Then 2: Play Sound (chest open)
+  Then 3: Add Gold to Player
+  Then 4: Destroy Chest
+</code></pre>
+                
+                <p>All five actions execute immediately, but in guaranteed order.</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Event] --> B[Sequence]
+    B -->|Then 0| C[Action 1]
+    B -->|Then 1| D[Action 2]
+    B -->|Then 2| E[Action 3]
+    B -->|Then 3| F[Action 4]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#ff9800,stroke:#e65100,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#2196F3,stroke:#1565c0,color:#fff
+    style E fill:#2196F3,stroke:#1565c0,color:#fff
+    style F fill:#2196F3,stroke:#1565c0,color:#fff
+</pre>
+<p class="caption"><em>Figure: Sequence node ensures actions execute in order.</em></p>
+                
+                <h3>Delay Node</h3>
+                
+                <p>The <strong>Delay</strong> node pauses execution for a specified duration—essential for timing events.</p>
+                
+                <p><strong>Structure:</strong></p>
+                <ul>
+                    <li><strong>Duration:</strong> How many seconds to wait</li>
+                    <li><strong>Completed:</strong> Fires after delay finishes</li>
+                </ul>
+                
+                <p><strong>Example: Delayed Explosion</strong></p>
+                <pre><code class="language-plaintext">Throw Grenade
+  → Spawn Grenade Actor
+  → Delay (3.0 seconds)
+  → Spawn Explosion at Grenade Location
+  → Destroy Grenade
+</code></pre>
+                
+                <h3>Retriggerable Delay</h3>
+                
+                <p><strong>Retriggerable Delay</strong> resets if triggered again before completing—useful for "wait until player stops doing something" scenarios.</p>
+                
+                <p><strong>Example: Auto-Save After Inactivity</strong></p>
+                <pre><code class="language-plaintext">On Any Player Action (movement, shooting, etc.)
+  → Retriggerable Delay (30 seconds)
+  → If player inactive for 30 seconds: Auto-Save Game
+  
+If player moves at 29 seconds, delay resets to 30 seconds.
+</code></pre>
+                
+                <h3>Combining Sequence and Delay</h3>
+                
+                <p>Use them together for timed sequences:</p>
+                
+                <pre><code class="language-plaintext">Boss Death → Sequence
+  Then 0: Play Death Animation → Delay (2s) → Spawn Loot
+  Then 1: Shake Camera
+  Then 2: Show Victory Message → Delay (3s) → Load Next Level
+</code></pre>
+                
+                <pre class="mermaid">
+sequenceDiagram
+    participant E as Event
+    participant S as Sequence
+    participant A1 as Action 1
+    participant D1 as Delay (2s)
+    participant A2 as Action 2
+    participant A3 as Action 3
+    participant D2 as Delay (3s)
+    participant A4 as Action 4
+    
+    E->>S: Trigger
+    S->>A1: Then 0
+    A1->>D1: Wait
+    Note over D1: 2 seconds pass
+    D1->>A2: Continue
+    
+    S->>A3: Then 1 (immediate)
+    A3->>D2: Wait
+    Note over D2: 3 seconds pass
+    D2->>A4: Continue
+</pre>
+<p class="caption"><em>Figure: Sequence with Delays creates timed multi-step events.</em></p>
+            </section>
+
+            <!-- Section 8: Gates and FlipFlops -->
+            <section id="gates-flipflops" class="lesson-section">
+                <h2>Gates and FlipFlops</h2>
+                
+                <p>Gates control whether execution can flow through—like a door that can be opened or closed. <strong>FlipFlops</strong> alternate between two states each time they're triggered.</p>
+                
+                <h3>Gate Node</h3>
+                
+                <p><strong>Gate</strong> blocks execution until opened.</p>
+                
+                <p><strong>Pins:</strong></p>
+                <ul>
+                    <li><strong>Enter:</strong> Tries to pass through gate</li>
+                    <li><strong>Open:</strong> Opens the gate</li>
+                    <li><strong>Close:</strong> Closes the gate</li>
+                    <li><strong>Toggle:</strong> Flips gate state</li>
+                    <li><strong>Exit:</strong> Execution continues (if gate is open)</li>
+                    <li><strong>Start Closed:</strong> Boolean setting (default state)</li>
+                </ul>
+                
+                <p><strong>Example: Wave System</strong></p>
+                <pre><code class="language-plaintext">Gate (Start Closed = true)
+  Enter: Player tries to exit spawn room
+  Exit: Actually exit
+
+On Wave Clear:
+  → Open Gate (players can now leave)
+
+On Boss Spawn:
+  → Close Gate (trap players in arena)
+</code></pre>
+                
+                <h3>MultiGate</h3>
+                
+                <p><strong>MultiGate</strong> cycles through multiple outputs in sequence or randomly.</p>
+                
+                <p><strong>Use case:</strong> NPC dialogue that changes each interaction:</p>
+                <pre><code class="language-plaintext">Talk to NPC → MultiGate
+  Out 1: "Hello, stranger!"
+  Out 2: "Back again?"
+  Out 3: "You're persistent!"
+  Out 4: "What do you want now?"
+  (Then loops or stops, depending on settings)
+</code></pre>
+                
+                <h3>Do Once</h3>
+                
+                <p><strong>Do Once</strong> allows execution once, then blocks—perfect for one-time events.</p>
+                
+                <p><strong>Example: Tutorial Message</strong></p>
+                <pre><code class="language-plaintext">Player Enters Area → Do Once
+  → Show Tutorial: "Press E to interact"
+  
+(Won't show again, even if player re-enters area)
+
+Reset pin: Call to allow firing again
+</code></pre>
+                
+                <h3>Do N</h3>
+                
+                <p><strong>Do N</strong> allows execution N times, then blocks.</p>
+                
+                <p><strong>Example: Limited Use Item</strong></p>
+                <pre><code class="language-plaintext">Use Healing Potion → Do N (N = 3)
+  → Heal Player
+  → On Counter: Display "Uses remaining: X"
+  
+After 3 uses, won't fire anymore.
+</code></pre>
+                
+                <h3>FlipFlop</h3>
+                
+                <p><strong>FlipFlop</strong> alternates between two outputs each time triggered—like a light switch.</p>
+                
+                <p><strong>Example: Toggle Light</strong></p>
+                <pre><code class="language-plaintext">Press Light Switch → FlipFlop
+  A: Turn Light On
+  B: Turn Light Off
+  
+First press: A fires (light on)
+Second press: B fires (light off)
+Third press: A fires (light on)
+...and so on
+</code></pre>
+                
+                <pre class="mermaid">
+stateDiagram-v2
+    [*] --> StateA
+    StateA --> StateB: Trigger
+    StateB --> StateA: Trigger
+    
+    note right of StateA
+        Output A fires
+        (e.g., Light On)
+    end note
+    
+    note right of StateB
+        Output B fires
+        (e.g., Light Off)
+    end note
+</pre>
+<p class="caption"><em>Figure: FlipFlop alternates between two states on each trigger.</em></p>
+            </section>
+
+            <!-- Section 9: Advanced Flow Control Patterns -->
+            <section id="advanced-patterns" class="lesson-section">
+                <h2>Advanced Flow Control Patterns</h2>
+                
+                <h3>State Machines</h3>
+                
+                <p>A <strong>state machine</strong> manages complex behaviors with distinct states and transitions.</p>
+                
+                <p><strong>Example: Enemy AI States</strong></p>
+                
+                <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Patrol
+    Patrol --> Chase: Player Spotted
+    Chase --> Attack: In Attack Range
+    Chase --> Patrol: Player Lost
+    Attack --> Chase: Player Out of Range
+    Attack --> Dead: Health <= 0
+    Chase --> Dead: Health <= 0
+    Patrol --> Dead: Health <= 0
+    Dead --> [*]
+    
+    note right of Patrol
+        Walk waypoint route
+        Check for player
+    end note
+    
+    note right of Chase
+        Move toward player
+        Check distance
+    end note
+    
+    note right of Attack
+        Play attack animation
+        Deal damage
+    end note
+</pre>
+<p class="caption"><em>Figure: Enemy AI state machine with transitions based on conditions.</em></p>
+                
+                <p><strong>Implementation in Blueprints:</strong></p>
+                <ol>
+                    <li>Create enum: <code>E_EnemyState</code> (Patrol, Chase, Attack, Dead)</li>
+                    <li>Variable: <code>CurrentState</code> (type: E_EnemyState)</li>
+                    <li>Event Tick → Switch on Enum (CurrentState)
+                        <ul>
+                            <li>Patrol case: Execute patrol logic, check for player</li>
+                            <li>Chase case: Move toward player, check distance</li>
+                            <li>Attack case: Attack animation, deal damage</li>
+                            <li>Dead case: Do nothing</li>
+                        </ul>
+                    </li>
+                    <li>Each state checks conditions and sets CurrentState to transition</li>
+                </ol>
+                
+                <h3>Cooldown Systems</h3>
+                
+                <p>Prevent actions from happening too frequently:</p>
+                
+                <pre><code class="language-plaintext">Ability Use → Branch (Can Use Ability?)
+  Condition = CurrentTime >= LastUseTime + CooldownDuration
+  True:
+    → Execute Ability
+    → Set LastUseTime = Current Time
+  False:
+    → Print "Ability on cooldown"
+</code></pre>
+                
+                <h3>Chaining Actions with Delays</h3>
+                
+                <p>Create cinematic sequences:</p>
+                
+                <pre><code class="language-plaintext">Trigger Cutscene → Sequence
+  Then 0: Fade to Black → Delay (1s) → Move Camera to Position
+  Then 1: Delay (2s) → Character Speaks → Delay (3s) → End Speech
+  Then 2: Delay (6s) → Fade from Black → Return Control to Player
+</code></pre>
+            </section>
+
+            <!-- Section 10: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Smart Door with Complex Logic</h2>
+                    
+                    <p>Build a door with multiple unlock conditions and cooldown mechanics.</p>
+                    
+                    <h3>Requirements</h3>
+                    
+                    <ul>
+                        <li>Door requires <strong>either</strong> Red Key OR Blue Key to unlock</li>
+                        <li>Once unlocked, door opens for 5 seconds then closes automatically</li>
+                        <li>Door has 10-second cooldown after closing before it can open again</li>
+                        <li>Display appropriate messages for each scenario</li>
+                    </ul>
+                    
+                    <h3>Part 1: Setup Variables</h3>
+                    
+                    <p>Create <code>BP_SmartDoor</code> with variables:</p>
+                    <ul>
+                        <li><code>bIsOpen</code> (Boolean) = false</li>
+                        <li><code>bIsLocked</code> (Boolean) = true</li>
+                        <li><code>bHasRedKey</code> (Boolean) = false (Instance Editable)</li>
+                        <li><code>bHasBlueKey</code> (Boolean) = false (Instance Editable)</li>
+                        <li><code>LastOpenTime</code> (Float) = 0.0</li>
+                        <li><code>CooldownDuration</code> (Float) = 10.0</li>
+                    </ul>
+                    
+                    <h3>Part 2: Check Access Function</h3>
+                    
+                    <p>Create function: <code>CanAccessDoor()</code> returns Boolean</p>
+                    <pre><code class="language-plaintext">Get Current Time
+Branch (Current Time >= LastOpenTime + CooldownDuration)
+  True:
+    → Branch (bHasRedKey OR bHasBlueKey)
+        True: Return true
+        False: Return false
+  False:
+    → Return false
+</code></pre>
+                    
+                    <h3>Part 3: OnInteract Event</h3>
+                    
+                    <pre><code class="language-plaintext">OnInteract → Branch (CanAccessDoor?)
+  True:
+    → Sequence
+        Then 0: Open Door + Print "Door Opening!"
+        Then 1: Delay (5s) → Close Door + Print "Door Closing"
+        Then 2: Set LastOpenTime = Current Time
+  False:
+    → Switch on Int (Determine why failed)
+        Case: Too Soon → Print "Door on cooldown"
+        Case: No Key → Print "Need Red or Blue Key"
+</code></pre>
+                    
+                    <h3>Part 4: Test</h3>
+                    
+                    <ol>
+                        <li>Place door in level</li>
+                        <li>Test scenarios:
+                            <ul>
+                                <li>No keys: Should show "Need key" message</li>
+                                <li>With Red Key: Opens, closes after 5s</li>
+                                <li>Try opening immediately after close: "On cooldown"</li>
+                                <li>Wait 10s, try again: Opens successfully</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Checkpoint:</strong> What did you learn?</summary>
+                        <p>This exercise combined:
+                            <ul>
+                                <li><strong>Boolean Logic:</strong> OR operator for key check</li>
+                                <li><strong>Comparison:</strong> Time checks for cooldown</li>
+                                <li><strong>Branches:</strong> Nested conditionals</li>
+                                <li><strong>Sequence:</strong> Ordered door operations</li>
+                                <li><strong>Delay:</strong> Timed door closing</li>
+                                <li><strong>Switch:</strong> Different failure messages</li>
+                            </ul>
+                            You've built a production-quality interactive object!
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Wave Spawner</h3>
+                    
+                    <p>Create a wave spawner that:</p>
+                    <ol>
+                        <li>Uses For Loop to spawn N enemies per wave</li>
+                        <li>Uses Delay between each spawn (0.5s)</li>
+                        <li>After wave completes, uses Retriggerable Delay (10s) before next wave</li>
+                        <li>Uses Switch to set different enemy counts per wave (Wave 1: 5, Wave 2: 8, Wave 3: 12)</li>
+                        <li>Uses Do Once to show "Wave Started" message</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Section 11: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Flow control transforms simple Blueprint scripts into intelligent, dynamic gameplay systems. Master these concepts and you can build any game logic imaginable.</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>🔀 <strong>Flow Control</strong> determines which nodes execute based on conditions, loops, or explicit control—essential for game intelligence</li>
+                    <li>🔁 <strong>Branch Nodes</strong> create if/then/else logic with true/false execution paths</li>
+                    <li>📊 <strong>Comparison Operators</strong> (==, !=, >, <, >=, <=) evaluate conditions and return boolean results</li>
+                    <li>🧮 <strong>Boolean Logic</strong> (AND, OR, NOT) combines multiple conditions into complex decision-making</li>
+                    <li>🔄 <strong>Switch Statements</strong> handle multi-way branching cleanly—use enums for best results</li>
+                    <li>🔁 <strong>Loops</strong> repeat actions: For (fixed count), While (until condition), ForEach (array iteration)</li>
+                    <li>⏱️ <strong>Sequence and Delay</strong> control execution order and timing for coordinated events</li>
+                    <li>🚪 <strong>Gates and FlipFlops</strong> control execution flow: Gates block/allow, FlipFlops alternate states</li>
+                    <li>🤖 <strong>State Machines</strong> manage complex behaviors with distinct states and transitions</li>
+                    <li>✅ <strong>Best Practices:</strong> Use enums with Switch, validate While Loop conditions, avoid loops in Tick, break complex logic into functions</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>With flow control mastered, the next lesson explores <strong>Lesson 3.4: Blueprint Functions and Macros</strong>. You'll learn to organize code into reusable functions, create custom events, use macros for complex node groups, and build maintainable Blueprint architectures.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What's the difference between Branch and Switch?</li>
+                        <li>Name the six comparison operators and their symbols.</li>
+                        <li>What's the difference between AND and OR logic?</li>
+                        <li>When should you use a For Loop vs. a ForEach Loop?</li>
+                        <li>What's the danger of While Loops?</li>
+                        <li>What does a Sequence node do?</li>
+                        <li>What's the difference between Delay and Retriggerable Delay?</li>
+                        <li>What's a FlipFlop node used for?</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Branch handles two-way decisions (true/false). Switch handles multi-way decisions (many possible values).</li>
+                            <li>== (equal), != (not equal), > (greater), < (less), >= (greater or equal), <= (less or equal).</li>
+                            <li>AND requires both conditions true. OR requires at least one condition true.</li>
+                            <li>For Loop when you know the exact number of iterations. ForEach Loop when iterating through an array of unknown size.</li>
+                            <li>While Loops can run forever if the condition never becomes false, freezing the game.</li>
+                            <li>Sequence node executes multiple outputs in guaranteed order (Then 0, Then 1, Then 2, etc.).</li>
+                            <li>Delay waits a fixed time. Retriggerable Delay resets if triggered again before completing.</li>
+                            <li>FlipFlop alternates between two outputs each time triggered—useful for toggle behaviors like light switches.</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m05_l04_flow_control.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">Blueprint Communication</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="m05_l05_working_with_actors_in_blueprints.html" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Lesson</span>
+                    <span class="title">Blueprint Functions and Macros</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

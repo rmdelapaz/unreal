@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn the fundamentals of materials and lighting in Unreal Engine 5. Master PBR materials, textures, and basic lighting to create realistic 3D scenes.">
+    <meta name="author" content="Practical Ace">
+    <title>Materials and Lighting Basics - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 2: Working with Levels and Actors</a></li>
+            <li aria-current="page">Lesson 2.5: Materials and Lighting Basics</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎨 Materials and Lighting Basics</h1>
+                <p class="lead">Materials and lighting work together to create the visual appearance of your 3D world. Materials define how surfaces look—their color, shininess, texture—while lighting reveals those properties and creates mood. In this lesson, you'll learn the fundamentals of Unreal's Physically Based Rendering (PBR) material system and how to set up basic lighting for realistic and stylized scenes.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what Physically Based Rendering (PBR) is and why Unreal uses it</li>
+                        <li>Create and edit materials in the Material Editor</li>
+                        <li>Understand the core PBR material inputs: Base Color, Metallic, Roughness, Normal</li>
+                        <li>Work with textures and texture samplers</li>
+                        <li>Create Material Instances for efficient variations</li>
+                        <li>Place and configure light types: Directional, Point, Spot, and Rect Lights</li>
+                        <li>Understand light mobility: Static, Stationary, and Movable</li>
+                        <li>Build lighting and troubleshoot common issues</li>
+                        <li>Create basic lighting setups for different moods and times of day</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 75-90 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 2.4 - Static Meshes and Assets</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-are-materials" class="toc-link">What Are Materials?</a></li>
+                        <li><a href="#pbr-fundamentals" class="toc-link">PBR Fundamentals</a></li>
+                        <li><a href="#material-editor" class="toc-link">The Material Editor</a></li>
+                        <li><a href="#creating-materials" class="toc-link">Creating Your First Material</a></li>
+                        <li><a href="#textures" class="toc-link">Working with Textures</a></li>
+                        <li><a href="#material-instances" class="toc-link">Material Instances</a></li>
+                        <li><a href="#lighting-types" class="toc-link">Light Types and Properties</a></li>
+                        <li><a href="#light-mobility" class="toc-link">Light Mobility</a></li>
+                        <li><a href="#building-lighting" class="toc-link">Building and Baking Lighting</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What Are Materials? -->
+            <section id="what-are-materials" class="lesson-section">
+                <h2>What Are Materials?</h2>
+                
+                <p>Imagine you have a perfectly modeled 3D chair—every edge, curve, and detail is geometrically accurate. But when you look at it in your level, it's just a flat gray shape. Without materials, there's no wood grain, no leather texture, no shine on the metal legs. Materials are what transform gray geometry into believable surfaces.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Material:</strong> A set of instructions (a shader program) that tells the rendering engine how a surface should interact with light. Materials define color, texture, reflectivity, roughness, transparency, and other visual properties. They're the "skin" you put on 3D geometry to make it look like wood, metal, cloth, plastic, or any other real or imagined substance.</p>
+                </div>
+                
+                <h3>Materials Are Visual Programs</h3>
+                
+                <p>In Unreal Engine, materials are created using a <strong>node-based visual scripting system</strong>. Instead of writing code, you connect blocks (nodes) together to define how light interacts with the surface. Think of it like a flowchart where data flows from left to right:</p>
+                
+                <ul>
+                    <li><strong>Input nodes:</strong> Textures, constants, parameters</li>
+                    <li><strong>Math nodes:</strong> Add, multiply, blend operations</li>
+                    <li><strong>Output node:</strong> The final material result with properties like color and roughness</li>
+                </ul>
+                
+                <canvas id="material-flow-canvas" width="700" height="300" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Material data flows from input nodes (left) through processing nodes to the output node (right).</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('material-flow-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Material Node Graph Flow', 350, 30);
+                        
+                        // Draw node function
+                        function drawNode(x, y, width, height, color, title, subtitle) {
+                            // Shadow
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                            ctx.fillRect(x + 3, y + 3, width, height);
+                            
+                            // Main node
+                            ctx.fillStyle = color;
+                            ctx.fillRect(x, y, width, height);
+                            ctx.strokeStyle = '#333';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(x, y, width, height);
+                            
+                            // Title bar
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                            ctx.fillRect(x, y, width, 24);
+                            
+                            // Text
+                            ctx.fillStyle = '#fff';
+                            ctx.font = 'bold 12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(title, x + width/2, y + 16);
+                            
+                            if (subtitle) {
+                                ctx.fillStyle = '#333';
+                                ctx.font = '11px Arial';
+                                ctx.fillText(subtitle, x + width/2, y + height/2 + 5);
+                            }
+                            
+                            // Connectors
+                            ctx.fillStyle = '#4CAF50';
+                            ctx.beginPath();
+                            ctx.arc(x + width, y + height/2, 5, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        
+                        // Input nodes
+                        drawNode(50, 70, 100, 50, '#ff9800', 'Texture Sample', 'Color Map');
+                        drawNode(50, 140, 100, 50, '#ff9800', 'Constant', 'Roughness 0.5');
+                        drawNode(50, 210, 100, 50, '#ff9800', 'Texture Sample', 'Normal Map');
+                        
+                        // Processing node
+                        drawNode(250, 140, 120, 60, '#2196F3', 'Multiply', 'Color × Tint');
+                        
+                        // Output node
+                        drawNode(500, 100, 120, 120, '#4CAF50', 'Material Output', '');
+                        
+                        // Connection labels on output
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('Base Color', 495, 125);
+                        ctx.fillText('Metallic', 495, 150);
+                        ctx.fillText('Roughness', 495, 175);
+                        ctx.fillText('Normal', 495, 200);
+                        
+                        // Draw connections (arrows)
+                        function drawConnection(x1, y1, x2, y2, color) {
+                            ctx.strokeStyle = color || '#667eea';
+                            ctx.lineWidth = 3;
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y1);
+                            // Bezier curve for nice flow
+                            const cpX = (x1 + x2) / 2;
+                            ctx.bezierCurveTo(cpX, y1, cpX, y2, x2, y2);
+                            ctx.stroke();
+                            
+                            // Arrow head
+                            ctx.fillStyle = color || '#667eea';
+                            ctx.beginPath();
+                            ctx.moveTo(x2, y2);
+                            ctx.lineTo(x2 - 8, y2 - 4);
+                            ctx.lineTo(x2 - 8, y2 + 4);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                        
+                        // Draw connections
+                        drawConnection(150, 95, 250, 155, '#ff9800');  // Texture to Multiply
+                        drawConnection(370, 170, 500, 145, '#2196F3');  // Multiply to Base Color
+                        drawConnection(150, 165, 500, 170, '#9c27b0'); // Roughness to output
+                        drawConnection(150, 235, 500, 195, '#00bcd4'); // Normal to output
+                        
+                        // Flow direction label
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('→ Data Flow →', 350, 270);
+                        
+                        // Legend
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Input Nodes', 100, 285);
+                        ctx.fillText('Processing', 310, 285);
+                        ctx.fillText('Final Output', 560, 285);
+                    })();
+                </script>
+                
+                <h3>Why Materials Matter</h3>
+                
+                <p>Materials are responsible for almost everything you see in a game:</p>
+                
+                <ul>
+                    <li><strong>Realism:</strong> A wooden table looks wooden because its material simulates wood grain, subtle color variation, and the way light scatters on rough wood surfaces</li>
+                    <li><strong>Performance:</strong> Well-optimized materials render quickly; complex materials can tank framerate</li>
+                    <li><strong>Consistency:</strong> Materials ensure all wood in your game looks consistently "woody," all metal looks metallic</li>
+                    <li><strong>Art direction:</strong> Materials define the visual style—realistic, stylized, cartoon, sci-fi, fantasy</li>
+                    <li><strong>Special effects:</strong> Water ripples, glowing force fields, holographic displays—all materials</li>
+                </ul>
+                
+                <h3>Materials vs. Textures</h3>
+                
+                <p>A common beginner confusion: What's the difference between a material and a texture?</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Texture</th>
+                            <th>Material</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>What is it?</strong></td>
+                            <td>An image file (PNG, JPG, TGA)</td>
+                            <td>A shader program (node graph)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Function</strong></td>
+                            <td>Provides data (colors, patterns, details)</td>
+                            <td>Defines how surface interacts with light</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Usage</strong></td>
+                            <td>Input to materials</td>
+                            <td>Applied to 3D meshes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Example</strong></td>
+                            <td>A photo of brick wall</td>
+                            <td>Brick material using the photo + roughness + normal maps</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Can exist alone?</strong></td>
+                            <td>Yes—just sits in Content Browser</td>
+                            <td>Yes—but needs to be applied to geometry to be visible</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>Think of it this way:</strong> Textures are the ingredients (flour, sugar, eggs). Materials are the recipe that combines ingredients to make a cake. You apply the cake (material) to your 3D mesh.</p>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Real-World Analogy</h4>
+                    <p>Imagine painting a wall in your house. The paint itself is like a material—it has properties like color, shininess (matte vs. glossy), and how it reflects light. But you might mix in additives like texture compound to give it a rough surface, or metallic flakes for sparkle. Those additives are like textures—data inputs that modify the material's final appearance. The wall you're painting is the 3D mesh.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: PBR Fundamentals -->
+            <section id="pbr-fundamentals" class="lesson-section">
+                <h2>Physically Based Rendering (PBR) Fundamentals</h2>
+                
+                <p>Unreal Engine uses a rendering technique called <strong>Physically Based Rendering (PBR)</strong>. Understanding PBR is essential to creating convincing materials.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Physically Based Rendering (PBR):</strong> A rendering approach that simulates how light interacts with surfaces based on real-world physics. Instead of artistic "faking," PBR materials use physically accurate properties like energy conservation, Fresnel effects, and microfacet theory. This creates realistic, consistent results under different lighting conditions.</p>
+                </div>
+                
+                <h3>Why PBR?</h3>
+                
+                <p>Before PBR, game artists manually "faked" how materials looked under different lighting. A shiny metal sword might look great in one scene but terrible in another because the shading wasn't based on physics. PBR solves this:</p>
+                
+                <ul>
+                    <li>✅ <strong>Consistency:</strong> Materials look correct under any lighting condition</li>
+                    <li>✅ <strong>Realism:</strong> Follows real-world light physics</li>
+                    <li>✅ <strong>Artist-friendly:</strong> Intuitive parameters (roughness, metallic) instead of obscure shader values</li>
+                    <li>✅ <strong>Industry standard:</strong> PBR workflows are used across games, film, and visualization</li>
+                </ul>
+                
+                <h3>The Core PBR Material Inputs</h3>
+                
+                <p>Every PBR material in Unreal is built from a few key inputs. Understanding these is crucial:</p>
+                
+                <svg width="100%" height="500" viewBox="0 0 750 500" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="375" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">PBR Material Inputs</text>
+                    
+                    <!-- Base Color -->
+                    <g transform="translate(100, 70)">
+                        <rect x="-80" y="0" width="160" height="80" fill="#e74c3c" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Base Color</text>
+                        <text x="0" y="45" text-anchor="middle" font-size="11" fill="#fff">The inherent color</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#fff">of the surface</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">(Albedo)</text>
+                    </g>
+                    
+                    <!-- Metallic -->
+                    <g transform="translate(300, 70)">
+                        <rect x="-80" y="0" width="160" height="80" fill="#9e9e9e" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Metallic</text>
+                        <text x="0" y="45" text-anchor="middle" font-size="11" fill="#fff">0 = Non-metal</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#fff">1 = Pure metal</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">(Binary choice)</text>
+                    </g>
+                    
+                    <!-- Roughness -->
+                    <g transform="translate(500, 70)">
+                        <rect x="-80" y="0" width="160" height="80" fill="#607d8b" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Roughness</text>
+                        <text x="0" y="45" text-anchor="middle" font-size="11" fill="#fff">0 = Smooth/Mirror</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#fff">1 = Rough/Matte</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">(Microsurface)</text>
+                    </g>
+                    
+                    <!-- Specular -->
+                    <g transform="translate(650, 70)">
+                        <rect x="-80" y="0" width="160" height="80" fill="#ffc107" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Specular</text>
+                        <text x="0" y="45" text-anchor="middle" font-size="11" fill="#333">Fresnel strength</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#333">(Usually 0.5)</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#333">(Rarely changed)</text>
+                    </g>
+                    
+                    <!-- Normal -->
+                    <g transform="translate(100, 200)">
+                        <rect x="-80" y="0" width="160" height="80" fill="#3f51b5" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Normal</text>
+                        <text x="0" y="45" text-anchor="middle" font-size="11" fill="#fff">Surface detail</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#fff">via normal map</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">(Fake geometry)</text>
+                    </g>
+                    
+                    <!-- Emissive -->
+                    <g transform="translate(300, 200)">
+                        <rect x="-80" y="0" width="160" height="80" fill="#ff5722" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Emissive</text>
+                        <text x="0" y="45" text-anchor="middle" font-size="11" fill="#fff">Self-illumination</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#fff">(Glowing surfaces)</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">(Optional)</text>
+                    </g>
+                    
+                    <!-- Opacity -->
+                    <g transform="translate(500, 200)">
+                        <rect x="-80" y="0" width="160" height="80" fill="#00bcd4" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Opacity</text>
+                        <text x="0" y="45" text-anchor="middle" font-size="11" fill="#fff">Transparency</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#fff">0 = Invisible</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">(For translucent)</text>
+                    </g>
+                    
+                    <!-- Ambient Occlusion -->
+                    <g transform="translate(650, 200)">
+                        <rect x="-80" y="0" width="160" height="80" fill="#795548" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Ambient Occ.</text>
+                        <text x="0" y="45" text-anchor="middle" font-size="11" fill="#fff">Crevice darkening</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#fff">(Baked shadows)</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">(Optional)</text>
+                    </g>
+                    
+                    <!-- Importance indicators -->
+                    <text x="375" y="320" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Usage Priority</text>
+                    
+                    <rect x="100" y="335" width="550" height="30" fill="#4CAF50" opacity="0.2" rx="4"/>
+                    <text x="120" y="355" font-size="12" font-weight="bold" fill="#4CAF50">Essential:</text>
+                    <text x="195" y="355" font-size="11" fill="#333">Base Color, Metallic, Roughness</text>
+                    
+                    <rect x="100" y="375" width="550" height="30" fill="#ff9800" opacity="0.2" rx="4"/>
+                    <text x="120" y="395" font-size="12" font-weight="bold" fill="#ff9800">Important:</text>
+                    <text x="195" y="395" font-size="11" fill="#333">Normal (for detail)</text>
+                    
+                    <rect x="100" y="415" width="550" height="30" fill="#2196F3" opacity="0.2" rx="4"/>
+                    <text x="120" y="435" font-size="12" font-weight="bold" fill="#2196F3">Situational:</text>
+                    <text x="195" y="435" font-size="11" fill="#333">Emissive, Opacity, AO, Specular</text>
+                    
+                    <text x="375" y="470" text-anchor="middle" font-size="11" fill="#666">💡 Most materials need only Base Color, Metallic, Roughness, and Normal</text>
+                </svg>
+                <p class="caption"><em>Figure: The key PBR material input channels and their purposes.</em></p>
+
+
+                
+                <h4>1. Base Color (Albedo)</h4>
+                
+                <p><strong>Base Color</strong> is the inherent color of the surface—what it looks like under pure white light with no shadows or reflections. It's also called "Albedo."</p>
+                
+                <ul>
+                    <li><strong>For non-metals:</strong> This is the actual color (red paint, green grass, brown wood)</li>
+                    <li><strong>For metals:</strong> This becomes the reflection color (gold reflects yellow/orange, copper reflects orange/brown)</li>
+                    <li><strong>Input:</strong> RGB color (0-1 range for each channel, or texture)</li>
+                </ul>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Common Mistake: Base Color Too Dark or Too Bright</h4>
+                    <p>In PBR, Base Color values should typically be in the 50-240 range (out of 255). Pure black (0, 0, 0) or pure white (255, 255, 255) are physically incorrect for almost all real-world materials. Most surfaces reflect 4-90% of light. Exception: Emissive surfaces can be any brightness.</p>
+                </div>
+                
+                <h4>2. Metallic</h4>
+                
+                <p><strong>Metallic</strong> is a binary choice: Is this surface a metal or not?</p>
+                
+                <ul>
+                    <li><strong>0 (Non-metal):</strong> Plastic, wood, cloth, stone, organic materials—most things</li>
+                    <li><strong>1 (Metal):</strong> Iron, copper, gold, silver, aluminum, chrome</li>
+                    <li><strong>In between:</strong> Rarely used—maybe for oxidized metal (0.8), or metal dust on surface (0.2)</li>
+                </ul>
+                
+                <p>In the real world, things are either conductors (metals) or insulators (everything else). PBR respects this by treating Metallic as mostly binary.</p>
+                
+                <h4>3. Roughness</h4>
+                
+                <p><strong>Roughness</strong> defines the microsurface—how smooth or rough the surface is at a tiny scale.</p>
+                
+                <ul>
+                    <li><strong>0 (Smooth):</strong> Perfect mirror—sharp, clear reflections</li>
+                    <li><strong>0.1-0.3:</strong> Glossy—shiny plastic, polished metal, wet surfaces</li>
+                    <li><strong>0.4-0.6:</strong> Semi-gloss—painted walls, satin fabric</li>
+                    <li><strong>0.7-0.9:</strong> Matte—unfinished wood, rough stone, fabric</li>
+                    <li><strong>1.0 (Rough):</strong> Completely diffuse—clay, chalk, heavily weathered surfaces</li>
+                </ul>
+                
+                <p>Roughness is one of the most important properties—it dramatically affects how materials look. A shiny surface catches the eye; a matte surface recedes.</p>
+                
+                <canvas id="roughness-demo-canvas" width="700" height="250" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: The same sphere at different roughness values shows how surface finish affects reflections.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('roughness-demo-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Roughness Effect on Reflections', 350, 30);
+                        
+                        // Draw sphere function with roughness
+                        function drawSphere(x, y, radius, roughness, label) {
+                            ctx.save();
+                            ctx.translate(x, y);
+                            
+                            // Base sphere
+                            const gradient = ctx.createRadialGradient(-radius*0.3, -radius*0.3, 0, 0, 0, radius);
+                            
+                            if (roughness < 0.3) {
+                                // Smooth - sharp highlight
+                                gradient.addColorStop(0, '#ffffff');
+                                gradient.addColorStop(0.3, '#9e9e9e');
+                                gradient.addColorStop(1, '#424242');
+                            } else if (roughness < 0.7) {
+                                // Medium - soft highlight
+                                gradient.addColorStop(0, '#e0e0e0');
+                                gradient.addColorStop(0.5, '#9e9e9e');
+                                gradient.addColorStop(1, '#616161');
+                            } else {
+                                // Rough - diffuse
+                                gradient.addColorStop(0, '#bdbdbd');
+                                gradient.addColorStop(0.7, '#757575');
+                                gradient.addColorStop(1, '#616161');
+                            }
+                            
+                            ctx.fillStyle = gradient;
+                            ctx.beginPath();
+                            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                            ctx.fill();
+                            
+                            // Sharp specular highlight for smooth surfaces
+                            if (roughness < 0.3) {
+                                const highlightGrad = ctx.createRadialGradient(-radius*0.35, -radius*0.35, 0, -radius*0.35, -radius*0.35, radius*0.3);
+                                highlightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+                                highlightGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                                ctx.fillStyle = highlightGrad;
+                                ctx.beginPath();
+                                ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                            
+                            // Label
+                            ctx.fillStyle = '#333';
+                            ctx.font = 'bold 13px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(label, 0, radius + 25);
+                            
+                            ctx.fillStyle = '#666';
+                            ctx.font = '11px Arial';
+                            ctx.fillText('Roughness: ' + roughness.toFixed(1), 0, radius + 42);
+                            
+                            ctx.restore();
+                        }
+                        
+                        // Draw five spheres with increasing roughness
+                        drawSphere(100, 120, 45, 0.0, 'Mirror');
+                        drawSphere(225, 120, 45, 0.2, 'Glossy');
+                        drawSphere(350, 120, 45, 0.5, 'Semi-Gloss');
+                        drawSphere(475, 120, 45, 0.8, 'Matte');
+                        drawSphere(600, 120, 45, 1.0, 'Rough');
+                        
+                        // Bottom note
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Lower roughness = sharper reflections • Higher roughness = diffuse/scattered light', 350, 210);
+                        
+                        // Arrow showing progression
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(70, 230);
+                        ctx.lineTo(630, 230);
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.moveTo(630, 230);
+                        ctx.lineTo(620, 225);
+                        ctx.lineTo(620, 235);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = '11px Arial';
+                        ctx.fillText('Increasing Roughness →', 350, 245);
+                    })();
+                </script>
+                
+                <h4>4. Normal</h4>
+                
+                <p><strong>Normal maps</strong> add surface detail without adding geometry. They "trick" the lighting calculation into thinking the surface has bumps, scratches, grooves, and texture.</p>
+                
+                <ul>
+                    <li><strong>Input:</strong> A special texture (typically blue/purple-ish) that encodes surface normal directions</li>
+                    <li><strong>Effect:</strong> Makes flat surfaces appear to have depth and detail</li>
+                    <li><strong>When to use:</strong> Almost always—it's how you add bricks to a wall, grain to wood, stitching to fabric</li>
+                </ul>
+                
+                <p>Normal maps are created in 3D modeling software (baked from high-poly models) or generated from height maps.</p>
+                
+                <h4>5. Emissive</h4>
+                
+                <p><strong>Emissive</strong> makes surfaces glow—they emit light rather than just reflect it.</p>
+                
+                <ul>
+                    <li><strong>Input:</strong> Color (RGB) with intensity</li>
+                    <li><strong>Use cases:</strong> Neon signs, LED displays, glowing crystals, lava, lightsabers</li>
+                    <li><strong>Note:</strong> Emissive doesn't actually cast light on other objects unless you enable specific settings (bloom, light propagation)</li>
+                </ul>
+                
+                <h4>Other Inputs (Less Common)</h4>
+                
+                <p><strong>Specular:</strong> Controls Fresnel reflections (edge reflections). Usually left at default (0.5). Only change for special cases like wet surfaces (0.6-0.7) or certain plastics.</p>
+                
+                <p><strong>Opacity:</strong> For transparent/translucent materials (glass, water, ghosts). Requires changing material blend mode from "Opaque" to "Translucent" or "Masked."</p>
+                
+                <p><strong>Ambient Occlusion (AO):</strong> Pre-calculated shadows in crevices. Often baked into textures. Adds subtle darkening where surfaces meet.</p>
+                
+                <h3>PBR Best Practices</h3>
+                
+                <ol>
+                    <li><strong>Start simple:</strong> Begin with Base Color, Metallic, and Roughness</li>
+                    <li><strong>Reference reality:</strong> Look at real-world materials—wood is never 100% rough, metal is never perfectly smooth</li>
+                    <li><strong>Vary roughness:</strong> Real surfaces have variation—add subtle roughness noise/texture</li>
+                    <li><strong>Metallic is binary:</strong> Use 0 or 1 for 99% of materials</li>
+                    <li><strong>Test in different lighting:</strong> PBR's strength is consistency—verify your material looks good in daylight, night, indoor, outdoor</li>
+                </ol>
+            </section>
+
+            <!-- Section 3: The Material Editor -->
+            <section id="material-editor" class="lesson-section">
+                <h2>The Material Editor</h2>
+                
+                <p>The <strong>Material Editor</strong> is where you create and edit materials using Unreal's node-based visual scripting system. Think of it as a canvas where you wire together nodes to define how a surface should look.</p>
+                
+                <h3>Opening the Material Editor</h3>
+                
+                <ol>
+                    <li>In Content Browser, find a material asset (or create one: right-click → Material)</li>
+                    <li>Double-click the material</li>
+                    <li>The Material Editor opens in a new window</li>
+                </ol>
+                
+                <h3>Material Editor Interface</h3>
+                
+                <svg width="100%" height="550" viewBox="0 0 900 550" style="max-width: 900px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <!-- Material Editor mockup -->
+                    <rect x="0" y="0" width="900" height="550" fill="#2d2d2d"/>
+                    
+                    <!-- Title Bar -->
+                    <rect x="0" y="0" width="900" height="35" fill="#1e1e1e"/>
+                    <text x="15" y="23" fill="#ffffff" font-size="13" font-weight="bold">Material Editor - M_Wood_Oak</text>
+                    
+                    <!-- Toolbar -->
+                    <rect x="0" y="35" width="900" height="40" fill="#252525"/>
+                    
+                    <!-- Toolbar buttons -->
+                    <g transform="translate(15, 47)">
+                        <rect x="0" y="0" width="35" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="17" y="18" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">Save</text>
+                        
+                        <rect x="45" y="0" width="35" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="62" y="18" text-anchor="middle" fill="#2196F3" font-size="11" font-weight="bold">Apply</text>
+                        
+                        <rect x="90" y="0" width="50" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="115" y="18" text-anchor="middle" fill="#aaa" font-size="10">Stats</text>
+                        
+                        <rect x="150" y="0" width="50" height="26" fill="#3c3c3c" rx="3"/>
+                        <text x="175" y="18" text-anchor="middle" fill="#aaa" font-size="10">Preview</text>
+                    </g>
+                    
+                    <!-- Left Panel: Palette -->
+                    <rect x="0" y="75" width="180" height="475" fill="#1e1e1e"/>
+                    <text x="10" y="95" fill="#aaa" font-size="11" font-weight="bold">PALETTE</text>
+                    
+                    <g transform="translate(10, 105)">
+                        <text x="0" y="15" fill="#4CAF50" font-size="11" font-weight="bold">▾ Inputs</text>
+                        <text x="10" y="32" fill="#e0e0e0" font-size="10">Texture Sample</text>
+                        <text x="10" y="47" fill="#e0e0e0" font-size="10">Constant</text>
+                        <text x="10" y="62" fill="#e0e0e0" font-size="10">Parameter</text>
+                        
+                        <text x="0" y="90" fill="#4CAF50" font-size="11" font-weight="bold">▾ Math</text>
+                        <text x="10" y="107" fill="#e0e0e0" font-size="10">Add</text>
+                        <text x="10" y="122" fill="#e0e0e0" font-size="10">Multiply</text>
+                        <text x="10" y="137" fill="#e0e0e0" font-size="10">Lerp</text>
+                        
+                        <text x="0" y="165" fill="#4CAF50" font-size="11" font-weight="bold">▾ Utility</text>
+                        <text x="10" y="182" fill="#e0e0e0" font-size="10">Comment</text>
+                        <text x="10" y="197" fill="#e0e0e0" font-size="10">Reroute</text>
+                    </g>
+                    
+                    <!-- Main Canvas: Node Graph -->
+                    <rect x="180" y="75" width="530" height="475" fill="#252525"/>
+                    
+                    <!-- Grid lines -->
+                    <g opacity="0.1">
+                        <line x1="180" y1="125" x2="710" y2="125" stroke="#fff" stroke-width="1"/>
+                        <line x1="180" y1="175" x2="710" y2="175" stroke="#fff" stroke-width="1"/>
+                        <line x1="180" y1="225" x2="710" y2="225" stroke="#fff" stroke-width="1"/>
+                        <line x1="180" y1="275" x2="710" y2="275" stroke="#fff" stroke-width="1"/>
+                        <line x1="180" y1="325" x2="710" y2="325" stroke="#fff" stroke-width="1"/>
+                        <line x1="180" y1="375" x2="710" y2="375" stroke="#fff" stroke-width="1"/>
+                        <line x1="180" y1="425" x2="710" y2="425" stroke="#fff" stroke-width="1"/>
+                        <line x1="180" y1="475" x2="710" y2="475" stroke="#fff" stroke-width="1"/>
+                        
+                        <line x1="280" y1="75" x2="280" y2="550" stroke="#fff" stroke-width="1"/>
+                        <line x1="380" y1="75" x2="380" y2="550" stroke="#fff" stroke-width="1"/>
+                        <line x1="480" y1="75" x2="480" y2="550" stroke="#fff" stroke-width="1"/>
+                        <line x1="580" y1="75" x2="580" y2="550" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Sample nodes -->
+                    <!-- Texture Sample node -->
+                    <g transform="translate(220, 150)">
+                        <rect x="0" y="0" width="100" height="70" fill="#3c3c3c" stroke="#667eea" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="100" height="20" fill="#667eea"/>
+                        <text x="50" y="14" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Texture Sample</text>
+                        <circle cx="100" cy="35" r="4" fill="#4CAF50"/>
+                        <text x="95" y="38" text-anchor="end" fill="#aaa" font-size="9">RGB</text>
+                    </g>
+                    
+                    <!-- Constant node -->
+                    <g transform="translate(220, 250)">
+                        <rect x="0" y="0" width="80" height="50" fill="#3c3c3c" stroke="#ff9800" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="80" height="18" fill="#ff9800"/>
+                        <text x="40" y="13" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Constant</text>
+                        <text x="40" y="32" text-anchor="middle" fill="#e0e0e0" font-size="10">0.5</text>
+                        <circle cx="80" cy="25" r="4" fill="#4CAF50"/>
+                    </g>
+                    
+                    <!-- Multiply node -->
+                    <g transform="translate(380, 200)">
+                        <rect x="0" y="0" width="80" height="60" fill="#3c3c3c" stroke="#2196F3" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="80" height="18" fill="#2196F3"/>
+                        <text x="40" y="13" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Multiply</text>
+                        <circle cx="0" cy="30" r="4" fill="#e74c3c"/>
+                        <circle cx="0" cy="45" r="4" fill="#e74c3c"/>
+                        <circle cx="80" cy="37" r="4" fill="#4CAF50"/>
+                        <text x="8" y="33" fill="#aaa" font-size="8">A</text>
+                        <text x="8" y="48" fill="#aaa" font-size="8">B</text>
+                    </g>
+                    
+                    <!-- Material output node -->
+                    <g transform="translate(550, 180)">
+                        <rect x="0" y="0" width="120" height="140" fill="#3c3c3c" stroke="#4CAF50" stroke-width="3" rx="4"/>
+                        <rect x="0" y="0" width="120" height="22" fill="#4CAF50"/>
+                        <text x="60" y="15" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Material Output</text>
+                        
+                        <circle cx="0" cy="40" r="4" fill="#e74c3c"/>
+                        <text x="8" y="43" fill="#e0e0e0" font-size="9">Base Color</text>
+                        
+                        <circle cx="0" cy="60" r="4" fill="#e74c3c"/>
+                        <text x="8" y="63" fill="#e0e0e0" font-size="9">Metallic</text>
+                        
+                        <circle cx="0" cy="80" r="4" fill="#e74c3c"/>
+                        <text x="8" y="83" fill="#e0e0e0" font-size="9">Roughness</text>
+                        
+                        <circle cx="0" cy="100" r="4" fill="#e74c3c"/>
+                        <text x="8" y="103" fill="#e0e0e0" font-size="9">Normal</text>
+                        
+                        <circle cx="0" cy="120" r="4" fill="#e74c3c"/>
+                        <text x="8" y="123" fill="#e0e0e0" font-size="9">Emissive</text>
+                    </g>
+                    
+                    <!-- Connection wires -->
+                    <line x1="320" y1="185" x2="380" y2="230" stroke="#667eea" stroke-width="3"/>
+                    <line x1="300" y1="275" x2="380" y2="245" stroke="#ff9800" stroke-width="3"/>
+                    <line x1="460" y1="237" x2="550" y2="220" stroke="#2196F3" stroke-width="3"/>
+                    
+                    <!-- Right Panel: Preview and Details -->
+                    <rect x="710" y="75" width="190" height="475" fill="#1e1e1e"/>
+                    <text x="720" y="95" fill="#aaa" font-size="11" font-weight="bold">PREVIEW</text>
+                    
+                    <!-- Preview sphere -->
+                    <g transform="translate(805, 180)">
+                        <circle cx="0" cy="0" r="50" fill="url(#previewGrad)"/>
+                        <defs>
+                            <radialGradient id="previewGrad">
+                                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                                <stop offset="60%" style="stop-color:#8B4513;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#654321;stop-opacity:1" />
+                            </radialGradient>
+                        </defs>
+                    </g>
+                    
+                    <text x="720" y="270" fill="#aaa" font-size="11" font-weight="bold">DETAILS</text>
+                    <g transform="translate(720, 280)">
+                        <text x="0" y="15" fill="#4CAF50" font-size="10" font-weight="bold">Material Domain</text>
+                        <text x="0" y="30" fill="#aaa" font-size="9">Surface</text>
+                        
+                        <text x="0" y="55" fill="#4CAF50" font-size="10" font-weight="bold">Blend Mode</text>
+                        <text x="0" y="70" fill="#aaa" font-size="9">Opaque</text>
+                        
+                        <text x="0" y="95" fill="#4CAF50" font-size="10" font-weight="bold">Shading Model</text>
+                        <text x="0" y="110" fill="#aaa" font-size="9">Default Lit</text>
+                        
+                        <text x="0" y="135" fill="#ff9800" font-size="10" font-weight="bold">Stats</text>
+                        <text x="0" y="150" fill="#aaa" font-size="9">Instructions: 142</text>
+                        <text x="0" y="165" fill="#aaa" font-size="9">Samplers: 3</text>
+                    </g>
+                    
+                    <!-- Annotations -->
+                    <line x1="90" y1="85" x2="90" y2="65" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="90" cy="65" r="3" fill="#4CAF50"/>
+                    <text x="100" y="68" fill="#4CAF50" font-size="10">← Node palette (drag to add)</text>
+                    
+                    <line x1="445" y1="85" x2="445" y2="60" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="445" cy="60" r="3" fill="#4CAF50"/>
+                    <text x="300" y="63" fill="#4CAF50" font-size="10">Main node graph (wire nodes together) →</text>
+                    
+                    <line x1="805" y1="85" x2="805" y2="60" stroke="#4CAF50" stroke-width="2"/>
+                    <circle cx="805" cy="60" r="3" fill="#4CAF50"/>
+                    <text x="700" y="63" fill="#4CAF50" font-size="10">Preview + settings →</text>
+                </svg>
+                <p class="caption"><em>Figure: The Material Editor interface with palette, node graph canvas, and preview panel.</em></p>
+                
+                <h3>Key Areas of the Material Editor</h3>
+                
+                <h4>1. Node Palette (Left)</h4>
+                
+                <p>The palette contains all available nodes organized by category:</p>
+                
+                <ul>
+                    <li><strong>Texture:</strong> Texture Sample nodes for importing textures</li>
+                    <li><strong>Constants:</strong> Fixed values (numbers, colors)</li>
+                    <li><strong>Parameters:</strong> Values that can be changed in Material Instances</li>
+                    <li><strong>Math:</strong> Add, Multiply, Divide, Lerp (blend), etc.</li>
+                    <li><strong>Utility:</strong> Comments, reroute nodes, switches</li>
+                </ul>
+                
+                <p>To add a node: Drag from palette, or right-click in canvas and search.</p>
+                
+                <h4>2. Node Graph Canvas (Center)</h4>
+                
+                <p>This is where you build your material. The workflow:</p>
+                
+                <ol>
+                    <li><strong>Add nodes</strong> from the palette or by right-clicking</li>
+                    <li><strong>Connect nodes</strong> by dragging from output pins (right side) to input pins (left side)</li>
+                    <li><strong>Wire to output</strong>—everything eventually connects to the Material Output node</li>
+                    <li><strong>Compile</strong>—Unreal processes your node graph into a shader</li>
+                </ol>
+                
+                <p><strong>Navigation:</strong></p>
+                <ul>
+                    <li>Pan: Middle-mouse drag, or right-click drag</li>
+                    <li>Zoom: Mouse wheel</li>
+                    <li>Select: Click nodes, drag selection box</li>
+                    <li>Move nodes: Click and drag</li>
+                </ul>
+                
+                <h4>3. Preview Panel (Right)</h4>
+                
+                <p>Shows a real-time preview of your material on a 3D shape (sphere, cube, plane, or custom mesh). As you edit nodes, the preview updates.</p>
+                
+                <p>You can rotate the preview object (click and drag) and change lighting to see how your material responds.</p>
+                
+                <h4>4. Details Panel (Bottom Right)</h4>
+                
+                <p>Shows properties of the selected node or the material itself:</p>
+                
+                <ul>
+                    <li><strong>Material Domain:</strong> Surface, Deferred Decal, Light Function, etc.</li>
+                    <li><strong>Blend Mode:</strong> Opaque, Masked, Translucent, Additive</li>
+                    <li><strong>Shading Model:</strong> Default Lit, Unlit, Subsurface, Clear Coat, etc.</li>
+                    <li><strong>Two Sided:</strong> Whether backfaces are visible</li>
+                </ul>
+                
+                <h3>Understanding Node Pins</h3>
+                
+                <p>Nodes have input pins (left side) and output pins (right side). Pins are color-coded by data type:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Color</th>
+                            <th>Data Type</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong style="color: #4CAF50;">● Green</strong></td>
+                            <td>Float (single number)</td>
+                            <td>Roughness value (0.5)</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #2196F3;">● Blue</strong></td>
+                            <td>Vector3 (three numbers)</td>
+                            <td>RGB color (0.8, 0.4, 0.2)</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #9c27b0;">● Purple</strong></td>
+                            <td>Vector4 (four numbers)</td>
+                            <td>RGBA with alpha</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #ff9800;">● Orange</strong></td>
+                            <td>Texture Object</td>
+                            <td>The texture asset itself</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #e74c3c;">● Red</strong></td>
+                            <td>Boolean</td>
+                            <td>True/False switches</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>You can connect mismatched types—Unreal converts automatically (e.g., connecting a Vector3 to a Float uses the first component).</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Right-Click Everywhere</h4>
+                    <p>The Material Editor's right-click context menu is incredibly powerful. Right-click in empty space to add nodes (search for any node by name). Right-click on a pin to quickly add common math operations or promote values to parameters. Right-click on nodes to convert constants to parameters, add comments, or duplicate. Mastering right-click will 10x your speed.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Creating Your First Material -->
+            <section id="creating-materials" class="lesson-section">
+                <h2>Creating Your First Material</h2>
+                
+                <p>Let's create a simple material from scratch to understand the workflow. We'll make a basic colored, glossy plastic material.</p>
+                
+                <h3>Step 1: Create a New Material</h3>
+                
+                <ol>
+                    <li>In Content Browser, navigate to a folder (e.g., <code>Content/MyProject/Materials/</code>)</li>
+                    <li>Right-click in empty space → <strong>Material</strong></li>
+                    <li>Name it <code>M_PlasticRed</code></li>
+                    <li>Double-click to open in Material Editor</li>
+                </ol>
+                
+                <h3>Step 2: Set Base Color</h3>
+                
+                <ol>
+                    <li>Right-click in the node graph</li>
+                    <li>Type "constant 3" and select <strong>Constant3Vector</strong> (this creates an RGB color)</li>
+                    <li>Place the node somewhere left of the Material Output node</li>
+                    <li>Double-click the Constant3Vector node</li>
+                    <li>In the color picker, choose a red color (e.g., R=0.8, G=0.1, B=0.1)</li>
+                    <li>Drag from the output pin of your color node to the <strong>Base Color</strong> input on Material Output</li>
+                </ol>
+                
+                <p>You should see the preview sphere turn red!</p>
+                
+                <h3>Step 3: Set Metallic</h3>
+                
+                <ol>
+                    <li>Right-click in graph, type "constant" and select <strong>Constant</strong> (single number)</li>
+                    <li>Place it below your color node</li>
+                    <li>Click the node, in Details panel set its value to <strong>0</strong> (plastic is non-metal)</li>
+                    <li>Connect it to the <strong>Metallic</strong> input on Material Output</li>
+                </ol>
+                
+                <h3>Step 4: Set Roughness</h3>
+                
+                <ol>
+                    <li>Add another <strong>Constant</strong> node</li>
+                    <li>Set its value to <strong>0.2</strong> (glossy plastic)</li>
+                    <li>Connect to <strong>Roughness</strong> input</li>
+                </ol>
+                
+                <p>Now your material should look like shiny red plastic!</p>
+                
+                <h3>Step 5: Save and Apply</h3>
+                
+                <ol>
+                    <li>Click <strong>Save</strong> button (or <kbd>Ctrl+S</kbd>)</li>
+                    <li>Click <strong>Apply</strong> to compile the material</li>
+                    <li>Close the Material Editor</li>
+                    <li>Drag <code>M_PlasticRed</code> from Content Browser onto a mesh in your level</li>
+                    <li>The mesh should now appear as red plastic!</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Quick Material Creation Summary</h4>
+                    <p>The basic workflow for any material:</p>
+                    <ol style="margin-bottom: 0;">
+                        <li>Create Base Color (usually Constant3Vector or Texture Sample)</li>
+                        <li>Set Metallic (0 for non-metal, 1 for metal)</li>
+                        <li>Set Roughness (0 = shiny, 1 = matte)</li>
+                        <li>Optionally add Normal map for detail</li>
+                        <li>Save, apply, and test in level</li>
+                    </ol>
+                    <p style="margin-top: 0.5rem;">That's it! These three properties (Base Color, Metallic, Roughness) create 90% of all materials.</p>
+                </div>
+                
+                <h3>Experiment: Make Variations</h3>
+                
+                <p>Try modifying your material:</p>
+                
+                <ul>
+                    <li><strong>Change color:</strong> Double-click the Constant3Vector, pick a different color</li>
+                    <li><strong>Make it matte:</strong> Change Roughness to 0.8</li>
+                    <li><strong>Make it metal:</strong> Change Metallic to 1.0—now it's red chrome!</li>
+                    <li><strong>Add variety:</strong> Right-click → "Multiply", multiply Base Color by another color to darken or tint</li>
+                </ul>
+
+            </section>
+
+            <!-- Section 5: Working with Textures -->
+            <section id="textures" class="lesson-section">
+                <h2>Working with Textures</h2>
+                
+                <p>While constant values are great for learning, real materials use <strong>textures</strong>—images that provide detailed color, roughness variation, and surface detail. Let's enhance our material with textures.</p>
+                
+                <h3>Texture Types in PBR</h3>
+                
+                <p>A typical PBR material uses several texture maps, each serving a different purpose:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Texture Map</th>
+                            <th>Connects To</th>
+                            <th>Content</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Diffuse/Albedo</strong></td>
+                            <td>Base Color</td>
+                            <td>Surface colors (no shadows or highlights)</td>
+                            <td>Wood grain color, brick tones</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Normal Map</strong></td>
+                            <td>Normal</td>
+                            <td>Surface bumps encoded in RGB (bluish-purple)</td>
+                            <td>Brick mortar grooves, wood grain ridges</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Roughness Map</strong></td>
+                            <td>Roughness</td>
+                            <td>Grayscale (black=smooth, white=rough)</td>
+                            <td>Worn metal edges, polished wood centers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Metallic Map</strong></td>
+                            <td>Metallic</td>
+                            <td>Grayscale (black=non-metal, white=metal)</td>
+                            <td>Metal bolts on wooden surface</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AO Map</strong></td>
+                            <td>Ambient Occlusion</td>
+                            <td>Grayscale (shadows in crevices)</td>
+                            <td>Darkening where surfaces meet</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Emissive Map</strong></td>
+                            <td>Emissive</td>
+                            <td>RGB color (glowing areas)</td>
+                            <td>LED lights on a panel, glowing runes</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Importing Textures</h3>
+                
+                <ol>
+                    <li>Get texture files (PNG, JPG, TGA, EXR)</li>
+                    <li>In Content Browser, navigate to <code>Content/MyProject/Textures/</code></li>
+                    <li>Drag texture files from Windows Explorer into Content Browser</li>
+                    <li>They import as Texture assets (automatically)</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Free PBR Textures</h4>
+                    <p>Great sources for free, high-quality PBR texture sets:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Quixel Megascans:</strong> Free with Unreal Engine (Bridge app)</li>
+                        <li><strong>Poly Haven:</strong> polyhaven.com - CC0 public domain</li>
+                        <li><strong>AmbientCG:</strong> ambientcg.com - Free textures</li>
+                        <li><strong>Texture Haven:</strong> texturehaven.com - High quality</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">Look for texture sets that include Albedo, Normal, Roughness, and optionally AO maps.</p>
+                </div>
+                
+                <h3>Using Textures in Materials</h3>
+                
+                <p>To add a texture to your material:</p>
+                
+                <ol>
+                    <li>Open your material in Material Editor</li>
+                    <li>Hold <kbd>T</kbd> key and left-click in the graph—this creates a <strong>Texture Sample</strong> node</li>
+                    <li>With the node selected, look at Details panel</li>
+                    <li>Click the dropdown next to <strong>"Texture"</strong></li>
+                    <li>Select your imported texture</li>
+                    <li>Connect the RGB output to Base Color (or appropriate input)</li>
+                </ol>
+                
+                <p><strong>Texture Sample outputs:</strong></p>
+                
+                <ul>
+                    <li><strong>RGB:</strong> The full color (use for Base Color)</li>
+                    <li><strong>R, G, B, A:</strong> Individual channels (useful for packing multiple grayscale maps into one texture)</li>
+                </ul>
+                
+                <h3>Texture Coordinates and Tiling</h3>
+                
+                <p>By default, textures map using UV Channel 0 (created in your 3D software). But you can control how textures tile and scale:</p>
+                
+                <p><strong>To add texture tiling:</strong></p>
+                
+                <ol>
+                    <li>Right-click → search "Texture Coordinate"</li>
+                    <li>This node outputs UV coordinates</li>
+                    <li>Right-click → "Multiply"</li>
+                    <li>Connect Texture Coordinate → Multiply → Texture Sample's UV input</li>
+                    <li>On the Multiply node, set the other input to something like (2, 2) to tile the texture 2x</li>
+                </ol>
+                
+                <h3>Packing Textures for Efficiency</h3>
+                
+                <p>A pro technique: <strong>pack multiple grayscale maps into one texture's RGB channels</strong>:</p>
+                
+                <ul>
+                    <li><strong>Red channel:</strong> Metallic map</li>
+                    <li><strong>Green channel:</strong> Roughness map</li>
+                    <li><strong>Blue channel:</strong> Ambient Occlusion map</li>
+                </ul>
+                
+                <p>This saves texture memory (1 texture instead of 3). Create the packed texture in image editing software, then in the material, connect the R output to Metallic, G to Roughness, B to AO.</p>
+            </section>
+
+            <!-- Section 6: Material Instances -->
+            <section id="material-instances" class="lesson-section">
+                <h2>Material Instances</h2>
+                
+                <p>Imagine you have a wood material. You want oak, pine, mahogany, walnut—all wood, but different colors and grain patterns. Do you create separate materials for each? No! You use <strong>Material Instances</strong>.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Material Instance:</strong> A lightweight variant of a parent material that can change exposed parameters (colors, roughness values, textures) without recompiling shaders. Material Instances are fast to create, efficient to render, and perfect for variations.</p>
+                </div>
+                
+                <h3>Why Use Material Instances?</h3>
+                
+                <ul>
+                    <li>✅ <strong>Performance:</strong> Instances don't require shader recompilation—you can change them in real-time</li>
+                    <li>✅ <strong>Efficiency:</strong> Hundreds of instances can exist from one parent material</li>
+                    <li>✅ <strong>Iteration speed:</strong> Artists can tweak colors and values instantly</li>
+                    <li>✅ <strong>Consistency:</strong> All instances share the same base shader logic</li>
+                </ul>
+                
+                <h3>Creating Parameters in Parent Material</h3>
+                
+                <p>For Material Instances to work, the parent material must have <strong>parameters</strong>—values that can be changed:</p>
+                
+                <ol>
+                    <li>Open your material (e.g., <code>M_PlasticRed</code>)</li>
+                    <li>Select your Constant3Vector (Base Color)</li>
+                    <li>Right-click it → <strong>Convert to Parameter</strong></li>
+                    <li>Name it <code>TintColor</code></li>
+                    <li>Set a default value (your red color)</li>
+                    <li>Do the same for Roughness constant → name it <code>RoughnessValue</code></li>
+                    <li>Save the material</li>
+                </ol>
+                
+                <p>Now your material has exposed parameters that instances can override!</p>
+                
+                <h3>Creating a Material Instance</h3>
+                
+                <ol>
+                    <li>In Content Browser, right-click your parent material (<code>M_PlasticRed</code>)</li>
+                    <li>Select <strong>Create Material Instance</strong></li>
+                    <li>Name it <code>MI_PlasticBlue</code></li>
+                    <li>Double-click to open the Material Instance Editor</li>
+                </ol>
+                
+                <h3>Editing Material Instances</h3>
+                
+                <p>The Material Instance Editor is simpler than the Material Editor—no nodes, just a list of parameters:</p>
+                
+                <ol>
+                    <li>You'll see <code>TintColor</code> and <code>RoughnessValue</code> listed</li>
+                    <li>Check the checkbox next to <code>TintColor</code> to enable overriding</li>
+                    <li>Click the color swatch, change it to blue</li>
+                    <li>Check and change <code>RoughnessValue</code> to 0.4 (less glossy)</li>
+                    <li>Save</li>
+                </ol>
+                
+                <p>Now you have a blue plastic material that's a variant of your red one! Changes are instant—no shader compilation.</p>
+                
+                <canvas id="material-instance-canvas" width="700" height="280" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: One parent material with parameters spawns multiple Material Instances with different values.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('material-instance-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Parent Material → Material Instances', 350, 30);
+                        
+                        // Parent material (center top)
+                        ctx.fillStyle = '#667eea';
+                        ctx.fillRect(300, 60, 100, 60);
+                        ctx.strokeStyle = '#4527a0';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(300, 60, 100, 60);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('M_Plastic', 350, 85);
+                        ctx.font = '10px Arial';
+                        ctx.fillText('(Master)', 350, 100);
+                        ctx.fillText('Has Parameters', 350, 112);
+                        
+                        // Arrows pointing down
+                        function drawArrow(x1, y1, x2, y2) {
+                            ctx.strokeStyle = '#4CAF50';
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(x2, y2);
+                            ctx.stroke();
+                            
+                            ctx.fillStyle = '#4CAF50';
+                            ctx.beginPath();
+                            ctx.moveTo(x2, y2);
+                            ctx.lineTo(x2 - 5, y2 - 8);
+                            ctx.lineTo(x2 + 5, y2 - 8);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                        
+                        drawArrow(320, 120, 150, 170);
+                        drawArrow(350, 120, 350, 170);
+                        drawArrow(380, 120, 550, 170);
+                        
+                        // Instance 1 - Red
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillRect(100, 180, 100, 70);
+                        ctx.strokeStyle = '#c0392b';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(100, 180, 100, 70);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.fillText('MI_PlasticRed', 150, 200);
+                        ctx.font = '9px Arial';
+                        ctx.fillText('TintColor: Red', 150, 215);
+                        ctx.fillText('Roughness: 0.2', 150, 228);
+                        ctx.fillText('(Glossy)', 150, 240);
+                        
+                        // Instance 2 - Blue
+                        ctx.fillStyle = '#2196F3';
+                        ctx.fillRect(300, 180, 100, 70);
+                        ctx.strokeStyle = '#1565c0';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(300, 180, 100, 70);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.fillText('MI_PlasticBlue', 350, 200);
+                        ctx.font = '9px Arial';
+                        ctx.fillText('TintColor: Blue', 350, 215);
+                        ctx.fillText('Roughness: 0.4', 350, 228);
+                        ctx.fillText('(Semi-gloss)', 350, 240);
+                        
+                        // Instance 3 - Green
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillRect(500, 180, 100, 70);
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(500, 180, 100, 70);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.fillText('MI_PlasticGreen', 550, 200);
+                        ctx.font = '9px Arial';
+                        ctx.fillText('TintColor: Green', 550, 215);
+                        ctx.fillText('Roughness: 0.8', 550, 228);
+                        ctx.fillText('(Matte)', 550, 240);
+                        
+                        // Bottom explanation
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('One parent material → Multiple lightweight instances with different parameter values', 350, 270);
+                    })();
+                </script>
+                
+                <h3>Parameter Types</h3>
+                
+                <p>You can convert various node types to parameters:</p>
+                
+                <ul>
+                    <li><strong>Scalar Parameter:</strong> Single float value (roughness, metallic, opacity)</li>
+                    <li><strong>Vector Parameter:</strong> RGB color (Base Color, tint color, emissive color)</li>
+                    <li><strong>Texture Parameter:</strong> Allows swapping textures per instance</li>
+                    <li><strong>Static Switch Parameter:</strong> Toggles features on/off (no performance cost when off)</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Best Practice: Master Material Approach</h4>
+                    <p>Professional workflows use <strong>Master Materials</strong>—highly flexible parent materials with many parameters and features. Artists then create hundreds of Material Instances for every object in the game. This ensures visual consistency and allows rapid iteration. Example: "M_Master_Surface" with parameters for color, roughness, normal map, tiling, etc., spawns instances like "MI_WoodOak", "MI_StoneBrick", "MI_MetalRusty".</p>
+                </div>
+            </section>
+
+            <!-- Section 7: Light Types and Properties -->
+            <section id="lighting-types" class="lesson-section">
+                <h2>Light Types and Properties</h2>
+                
+                <p>Materials define how surfaces look, but without lighting, everything is black. <strong>Lighting</strong> reveals materials and creates mood, atmosphere, and depth. Unreal Engine provides several light types, each suited for different purposes.</p>
+                
+                <h3>The Four Main Light Types</h3>
+                
+                <svg width="100%" height="450" viewBox="0 0 800 450" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Light Types in Unreal Engine</text>
+                    
+                    <!-- Directional Light -->
+                    <g transform="translate(150, 80)">
+                        <rect x="-90" y="0" width="180" height="160" fill="#fff3e0" stroke="#ff9800" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Directional Light</text>
+                        
+                        <!-- Icon representation -->
+                        <g transform="translate(0, 50)">
+                            <!-- Sun rays -->
+                            <line x1="-30" y1="-10" x2="-30" y2="40" stroke="#ffd700" stroke-width="3"/>
+                            <line x1="-10" y1="-10" x2="-10" y2="40" stroke="#ffd700" stroke-width="3"/>
+                            <line x1="10" y1="-10" x2="10" y2="40" stroke="#ffd700" stroke-width="3"/>
+                            <line x1="30" y1="-10" x2="30" y2="40" stroke="#ffd700" stroke-width="3"/>
+                            <!-- Ground -->
+                            <rect x="-40" y="40" width="80" height="5" fill="#8B4513"/>
+                        </g>
+                        
+                        <text x="0" y="120" text-anchor="middle" font-size="11" fill="#333">Simulates sun/moon</text>
+                        <text x="0" y="135" text-anchor="middle" font-size="11" fill="#333">Parallel rays</text>
+                        <text x="0" y="150" text-anchor="middle" font-size="11" fill="#333">Infinite distance</text>
+                    </g>
+                    
+                    <!-- Point Light -->
+                    <g transform="translate(400, 80)">
+                        <rect x="-90" y="0" width="180" height="160" fill="#e8f5e9" stroke="#4CAF50" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Point Light</text>
+                        
+                        <!-- Icon representation -->
+                        <g transform="translate(0, 60)">
+                            <!-- Central light -->
+                            <circle cx="0" cy="0" r="8" fill="#ffeb3b"/>
+                            <!-- Rays spreading out -->
+                            <line x1="0" y1="0" x2="-35" y2="-25" stroke="#ffd700" stroke-width="2" opacity="0.7"/>
+                            <line x1="0" y1="0" x2="35" y2="-25" stroke="#ffd700" stroke-width="2" opacity="0.7"/>
+                            <line x1="0" y1="0" x2="-35" y2="25" stroke="#ffd700" stroke-width="2" opacity="0.7"/>
+                            <line x1="0" y1="0" x2="35" y2="25" stroke="#ffd700" stroke-width="2" opacity="0.7"/>
+                            <line x1="0" y1="0" x2="0" y2="35" stroke="#ffd700" stroke-width="2" opacity="0.7"/>
+                            <!-- Radius indicator -->
+                            <circle cx="0" cy="0" r="40" fill="none" stroke="#ffd700" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+                        </g>
+                        
+                        <text x="0" y="120" text-anchor="middle" font-size="11" fill="#333">Omni-directional</text>
+                        <text x="0" y="135" text-anchor="middle" font-size="11" fill="#333">Like a light bulb</text>
+                        <text x="0" y="150" text-anchor="middle" font-size="11" fill="#333">Has radius/falloff</text>
+                    </g>
+                    
+                    <!-- Spot Light -->
+                    <g transform="translate(650, 80)">
+                        <rect x="-90" y="0" width="180" height="160" fill="#e3f2fd" stroke="#2196F3" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Spot Light</text>
+                        
+                        <!-- Icon representation -->
+                        <g transform="translate(0, 50)">
+                            <!-- Light source -->
+                            <rect x="-8" y="0" width="16" height="10" fill="#2196F3"/>
+                            <!-- Cone -->
+                            <path d="M -8,10 L -35,50 L 35,50 L 8,10 Z" fill="#ffd700" opacity="0.3" stroke="#ffd700" stroke-width="2"/>
+                            <!-- Center beam -->
+                            <line x1="0" y1="10" x2="0" y2="50" stroke="#ffd700" stroke-width="2"/>
+                        </g>
+                        
+                        <text x="0" y="120" text-anchor="middle" font-size="11" fill="#333">Cone-shaped beam</text>
+                        <text x="0" y="135" text-anchor="middle" font-size="11" fill="#333">Flashlight/spotlight</text>
+                        <text x="0" y="150" text-anchor="middle" font-size="11" fill="#333">Adjustable angle</text>
+                    </g>
+                    
+                    <!-- Rect Light -->
+                    <g transform="translate(150, 280)">
+                        <rect x="-90" y="0" width="180" height="140" fill="#f3e5f5" stroke="#9c27b0" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Rect Light</text>
+                        
+                        <!-- Icon representation -->
+                        <g transform="translate(0, 60)">
+                            <!-- Rectangle light source -->
+                            <rect x="-30" y="-5" width="60" height="10" fill="#9c27b0"/>
+                            <!-- Light emission -->
+                            <rect x="-35" y="10" width="70" height="25" fill="#ffd700" opacity="0.3"/>
+                            <line x1="-30" y1="10" x2="-40" y2="35" stroke="#ffd700" stroke-width="2" opacity="0.6"/>
+                            <line x1="0" y1="10" x2="0" y2="35" stroke="#ffd700" stroke-width="2" opacity="0.6"/>
+                            <line x1="30" y1="10" x2="40" y2="35" stroke="#ffd700" stroke-width="2" opacity="0.6"/>
+                        </g>
+                        
+                        <text x="0" y="110" text-anchor="middle" font-size="11" fill="#333">Area light (UE5+)</text>
+                        <text x="0" y="125" text-anchor="middle" font-size="11" fill="#333">Soft, realistic shadows</text>
+                    </g>
+                    
+                    <!-- Sky Light -->
+                    <g transform="translate(400, 280)">
+                        <rect x="-90" y="0" width="180" height="140" fill="#e0f7fa" stroke="#00bcd4" stroke-width="3" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Sky Light</text>
+                        
+                        <!-- Icon representation -->
+                        <g transform="translate(0, 55)">
+                            <!-- Dome -->
+                            <path d="M -40,30 Q 0,-10 40,30" fill="none" stroke="#87ceeb" stroke-width="3"/>
+                            <!-- Ground -->
+                            <rect x="-40" y="30" width="80" height="3" fill="#8B4513"/>
+                            <!-- Ambient rays -->
+                            <line x1="-25" y1="30" x2="-25" y2="10" stroke="#87ceeb" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="0" y1="30" x2="0" y2="5" stroke="#87ceeb" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="25" y1="30" x2="25" y2="10" stroke="#87ceeb" stroke-width="1.5" opacity="0.5"/>
+                        </g>
+                        
+                        <text x="0" y="110" text-anchor="middle" font-size="11" fill="#333">Ambient hemisphere</text>
+                        <text x="0" y="125" text-anchor="middle" font-size="11" fill="#333">Captures sky/env.</text>
+                    </g>
+                    
+                    <!-- Usage note -->
+                    <g transform="translate(650, 280)">
+                        <rect x="-90" y="0" width="180" height="140" fill="#fffde7" stroke="#fbc02d" stroke-width="2" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">💡 Typical Setup</text>
+                        
+                        <text x="0" y="50" text-anchor="middle" font-size="10" fill="#333">Outdoor:</text>
+                        <text x="0" y="65" text-anchor="middle" font-size="9" fill="#666">Directional + Sky</text>
+                        
+                        <text x="0" y="85" text-anchor="middle" font-size="10" fill="#333">Indoor:</text>
+                        <text x="0" y="100" text-anchor="middle" font-size="9" fill="#666">Point/Spot + Sky</text>
+                        
+                        <text x="0" y="120" text-anchor="middle" font-size="10" fill="#333">Studio:</text>
+                        <text x="0" y="135" text-anchor="middle" font-size="9" fill="#666">Rect + Rim lights</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: The main light types and their characteristics.</em></p>
+                
+                <h3>Key Light Properties</h3>
+                
+                <p>Every light has adjustable properties in the Details panel:</p>
+                
+                <h4>Intensity</h4>
+                <p>Brightness of the light. Higher = brighter. Units vary by light type (lux for Directional, candelas for Point).</p>
+                
+                <h4>Light Color</h4>
+                <p>RGB color of the light. Warm colors (yellow/orange) for sunset, cool colors (blue) for moonlight, white for neutral.</p>
+                
+                <h4>Attenuation Radius (Point/Spot)</h4>
+                <p>How far the light reaches before fading to black. Visualized as a sphere/cone in the editor.</p>
+                
+                <h4>Inner/Outer Cone Angle (Spot)</h4>
+                <p>Defines the spotlight's beam shape. Inner cone is full brightness, outer cone fades to zero.</p>
+                
+                <h4>Source Radius/Length (Rect)</h4>
+                <p>Physical size of the area light. Larger = softer shadows.</p>
+                
+                <h4>Indirect Lighting Intensity</h4>
+                <p>Controls how much the light bounces. Higher values create more realistic global illumination.</p>
+                
+                <h4>Cast Shadows</h4>
+                <p>Whether the light creates shadows. Shadows are expensive—disable for background/fill lights.</p>
+                
+                <h4>Temperature</h4>
+                <p>Physically accurate color based on Kelvin temperature (e.g., 6500K = daylight, 2700K = warm incandescent).</p>
+            </section>
+
+            <!-- Section 8: Light Mobility -->
+            <section id="light-mobility" class="lesson-section">
+                <h2>Light Mobility: Static, Stationary, and Movable</h2>
+                
+                <p>One of the most important lighting concepts in Unreal is <strong>Light Mobility</strong>. This setting determines how the light is rendered and has massive performance implications.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Light Mobility</strong> defines whether a light's illumination and shadows are pre-calculated (baked into textures) or computed in real-time every frame. This is a trade-off between visual quality, realism, and performance.</p>
+                </div>
+                
+                <h3>The Three Mobility Types</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mobility</th>
+                            <th>Performance</th>
+                            <th>Quality</th>
+                            <th>Use Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Static</strong></td>
+                            <td>⚡ Fastest (zero runtime cost)</td>
+                            <td>Excellent shadows, GI, AO</td>
+                            <td>Architecture, outdoor environments, anything that never moves</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stationary</strong></td>
+                            <td>⚡⚡ Medium (hybrid)</td>
+                            <td>Good balance</td>
+                            <td>Main scene lighting (sun, key lights) that stays in one place</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Movable</strong></td>
+                            <td>⚡⚡⚡ Slowest (fully dynamic)</td>
+                            <td>Can move, but shadows can be harsh</td>
+                            <td>Moving lights (flashlights, car headlights, torches), small accent lights</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Static Lights</h3>
+                
+                <p><strong>Static lights</strong> are completely baked—their lighting is pre-calculated and stored in lightmap textures. They cannot move or change at runtime.</p>
+                
+                <p><strong>Advantages:</strong></p>
+                <ul>
+                    <li>Zero performance cost during gameplay</li>
+                    <li>Beautiful, soft shadows with multiple bounces (global illumination)</li>
+                    <li>Ambient occlusion in crevices</li>
+                    <li>Can have unlimited numbers without performance hit</li>
+                </ul>
+                
+                <p><strong>Disadvantages:</strong></p>
+                <ul>
+                    <li>Requires "building lighting" (preprocessing step)</li>
+                    <li>Cannot change color, intensity, or position at runtime</li>
+                    <li>Dynamic objects (characters, props) only receive indirect lighting</li>
+                </ul>
+                
+                <h3>Stationary Lights</h3>
+                
+                <p><strong>Stationary lights</strong> are a hybrid—they bake indirect lighting but cast dynamic shadows for moving objects.</p>
+                
+                <p><strong>Advantages:</strong></p>
+                <ul>
+                    <li>Baked indirect lighting (bounces, global illumination)</li>
+                    <li>Dynamic shadows for moving objects</li>
+                    <li>Can change color and intensity at runtime (not position)</li>
+                    <li>Good balance of quality and performance</li>
+                </ul>
+                
+                <p><strong>Disadvantages:</strong></p>
+                <ul>
+                    <li>Limited to 4 overlapping stationary lights per area (Unreal limitation)</li>
+                    <li>More expensive than static, cheaper than fully movable</li>
+                </ul>
+                
+                <h3>Movable Lights</h3>
+                
+                <p><strong>Movable lights</strong> are fully dynamic—everything is calculated in real-time every frame.</p>
+                
+                <p><strong>Advantages:</strong></p>
+                <ul>
+                    <li>Can move, rotate, change color/intensity freely</li>
+                    <li>No pre-calculation needed</li>
+                    <li>Perfect for interactive lighting (flashlights, flicker effects)</li>
+                </ul>
+                
+                <p><strong>Disadvantages:</strong></p>
+                <ul>
+                    <li>Expensive—every light costs performance</li>
+                    <li>No indirect lighting/global illumination</li>
+                    <li>Shadows can be harsh without careful setup</li>
+                    <li>Limited shadow resolution</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommended Approach</h4>
+                    <p><strong>Typical scene setup:</strong></p>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>Directional Light (sun/moon):</strong> Stationary</li>
+                        <li><strong>Sky Light:</strong> Static or Stationary</li>
+                        <li><strong>Indoor fill lights:</strong> Static (for baked GI)</li>
+                        <li><strong>Interactive lights:</strong> Movable (flashlight, car lights, flickering torches)</li>
+                        <li><strong>Hero lights:</strong> Movable with Lumen (UE5's dynamic GI) or screen-space shadows</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">Start with Static/Stationary for most lights, use Movable only where you need interactivity.</p>
+                </div>
+            </section>
+
+            <!-- Section 9: Building and Baking Lighting -->
+            <section id="building-lighting" class="lesson-section">
+                <h2>Building and Baking Lighting</h2>
+                
+                <p>When you use Static or Stationary lights, Unreal needs to <strong>build lighting</strong>—a process that pre-calculates light bounces, shadows, and global illumination. This creates the beautiful, realistic lighting you see in finished games.</p>
+                
+                <h3>Why Build Lighting?</h3>
+                
+                <p>Calculating how light bounces around a scene with full global illumination is incredibly computationally expensive. Doing it in real-time at 60 FPS is impossible (without Lumen in UE5). So Unreal:</p>
+                
+                <ol>
+                    <li>Traces millions of light rays offline (during development)</li>
+                    <li>Bakes the results into lightmap textures</li>
+                    <li>At runtime, meshes display these pre-calculated lightmaps—zero cost!</li>
+                </ol>
+                
+                <h3>How to Build Lighting</h3>
+                
+                <ol>
+                    <li>In the editor toolbar, find the <strong>Build</strong> button (or press <kbd>Ctrl+Shift+;</kbd>)</li>
+                    <li>Click it to start the build process</li>
+                    <li>A progress bar appears in the bottom-right</li>
+                    <li>Wait for completion (can take seconds to hours depending on scene complexity)</li>
+                    <li>Lighting updates throughout the level</li>
+                </ol>
+                
+                <p>You'll notice lights now have soft, realistic shadows, and indirect lighting fills dark areas with subtle color bounces.</p>
+                
+                <h3>Lightmass Settings</h3>
+                
+                <p>Unreal's baked lighting system is called <strong>Lightmass</strong>. You can control quality in <strong>World Settings → Lightmass</strong>:</p>
+                
+                <ul>
+                    <li><strong>Num Indirect Lighting Bounces:</strong> How many times light bounces (3-10 for realism, default 3)</li>
+                    <li><strong>Indirect Lighting Quality:</strong> Resolution of bounced light (1-4, higher = better but slower)</li>
+                    <li><strong>Indirect Lighting Smoothness:</strong> Blurs indirect lighting (higher = softer)</li>
+                </ul>
+                
+                <h3>Build Quality Levels</h3>
+                
+                <p>Next to the Build button is a dropdown:</p>
+                
+                <ul>
+                    <li><strong>Preview:</strong> Very fast, low quality—for quick iteration</li>
+                    <li><strong>Medium:</strong> Balanced—decent quality, reasonable time</li>
+                    <li><strong>High:</strong> Good quality—takes longer</li>
+                    <li><strong>Production:</strong> Final quality—very slow, for shipping</li>
+                </ul>
+                
+                <p>Use Preview during development, Production for final builds.</p>
+                
+                <h3>Common Lighting Build Issues</h3>
+                
+                <h4>Lighting Needs to Be Rebuilt</h4>
+                <p><strong>Symptom:</strong> Red "LIGHTING NEEDS TO BE REBUILT" text in viewport.<br>
+                <strong>Solution:</strong> Build lighting. This is normal after placing/moving lights.</p>
+                
+                <h4>Light Leaking Through Walls</h4>
+                <p><strong>Symptom:</strong> Light appears on the wrong side of geometry.<br>
+                <strong>Solution:</strong> Increase Lightmap Resolution on the mesh (Details → Overridden Light Map Res → 64, 128, or 256).</p>
+                
+                <h4>Splotchy/Patchy Lighting</h4>
+                <p><strong>Symptom:</strong> Ugly artifacts in baked lighting.<br>
+                <strong>Solution:</strong> Ensure meshes have proper Lightmap UVs (Channel 1). Regenerate in Static Mesh Editor if needed.</p>
+                
+                <h4>Very Long Build Times</h4>
+                <p><strong>Symptom:</strong> Build takes hours.<br>
+                <strong>Solution:</strong> Reduce Lightmass quality settings, use lower lightmap resolution, build on Preview/Medium quality for iteration.</p>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Lumen (UE5) - Dynamic Global Illumination</h4>
+                    <p>Unreal Engine 5 introduces <strong>Lumen</strong>—a fully dynamic global illumination system. With Lumen:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>No more building lighting—everything is real-time</li>
+                        <li>Move lights, change colors, modify geometry—lighting updates instantly</li>
+                        <li>Full indirect lighting and global illumination without baking</li>
+                        <li>Works with Movable lights seamlessly</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;">Lumen is a game-changer for iteration speed, though it has performance cost on lower-end hardware. It's enabled by default in UE5 projects.</p>
+                </div>
+            </section>
+
+            <!-- Section 10: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Create a Lit Scene with Materials</h2>
+                    
+                    <p>Put everything together—materials, textures, and lighting—to create a simple but attractive scene.</p>
+                    
+                    <h3>Part 1: Create a Basic Material</h3>
+                    
+                    <ol>
+                        <li>Create a new Material: <code>M_Ground</code></li>
+                        <li>Open it in Material Editor</li>
+                        <li>Add a Constant3Vector (brown/tan color like R=0.5, G=0.4, B=0.3)</li>
+                        <li>Connect to Base Color</li>
+                        <li>Add Constant for Metallic: 0</li>
+                        <li>Add Constant for Roughness: 0.7</li>
+                        <li>Save and apply</li>
+                    </ol>
+                    
+                    <h3>Part 2: Create Variations with Material Instances</h3>
+                    
+                    <ol>
+                        <li>Convert the Base Color Constant3Vector to Parameter: <code>GroundColor</code></li>
+                        <li>Convert Roughness to Parameter: <code>GroundRoughness</code></li>
+                        <li>Save the material</li>
+                        <li>Right-click M_Ground → Create Material Instance</li>
+                        <li>Name it <code>MI_Ground_Dark</code></li>
+                        <li>Open it, override GroundColor to darker brown</li>
+                        <li>Create another: <code>MI_Ground_Light</code> with lighter color</li>
+                    </ol>
+                    
+                    <h3>Part 3: Build a Simple Scene</h3>
+                    
+                    <ol>
+                        <li>Place a large floor plane (or use BSP box) in your level</li>
+                        <li>Apply <code>MI_Ground_Dark</code> to it</li>
+                        <li>Place 3-5 Static Mesh props (cubes, spheres, or imported meshes)</li>
+                        <li>Apply your material instances to different props</li>
+                        <li>Arrange them in an interesting composition</li>
+                    </ol>
+                    
+                    <h3>Part 4: Add Lighting</h3>
+                    
+                    <ol>
+                        <li>From Place Actors → Lights, drag a <strong>Directional Light</strong> into the scene</li>
+                        <li>Position it above and rotate to angle downward (like sun at noon)</li>
+                        <li>In Details, set Mobility to <strong>Stationary</strong></li>
+                        <li>Set Intensity to 5-10 lux</li>
+                        <li>Set Light Color to warm white or slight yellow</li>
+                        <li>Drag a <strong>Sky Light</strong> into the scene</li>
+                        <li>Set its Mobility to <strong>Static</strong></li>
+                        <li>Leave default settings</li>
+                    </ol>
+                    
+                    <h3>Part 5: Build Lighting</h3>
+                    
+                    <ol>
+                        <li>Click <strong>Build</strong> button in toolbar</li>
+                        <li>Choose <strong>Preview</strong> quality (fastest)</li>
+                        <li>Wait for completion</li>
+                        <li>Observe the improved lighting with soft shadows</li>
+                    </ol>
+                    
+                    <h3>Part 6: Add Accent Lighting</h3>
+                    
+                    <ol>
+                        <li>Place a <strong>Point Light</strong> near one of your props</li>
+                        <li>Set Mobility to <strong>Movable</strong></li>
+                        <li>Set Intensity to 1000-5000 candelas</li>
+                        <li>Choose an interesting color (blue, orange, green)</li>
+                        <li>Adjust Attenuation Radius to control spread</li>
+                        <li>The light updates in real-time—no rebuild needed for Movable!</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Checkpoint:</strong> What should you have?</summary>
+                        <p>Your scene should include:
+                            <ul>
+                                <li>A master material (M_Ground) with parameters</li>
+                                <li>2-3 Material Instances with different colors</li>
+                                <li>Props in the scene with materials applied</li>
+                                <li>Directional Light (Stationary) + Sky Light</li>
+                                <li>At least one accent Point Light (Movable)</li>
+                                <li>Built lighting with soft shadows</li>
+                            </ul>
+                            Walk around with <kbd>Alt+P</kbd> to see how materials respond to lighting!
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Create Time-of-Day Lighting</h3>
+                    
+                    <p>Experiment with different lighting moods:</p>
+                    
+                    <ul>
+                        <li><strong>Sunset:</strong> Directional Light orange/red, low angle, warm Sky Light</li>
+                        <li><strong>Night:</strong> Directional Light deep blue (moon), very low intensity, dark Sky Light</li>
+                        <li><strong>Overcast:</strong> Directional Light white/gray, Sky Light dominant</li>
+                        <li><strong>Interior:</strong> Remove Directional Light, use multiple Point/Spot lights</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 11: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Materials and lighting are the visual foundation of your Unreal projects. Together, they transform gray geometry into believable, atmospheric worlds. Let's recap the essential concepts:</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>🎨 <strong>Materials</strong> define how surfaces interact with light—their color, reflectivity, roughness, and texture</li>
+                    <li>⚛️ <strong>PBR (Physically Based Rendering)</strong> uses real-world physics for consistent, realistic materials across all lighting conditions</li>
+                    <li>🔑 <strong>Core PBR inputs:</strong> Base Color (albedo), Metallic (0 or 1), Roughness (0=shiny, 1=matte), Normal (surface detail)</li>
+                    <li>🖼️ <strong>Textures</strong> are images that provide color patterns and detail data—they're inputs to materials</li>
+                    <li>🔧 <strong>Material Editor</strong> is a node-based system for building materials by wiring together input/math/output nodes</li>
+                    <li>📋 <strong>Material Instances</strong> are lightweight variants that change exposed parameters without shader recompilation</li>
+                    <li>💡 <strong>Light types:</strong> Directional (sun), Point (bulb), Spot (flashlight), Rect (area), Sky (ambient)</li>
+                    <li>⚡ <strong>Light mobility:</strong> Static (baked, zero cost), Stationary (hybrid), Movable (dynamic, expensive)</li>
+                    <li>🏗️ <strong>Building lighting</strong> pre-calculates global illumination for Static/Stationary lights into lightmaps</li>
+                    <li>✨ <strong>Lumen (UE5)</strong> provides real-time dynamic GI, eliminating the need for light builds in many workflows</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>You've now completed Module 2! You understand levels, actors, geometry creation (BSP), Static Meshes, materials, and lighting—the core building blocks of 3D environments. The next module will introduce <strong>Module 3: Blueprint Visual Scripting</strong>, where you'll learn to make your worlds interactive through Unreal's powerful visual programming system.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What are the three essential PBR material inputs?</li>
+                        <li>What's the difference between a material and a texture?</li>
+                        <li>Why are Material Instances more efficient than creating separate materials?</li>
+                        <li>What's the difference between Static, Stationary, and Movable lights?</li>
+                        <li>Which light type would you use to simulate the sun?</li>
+                        <li>Why do you need to "build lighting" for Static lights?</li>
+                        <li>What does the Roughness parameter control in a PBR material?</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Base Color (surface color), Metallic (0=non-metal, 1=metal), and Roughness (0=smooth/shiny, 1=rough/matte).</li>
+                            <li>Textures are image files that provide data. Materials are shader programs that define how surfaces interact with light—they often use textures as inputs.</li>
+                            <li>Material Instances don't require shader recompilation—they just override parameter values. This makes them fast to create, edit, and render. You can have hundreds of instances from one parent material with minimal overhead.</li>
+                            <li>Static: Pre-baked lighting, zero runtime cost, cannot change. Stationary: Hybrid—baked indirect lighting, dynamic shadows for moving objects. Movable: Fully dynamic, can move/change freely, most expensive.</li>
+                            <li>Directional Light—it simulates infinitely distant light sources with parallel rays, perfect for sun or moon.</li>
+                            <li>Building lighting pre-calculates light bounces, global illumination, and shadows, baking them into lightmap textures. This allows realistic, complex lighting with zero runtime performance cost.</li>
+                            <li>Roughness controls the microsurface smoothness. Low roughness (0-0.3) creates sharp, mirror-like reflections. High roughness (0.7-1.0) creates diffuse, matte surfaces that scatter light.</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m02_l04_static_meshes_and_assets.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">Static Meshes and Assets</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="m03_l01_introduction_to_blueprints.html" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Lesson</span>
+                    <span class="title">Introduction to Blueprints</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

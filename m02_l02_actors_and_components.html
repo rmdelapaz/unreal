@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn what Actors and Components are in Unreal Engine, how they work together, and how to manipulate them to build your game worlds.">
+    <meta name="author" content="Practical Ace">
+    <title>Actors and Components - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 2: Working with Levels and Actors</a></li>
+            <li aria-current="page">Lesson 2.2: Actors and Components</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎭 Actors and Components</h1>
+                <p class="lead">If levels are the stages where your game takes place, then Actors are the cast members—every object, light, sound, and interactive element is an Actor. Understanding how Actors work and how Components give them functionality is fundamental to building anything in Unreal Engine.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Define what an Actor is in Unreal Engine terminology</li>
+                        <li>Explain the Actor-Component model and how it provides modular functionality</li>
+                        <li>Differentiate between Static Mesh Actors and other common actor types</li>
+                        <li>Manipulate transform properties: Location, Rotation, and Scale</li>
+                        <li>Use transform gizmos and understand pivot points</li>
+                        <li>Duplicate, group, and organize actors efficiently in your levels</li>
+                        <li>Apply best practices for actor management in real projects</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 2.1 - Understanding Levels</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-is-actor" class="toc-link">What is an Actor?</a></li>
+                        <li><a href="#actor-component-model" class="toc-link">The Actor-Component Model</a></li>
+                        <li><a href="#actor-types" class="toc-link">Common Actor Types</a></li>
+                        <li><a href="#transform-properties" class="toc-link">Transform Properties</a></li>
+                        <li><a href="#pivot-points-gizmos" class="toc-link">Pivot Points and Transform Gizmos</a></li>
+                        <li><a href="#actor-operations" class="toc-link">Duplicating, Grouping, and Organizing</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What is an Actor? -->
+            <section id="what-is-actor" class="lesson-section">
+                <h2>What is an Actor?</h2>
+                
+                <p>Imagine you're setting up a stage for a play. You need props—a table, a chair, a lamp. You need lighting—spotlights, ambient fixtures. You need sound—speakers for background music and sound effects. You might even need invisible elements like trigger zones that cue the next scene. In Unreal Engine, every single one of these elements—visible or invisible—is called an <strong>Actor</strong>.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Actor:</strong> An Actor is the base class for any object that can be placed or spawned in an Unreal level. Think of it as the fundamental building block of your game world. Actors can represent 3D models, lights, cameras, sounds, particle effects, triggers, player spawn points, and much more.</p>
+                </div>
+                
+                <p>The term "Actor" comes from the theater metaphor we mentioned—just as a play has actors on stage, your game level has Actors in the world. But unlike human actors who can only play one role, Unreal Actors are incredibly flexible. A single Actor might be a static prop, or it might be an enemy character with AI, or a door that opens when you approach it.</p>
+                
+                <h3>Everything is an Actor</h3>
+                
+                <p>When you look at your level in the Unreal Editor, nearly everything you see (and many things you don't see) is an Actor:</p>
+                
+                <ul>
+                    <li><strong>Visible Actors:</strong> 3D models (Static Mesh Actors), particle effects, decals, text renders, skeletal meshes (animated characters)</li>
+                    <li><strong>Lighting Actors:</strong> Directional lights (sun), point lights, spot lights, sky lights, rect lights</li>
+                    <li><strong>Audio Actors:</strong> Ambient sound actors, audio components, sound cues</li>
+                    <li><strong>Gameplay Actors:</strong> Player start points, triggers, volumes, spawn points, cameras</li>
+                    <li><strong>Invisible Helpers:</strong> Collision volumes, navigation meshes, reflection captures, atmospheric elements</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Real-World Analogy</h4>
+                    <p>Think of Actors like LEGO bricks. Each brick is a self-contained piece that can be placed anywhere in your creation. Some bricks are simple blocks (like a cube-shaped 3D model), while others have special features (like a light-up brick or a motor brick). You combine different types of bricks to build something complex, just as you combine different types of Actors to build a game level.</p>
+                </div>
+                
+                <h3>Actors in the Outliner</h3>
+                
+                <p>Every Actor placed in your level appears in the <strong>Outliner</strong> panel (typically on the right side of the editor). The Outliner is like a cast list for your stage—it shows every Actor present in the current level, organized hierarchically.</p>
+                
+                <svg width="100%" height="400" viewBox="0 0 320 400" style="max-width: 320px; margin: 2rem auto; display: block; border: 1px solid #ddd; background: #f9f9f9;">
+                    <!-- Outliner Panel Background -->
+                    <rect x="0" y="0" width="320" height="400" fill="#2d2d2d"/>
+                    
+                    <!-- Title Bar -->
+                    <rect x="0" y="0" width="320" height="30" fill="#1e1e1e"/>
+                    <text x="10" y="20" fill="#ffffff" font-size="14" font-weight="bold">Outliner</text>
+                    
+                    <!-- Search Bar -->
+                    <rect x="10" y="35" width="300" height="25" fill="#3c3c3c" rx="3"/>
+                    <text x="15" y="52" fill="#888" font-size="12">Search...</text>
+                    
+                    <!-- Actor List -->
+                    <!-- Light Source -->
+                    <g transform="translate(10, 70)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <text x="8" y="16" fill="#ffd700" font-size="20">☀</text>
+                        <text x="35" y="16" fill="#e0e0e0" font-size="13">Light Source</text>
+                    </g>
+                    
+                    <!-- Sky Atmosphere -->
+                    <g transform="translate(10, 98)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <text x="8" y="16" fill="#87ceeb" font-size="20">☁</text>
+                        <text x="35" y="16" fill="#e0e0e0" font-size="13">Sky Atmosphere</text>
+                    </g>
+                    
+                    <!-- Floor (Static Mesh Actor) -->
+                    <g transform="translate(10, 126)">
+                        <rect x="0" y="0" width="300" height="24" fill="#404040"/>
+                        <text x="8" y="16" fill="#4CAF50" font-size="20">▣</text>
+                        <text x="35" y="16" fill="#ffffff" font-size="13" font-weight="bold">Floor</text>
+                    </g>
+                    
+                    <!-- Player Start -->
+                    <g transform="translate(10, 154)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <text x="8" y="16" fill="#ff6b6b" font-size="20">▶</text>
+                        <text x="35" y="16" fill="#e0e0e0" font-size="13">Player Start</text>
+                    </g>
+                    
+                    <!-- Props Folder (collapsed) -->
+                    <g transform="translate(10, 182)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <text x="8" y="16" fill="#aaa" font-size="14">▸</text>
+                        <text x="25" y="16" fill="#ffa500" font-size="16">📁</text>
+                        <text x="50" y="16" fill="#e0e0e0" font-size="13">Props</text>
+                    </g>
+                    
+                    <!-- Table (child of Props) - shown expanded -->
+                    <g transform="translate(10, 210)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <text x="8" y="16" fill="#aaa" font-size="14">▾</text>
+                        <text x="25" y="16" fill="#ffa500" font-size="16">📁</text>
+                        <text x="50" y="16" fill="#e0e0e0" font-size="13">Furniture</text>
+                    </g>
+                    
+                    <!-- Table (indented child) -->
+                    <g transform="translate(35, 238)">
+                        <rect x="0" y="0" width="275" height="24" fill="transparent"/>
+                        <text x="8" y="16" fill="#4CAF50" font-size="20">▣</text>
+                        <text x="35" y="16" fill="#e0e0e0" font-size="13">Table_01</text>
+                    </g>
+                    
+                    <!-- Chair (indented child) -->
+                    <g transform="translate(35, 266)">
+                        <rect x="0" y="0" width="275" height="24" fill="transparent"/>
+                        <text x="8" y="16" fill="#4CAF50" font-size="20">▣</text>
+                        <text x="35" y="16" fill="#e0e0e0" font-size="13">Chair_01</text>
+                    </g>
+                    
+                    <!-- Audio Volume -->
+                    <g transform="translate(10, 294)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <text x="8" y="16" fill="#9c27b0" font-size="20">🔊</text>
+                        <text x="35" y="16" fill="#e0e0e0" font-size="13">Ambient Sound</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <text x="10" y="345" fill="#888" font-size="11">☀ = Light   ☁ = Atmosphere   ▣ = Static Mesh</text>
+                    <text x="10" y="365" fill="#888" font-size="11">▶ = Gameplay   📁 = Folder   🔊 = Audio</text>
+                    <text x="10" y="385" fill="#888" font-size="11">Highlighted = Selected Actor</text>
+                </svg>
+                <p class="caption"><em>Figure: The Outliner panel showing various Actors organized hierarchically. The selected Actor (Floor) is highlighted.</em></p>
+                
+                <p>When you select an Actor in the Outliner, it becomes highlighted in the viewport, and its properties appear in the <strong>Details</strong> panel. This three-way connection—Outliner, Viewport, and Details—is how you'll interact with Actors constantly while building your levels.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Get comfortable navigating between the Outliner and the viewport. You can select an Actor in the Outliner and press <kbd>F</kbd> to instantly focus the viewport camera on it. Conversely, clicking an Actor in the viewport selects it in the Outliner. This two-way workflow makes organizing complex scenes much easier.</p>
+                </div>
+                
+                <h3>Actor Properties</h3>
+                
+                <p>Every Actor has a set of properties that define its behavior and appearance. When you select an Actor and look at the Details panel, you'll see categories like:</p>
+                
+                <ul>
+                    <li><strong>Transform:</strong> Location, Rotation, and Scale—where the Actor is, how it's oriented, and how big it is</li>
+                    <li><strong>Rendering:</strong> Whether the Actor is visible, casts shadows, or affects reflections</li>
+                    <li><strong>Collision:</strong> How the Actor interacts with physics and other Actors</li>
+                    <li><strong>Actor-specific properties:</strong> Settings unique to that type of Actor (light intensity for lights, sound volume for audio Actors, etc.)</li>
+                </ul>
+                
+                <p>Changing these properties in the Details panel immediately updates how the Actor behaves and appears in your level.</p>
+                
+                <div class="mermaid">
+                    graph TD
+                        A[Actor in Level] --> B[Visible in Viewport]
+                        A --> C[Listed in Outliner]
+                        A --> D[Properties in Details Panel]
+                        D --> E[Transform: Location/Rotation/Scale]
+                        D --> F[Rendering Settings]
+                        D --> G[Collision Settings]
+                        D --> H[Type-Specific Properties]
+                        style A fill:#667eea,color:#fff
+                        style B fill:#f0f0f0,color:#333
+                        style C fill:#f0f0f0,color:#333
+                        style D fill:#f0f0f0,color:#333
+                </div>
+                <p class="caption"><em>Figure: The relationship between Actors and the editor panels</em></p>
+            </section>
+
+            <!-- Section 2: The Actor-Component Model -->
+            <section id="actor-component-model" class="lesson-section">
+                <h2>The Actor-Component Model</h2>
+                
+                <p>Here's where Unreal's design becomes truly elegant. Rather than having thousands of different specialized Actor types that each do one specific thing, Unreal uses a modular system called the <strong>Actor-Component Model</strong>. This is one of the most important concepts to understand in Unreal Engine.</p>
+                
+                <h3>What are Components?</h3>
+                
+                <p>A <strong>Component</strong> is a piece of functionality that you can attach to an Actor to give it specific capabilities. Think of Components like accessories or attachments—each one adds a particular feature to the base Actor.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Component:</strong> A modular piece of functionality that can be added to an Actor. Components define what an Actor can do—whether it has a 3D mesh, makes sounds, produces light, simulates physics, or has collision. Actors are essentially containers for Components.</p>
+                </div>
+                
+                <p>Let's use a concrete example. Imagine you want to create a lamp Actor in your level. What does a lamp need?</p>
+                
+                <ul>
+                    <li>A <strong>Static Mesh Component</strong> to display the lamp's 3D model</li>
+                    <li>A <strong>Point Light Component</strong> to actually emit light</li>
+                    <li>Maybe a <strong>Particle System Component</strong> if you want glowing dust particles around the bulb</li>
+                    <li>Maybe an <strong>Audio Component</strong> if the lamp hums or buzzes</li>
+                </ul>
+                
+                <p>Instead of having a specialized "LampActor" class in the engine, you take a base Actor and attach these Components to it. The Actor itself is just a container—the Components are what give it functionality.</p>
+                
+                <svg width="100%" height="500" viewBox="0 0 350 500" style="max-width: 350px; margin: 2rem auto; display: block; border: 1px solid #ddd; background: #f9f9f9;">
+                    <!-- Details Panel Background -->
+                    <rect x="0" y="0" width="350" height="500" fill="#2d2d2d"/>
+                    
+                    <!-- Title Bar -->
+                    <rect x="0" y="0" width="350" height="30" fill="#1e1e1e"/>
+                    <text x="10" y="20" fill="#ffffff" font-size="14" font-weight="bold">Details - Lamp_Actor</text>
+                    
+                    <!-- Search Bar -->
+                    <rect x="10" y="35" width="330" height="25" fill="#3c3c3c" rx="3"/>
+                    <text x="15" y="52" fill="#888" font-size="12">Search details...</text>
+                    
+                    <!-- Transform Section (collapsed) -->
+                    <g transform="translate(0, 70)">
+                        <rect x="0" y="0" width="350" height="28" fill="#383838"/>
+                        <text x="10" y="18" fill="#aaa" font-size="14">▸</text>
+                        <text x="30" y="18" fill="#e0e0e0" font-size="13" font-weight="bold">Transform</text>
+                    </g>
+                    
+                    <!-- Components Section Header (expanded) -->
+                    <g transform="translate(0, 108)">
+                        <rect x="0" y="0" width="350" height="28" fill="#383838"/>
+                        <text x="10" y="18" fill="#aaa" font-size="14">▾</text>
+                        <text x="30" y="18" fill="#e0e0e0" font-size="13" font-weight="bold">Components</text>
+                    </g>
+                    
+                    <!-- Component List -->
+                    <!-- Root Component -->
+                    <g transform="translate(15, 146)">
+                        <rect x="0" y="0" width="320" height="24" fill="#404040"/>
+                        <circle cx="10" cy="12" r="6" fill="#667eea"/>
+                        <text x="25" y="16" fill="#ffffff" font-size="12" font-weight="bold">DefaultSceneRoot</text>
+                        <text x="260" y="16" fill="#888" font-size="11">(Scene)</text>
+                    </g>
+                    
+                    <!-- Static Mesh Component -->
+                    <g transform="translate(35, 178)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <circle cx="10" cy="12" r="6" fill="#4CAF50"/>
+                        <text x="25" y="16" fill="#e0e0e0" font-size="12">StaticMesh</text>
+                        <text x="200" y="16" fill="#888" font-size="11">(Static Mesh)</text>
+                    </g>
+                    
+                    <!-- Point Light Component -->
+                    <g transform="translate(35, 210)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <circle cx="10" cy="12" r="6" fill="#ffd700"/>
+                        <text x="25" y="16" fill="#e0e0e0" font-size="12">PointLight</text>
+                        <text x="200" y="16" fill="#888" font-size="11">(Point Light)</text>
+                    </g>
+                    
+                    <!-- Particle System Component -->
+                    <g transform="translate(35, 242)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <circle cx="10" cy="12" r="6" fill="#ff6b6b"/>
+                        <text x="25" y="16" fill="#e0e0e0" font-size="12">ParticleSystem</text>
+                        <text x="200" y="16" fill="#888" font-size="11">(Particle)</text>
+                    </g>
+                    
+                    <!-- Audio Component -->
+                    <g transform="translate(35, 274)">
+                        <rect x="0" y="0" width="300" height="24" fill="transparent"/>
+                        <circle cx="10" cy="12" r="6" fill="#9c27b0"/>
+                        <text x="25" y="16" fill="#e0e0e0" font-size="12">AudioComponent</text>
+                        <text x="200" y="16" fill="#888" font-size="11">(Audio)</text>
+                    </g>
+                    
+                    <!-- Add Component Button -->
+                    <rect x="15" y="310" width="320" height="30" fill="#4CAF50" rx="4"/>
+                    <text x="135" y="330" fill="#ffffff" font-size="13" font-weight="bold">+ Add Component</text>
+                    
+                    <!-- Selected Component Details (StaticMesh expanded) -->
+                    <g transform="translate(0, 355)">
+                        <rect x="0" y="0" width="350" height="28" fill="#383838"/>
+                        <text x="10" y="18" fill="#aaa" font-size="14">▾</text>
+                        <text x="30" y="18" fill="#e0e0e0" font-size="13" font-weight="bold">Static Mesh</text>
+                    </g>
+                    
+                    <!-- Static Mesh Properties -->
+                    <g transform="translate(15, 393)">
+                        <text x="0" y="0" fill="#aaa" font-size="11">Static Mesh</text>
+                        <rect x="0" y="5" width="320" height="22" fill="#3c3c3c" rx="2"/>
+                        <text x="5" y="20" fill="#e0e0e0" font-size="11">SM_Lamp_01</text>
+                    </g>
+                    
+                    <g transform="translate(15, 433)">
+                        <text x="0" y="0" fill="#aaa" font-size="11">Materials</text>
+                        <rect x="0" y="5" width="320" height="22" fill="#3c3c3c" rx="2"/>
+                        <text x="5" y="20" fill="#e0e0e0" font-size="11">M_Lamp_Metal</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <text x="15" y="485" fill="#888" font-size="10">Each Component adds specific functionality to the Actor</text>
+                </svg>
+                <p class="caption"><em>Figure: The Details panel showing an Actor's Components. Each Component (Static Mesh, Point Light, Particle System, Audio) adds different capabilities to the lamp Actor.</em></p>
+                
+                <div class="mermaid">
+                    graph TD
+                        A[Lamp Actor<br/>Container] --> B[Static Mesh Component<br/>The physical lamp model]
+                        A --> C[Point Light Component<br/>Emits light]
+                        A --> D[Particle System Component<br/>Glowing dust effect]
+                        A --> E[Audio Component<br/>Electrical hum sound]
+                        style A fill:#667eea,color:#fff
+                        style B fill:#4CAF50,color:#fff
+                        style C fill:#4CAF50,color:#fff
+                        style D fill:#4CAF50,color:#fff
+                        style E fill:#4CAF50,color:#fff
+                </div>
+                <p class="caption"><em>Figure: A lamp Actor composed of multiple Components</em></p>
+                
+                <h3>Why This Model is Powerful</h3>
+                
+                <p>The Actor-Component model provides several huge advantages:</p>
+                
+                <ol>
+                    <li><strong>Flexibility:</strong> You can mix and match Components to create exactly the behavior you need without being limited to pre-defined Actor types</li>
+                    <li><strong>Reusability:</strong> The same Components can be used across many different Actors. The Light Component that illuminates your lamp works the same way in a streetlight, a torch, or a glowing crystal</li>
+                    <li><strong>Organization:</strong> Each Component handles one specific aspect of functionality, making the system easier to understand and debug</li>
+                    <li><strong>Extensibility:</strong> You can create custom Components with unique behaviors and attach them to any Actor</li>
+                </ol>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Real-World Analogy</h4>
+                    <p>Think of a smartphone. The phone itself (the Actor) is just a shell. But you add components to it: a camera module (Camera Component), a speaker (Audio Component), a screen (Display Component), a vibration motor (Force Feedback Component), and so on. You could configure two phones differently—one with a better camera but weaker speaker, another with stereo speakers but a simpler camera—using the same base phone and different component combinations. That's exactly how Actors and Components work in Unreal.</p>
+                </div>
+
+                
+                <h3>Common Component Types</h3>
+                
+                <p>Unreal Engine comes with dozens of built-in Component types. Here are the most commonly used ones you'll encounter:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component Type</th>
+                            <th>Purpose</th>
+                            <th>Example Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Static Mesh Component</strong></td>
+                            <td>Displays a 3D model</td>
+                            <td>Buildings, props, furniture, vehicles</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Skeletal Mesh Component</strong></td>
+                            <td>Displays an animated 3D character/creature</td>
+                            <td>Characters, animated creatures, ragdolls</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Light Component</strong></td>
+                            <td>Emits light (Point, Spot, Directional, Rect)</td>
+                            <td>Lamps, torches, sun, streetlights</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Audio Component</strong></td>
+                            <td>Plays sound effects or music</td>
+                            <td>Ambient sounds, footsteps, explosions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Particle System Component</strong></td>
+                            <td>Creates visual effects (smoke, fire, sparks)</td>
+                            <td>Fire, smoke, magic effects, explosions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Camera Component</strong></td>
+                            <td>Defines a viewpoint for rendering</td>
+                            <td>Player cameras, security cameras, cutscenes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Box/Sphere/Capsule Collision</strong></td>
+                            <td>Defines collision boundaries</td>
+                            <td>Triggers, damage volumes, barriers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Movement Component</strong></td>
+                            <td>Handles physics and movement</td>
+                            <td>Character walking, projectile motion</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>When you create a Blueprint or place an Actor in your level, you're working with this Component system whether you realize it or not. Understanding this foundation helps you appreciate how Unreal gives you building blocks instead of rigid, pre-defined objects.</p>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>The terms "Actor" and "Component" might feel abstract at first. Remember: <strong>Actors are the "what"</strong> (the objects in your level), and <strong>Components are the "how"</strong> (what makes those objects work). A chair Actor might just have a Static Mesh Component. An interactive door Actor might have a mesh, collision, audio, and custom Blueprint logic components all working together.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Common Actor Types -->
+            <section id="actor-types" class="lesson-section">
+                <h2>Common Actor Types</h2>
+                
+                <p>While all Actors share the same fundamental structure (containers for Components), Unreal provides many pre-configured Actor classes that come with commonly-used Component setups. These are the Actor types you'll place in your levels most frequently.</p>
+                
+                <h3>Static Mesh Actor</h3>
+                
+                <p>The workhorse of level building. A <strong>Static Mesh Actor</strong> displays a 3D model that doesn't animate or deform (hence "static"). Buildings, rocks, furniture, vehicles, props—if it's a solid, non-animated object, it's typically a Static Mesh Actor.</p>
+                
+                <ul>
+                    <li><strong>Default Components:</strong> Static Mesh Component</li>
+                    <li><strong>Common uses:</strong> Environment geometry, props, decorations</li>
+                    <li><strong>Performance note:</strong> Static meshes can be batched together for efficient rendering</li>
+                </ul>
+                
+                <h3>Light Actors</h3>
+                
+                <p>These Actors emit light to illuminate your level. There are several types:</p>
+                
+                <ul>
+                    <li><strong>Directional Light:</strong> Simulates sunlight—parallel rays that illuminate everything equally</li>
+                    <li><strong>Point Light:</strong> Emits light in all directions from a single point (like a lightbulb)</li>
+                    <li><strong>Spot Light:</strong> Emits a cone of light in one direction (like a flashlight)</li>
+                    <li><strong>Rect Light:</strong> Emits light from a rectangular surface (like a window or TV screen)</li>
+                </ul>
+                
+                <p>We'll cover lighting in depth in Module 4, but for now, know that these are essential for making your levels visible and establishing mood.</p>
+                
+                <h3>Camera Actor</h3>
+                
+                <p>Defines a viewpoint in your level. During gameplay, the player's view is rendered from a camera. Camera Actors are also used for:</p>
+                
+                <ul>
+                    <li>Cutscenes and cinematics</li>
+                    <li>Security camera views</li>
+                    <li>Alternative perspective switches</li>
+                    <li>Testing composition and framing</li>
+                </ul>
+                
+                <h3>Trigger Volumes and Collision Actors</h3>
+                
+                <p>These are invisible gameplay elements that detect when players or other Actors enter, exit, or overlap them:</p>
+                
+                <ul>
+                    <li><strong>Trigger Box:</strong> A box-shaped volume that fires events when something enters it</li>
+                    <li><strong>Trigger Sphere:</strong> A spherical trigger volume</li>
+                    <li><strong>Blocking Volume:</strong> An invisible wall that prevents movement through an area</li>
+                </ul>
+                
+                <p>You'll use these extensively for gameplay logic—opening doors, starting cutscenes, spawning enemies, etc.</p>
+                
+                <h3>Blueprint Actors</h3>
+                
+                <p>These are custom Actors you create using Unreal's visual scripting system (Blueprints). They can combine any Components you want with custom logic. We'll dive deep into Blueprints in Module 5, but examples include:</p>
+                
+                <ul>
+                    <li>Interactive doors that open and close</li>
+                    <li>Collectible items that disappear when touched</li>
+                    <li>Moving platforms</li>
+                    <li>Enemy characters with AI behavior</li>
+                </ul>
+                
+                <svg width="100%" height="400" viewBox="0 0 700 400" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Common Actor Types in Unreal Engine</text>
+                    
+                    <!-- Static Mesh Actor -->
+                    <g transform="translate(80, 60)">
+                        <rect x="-50" y="-10" width="100" height="90" fill="#4CAF50" rx="8"/>
+                        <text x="0" y="15" text-anchor="middle" font-size="40" fill="#fff">📦</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Static Mesh</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">Actor</text>
+                    </g>
+                    <text x="80" y="165" text-anchor="middle" font-size="11" fill="#666">Props, buildings,</text>
+                    <text x="80" y="180" text-anchor="middle" font-size="11" fill="#666">furniture</text>
+                    
+                    <!-- Light Actor -->
+                    <g transform="translate(230, 60)">
+                        <rect x="-50" y="-10" width="100" height="90" fill="#ffd700" rx="8"/>
+                        <text x="0" y="15" text-anchor="middle" font-size="40" fill="#fff">💡</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Light</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">Actor</text>
+                    </g>
+                    <text x="230" y="165" text-anchor="middle" font-size="11" fill="#666">Point, Spot,</text>
+                    <text x="230" y="180" text-anchor="middle" font-size="11" fill="#666">Directional</text>
+                    
+                    <!-- Camera Actor -->
+                    <g transform="translate(380, 60)">
+                        <rect x="-50" y="-10" width="100" height="90" fill="#2196F3" rx="8"/>
+                        <text x="0" y="15" text-anchor="middle" font-size="40" fill="#fff">📷</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Camera</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">Actor</text>
+                    </g>
+                    <text x="380" y="165" text-anchor="middle" font-size="11" fill="#666">Viewpoints,</text>
+                    <text x="380" y="180" text-anchor="middle" font-size="11" fill="#666">cutscenes</text>
+                    
+                    <!-- Trigger Volume -->
+                    <g transform="translate(530, 60)">
+                        <rect x="-50" y="-10" width="100" height="90" fill="#9c27b0" rx="8"/>
+                        <text x="0" y="15" text-anchor="middle" font-size="40" fill="#fff">🎯</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Trigger</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">Volume</text>
+                    </g>
+                    <text x="530" y="165" text-anchor="middle" font-size="11" fill="#666">Invisible gameplay</text>
+                    <text x="530" y="180" text-anchor="middle" font-size="11" fill="#666">zones</text>
+                    
+                    <!-- Audio Actor -->
+                    <g transform="translate(155, 250)">
+                        <rect x="-50" y="-10" width="100" height="90" fill="#ff6b6b" rx="8"/>
+                        <text x="0" y="15" text-anchor="middle" font-size="40" fill="#fff">🔊</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Audio</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">Actor</text>
+                    </g>
+                    <text x="155" y="355" text-anchor="middle" font-size="11" fill="#666">Ambient sounds,</text>
+                    <text x="155" y="370" text-anchor="middle" font-size="11" fill="#666">music, effects</text>
+                    
+                    <!-- Particle System -->
+                    <g transform="translate(305, 250)">
+                        <rect x="-50" y="-10" width="100" height="90" fill="#ff9800" rx="8"/>
+                        <text x="0" y="15" text-anchor="middle" font-size="40" fill="#fff">✨</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Particle</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">System</text>
+                    </g>
+                    <text x="305" y="355" text-anchor="middle" font-size="11" fill="#666">Fire, smoke,</text>
+                    <text x="305" y="370" text-anchor="middle" font-size="11" fill="#666">magic effects</text>
+                    
+                    <!-- Blueprint Actor -->
+                    <g transform="translate(455, 250)">
+                        <rect x="-50" y="-10" width="100" height="90" fill="#667eea" rx="8"/>
+                        <text x="0" y="15" text-anchor="middle" font-size="40" fill="#fff">🔷</text>
+                        <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Blueprint</text>
+                        <text x="0" y="75" text-anchor="middle" font-size="10" fill="#fff">Actor</text>
+                    </g>
+                    <text x="455" y="355" text-anchor="middle" font-size="11" fill="#666">Custom interactive</text>
+                    <text x="455" y="370" text-anchor="middle" font-size="11" fill="#666">objects</text>
+                </svg>
+                <p class="caption"><em>Figure: Common Actor types you'll work with in Unreal Engine. Each serves a specific purpose in building your levels.</em></p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>When placing Actors in your level, you can access them all through the <strong>Place Actors</strong> panel (usually on the left side). The panel categorizes Actors by type: Lights, Visual Effects, Volumes, etc. You can drag and drop from this panel directly into your viewport. Press <kbd>Shift + 1</kbd> to quickly toggle the Place Actors panel visibility.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Transform Properties -->
+            <section id="transform-properties" class="lesson-section">
+                <h2>Transform Properties: Location, Rotation, and Scale</h2>
+                
+                <p>Every Actor in your level exists in 3D space, and three fundamental properties define exactly where it is, how it's oriented, and how big it is. Together, these properties are called the <strong>Transform</strong>.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Transform:</strong> The complete spatial description of an Actor's position, orientation, and size in 3D space. It consists of three components: Location (where), Rotation (how it's oriented), and Scale (how big).</p>
+                </div>
+                
+                <h3>Understanding 3D Coordinates</h3>
+                
+                <p>Before diving into transforms, you need to understand how Unreal represents 3D space. Like most 3D applications, Unreal uses a three-axis coordinate system:</p>
+                
+                <canvas id="coordinate-system-canvas" width="600" height="400" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Unreal Engine's 3D coordinate system. X (red) = forward/back, Y (green) = left/right, Z (blue) = up/down.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('coordinate-system-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Clear canvas
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Set up isometric view center
+                        const centerX = 300;
+                        const centerY = 250;
+                        const axisLength = 150;
+                        
+                        // Draw title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Unreal Engine 3D Coordinate System', 300, 30);
+                        
+                        // Draw grid floor (XY plane)
+                        ctx.strokeStyle = '#ddd';
+                        ctx.lineWidth = 1;
+                        for (let i = -5; i <= 5; i++) {
+                            // X lines
+                            ctx.beginPath();
+                            ctx.moveTo(centerX + i * 25 - 100, centerY + 50);
+                            ctx.lineTo(centerX + i * 25 - 100, centerY + 200);
+                            ctx.stroke();
+                            // Y lines
+                            ctx.beginPath();
+                            ctx.moveTo(centerX - 100, centerY + i * 25 + 50);
+                            ctx.lineTo(centerX + 150, centerY + i * 25 + 50);
+                            ctx.stroke();
+                        }
+                        
+                        // Helper function to draw arrow
+                        function drawArrow(x1, y1, x2, y2, color, label) {
+                            // Line
+                            ctx.strokeStyle = color;
+                            ctx.lineWidth = 4;
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(x2, y2);
+                            ctx.stroke();
+                            
+                            // Arrowhead
+                            const angle = Math.atan2(y2 - y1, x2 - x1);
+                            const headLength = 15;
+                            ctx.fillStyle = color;
+                            ctx.beginPath();
+                            ctx.moveTo(x2, y2);
+                            ctx.lineTo(
+                                x2 - headLength * Math.cos(angle - Math.PI / 6),
+                                y2 - headLength * Math.sin(angle - Math.PI / 6)
+                            );
+                            ctx.lineTo(
+                                x2 - headLength * Math.cos(angle + Math.PI / 6),
+                                y2 - headLength * Math.sin(angle + Math.PI / 6)
+                            );
+                            ctx.closePath();
+                            ctx.fill();
+                            
+                            // Label
+                            ctx.fillStyle = color;
+                            ctx.font = 'bold 16px Arial';
+                            ctx.fillText(label, x2 + (x2 - x1) * 0.15, y2 + (y2 - y1) * 0.15);
+                        }
+                        
+                        // Draw X axis (red, forward - angled right)
+                        drawArrow(centerX, centerY, centerX + axisLength, centerY + 50, '#e74c3c', 'X (Forward)');
+                        
+                        // Draw Y axis (green, right - angled left)
+                        drawArrow(centerX, centerY, centerX - 100, centerY + 100, '#2ecc71', 'Y (Right)');
+                        
+                        // Draw Z axis (blue, up)
+                        drawArrow(centerX, centerY, centerX, centerY - axisLength, '#3498db', 'Z (Up)');
+                        
+                        // Draw origin point
+                        ctx.fillStyle = '#333';
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.font = '14px Arial';
+                        ctx.fillText('Origin (0, 0, 0)', centerX + 20, centerY - 15);
+                        
+                        // Draw example cube to show 3D space
+                        ctx.strokeStyle = '#667eea';
+                        ctx.lineWidth = 2;
+                        ctx.fillStyle = 'rgba(102, 126, 234, 0.2)';
+                        
+                        // Front face
+                        ctx.beginPath();
+                        ctx.moveTo(centerX + 50, centerY - 30);
+                        ctx.lineTo(centerX + 90, centerY - 10);
+                        ctx.lineTo(centerX + 90, centerY + 30);
+                        ctx.lineTo(centerX + 50, centerY + 10);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Top face
+                        ctx.beginPath();
+                        ctx.moveTo(centerX + 50, centerY - 30);
+                        ctx.lineTo(centerX + 10, centerY - 50);
+                        ctx.lineTo(centerX + 50, centerY - 70);
+                        ctx.lineTo(centerX + 90, centerY - 50);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Right face
+                        ctx.beginPath();
+                        ctx.moveTo(centerX + 90, centerY - 50);
+                        ctx.lineTo(centerX + 90, centerY - 10);
+                        ctx.lineTo(centerX + 90, centerY + 30);
+                        ctx.lineTo(centerX + 50, centerY + 10);
+                        ctx.lineTo(centerX + 50, centerY - 30);
+                        ctx.lineTo(centerX + 90, centerY - 50);
+                        ctx.closePath();
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Example Actor', centerX + 100, centerY - 60);
+                        
+                        // Legend
+                        ctx.textAlign = 'left';
+                        ctx.font = '12px Arial';
+                        ctx.fillStyle = '#666';
+                        ctx.fillText('• Unreal uses centimeters as the base unit', 20, canvas.height - 40);
+                        ctx.fillText('• Z-axis points up (unlike some engines where Y is up)', 20, canvas.height - 20);
+                    })();
+                </script>
+                
+                <ul>
+                    <li><strong>X-axis (Red):</strong> Forward and backward (positive X = forward)</li>
+                    <li><strong>Y-axis (Green):</strong> Left and right (positive Y = right)</li>
+                    <li><strong>Z-axis (Blue):</strong> Up and down (positive Z = up)</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Why This Matters</h4>
+                    <p>Different 3D software uses different conventions. Some programs (like Maya) use Y as "up," while Unreal uses Z as "up." If you're importing assets from other tools, you may need to rotate them 90 degrees to match Unreal's coordinate system. Understanding the coordinate system helps you debug why imported models might appear sideways or upside down.</p>
+                </div>
+                
+                <h3>Location</h3>
+                
+                <p><strong>Location</strong> defines where the Actor is positioned in 3D space using X, Y, and Z coordinates. Each value is measured in centimeters from the world origin (0, 0, 0).</p>
+                
+                <p>Examples:</p>
+                <ul>
+                    <li><code>Location: (0, 0, 0)</code> - At the world origin</li>
+                    <li><code>Location: (500, 0, 0)</code> - 5 meters forward (500cm) from the origin</li>
+                    <li><code>Location: (0, -300, 200)</code> - 3 meters left and 2 meters up from the origin</li>
+                </ul>
+                
+                <p>When you move an Actor in the viewport using the move gizmo (we'll cover that next), you're changing its Location values.</p>
+
+                
+                <h3>Rotation</h3>
+                
+                <p><strong>Rotation</strong> defines how the Actor is oriented in 3D space. Instead of X, Y, Z coordinates, rotation uses three angles measured in degrees: <strong>Roll</strong>, <strong>Pitch</strong>, and <strong>Yaw</strong>.</p>
+                
+                <canvas id="rotation-demo-canvas" width="700" height="350" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: The three types of rotation. Roll (X-axis), Pitch (Y-axis), and Yaw (Z-axis) control how an Actor is oriented in space.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('rotation-demo-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Understanding Rotation: Roll, Pitch, and Yaw', 350, 30);
+                        
+                        // Helper function to draw a simple aircraft shape
+                        function drawAircraft(x, y, scale, rotation, label) {
+                            ctx.save();
+                            ctx.translate(x, y);
+                            ctx.rotate(rotation);
+                            ctx.scale(scale, scale);
+                            
+                            // Fuselage
+                            ctx.fillStyle = '#667eea';
+                            ctx.fillRect(-30, -8, 60, 16);
+                            
+                            // Nose
+                            ctx.beginPath();
+                            ctx.moveTo(30, 0);
+                            ctx.lineTo(45, 0);
+                            ctx.strokeStyle = '#667eea';
+                            ctx.lineWidth = 16;
+                            ctx.lineCap = 'round';
+                            ctx.stroke();
+                            
+                            // Wings
+                            ctx.fillStyle = '#4CAF50';
+                            ctx.fillRect(-10, -30, 20, 60);
+                            
+                            // Tail
+                            ctx.fillRect(-30, -5, 10, 25);
+                            
+                            ctx.restore();
+                            
+                            // Label
+                            ctx.fillStyle = '#333';
+                            ctx.font = 'bold 14px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(label, x, y + 65);
+                        }
+                        
+                        // Roll (rotation around X-axis - longitudinal)
+                        ctx.save();
+                        drawAircraft(120, 140, 1, 0, 'Normal');
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('ROLL (X-axis)', 120, 220);
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Banking left/right', 120, 240);
+                        
+                        // Show arrow indicating roll
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.arc(120, 140, 50, -Math.PI/4, Math.PI/4);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        ctx.restore();
+                        
+                        drawAircraft(120, 280, 1, Math.PI / 6, '30° Roll');
+                        
+                        // Pitch (rotation around Y-axis - lateral)
+                        ctx.save();
+                        drawAircraft(350, 140, 1, 0, 'Normal');
+                        
+                        ctx.fillStyle = '#2ecc71';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('PITCH (Y-axis)', 350, 220);
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Nose up/down', 350, 240);
+                        
+                        // Show arrow indicating pitch
+                        ctx.strokeStyle = '#2ecc71';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.arc(350, 140, 50, -Math.PI/2 - Math.PI/6, -Math.PI/2 + Math.PI/6);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        ctx.restore();
+                        
+                        // Draw pitched aircraft (simulated by scaling Y)
+                        ctx.save();
+                        ctx.translate(350, 280);
+                        ctx.scale(1, 0.7);
+                        ctx.translate(-350, -280);
+                        drawAircraft(350, 280, 1, 0, '');
+                        ctx.restore();
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('30° Pitch Up', 350, 345);
+                        
+                        // Yaw (rotation around Z-axis - vertical)
+                        ctx.save();
+                        drawAircraft(580, 140, 1, 0, 'Normal');
+                        
+                        ctx.fillStyle = '#3498db';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('YAW (Z-axis)', 580, 220);
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Turning left/right', 580, 240);
+                        
+                        // Show arrow indicating yaw
+                        ctx.strokeStyle = '#3498db';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.arc(580, 140, 50, Math.PI - Math.PI/6, Math.PI + Math.PI/6);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        ctx.restore();
+                        
+                        drawAircraft(580, 280, 1, Math.PI / 6, '30° Yaw');
+                    })();
+                </script>
+                
+                <ul>
+                    <li><strong>Roll (X-axis):</strong> Rotation around the forward/backward axis—like an airplane banking left or right</li>
+                    <li><strong>Pitch (Y-axis):</strong> Rotation around the left/right axis—like an airplane's nose going up or down</li>
+                    <li><strong>Yaw (Z-axis):</strong> Rotation around the up/down axis—like turning your head left or right</li>
+                </ul>
+                
+                <p>In the Details panel, you'll see rotation displayed as <code>(X=0, Y=0, Z=0)</code> where each value is in degrees. A value of 0 means no rotation, 90 means a quarter turn, 180 is a half turn, and 360 is a full rotation back to the starting position.</p>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Gimbal Lock</h4>
+                    <p>When rotating objects in 3D, you might encounter a phenomenon called "gimbal lock" where two rotation axes become aligned and you lose a degree of freedom. This is an inherent quirk of Euler angle rotation (the Roll-Pitch-Yaw system). For most beginner work, you won't notice this, but if you're doing complex animations or camera work, be aware it exists. Unreal provides tools like quaternions to work around it in advanced scenarios.</p>
+                </div>
+                
+                <h3>Scale</h3>
+                
+                <p><strong>Scale</strong> controls the size of the Actor. Like Location, it uses X, Y, and Z values, but these represent multipliers rather than distances.</p>
+                
+                <ul>
+                    <li><code>Scale: (1, 1, 1)</code> - Original size (100%)</li>
+                    <li><code>Scale: (2, 2, 2)</code> - Twice as large in all dimensions (200%)</li>
+                    <li><code>Scale: (0.5, 0.5, 0.5)</code> - Half size (50%)</li>
+                    <li><code>Scale: (1, 2, 1)</code> - Normal width/height, but stretched to double length along Y-axis</li>
+                </ul>
+                
+                <svg width="100%" height="300" viewBox="0 0 700 300" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="350" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Understanding Scale</text>
+                    
+                    <!-- Original Scale -->
+                    <g transform="translate(120, 150)">
+                        <rect x="-40" y="-40" width="80" height="80" fill="#667eea" opacity="0.7"/>
+                        <text x="0" y="65" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Scale (1, 1, 1)</text>
+                        <text x="0" y="85" text-anchor="middle" font-size="12" fill="#666">Original Size</text>
+                    </g>
+                    
+                    <!-- Uniform Scale Up -->
+                    <g transform="translate(290, 150)">
+                        <rect x="-60" y="-60" width="120" height="120" fill="#4CAF50" opacity="0.7"/>
+                        <text x="0" y="85" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Scale (1.5, 1.5, 1.5)</text>
+                        <text x="0" y="105" text-anchor="middle" font-size="12" fill="#666">Uniform Scale</text>
+                    </g>
+                    
+                    <!-- Uniform Scale Down -->
+                    <g transform="translate(460, 150)">
+                        <rect x="-20" y="-20" width="40" height="40" fill="#ff9800" opacity="0.7"/>
+                        <text x="0" y="45" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Scale (0.5, 0.5, 0.5)</text>
+                        <text x="0" y="65" text-anchor="middle" font-size="12" fill="#666">Half Size</text>
+                    </g>
+                    
+                    <!-- Non-uniform Scale -->
+                    <g transform="translate(600, 150)">
+                        <rect x="-30" y="-60" width="60" height="120" fill="#e74c3c" opacity="0.7"/>
+                        <text x="0" y="85" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Scale (0.75, 2, 1)</text>
+                        <text x="0" y="105" text-anchor="middle" font-size="12" fill="#666">Non-uniform</text>
+                    </g>
+                    
+                    <!-- Legend -->
+                    <text x="350" y="250" text-anchor="middle" font-size="12" fill="#666">Uniform scale maintains proportions • Non-uniform scale can stretch or squash</text>
+                    <text x="350" y="270" text-anchor="middle" font-size="12" fill="#666">⚠️ Non-uniform scale can cause lighting and collision issues</text>
+                </svg>
+                <p class="caption"><em>Figure: Different scale values. Uniform scaling (equal X, Y, Z) maintains proportions, while non-uniform scaling can distort the Actor.</em></p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>When possible, scale objects in the 3D modeling software (like Blender) before importing them into Unreal, rather than scaling them in-engine. This ensures proper collision, lighting, and performance. In-engine scaling is fine for quick prototyping, but for final assets, models should be at their correct size (1, 1, 1 scale) when imported.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Pivot Points and Transform Gizmos -->
+            <section id="pivot-points-gizmos" class="lesson-section">
+                <h2>Pivot Points and Transform Gizmos</h2>
+                
+                <p>Now that you understand what transforms are, let's look at how you actually manipulate them in the Unreal Editor using visual tools called <strong>gizmos</strong>.</p>
+                
+                <h3>What is a Pivot Point?</h3>
+                
+                <p>Every Actor has a <strong>pivot point</strong> (also called the "origin" or "anchor point")—a specific point within or around the Actor that defines where its Location is measured from and where rotations occur around.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Pivot Point:</strong> The reference point for an Actor's transform. When you rotate an Actor, it spins around its pivot point. When you set its Location to (0, 0, 0), the pivot point sits at the world origin.</p>
+                </div>
+                
+                <p>Think of a door. A door rotates around its hinges, not around its center. In 3D terms, the door's pivot point would be placed at the hinge location. When you rotate the door Actor, it swings open naturally around that pivot.</p>
+                
+                <canvas id="pivot-demo-canvas" width="600" height="350" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Pivot point placement matters! A door with its pivot at the hinge rotates correctly, while a center pivot creates unrealistic movement.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('pivot-demo-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('How Pivot Point Placement Affects Rotation', 300, 30);
+                        
+                        // Left example: Correct pivot (at hinge)
+                        ctx.save();
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('✅ Pivot at Hinge (Correct)', 150, 70);
+                        
+                        // Wall
+                        ctx.fillStyle = '#95a5a6';
+                        ctx.fillRect(30, 100, 20, 200);
+                        
+                        // Closed door
+                        ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
+                        ctx.strokeStyle = '#667eea';
+                        ctx.lineWidth = 2;
+                        ctx.fillRect(50, 100, 100, 200);
+                        ctx.strokeRect(50, 100, 100, 200);
+                        
+                        // Pivot point at hinge
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.beginPath();
+                        ctx.arc(50, 200, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Open door (rotated around hinge)
+                        ctx.save();
+                        ctx.translate(50, 200);
+                        ctx.rotate(Math.PI / 3);
+                        ctx.fillStyle = 'rgba(102, 126, 234, 0.7)';
+                        ctx.fillRect(0, -100, 100, 200);
+                        ctx.strokeStyle = '#667eea';
+                        ctx.strokeRect(0, -100, 100, 200);
+                        ctx.restore();
+                        
+                        // Rotation arc
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.arc(50, 200, 80, 0, Math.PI / 3);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Door swings naturally', 150, 320);
+                        ctx.fillText('around hinge point', 150, 335);
+                        
+                        ctx.restore();
+                        
+                        // Right example: Wrong pivot (at center)
+                        ctx.save();
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('❌ Pivot at Center (Wrong)', 450, 70);
+                        
+                        // Wall
+                        ctx.fillStyle = '#95a5a6';
+                        ctx.fillRect(330, 100, 20, 200);
+                        
+                        // Closed door
+                        ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
+                        ctx.strokeStyle = '#667eea';
+                        ctx.lineWidth = 2;
+                        ctx.fillRect(350, 100, 100, 200);
+                        ctx.strokeRect(350, 100, 100, 200);
+                        
+                        // Pivot point at center
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.beginPath();
+                        ctx.arc(400, 200, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Open door (rotated around center)
+                        ctx.save();
+                        ctx.translate(400, 200);
+                        ctx.rotate(Math.PI / 3);
+                        ctx.fillStyle = 'rgba(102, 126, 234, 0.7)';
+                        ctx.fillRect(-50, -100, 100, 200);
+                        ctx.strokeStyle = '#667eea';
+                        ctx.strokeRect(-50, -100, 100, 200);
+                        ctx.restore();
+                        
+                        // Rotation arc
+                        ctx.strokeStyle = '#e74c3c';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.arc(400, 200, 80, 0, Math.PI / 3);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Door rotates unrealistically', 450, 320);
+                        ctx.fillText('and clips through wall', 450, 335);
+                        
+                        ctx.restore();
+                        
+                        // Legend
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.beginPath();
+                        ctx.arc(250, 70, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#666';
+                        ctx.font = '11px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('= Pivot Point', 260, 75);
+                    })();
+                </script>
+                
+                <p>Pivot points are usually set in your 3D modeling software before importing assets into Unreal. For most objects, the pivot is at the base center (for characters and props) or at a functionally important point (like hinges for doors, axles for wheels).</p>
+                
+                <h3>Transform Gizmos</h3>
+                
+                <p><strong>Gizmos</strong> are the colorful 3D widgets that appear when you select an Actor in the viewport. They provide visual, interactive controls for manipulating Location, Rotation, and Scale.</p>
+                
+                <svg width="100%" height="500" viewBox="0 0 750 500" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="375" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Transform Gizmos in Unreal Engine</text>
+                    
+                    <!-- Move/Translate Gizmo -->
+                    <g transform="translate(150, 120)">
+                        <text x="0" y="-60" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Move Gizmo (W key)</text>
+                        
+                        <!-- Center cube representing actor -->
+                        <rect x="-15" y="-15" width="30" height="30" fill="#667eea" opacity="0.5"/>
+                        
+                        <!-- X axis (Red) -->
+                        <line x1="0" y1="0" x2="80" y2="0" stroke="#e74c3c" stroke-width="3"/>
+                        <polygon points="80,0 70,-5 70,5" fill="#e74c3c"/>
+                        <text x="90" y="5" font-size="14" font-weight="bold" fill="#e74c3c">X</text>
+                        
+                        <!-- Y axis (Green) -->
+                        <line x1="0" y1="0" x2="0" y2="80" stroke="#2ecc71" stroke-width="3"/>
+                        <polygon points="0,80 -5,70 5,70" fill="#2ecc71"/>
+                        <text x="-10" y="95" font-size="14" font-weight="bold" fill="#2ecc71">Y</text>
+                        
+                        <!-- Z axis (Blue) -->
+                        <line x1="0" y1="0" x2="-40" y2="-40" stroke="#3498db" stroke-width="3"/>
+                        <polygon points="-40,-40 -35,-45 -32,-37" fill="#3498db"/>
+                        <text x="-50" y="-45" font-size="14" font-weight="bold" fill="#3498db">Z</text>
+                        
+                        <text x="0" y="120" text-anchor="middle" font-size="12" fill="#666">Drag arrows to move</text>
+                        <text x="0" y="135" text-anchor="middle" font-size="12" fill="#666">along each axis</text>
+                    </g>
+                    
+                    <!-- Rotate Gizmo -->
+                    <g transform="translate(375, 120)">
+                        <text x="0" y="-60" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Rotate Gizmo (E key)</text>
+                        
+                        <!-- Center cube -->
+                        <rect x="-15" y="-15" width="30" height="30" fill="#667eea" opacity="0.5"/>
+                        
+                        <!-- X rotation circle (Red) -->
+                        <ellipse cx="0" cy="0" rx="60" ry="20" fill="none" stroke="#e74c3c" stroke-width="2.5"/>
+                        <text x="70" y="5" font-size="14" font-weight="bold" fill="#e74c3c">X</text>
+                        
+                        <!-- Y rotation circle (Green) -->
+                        <ellipse cx="0" cy="0" rx="20" ry="60" fill="none" stroke="#2ecc71" stroke-width="2.5"/>
+                        <text x="-10" y="-70" font-size="14" font-weight="bold" fill="#2ecc71">Y</text>
+                        
+                        <!-- Z rotation circle (Blue) -->
+                        <circle cx="0" cy="0" r="50" fill="none" stroke="#3498db" stroke-width="2.5"/>
+                        <text x="55" y="5" font-size="14" font-weight="bold" fill="#3498db">Z</text>
+                        
+                        <text x="0" y="120" text-anchor="middle" font-size="12" fill="#666">Drag circles to rotate</text>
+                        <text x="0" y="135" text-anchor="middle" font-size="12" fill="#666">around each axis</text>
+                    </g>
+                    
+                    <!-- Scale Gizmo -->
+                    <g transform="translate(600, 120)">
+                        <text x="0" y="-60" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Scale Gizmo (R key)</text>
+                        
+                        <!-- Center cube -->
+                        <rect x="-15" y="-15" width="30" height="30" fill="#667eea" opacity="0.5"/>
+                        
+                        <!-- X axis (Red) -->
+                        <line x1="0" y1="0" x2="70" y2="0" stroke="#e74c3c" stroke-width="3"/>
+                        <rect x="70" y="-5" width="10" height="10" fill="#e74c3c"/>
+                        <text x="88" y="5" font-size="14" font-weight="bold" fill="#e74c3c">X</text>
+                        
+                        <!-- Y axis (Green) -->
+                        <line x1="0" y1="0" x2="0" y2="70" stroke="#2ecc71" stroke-width="3"/>
+                        <rect x="-5" y="70" width="10" height="10" fill="#2ecc71"/>
+                        <text x="-10" y="90" font-size="14" font-weight="bold" fill="#2ecc71">Y</text>
+                        
+                        <!-- Z axis (Blue) -->
+                        <line x1="0" y1="0" x2="-35" y2="-35" stroke="#3498db" stroke-width="3"/>
+                        <rect x="-40" y="-40" width="10" height="10" fill="#3498db"/>
+                        <text x="-48" y="-45" font-size="14" font-weight="bold" fill="#3498db">Z</text>
+                        
+                        <!-- Uniform scale handle at center -->
+                        <circle cx="0" cy="0" r="8" fill="#ffd700" stroke="#333" stroke-width="2"/>
+                        
+                        <text x="0" y="120" text-anchor="middle" font-size="12" fill="#666">Drag cubes for per-axis</text>
+                        <text x="0" y="135" text-anchor="middle" font-size="12" fill="#666">Center sphere = uniform</text>
+                    </g>
+                    
+                    <!-- Keyboard shortcuts -->
+                    <g transform="translate(375, 320)">
+                        <rect x="-200" y="0" width="400" height="120" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2" rx="8"/>
+                        <text x="0" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Keyboard Shortcuts</text>
+                        
+                        <text x="-150" y="50" font-size="13" fill="#333"><tspan font-weight="bold">W</tspan> = Move/Translate</text>
+                        <text x="-150" y="70" font-size="13" fill="#333"><tspan font-weight="bold">E</tspan> = Rotate</text>
+                        <text x="-150" y="90" font-size="13" fill="#333"><tspan font-weight="bold">R</tspan> = Scale</text>
+                        
+                        <text x="50" y="50" font-size="13" fill="#333"><tspan font-weight="bold">Space</tspan> = Cycle gizmos</text>
+                        <text x="50" y="70" font-size="13" fill="#333"><tspan font-weight="bold">Ctrl+Drag</tspan> = Snap to grid</text>
+                        <text x="50" y="90" font-size="13" fill="#333"><tspan font-weight="bold">Alt+Drag</tspan> = Duplicate</text>
+                        
+                        <text x="0" y="112" text-anchor="middle" font-size="11" fill="#666">💡 Hold Shift while dragging for faster movement</text>
+                    </g>
+                    
+                    <text x="375" y="480" text-anchor="middle" font-size="12" fill="#666">Color coding: Red (X), Green (Y), Blue (Z) — Same across all gizmos</text>
+                </svg>
+                <p class="caption"><em>Figure: The three transform gizmos. Use W/E/R to switch between them, or Space to cycle through.</em></p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Learn the keyboard shortcuts! Pressing <kbd>W</kbd>, <kbd>E</kbd>, or <kbd>R</kbd> to quickly switch between Move, Rotate, and Scale gizmos will make your workflow much faster than constantly clicking toolbar buttons. Also, you can hold <kbd>Ctrl</kbd> while dragging to snap to grid increments, making precise placement easier.</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Actor Operations -->
+            <section id="actor-operations" class="lesson-section">
+                <h2>Duplicating, Grouping, and Organizing Actors</h2>
+                
+                <p>As your levels grow more complex, you'll need efficient ways to manage dozens or hundreds of Actors. Unreal provides several tools for organizing and manipulating multiple Actors at once.</p>
+                
+                <h3>Duplicating Actors</h3>
+                
+                <p>There are multiple ways to duplicate an Actor:</p>
+                
+                <ol>
+                    <li><strong>Ctrl+W:</strong> Select an Actor and press <kbd>Ctrl+W</kbd> to duplicate it in place (slightly offset)</li>
+                    <li><strong>Alt+Drag:</strong> Hold <kbd>Alt</kbd> while dragging an Actor with the move gizmo to create a copy</li>
+                    <li><strong>Ctrl+C, Ctrl+V:</strong> Copy and paste like any software</li>
+                </ol>
+                
+                <p>Duplicated Actors inherit all properties from the original, including materials, lighting settings, and any custom configurations.</p>
+                
+                <h3>Grouping Actors</h3>
+                
+                <p>When you have multiple Actors that logically belong together (like all the pieces of furniture in a room), you can <strong>group</strong> them:</p>
+                
+                <ol>
+                    <li>Select multiple Actors (hold <kbd>Ctrl</kbd> and click each one)</li>
+                    <li>Press <kbd>Ctrl+G</kbd> to group them</li>
+                    <li>The grouped Actors now move, rotate, and scale together as one unit</li>
+                    <li>Press <kbd>Ctrl+Shift+G</kbd> to ungroup</li>
+                </ol>
+                
+                <p>Groups appear in the Outliner with a special folder icon, and you can nest groups within groups for hierarchical organization.</p>
+                
+                <h3>Folders in the Outliner</h3>
+                
+                <p>For organizational purposes (without affecting transforms), you can create <strong>folders</strong> in the Outliner:</p>
+                
+                <ol>
+                    <li>Right-click in the Outliner</li>
+                    <li>Select <strong>Create Folder</strong></li>
+                    <li>Name it something descriptive (e.g., "Furniture", "Lighting", "Props")</li>
+                    <li>Drag Actors into the folder to organize them</li>
+                </ol>
+                
+                <p>Folders are purely organizational—they don't create parent-child relationships like attaching Actors does.</p>
+                
+                <h3>Attaching Actors (Parent-Child Relationships)</h3>
+                
+                <p>You can create true hierarchical relationships where one Actor is the <strong>parent</strong> and others are <strong>children</strong>:</p>
+                
+                <ol>
+                    <li>Select the Actor you want to become the child</li>
+                    <li>Drag it onto another Actor in the Outliner (the parent)</li>
+                    <li>The child Actor becomes indented under the parent</li>
+                </ol>
+                
+                <p>When you move, rotate, or scale the parent Actor, all children move with it. This is useful for:</p>
+                
+                <ul>
+                    <li>Attaching a lamp to a ceiling so they move together</li>
+                    <li>Attaching wheels to a car body</li>
+                    <li>Creating compound objects that need to stay together</li>
+                </ul>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Be careful with parent-child relationships and scale. If you scale a parent Actor, the children scale too—and if a child already has scale applied, the effects multiply (a parent at 2x scale with a child at 2x scale results in the child appearing at 4x scale). This can lead to unexpected sizing issues.</p>
+                </div>
+                
+                <h3>Selection Shortcuts</h3>
+                
+                <p>Efficiently selecting Actors is crucial for productivity:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Shortcut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Select multiple Actors</td>
+                            <td>Hold <kbd>Ctrl</kbd> and click each Actor</td>
+                        </tr>
+                        <tr>
+                            <td>Deselect an Actor from a group</td>
+                            <td>Hold <kbd>Ctrl</kbd> and click the selected Actor</td>
+                        </tr>
+                        <tr>
+                            <td>Select all Actors of the same class</td>
+                            <td>Select one, press <kbd>Ctrl+Shift+A</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Box select (drag to select multiple)</td>
+                            <td>Click and drag in viewport</td>
+                        </tr>
+                        <tr>
+                            <td>Focus on selected Actor</td>
+                            <td><kbd>F</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Deselect all</td>
+                            <td><kbd>Escape</kbd> or click empty space</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 7: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Manipulating Actors</h2>
+                    
+                    <p>Time to get hands-on experience with Actors, Components, and transforms! In this exercise, you'll place, move, rotate, scale, and organize Actors in your level.</p>
+                    
+                    <h3>Part 1: Place Your First Actor</h3>
+                    
+                    <ol>
+                        <li>Open the level you created in Lesson 2.1 (<code>MyFirstLevel</code>)</li>
+                        <li>Open the <strong>Place Actors</strong> panel (left side of editor, or press <kbd>Shift+1</kbd>)</li>
+                        <li>Navigate to <strong>Basic</strong> category</li>
+                        <li>Drag a <strong>Cube</strong> into the viewport</li>
+                        <li>It should appear at the origin or where you dropped it</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>💡 <strong>Hint:</strong> Can't find the Place Actors panel?</summary>
+                        <p>Go to <strong>Window → Place Actors</strong> in the menu bar to open it. It typically docks on the left side. You can also press <kbd>Shift+1</kbd> to toggle it.</p>
+                    </details>
+                    
+                    <h3>Part 2: Use Transform Gizmos</h3>
+                    
+                    <ol>
+                        <li>With the Cube selected, press <kbd>W</kbd> to activate the Move gizmo</li>
+                        <li>Drag the <span style="color: #e74c3c;">red arrow (X-axis)</span> to move the cube forward/backward</li>
+                        <li>Drag the <span style="color: #2ecc71;">green arrow (Y-axis)</span> to move left/right</li>
+                        <li>Drag the <span style="color: #3498db;">blue arrow (Z-axis)</span> to move up/down</li>
+                        <li>Press <kbd>E</kbd> to switch to Rotate gizmo</li>
+                        <li>Drag any of the colored circles to rotate the cube</li>
+                        <li>Press <kbd>R</kbd> to switch to Scale gizmo</li>
+                        <li>Drag the center gold sphere to scale uniformly</li>
+                    </ol>
+                    
+                    <h3>Part 3: View Transform Values</h3>
+                    
+                    <ol>
+                        <li>With the Cube still selected, look at the <strong>Details</strong> panel</li>
+                        <li>Find the <strong>Transform</strong> section at the top</li>
+                        <li>Notice the Location, Rotation, and Scale values</li>
+                        <li>Try typing in specific values: Set Location to <code>(0, 0, 100)</code></li>
+                        <li>The cube should jump to 1 meter above the origin</li>
+                        <li>Set Rotation to <code>(0, 0, 45)</code> to rotate it 45 degrees</li>
+                        <li>Set Scale to <code>(2, 2, 2)</code> to double its size</li>
+                    </ol>
+                    
+                    <p>You can manually type values for precise positioning!</p>
+                    
+                    <h3>Part 4: Duplicate and Organize</h3>
+                    
+                    <ol>
+                        <li>Select your cube and press <kbd>Ctrl+W</kbd> to duplicate it</li>
+                        <li>Move the duplicate to a different location using the Move gizmo</li>
+                        <li>Duplicate again (<kbd>Ctrl+W</kbd>) and move it</li>
+                        <li>You should now have 3 cubes in your level</li>
+                        <li>In the Outliner, right-click and select <strong>Create Folder</strong></li>
+                        <li>Name it "Test Cubes"</li>
+                        <li>Drag all three cube Actors into this folder</li>
+                    </ol>
+                    
+                    <h3>Part 5: Create a Parent-Child Relationship</h3>
+                    
+                    <ol>
+                        <li>Place a new Cube in the viewport</li>
+                        <li>Place a Sphere (from Place Actors → Basic)</li>
+                        <li>In the Outliner, drag the Sphere onto the Cube</li>
+                        <li>The Sphere should now be indented under the Cube</li>
+                        <li>Select the Cube (parent) and move it—the Sphere moves too!</li>
+                        <li>Select the Cube and rotate it—the Sphere orbits around it!</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Solution Checkpoint:</strong> What should you have now?</summary>
+                        <p>Your level should contain:
+                            <ul>
+                                <li>A folder called "Test Cubes" with 3 cube Actors inside</li>
+                                <li>A Cube Actor with a Sphere attached as a child</li>
+                                <li>All Actors should be visible in the viewport and Outliner</li>
+                            </ul>
+                            If you select any Actor, you should see its Transform values in the Details panel. If you can't see an Actor, make sure it's not below the Kill Z value (check World Settings).
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Build Something!</h3>
+                    
+                    <p>Using only the basic shapes (Cubes, Spheres, Cylinders, Cones), try building a simple object:</p>
+                    
+                    <ul>
+                        <li>A snowman (spheres stacked with a cylinder for a hat)</li>
+                        <li>A table (cube top with cylinder legs)</li>
+                        <li>A simple house (cubes for walls, cone or pyramid for roof)</li>
+                    </ul>
+                    
+                    <p>Practice using Move, Rotate, and Scale gizmos to position everything precisely. Organize your creation in a folder!</p>
+                </div>
+            </section>
+
+            <!-- Section 8: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>In this lesson, you've learned the fundamental building blocks of every Unreal project: Actors and Components. Let's recap the essential concepts:</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>🎭 <strong>Actors are the "what"</strong>—any object that can be placed in a level, from 3D models to lights to invisible triggers</li>
+                    <li>🔧 <strong>Components are the "how"</strong>—modular pieces of functionality that you attach to Actors to give them capabilities</li>
+                    <li>📦 <strong>Common Actor types</strong> include Static Mesh Actors, Lights, Cameras, Triggers, Audio, Particles, and custom Blueprints</li>
+                    <li>📍 <strong>Transform properties</strong> define where (Location), how oriented (Rotation), and how big (Scale) every Actor is in 3D space</li>
+                    <li>🎯 <strong>Pivot points</strong> determine where rotations occur and where the Actor's Location is measured from</li>
+                    <li>🛠️ <strong>Transform gizmos</strong> provide visual, interactive controls: <kbd>W</kbd> for Move, <kbd>E</kbd> for Rotate, <kbd>R</kbd> for Scale</li>
+                    <li>📋 <strong>Organization tools</strong> like duplication (<kbd>Ctrl+W</kbd>), grouping (<kbd>Ctrl+G</kbd>), folders, and parent-child relationships keep complex levels manageable</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>Now that you understand Actors and how to manipulate them, the next step is learning about specific types of geometry creation. In <strong>Lesson 2.3: BSP Geometry (Brush Modeling)</strong>, you'll learn how to use Unreal's built-in tools to create architectural spaces and level geometry without needing external 3D modeling software.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What's the difference between an Actor and a Component?</li>
+                        <li>What are the three parts of a Transform, and what does each control?</li>
+                        <li>In Unreal's coordinate system, which axis points upward?</li>
+                        <li>What keyboard shortcuts switch between Move, Rotate, and Scale gizmos?</li>
+                        <li>Why does pivot point placement matter when rotating an object?</li>
+                        <li>What's the difference between grouping Actors and creating a parent-child relationship?</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Actors are containers/objects in your level; Components are the modular pieces of functionality attached to Actors that make them work.</li>
+                            <li>Location (where it is), Rotation (how it's oriented), and Scale (how big it is).</li>
+                            <li>The Z-axis (blue) points upward in Unreal Engine.</li>
+                            <li>W = Move, E = Rotate, R = Scale (or press Space to cycle through them).</li>
+                            <li>Objects rotate around their pivot point—a door should pivot at its hinge, not its center, to open realistically.</li>
+                            <li>Grouping (<kbd>Ctrl+G</kbd>) makes multiple Actors move together temporarily but maintains independence. Parent-child relationships create true hierarchy where children inherit the parent's transforms.</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m02_l01_understanding_levels.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">Understanding Levels</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="m02_l03_bsp_geometry.html" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Lesson</span>
+                    <span class="title">BSP Geometry</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

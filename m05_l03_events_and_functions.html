@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master Blueprint functions and macros in Unreal Engine 5. Learn to create reusable code, organize complex logic, and build maintainable Blueprint architectures.">
+    <meta name="author" content="Practical Ace">
+    <title>Blueprint Functions and Macros - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 3: Blueprint Visual Scripting</a></li>
+            <li aria-current="page">Lesson 3.4: Blueprint Functions and Macros</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>⚙️ Blueprint Functions and Macros</h1>
+                <p class="lead">As your Blueprints grow, Event Graphs become sprawling tangles of nodes. Functions and macros are your secret weapons for organization—they let you package complex logic into reusable, named chunks that keep your code clean and maintainable. In this lesson, you'll learn to build modular, professional-quality Blueprints by mastering functions, custom events, macros, and function libraries that make your code readable, testable, and a joy to work with.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Create and use Blueprint functions with inputs and outputs</li>
+                        <li>Understand the difference between functions, custom events, and macros</li>
+                        <li>Use local variables within functions for temporary data</li>
+                        <li>Create pure functions for calculations without side effects</li>
+                        <li>Build Blueprint macros for complex reusable node groups</li>
+                        <li>Organize code with function libraries for project-wide utilities</li>
+                        <li>Implement function overriding and inheritance</li>
+                        <li>Follow best practices for naming, documentation, and organization</li>
+                        <li>Debug functions effectively with breakpoints and logging</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 90-105 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 3.3 - Blueprint Flow Control and Logic</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#why-functions-matter" class="toc-link">Why Functions Matter</a></li>
+                        <li><a href="#creating-functions" class="toc-link">Creating Blueprint Functions</a></li>
+                        <li><a href="#inputs-outputs" class="toc-link">Function Inputs and Outputs</a></li>
+                        <li><a href="#local-variables" class="toc-link">Local Variables</a></li>
+                        <li><a href="#pure-functions" class="toc-link">Pure Functions</a></li>
+                        <li><a href="#custom-events" class="toc-link">Custom Events</a></li>
+                        <li><a href="#functions-vs-events" class="toc-link">Functions vs. Custom Events</a></li>
+                        <li><a href="#macros" class="toc-link">Blueprint Macros</a></li>
+                        <li><a href="#function-libraries" class="toc-link">Function Libraries</a></li>
+                        <li><a href="#best-practices" class="toc-link">Organization and Best Practices</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Why Functions Matter -->
+            <section id="why-functions-matter" class="lesson-section">
+                <h2>Why Functions Matter</h2>
+                
+                <p>Imagine building a game where enemies take damage. You write the damage logic once in Enemy 1's Blueprint. Then Enemy 2 needs the same logic—so you copy it. Then Enemy 3. Then you realize the damage calculation is wrong and need to fix it in three places. Miss one, and you have inconsistent behavior.</p>
+                
+                <p>This is why functions exist.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Function:</strong> A reusable, named block of logic that accepts inputs, performs operations, and optionally returns outputs. Functions are the fundamental unit of code organization—they turn "spaghetti code" into modular, maintainable systems. Write once, use everywhere.</p>
+                </div>
+                
+                <h3>The Problem: Spaghetti Code</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Event BeginPlay - 200 nodes] --> B[Nested branches]
+    B --> C[More branches]
+    C --> D[Loops]
+    D --> E[More logic]
+    E --> F[Even more logic]
+    F --> G[Can't find anything]
+    G --> H[Debugging nightmare]
+    
+    style A fill:#e74c3c,stroke:#c0392b,color:#fff
+    style G fill:#ff9800,stroke:#e65100,color:#fff
+    style H fill:#e74c3c,stroke:#c0392b,color:#fff
+</pre>
+<p class="caption"><em>Figure: Without functions, Event Graphs become unmanageable tangles.</em></p>
+                
+                <h3>The Solution: Modular Functions</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Event BeginPlay] --> B[InitializePlayer]
+    A --> C[SetupUI]
+    A --> D[LoadGameState]
+    
+    B --> B1[Small, focused logic]
+    C --> C1[Small, focused logic]
+    D --> D1[Small, focused logic]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#2196F3,stroke:#1565c0,color:#fff
+    style B1 fill:#e3f2fd,stroke:#2196F3
+    style C1 fill:#e3f2fd,stroke:#2196F3
+    style D1 fill:#e3f2fd,stroke:#2196F3
+</pre>
+<p class="caption"><em>Figure: Functions break complex logic into manageable, named pieces.</em></p>
+                
+                <h3>Benefits of Functions</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Benefit</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Reusability</strong></td>
+                            <td>Write once, call from anywhere—no copying/pasting</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Maintainability</strong></td>
+                            <td>Fix bugs in one place, affects all callers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Readability</strong></td>
+                            <td>Named functions document what code does</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Testability</strong></td>
+                            <td>Test individual functions in isolation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Organization</strong></td>
+                            <td>Group related logic together, reduce Event Graph clutter</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Abstraction</strong></td>
+                            <td>Hide complexity behind simple interfaces</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Real-World Example</h3>
+                
+                <p><strong>Without functions:</strong></p>
+                <pre><code class="language-plaintext">Enemy 1 TakeDamage logic (50 nodes)
+Enemy 2 TakeDamage logic (50 nodes, slightly different)
+Enemy 3 TakeDamage logic (50 nodes, different again)
+Boss TakeDamage logic (50 nodes, more different)
+
+Total: 200 nodes, inconsistent behavior, maintenance nightmare
+</code></pre>
+                
+                <p><strong>With functions:</strong></p>
+                <pre><code class="language-plaintext">Function: CalculateDamage(BaseDamage, Armor, IsCritical)
+  → Returns final damage value
+  → 15 nodes, one place
+
+Enemy 1: Call CalculateDamage
+Enemy 2: Call CalculateDamage
+Enemy 3: Call CalculateDamage
+Boss: Call CalculateDamage
+
+Total: 15 nodes in function + 4 function calls = 19 nodes
+Consistent behavior, easy to maintain
+</code></pre>
+            </section>
+
+            <!-- Section 2: Creating Functions -->
+            <section id="creating-functions" class="lesson-section">
+                <h2>Creating Blueprint Functions</h2>
+                
+                <p>Functions live in the <strong>My Blueprint</strong> panel alongside variables and event graphs.</p>
+                
+                <h3>How to Create a Function</h3>
+                
+                <ol>
+                    <li>Open your Blueprint</li>
+                    <li>In <strong>My Blueprint</strong> panel, find the <strong>Functions</strong> section</li>
+                    <li>Click the <strong>+ Function</strong> button</li>
+                    <li>Name your function (e.g., <code>CalculateDamage</code>)</li>
+                    <li>Press Enter</li>
+                    <li>A new function graph opens—this is your workspace</li>
+                </ol>
+                
+                <svg width="100%" height="400" viewBox="0 0 800 400" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Function Anatomy in My Blueprint Panel</text>
+                    
+                    <!-- My Blueprint Panel -->
+                    <rect x="50" y="50" width="300" height="320" fill="#1e1e1e" stroke="#667eea" stroke-width="2" rx="4"/>
+                    
+                    <!-- Header -->
+                    <text x="200" y="75" text-anchor="middle" font-size="13" font-weight="bold" fill="#aaa">MY BLUEPRINT</text>
+                    
+                    <!-- Variables section -->
+                    <text x="60" y="100" font-size="11" font-weight="bold" fill="#4CAF50">▾ Variables</text>
+                    <text x="70" y="117" font-size="10" fill="#e0e0e0">• Health (Float)</text>
+                    <text x="70" y="132" font-size="10" fill="#e0e0e0">• MaxHealth (Float)</text>
+                    
+                    <!-- Functions section (highlighted) -->
+                    <rect x="55" y="145" width="240" height="115" fill="#2a2a2a" stroke="#667eea" stroke-width="2" rx="3"/>
+                    <text x="60" y="162" font-size="11" font-weight="bold" fill="#4CAF50">▾ Functions</text>
+                    
+                    <!-- Function list -->
+                    <text x="70" y="182" font-size="10" fill="#9c27b0">ƒ CalculateDamage</text>
+                    <text x="70" y="197" font-size="10" fill="#9c27b0">ƒ ApplyHealing</text>
+                    <text x="70" y="212" font-size="10" fill="#9c27b0">ƒ CheckDeath</text>
+                    
+                    <!-- Add button -->
+                    <rect x="60" y="225" width="230" height="25" fill="#667eea" rx="3"/>
+                    <text x="175" y="242" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">+ Function</text>
+                    
+                    <!-- Graphs section -->
+                    <text x="60" y="285" font-size="11" font-weight="bold" fill="#4CAF50">▾ Event Graphs</text>
+                    <text x="70" y="302" font-size="10" fill="#e74c3c">Event Graph</text>
+                    
+                    <!-- Annotation arrow -->
+                    <line x1="360" y1="200" x2="300" y2="200" stroke="#4CAF50" stroke-width="3" marker-end="url(#arrowgreen)"/>
+                    <defs>
+                        <marker id="arrowgreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#4CAF50"/>
+                        </marker>
+                    </defs>
+                    <text x="370" y="190" font-size="12" fill="#4CAF50" font-weight="bold">Functions appear here</text>
+                    <text x="370" y="207" font-size="10" fill="#666">Click to edit the function</text>
+                    <text x="370" y="220" font-size="10" fill="#666">graph</text>
+                    
+                    <!-- Function Graph Preview -->
+                    <rect x="400" y="50" width="350" height="320" fill="#252525" stroke="#667eea" stroke-width="2" rx="4"/>
+                    <text x="575" y="75" text-anchor="middle" font-size="13" font-weight="bold" fill="#aaa">CalculateDamage Function Graph</text>
+                    
+                    <!-- Entry and Return nodes -->
+                    <g transform="translate(430, 120)">
+                        <rect x="0" y="0" width="100" height="50" fill="#4CAF50" stroke="#2e7d32" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="100" height="18" fill="#2e7d32"/>
+                        <text x="50" y="13" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">Entry</text>
+                        <circle cx="100" cy="25" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    </g>
+                    
+                    <g transform="translate(600, 120)">
+                        <rect x="0" y="0" width="100" height="50" fill="#e74c3c" stroke="#c0392b" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="100" height="18" fill="#c0392b"/>
+                        <text x="50" y="13" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">Return Node</text>
+                        <circle cx="0" cy="25" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    </g>
+                    
+                    <!-- Connection -->
+                    <line x1="530" y1="145" x2="600" y2="145" stroke="#fff" stroke-width="3"/>
+                    
+                    <!-- Note -->
+                    <text x="575" y="210" text-anchor="middle" font-size="11" fill="#aaa">Your function logic goes here</text>
+                    <text x="575" y="230" text-anchor="middle" font-size="10" fill="#666">Add nodes between Entry and Return</text>
+                </svg>
+                <p class="caption"><em>Figure: Functions appear in My Blueprint panel and have their own graph workspace.</em></p>
+                
+                <h3>Function Structure</h3>
+                
+                <p>Every function has two special nodes automatically created:</p>
+                
+                <ul>
+                    <li><strong>Entry Node (Green):</strong> Where execution begins when function is called</li>
+                    <li><strong>Return Node (Red):</strong> Where execution ends, returns to caller</li>
+                </ul>
+                
+                <p>You add your logic between these two nodes.</p>
+                
+                <h3>Simple Function Example: Say Hello</h3>
+                
+                <ol>
+                    <li>Create function: <code>SayHello</code></li>
+                    <li>Between Entry and Return:
+                        <ul>
+                            <li>Add <strong>Print String</strong> node</li>
+                            <li>Set text to "Hello, World!"</li>
+                        </ul>
+                    </li>
+                    <li>Connect: Entry → Print String → Return</li>
+                    <li>Compile</li>
+                </ol>
+                
+                <p><strong>Using the function:</strong></p>
+                <ol>
+                    <li>In Event Graph, drag the function from My Blueprint panel</li>
+                    <li>Connect execution flow to it</li>
+                    <li>When executed, it prints "Hello, World!"</li>
+                </ol>
+                
+                <pre><code class="language-plaintext">Event BeginPlay → SayHello → (prints "Hello, World!")
+</code></pre>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Function Naming Conventions</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li>Use <strong>verb-noun</strong> format: <code>CalculateDamage</code>, <code>ApplyHealing</code>, <code>CheckInventory</code></li>
+                        <li>Be descriptive: <code>GetPlayerHealth</code> not <code>GetPH</code></li>
+                        <li>Booleans: Start with "Is", "Has", "Can": <code>IsAlive</code>, <code>HasKey</code>, <code>CanJump</code></li>
+                        <li>Use PascalCase: <code>OpenDoor</code> not <code>opendoor</code> or <code>open_door</code></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 3: Inputs and Outputs -->
+            <section id="inputs-outputs" class="lesson-section">
+                <h2>Function Inputs and Outputs</h2>
+                
+                <p>Functions become powerful when they accept <strong>inputs</strong> (parameters) and return <strong>outputs</strong> (results).</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Key Concept</h4>
+                    <p style="color: white;"><strong>Function Signature:</strong> The combination of a function's name, inputs, and outputs. It's the "contract" that defines what the function needs to work and what it provides back. Think of it like a vending machine: inputs are coins (what you give), outputs are snacks (what you get).</p>
+                </div>
+                
+                <h3>Adding Inputs (Parameters)</h3>
+                
+                <ol>
+                    <li>Select your function in My Blueprint panel</li>
+                    <li>In <strong>Details</strong> panel, find <strong>Inputs</strong> section</li>
+                    <li>Click <strong>+ (New Parameter)</strong></li>
+                    <li>Name it (e.g., <code>DamageAmount</code>)</li>
+                    <li>Set type (e.g., <code>Float</code>)</li>
+                    <li>Optionally set default value</li>
+                    <li>Compile</li>
+                </ol>
+                
+                <p>The input appears as a pin on the Entry node and when calling the function.</p>
+                
+                <h3>Adding Outputs (Return Values)</h3>
+                
+                <ol>
+                    <li>Select your function in My Blueprint panel</li>
+                    <li>In Details panel, find <strong>Outputs</strong> section</li>
+                    <li>Click <strong>+ (New Parameter)</strong></li>
+                    <li>Name it (e.g., <code>FinalDamage</code>)</li>
+                    <li>Set type (e.g., <code>Float</code>)</li>
+                    <li>Compile</li>
+                </ol>
+                
+                <p>The output appears as an input pin on the Return node and as an output pin when calling the function.</p>
+                
+                <canvas id="function-io-canvas" width="800" height="350" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Function with inputs and outputs showing data flow.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('function-io-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 18px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Function Inputs and Outputs', 400, 30);
+                        
+                        // Function definition
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Inside CalculateDamage Function:', 400, 55);
+                        
+                        // Entry node
+                        ctx.save();
+                        ctx.translate(120, 90);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillRect(0, 0, 140, 110);
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 140, 110);
+                        
+                        ctx.fillStyle = '#2e7d32';
+                        ctx.fillRect(0, 0, 140, 22);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Entry', 70, 15);
+                        
+                        // Output execution pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(140, 55, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Input parameters as output pins
+                        ctx.fillStyle = '#2196F3';
+                        ctx.beginPath();
+                        ctx.arc(140, 40, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#1565c0';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('BaseDamage', 130, 43);
+                        
+                        ctx.fillStyle = '#ff9800';
+                        ctx.beginPath();
+                        ctx.arc(140, 70, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#e65100';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.fillText('Armor', 130, 73);
+                        
+                        ctx.fillStyle = '#9c27b0';
+                        ctx.beginPath();
+                        ctx.arc(140, 90, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#6a1b9a';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.fillText('IsCritical', 130, 93);
+                        
+                        ctx.restore();
+                        
+                        // Logic nodes (simplified)
+                        ctx.save();
+                        ctx.translate(340, 100);
+                        
+                        ctx.fillStyle = '#2196F3';
+                        ctx.fillRect(0, 0, 120, 90);
+                        ctx.strokeStyle = '#1565c0';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 120, 90);
+                        
+                        ctx.fillStyle = '#1565c0';
+                        ctx.fillRect(0, 0, 120, 20);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Damage Calculation', 60, 14);
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.fillText('Subtract armor', 60, 40);
+                        ctx.fillText('Check critical', 60, 55);
+                        ctx.fillText('Apply multiplier', 60, 70);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 45, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(120, 45, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        ctx.restore();
+                        
+                        // Return node
+                        ctx.save();
+                        ctx.translate(540, 100);
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillRect(0, 0, 140, 90);
+                        ctx.strokeStyle = '#c0392b';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 140, 90);
+                        
+                        ctx.fillStyle = '#c0392b';
+                        ctx.fillRect(0, 0, 140, 22);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Return Node', 70, 15);
+                        
+                        // Input execution pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 45, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Output parameter as input pin
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.arc(0, 65, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('FinalDamage', 10, 68);
+                        
+                        ctx.restore();
+                        
+                        // Connections
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(260, 145);
+                        ctx.lineTo(340, 145);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(460, 145);
+                        ctx.lineTo(540, 145);
+                        ctx.stroke();
+                        
+                        // Data flow
+                        ctx.strokeStyle = '#2196F3';
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(260, 130);
+                        ctx.lineTo(300, 130);
+                        ctx.lineTo(300, 145);
+                        ctx.lineTo(340, 145);
+                        ctx.stroke();
+                        
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.moveTo(460, 145);
+                        ctx.lineTo(500, 145);
+                        ctx.lineTo(500, 165);
+                        ctx.lineTo(540, 165);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        
+                        // Labels
+                        ctx.fillStyle = '#2196F3';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Inputs', 200, 75);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillText('Output', 620, 225);
+                        
+                        // Bottom section: calling the function
+                        ctx.fillStyle = '#666';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Calling the Function:', 400, 255);
+                        
+                        // Function call node
+                        ctx.save();
+                        ctx.translate(300, 270);
+                        
+                        ctx.fillStyle = '#9c27b0';
+                        ctx.fillRect(0, 0, 200, 60);
+                        ctx.strokeStyle = '#6a1b9a';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 200, 60);
+                        
+                        ctx.fillStyle = '#6a1b9a';
+                        ctx.fillRect(0, 0, 200, 20);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('CalculateDamage', 100, 14);
+                        
+                        // Input pins (left)
+                        ctx.fillStyle = '#2196F3';
+                        ctx.beginPath();
+                        ctx.arc(0, 33, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#ff9800';
+                        ctx.beginPath();
+                        ctx.arc(0, 45, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#9c27b0';
+                        ctx.beginPath();
+                        ctx.arc(0, 57, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '9px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('BaseDamage', 8, 36);
+                        ctx.fillText('Armor', 8, 48);
+                        ctx.fillText('IsCritical', 8, 60);
+                        
+                        // Output pin (right)
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.arc(200, 40, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('FinalDamage', 192, 43);
+                        
+                        ctx.restore();
+                        
+                        // Arrows
+                        ctx.fillStyle = '#2196F3';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('Pass values in →', 290, 303);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('← Get result out', 510, 310);
+                    })();
+                </script>
+                
+                <h3>Example: Calculate Damage Function</h3>
+                
+                <p><strong>Function Definition:</strong></p>
+                <pre><code class="language-plaintext">Function: CalculateDamage
+  Inputs:
+    - BaseDamage (Float)
+    - Armor (Float)
+    - IsCritical (Boolean)
+  Output:
+    - FinalDamage (Float)
+  
+  Logic:
+    1. Subtract Armor from BaseDamage
+    2. If IsCritical, multiply by 2.0
+    3. Return result as FinalDamage
+</code></pre>
+                
+                <p><strong>Using the function:</strong></p>
+                <pre><code class="language-plaintext">Enemy TakeDamage Event
+  → Call CalculateDamage(BaseDamage=50, Armor=10, IsCritical=false)
+  → Returns FinalDamage=40
+  → Subtract FinalDamage from Enemy Health
+</code></pre>
+
+                
+                <h3>Multiple Inputs and Outputs</h3>
+                
+                <p>Functions can have multiple inputs and multiple outputs:</p>
+                
+                <pre><code class="language-plaintext">Function: GetPlayerStats
+  Inputs: (none)
+  Outputs:
+    - CurrentHealth (Float)
+    - MaxHealth (Float)
+    - Level (Integer)
+    - ExperiencePoints (Float)
+    - IsAlive (Boolean)
+</code></pre>
+                
+                <p>All outputs appear as pins on the function call node, giving you access to all return values simultaneously.</p>
+                
+                <h3>Pass by Reference (Advanced)</h3>
+                
+                <p>By default, inputs are "pass by value" (copies). You can make inputs <strong>pass by reference</strong> to modify the original:</p>
+                
+                <ol>
+                    <li>Select the input parameter in function details</li>
+                    <li>Check <strong>"Pass by Reference"</strong></li>
+                    <li>The input becomes bidirectional—you can modify it</li>
+                </ol>
+                
+                <p><strong>Example:</strong> A function that modifies an array directly instead of returning a modified copy.</p>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Pass by Reference: Use Sparingly</h4>
+                    <p>Pass by reference can make functions harder to understand—it's not obvious they modify inputs. Use only when necessary for performance (avoiding array copies) or when a function needs to modify multiple things.</p>
+                    <p>Prefer returning new values for clarity.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Local Variables -->
+            <section id="local-variables" class="lesson-section">
+                <h2>Local Variables</h2>
+                
+                <p>Functions can have their own <strong>local variables</strong>—temporary storage that only exists while the function runs.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Local Variable:</strong> A variable that exists only within a single function. It's created when the function starts, lives during execution, and is destroyed when the function returns. Local variables can't be accessed outside their function—they're perfect for intermediate calculations.</p>
+                </div>
+                
+                <h3>Creating Local Variables</h3>
+                
+                <p><strong>Method 1: Promote to Local Variable</strong></p>
+                <ol>
+                    <li>Inside your function graph, create a node that outputs a value</li>
+                    <li>Right-click the output pin</li>
+                    <li>Choose <strong>"Promote to Local Variable"</strong></li>
+                    <li>Name it</li>
+                    <li>A Set node appears for that local variable</li>
+                </ol>
+                
+                <p><strong>Method 2: Add from My Blueprint Panel</strong></p>
+                <ol>
+                    <li>With function graph open, click <strong>+ Variable</strong> in My Blueprint</li>
+                    <li>The variable is automatically local to this function</li>
+                    <li>Name and configure it</li>
+                </ol>
+                
+                <h3>Local vs. Instance Variables</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Local Variable</th>
+                            <th>Instance Variable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Scope</strong></td>
+                            <td>Only within one function</td>
+                            <td>Entire Blueprint</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lifetime</strong></td>
+                            <td>Created on function call, destroyed on return</td>
+                            <td>Exists as long as Blueprint exists</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visibility</strong></td>
+                            <td>Not visible to other functions</td>
+                            <td>Visible to all functions and events</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Memory</strong></td>
+                            <td>Temporary—no memory cost when not running</td>
+                            <td>Always in memory</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Intermediate calculations, loop counters</td>
+                            <td>Actor state, configuration, persistent data</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Example: Calculate Average Function</h3>
+                
+                <pre><code class="language-plaintext">Function: CalculateAverage
+  Inputs: NumberArray (Array of Floats)
+  Output: Average (Float)
+  
+  Local Variables:
+    - Sum (Float) = 0.0
+    - Count (Integer) = 0
+  
+  Logic:
+    1. ForEach Loop through NumberArray
+       → Add each number to Sum
+       → Increment Count
+    2. Divide Sum by Count
+    3. Return as Average
+</code></pre>
+                
+                <p><code>Sum</code> and <code>Count</code> are local—they only exist during this function call and can't be accessed elsewhere.</p>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[Function Called] --> B[Create Local Variables: Sum=0, Count=0]
+    B --> C[ForEach Loop: Process Array]
+    C --> D[Update Sum and Count]
+    D --> E{More Elements?}
+    E -->|Yes| C
+    E -->|No| F[Calculate: Average = Sum / Count]
+    F --> G[Return Average]
+    G --> H[Destroy Local Variables]
+    
+    style A fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#2196F3,stroke:#1565c0,color:#fff
+    style E fill:#ff9800,stroke:#e65100,color:#fff
+    style F fill:#2196F3,stroke:#1565c0,color:#fff
+    style G fill:#e74c3c,stroke:#c0392b,color:#fff
+    style H fill:#9e9e9e,stroke:#616161,color:#fff
+</pre>
+<p class="caption"><em>Figure: Local variables are created on function entry and destroyed on exit.</em></p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ When to Use Local Variables</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li>Intermediate calculations that no other function needs</li>
+                        <li>Loop counters and temporary accumulators</li>
+                        <li>Breaking complex expressions into readable steps</li>
+                        <li>Avoiding clutter in Blueprint's variable list</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;"><strong>Golden Rule:</strong> If only one function uses it, make it local!</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Pure Functions -->
+            <section id="pure-functions" class="lesson-section">
+                <h2>Pure Functions</h2>
+                
+                <p><strong>Pure functions</strong> are special—they have no execution pins and can be called from data wires. They're perfect for calculations.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Pure Function:</strong> A function with no side effects—it only takes inputs and produces outputs without modifying any state or triggering actions. Pure functions execute instantly when their inputs are ready, don't require execution wires, and can be called multiple times without consequences. Think of them like mathematical formulas.</p>
+                </div>
+                
+                <h3>Pure vs. Impure Functions</h3>
+                
+                <canvas id="pure-vs-impure-canvas" width="800" height="400" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
+                <p class="caption"><em>Figure: Pure functions have no execution pins and connect via data wires only.</em></p>
+                
+                <script>
+                    (function() {
+                        const canvas = document.getElementById('pure-vs-impure-canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Title
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 20px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Pure vs. Impure Functions', 400, 30);
+                        
+                        // Impure Function (left)
+                        ctx.fillStyle = '#666';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText('Impure Function', 200, 70);
+                        ctx.font = '11px Arial';
+                        ctx.fillText('(Has execution pins, can modify state)', 200, 88);
+                        
+                        ctx.save();
+                        ctx.translate(100, 110);
+                        
+                        ctx.fillStyle = '#ff9800';
+                        ctx.fillRect(0, 0, 200, 120);
+                        ctx.strokeStyle = '#e65100';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 200, 120);
+                        
+                        ctx.fillStyle = '#e65100';
+                        ctx.fillRect(0, 0, 200, 22);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('ApplyDamage', 100, 15);
+                        
+                        // Input execution pin
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(0, 60, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Output execution pin
+                        ctx.beginPath();
+                        ctx.arc(200, 60, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Data input pins
+                        ctx.fillStyle = '#2196F3';
+                        ctx.beginPath();
+                        ctx.arc(0, 80, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#1565c0';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('DamageAmount', 10, 83);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.arc(0, 100, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.fillText('Target', 10, 103);
+                        
+                        ctx.restore();
+                        
+                        // Arrows and labels
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(50, 170);
+                        ctx.lineTo(100, 170);
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Execution flow', 75, 190);
+                        
+                        ctx.strokeStyle = '#2196F3';
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(50, 190);
+                        ctx.lineTo(100, 190);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        
+                        ctx.fillStyle = '#2196F3';
+                        ctx.fillText('Data flow', 75, 210);
+                        
+                        // Features list
+                        ctx.fillStyle = '#333';
+                        ctx.font = '11px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('• Has execution pins', 110, 260);
+                        ctx.fillText('• Can modify state', 110, 275);
+                        ctx.fillText('• Can trigger actions', 110, 290);
+                        ctx.fillText('• Order matters', 110, 305);
+                        
+                        // Pure Function (right)
+                        ctx.fillStyle = '#666';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Pure Function', 600, 70);
+                        ctx.font = '11px Arial';
+                        ctx.fillText('(No execution pins, no side effects)', 600, 88);
+                        
+                        ctx.save();
+                        ctx.translate(500, 110);
+                        
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillRect(0, 0, 200, 120);
+                        ctx.strokeStyle = '#2e7d32';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, 200, 120);
+                        
+                        ctx.fillStyle = '#2e7d32';
+                        ctx.fillRect(0, 0, 200, 22);
+                        
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('CalculateDistance', 100, 15);
+                        
+                        // NO execution pins!
+                        
+                        // Input data pins
+                        ctx.fillStyle = '#2196F3';
+                        ctx.beginPath();
+                        ctx.arc(0, 50, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#1565c0';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('PointA', 10, 53);
+                        
+                        ctx.fillStyle = '#2196F3';
+                        ctx.beginPath();
+                        ctx.arc(0, 70, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#1565c0';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.fillText('PointB', 10, 73);
+                        
+                        // Output data pin
+                        ctx.fillStyle = '#ff9800';
+                        ctx.beginPath();
+                        ctx.arc(200, 60, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#e65100';
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#333';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('Distance', 190, 63);
+                        
+                        ctx.restore();
+                        
+                        // Data flow arrows
+                        ctx.strokeStyle = '#2196F3';
+                        ctx.setLineDash([5, 5]);
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(450, 160);
+                        ctx.lineTo(500, 160);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(700, 170);
+                        ctx.lineTo(750, 170);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        
+                        ctx.fillStyle = '#2196F3';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Data in', 475, 155);
+                        ctx.fillText('Data out', 725, 165);
+                        
+                        // Features list
+                        ctx.fillStyle = '#333';
+                        ctx.font = '11px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('• NO execution pins', 510, 260);
+                        ctx.fillText('• Cannot modify state', 510, 275);
+                        ctx.fillText('• Only calculations', 510, 290);
+                        ctx.fillText('• Order irrelevant', 510, 305);
+                        ctx.fillText('• Can call multiple times', 510, 320);
+                        
+                        // Bottom note
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Pure functions are like math formulas: same inputs always produce same output', 400, 365);
+                    })();
+                </script>
+                
+                <h3>Creating a Pure Function</h3>
+                
+                <ol>
+                    <li>Create a function normally</li>
+                    <li>Select the function in My Blueprint</li>
+                    <li>In Details panel, check <strong>"Pure"</strong></li>
+                    <li>Execution pins disappear from Entry and Return nodes</li>
+                    <li>Function can now be called from data wires</li>
+                </ol>
+                
+                <h3>Pure Function Rules</h3>
+                
+                <p>For a function to be pure, it must:</p>
+                <ul>
+                    <li>✅ Only perform calculations (no Print String, Set Variable, Spawn Actor, etc.)</li>
+                    <li>✅ Have at least one output (otherwise, what's the point?)</li>
+                    <li>✅ Not modify any state (no setting variables, calling impure functions)</li>
+                    <li>✅ Always return the same output for the same inputs (deterministic)</li>
+                </ul>
+                
+                <h3>Pure Function Examples</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Pure?</th>
+                            <th>Why?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Add(A, B)</code></td>
+                            <td>✅ Yes</td>
+                            <td>Only calculates, no side effects</td>
+                        </tr>
+                        <tr>
+                            <td><code>GetDistance(PointA, PointB)</code></td>
+                            <td>✅ Yes</td>
+                            <td>Mathematical calculation only</td>
+                        </tr>
+                        <tr>
+                            <td><code>IsInRange(Value, Min, Max)</code></td>
+                            <td>✅ Yes</td>
+                            <td>Comparison, returns boolean</td>
+                        </tr>
+                        <tr>
+                            <td><code>ApplyDamage(Target, Amount)</code></td>
+                            <td>❌ No</td>
+                            <td>Modifies Target's health (side effect)</td>
+                        </tr>
+                        <tr>
+                            <td><code>GetRandomNumber()</code></td>
+                            <td>❌ No</td>
+                            <td>Non-deterministic (different each call)</td>
+                        </tr>
+                        <tr>
+                            <td><code>PrintDebug(Message)</code></td>
+                            <td>❌ No</td>
+                            <td>Side effect (prints to screen)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Advantages of Pure Functions</h3>
+                
+                <ul>
+                    <li>✅ <strong>No execution wires:</strong> Cleaner graphs, less clutter</li>
+                    <li>✅ <strong>Call anywhere:</strong> Can be used in any data context</li>
+                    <li>✅ <strong>Automatic caching:</strong> Unreal may cache results if called multiple times with same inputs</li>
+                    <li>✅ <strong>Easier to test:</strong> No setup needed—just pass inputs, check outputs</li>
+                    <li>✅ <strong>Predictable:</strong> Same inputs always produce same result</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ When to Make Functions Pure</h4>
+                    <p>If your function:</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>Only does math or comparisons</li>
+                        <li>Doesn't change anything in the world</li>
+                        <li>Doesn't print, spawn, play sounds, or trigger events</li>
+                        <li>Would work as a calculator function</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;"><strong>Then make it pure!</strong> You'll appreciate the cleaner graphs.</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Custom Events -->
+            <section id="custom-events" class="lesson-section">
+                <h2>Custom Events</h2>
+                
+                <p><strong>Custom Events</strong> are like functions but with key differences. They're perfect for event-driven scenarios and Blueprint communication.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Custom Event:</strong> A user-defined event that can be called like a function but behaves like an event node. Custom Events can be triggered from other Blueprints, used with event dispatchers, support replication for multiplayer, and enable delayed/asynchronous execution. They're the bridge between functions and events.</p>
+                </div>
+                
+                <h3>Creating a Custom Event</h3>
+                
+                <ol>
+                    <li>Right-click in Event Graph</li>
+                    <li>Search "Add Custom Event"</li>
+                    <li>Name it (e.g., <code>OnPlayerDeath</code>)</li>
+                    <li>The custom event node appears</li>
+                    <li>Add logic after the event node</li>
+                </ol>
+                
+                <h3>Calling a Custom Event</h3>
+                
+                <p>Once created, you can call it like a function:</p>
+                <ol>
+                    <li>Right-click in Event Graph</li>
+                    <li>Search for your custom event name</li>
+                    <li>Select "Call [EventName]"</li>
+                    <li>Connect execution flow</li>
+                </ol>
+                
+                <h3>Adding Inputs to Custom Events</h3>
+                
+                <ol>
+                    <li>Select the custom event node</li>
+                    <li>In Details panel, find <strong>Inputs</strong></li>
+                    <li>Click <strong>+ (New)</strong></li>
+                    <li>Name and set type</li>
+                    <li>The input appears as a pin on both the event and the call node</li>
+                </ol>
+                
+                <p><strong>Note:</strong> Custom Events cannot have outputs (return values).</p>
+                
+                <pre class="mermaid">
+flowchart LR
+    A[Event BeginPlay] --> B[Do Setup Logic]
+    B --> C[Call Custom Event: OnGameStart]
+    
+    D[Custom Event: OnGameStart] --> E[Initialize UI]
+    E --> F[Spawn Player]
+    F --> G[Load Game State]
+    
+    C -.->|Triggers| D
+    
+    style A fill:#e74c3c,stroke:#c0392b,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#ff9800,stroke:#e65100,color:#fff
+    style D fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style E fill:#2196F3,stroke:#1565c0,color:#fff
+    style F fill:#2196F3,stroke:#1565c0,color:#fff
+    style G fill:#2196F3,stroke:#1565c0,color:#fff
+</pre>
+<p class="caption"><em>Figure: Custom Events are called like functions but execute as event nodes.</em></p>
+            </section>
+
+            <!-- Section 7: Functions vs. Custom Events -->
+            <section id="functions-vs-events" class="lesson-section">
+                <h2>Functions vs. Custom Events</h2>
+                
+                <p>Both organize code, but they have important differences. Choosing the right one matters.</p>
+                
+                <h3>Detailed Comparison</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Functions</th>
+                            <th>Custom Events</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Return Values</strong></td>
+                            <td>✅ Can return multiple outputs</td>
+                            <td>❌ Cannot return values</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Local Variables</strong></td>
+                            <td>✅ Support local variables</td>
+                            <td>❌ No local variables</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Execution</strong></td>
+                            <td>Synchronous (immediate)</td>
+                            <td>Can be delayed or asynchronous</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Can Be Pure</strong></td>
+                            <td>✅ Yes (if no side effects)</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Replication</strong></td>
+                            <td>❌ Not replicated</td>
+                            <td>✅ Can be set to replicate (multiplayer)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Event Dispatchers</strong></td>
+                            <td>❌ Can't bind to dispatchers</td>
+                            <td>✅ Can bind to dispatchers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Delay Nodes</strong></td>
+                            <td>❌ Cannot use Delay</td>
+                            <td>✅ Can use Delay</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Timeline Nodes</strong></td>
+                            <td>❌ Cannot use Timelines</td>
+                            <td>✅ Can use Timelines</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Call from Other BPs</strong></td>
+                            <td>✅ Yes (with reference)</td>
+                            <td>✅ Yes (with reference)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Calculations, getting values, reusable logic with returns</td>
+                            <td>Event handling, async operations, multiplayer, callbacks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Decision Guide</h3>
+                
+                <pre class="mermaid">
+flowchart TD
+    A{Need return value?} -->|Yes| B[Use Function]
+    A -->|No| C{Need Delay or Timeline?}
+    C -->|Yes| D[Use Custom Event]
+    C -->|No| E{Multiplayer replication?}
+    E -->|Yes| D
+    E -->|No| F{Bind to Event Dispatcher?}
+    F -->|Yes| D
+    F -->|No| G{Need local variables?}
+    G -->|Yes| B
+    G -->|No| H[Either works - prefer Function for organization]
+    
+    style B fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style D fill:#ff9800,stroke:#e65100,color:#fff
+    style H fill:#2196F3,stroke:#1565c0,color:#fff
+</pre>
+<p class="caption"><em>Figure: Decision tree for choosing between Functions and Custom Events.</em></p>
+                
+                <h3>Usage Examples</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                        <h4>✅ Use Functions For:</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li><code>CalculateDamage()</code> → returns damage value</li>
+                            <li><code>GetPlayerHealth()</code> → returns health</li>
+                            <li><code>IsInRange()</code> → returns boolean</li>
+                            <li><code>ConvertToMeters()</code> → returns converted value</li>
+                            <li><code>FindClosestEnemy()</code> → returns enemy reference</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="background: #fff3e0; border-left: 4px solid #ff9800;">
+                        <h4>✅ Use Custom Events For:</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li><code>OnPlayerDeath()</code> → triggered when player dies</li>
+                            <li><code>ServerSpawnItem()</code> → replicated spawn</li>
+                            <li><code>PlayCutscene()</code> → uses delays/timelines</li>
+                            <li><code>OnLevelComplete()</code> → event dispatch trigger</li>
+                            <li><code>ShowNotification()</code> → timed UI display</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Rule of Thumb</h4>
+                    <p style="margin-bottom: 0;">If you need an answer (return value), use a <strong>Function</strong>. If you need to trigger a sequence of actions (especially with timing/multiplayer), use a <strong>Custom Event</strong>.</p>
+                </div>
+            </section>
+
+            <!-- Section 8: Blueprint Macros -->
+            <section id="macros" class="lesson-section">
+                <h2>Blueprint Macros</h2>
+                
+                <p><strong>Macros</strong> are like functions on steroids—they can have multiple execution outputs and collapse complex node groups into single reusable nodes.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Blueprint Macro:</strong> A collapsed node graph that can have multiple execution inputs and outputs, allowing you to create custom flow control nodes. Unlike functions, macros are "copy-pasted" into each usage location during compilation, making them perfect for complex control flow that functions can't handle.</p>
+                </div>
+                
+                <h3>Why Macros Exist</h3>
+                
+                <p>Functions have limitations:</p>
+                <ul>
+                    <li>❌ Only one execution output (Entry → Return)</li>
+                    <li>❌ Can't use Delay nodes</li>
+                    <li>❌ Can't create custom flow control (like Branch with 3+ outputs)</li>
+                </ul>
+                
+                <p>Macros solve these problems—they can have multiple execution outputs, making them perfect for custom logic flow.</p>
+                
+                <h3>Creating a Macro</h3>
+                
+                <ol>
+                    <li>In My Blueprint panel, find <strong>Macros</strong> section</li>
+                    <li>Click <strong>+ Macro</strong></li>
+                    <li>Name it (e.g., <code>SafeDivide</code>)</li>
+                    <li>A macro graph opens with Inputs and Outputs nodes</li>
+                    <li>Build your logic between them</li>
+                </ol>
+                
+                <h3>Macro Structure</h3>
+                
+                <p>Macros have special tunnel nodes:</p>
+                <ul>
+                    <li><strong>Inputs Node:</strong> Where execution and data enter</li>
+                    <li><strong>Outputs Node:</strong> Where execution and data exit (can have multiple execution outputs!)</li>
+                </ul>
+                
+                <svg width="100%" height="450" viewBox="0 0 900 450" style="max-width: 900px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
+                    <text x="450" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Macro with Multiple Execution Outputs</text>
+                    <text x="450" y="45" text-anchor="middle" font-size="12" fill="#666">Example: SafeDivide (returns result OR error path if divide by zero)</text>
+                    
+                    <!-- Inputs tunnel -->
+                    <g transform="translate(80, 100)">
+                        <rect x="0" y="0" width="140" height="140" fill="#2196F3" stroke="#1565c0" stroke-width="3" rx="4"/>
+                        <rect x="0" y="0" width="140" height="25" fill="#1565c0"/>
+                        <text x="70" y="17" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">Inputs</text>
+                        
+                        <!-- Execution out -->
+                        <circle cx="140" cy="50" r="6" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="130" y="53" text-anchor="end" font-size="10" fill="#333">Exec</text>
+                        
+                        <!-- Data outputs -->
+                        <circle cx="140" cy="80" r="5" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+                        <text x="130" y="83" text-anchor="end" font-size="10" fill="#333">A</text>
+                        
+                        <circle cx="140" cy="100" r="5" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+                        <text x="130" y="103" text-anchor="end" font-size="10" fill="#333">B</text>
+                    </g>
+                    
+                    <!-- Logic (Branch) -->
+                    <g transform="translate(300, 100)">
+                        <rect x="0" y="0" width="120" height="110" fill="#ff9800" stroke="#e65100" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="120" height="22" fill="#e65100"/>
+                        <text x="60" y="15" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Branch</text>
+                        
+                        <text x="60" y="40" text-anchor="middle" font-size="10" fill="#333">B != 0?</text>
+                        
+                        <circle cx="0" cy="55" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <circle cx="120" cy="40" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="110" y="43" text-anchor="end" font-size="9" fill="#4CAF50" font-weight="bold">True</text>
+                        
+                        <circle cx="120" cy="85" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="110" y="88" text-anchor="end" font-size="9" fill="#e74c3c" font-weight="bold">False</text>
+                    </g>
+                    
+                    <!-- Calculate path -->
+                    <g transform="translate(500, 80)">
+                        <rect x="0" y="0" width="100" height="60" fill="#4CAF50" stroke="#2e7d32" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="100" height="18" fill="#2e7d32"/>
+                        <text x="50" y="13" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">Divide</text>
+                        
+                        <text x="50" y="40" text-anchor="middle" font-size="9" fill="#fff">A / B</text>
+                        
+                        <circle cx="0" cy="30" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <circle cx="100" cy="30" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    </g>
+                    
+                    <!-- Outputs tunnel -->
+                    <g transform="translate(680, 100)">
+                        <rect x="0" y="0" width="140" height="180" fill="#9c27b0" stroke="#6a1b9a" stroke-width="3" rx="4"/>
+                        <rect x="0" y="0" width="140" height="25" fill="#6a1b9a"/>
+                        <text x="70" y="17" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">Outputs</text>
+                        
+                        <!-- Success execution in -->
+                        <circle cx="0" cy="60" r="6" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="10" y="63" font-size="10" fill="#4CAF50" font-weight="bold">Success</text>
+                        
+                        <!-- Error execution in -->
+                        <circle cx="0" cy="120" r="6" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="10" y="123" font-size="10" fill="#e74c3c" font-weight="bold">Error</text>
+                        
+                        <!-- Data input -->
+                        <circle cx="0" cy="90" r="5" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+                        <text x="10" y="93" font-size="10" fill="#333">Result</text>
+                    </g>
+                    
+                    <!-- Connections -->
+                    <line x1="220" y1="150" x2="300" y2="155" stroke="#333" stroke-width="3"/>
+                    <line x1="420" y1="140" x2="500" y2="110" stroke="#4CAF50" stroke-width="3"/>
+                    <line x1="420" y1="185" x2="640" y2="220" stroke="#e74c3c" stroke-width="3"/>
+                    <line x1="600" y1="110" x2="680" y2="160" stroke="#4CAF50" stroke-width="3"/>
+                    
+                    <!-- Labels -->
+                    <text x="260" y="170" font-size="10" fill="#666">Check if B is zero</text>
+                    <text x="460" y="125" font-size="10" fill="#4CAF50" font-weight="bold">Safe to divide</text>
+                    <text x="460" y="205" font-size="10" fill="#e74c3c" font-weight="bold">Division by zero!</text>
+                    
+                    <!-- Using the macro -->
+                    <text x="450" y="310" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Using the Macro in Event Graph:</text>
+                    
+                    <g transform="translate(300, 330)">
+                        <rect x="0" y="0" width="300" height="90" fill="#9c27b0" stroke="#6a1b9a" stroke-width="2" rx="4"/>
+                        <rect x="0" y="0" width="300" height="22" fill="#6a1b9a"/>
+                        <text x="150" y="15" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">SafeDivide</text>
+                        
+                        <!-- Input pins -->
+                        <circle cx="0" cy="45" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="8" y="48" font-size="9" fill="#333">A</text>
+                        
+                        <circle cx="0" cy="65" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="8" y="68" font-size="9" fill="#333">B</text>
+                        
+                        <!-- Output pins -->
+                        <circle cx="300" cy="35" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="250" y="38" text-anchor="end" font-size="9" fill="#4CAF50" font-weight="bold">Success</text>
+                        
+                        <circle cx="300" cy="70" r="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                        <text x="250" y="73" text-anchor="end" font-size="9" fill="#e74c3c" font-weight="bold">Error</text>
+                        
+                        <circle cx="300" cy="53" r="4" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+                        <text x="250" y="56" text-anchor="end" font-size="9" fill="#333">Result</text>
+                    </g>
+                    
+                    <text x="200" y="375" text-anchor="end" font-size="10" fill="#4CAF50">→ Use result if success</text>
+                    <text x="200" y="400" text-anchor="end" font-size="10" fill="#e74c3c">→ Handle error if divide by zero</text>
+                </svg>
+                <p class="caption"><em>Figure: Macro with multiple execution outputs enables custom flow control.</em></p>
+                
+                <h3>Macro vs. Function</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Function</th>
+                            <th>Macro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Execution Outputs</strong></td>
+                            <td>One only (Return)</td>
+                            <td>Multiple (custom flow control)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Compilation</strong></td>
+                            <td>Compiled once, called</td>
+                            <td>Copy-pasted into each usage</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Delay Nodes</strong></td>
+                            <td>❌ Not allowed</td>
+                            <td>✅ Allowed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Local Variables</strong></td>
+                            <td>✅ Supported</td>
+                            <td>❌ Not supported</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>More efficient (one copy)</td>
+                            <td>Slight overhead (copied each use)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Debugging</strong></td>
+                            <td>Easier (one location)</td>
+                            <td>Harder (multiple copies)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Standard reusable logic</td>
+                            <td>Custom flow control, complex branching</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>When to Use Macros</h3>
+                
+                <ul>
+                    <li>✅ Need multiple execution outputs (custom flow control)</li>
+                    <li>✅ Creating utility nodes used in many places</li>
+                    <li>✅ Simplifying complex node groups into single nodes</li>
+                    <li>✅ Building custom Branch-like nodes</li>
+                </ul>
+                
+                <p><strong>Example use cases:</strong></p>
+                <ul>
+                    <li><code>SafeDivide</code> - Success/Error paths</li>
+                    <li><code>TryGetActor</code> - Found/NotFound paths</li>
+                    <li><code>ValidateInput</code> - Valid/Invalid paths</li>
+                    <li><code>SwitchOnHealth</code> - High/Medium/Low/Critical paths</li>
+                </ul>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Macro Caution</h4>
+                    <p>Because macros are copy-pasted, using a macro 10 times means 10 copies of that logic in your compiled Blueprint. This can bloat file size and make debugging harder.</p>
+                    <p><strong>Rule:</strong> Use functions for standard logic. Reserve macros for when you absolutely need multiple execution outputs.</p>
+                </div>
+            </section>
+
+            <!-- Section 9: Function Libraries -->
+            <section id="function-libraries" class="lesson-section">
+                <h2>Function Libraries</h2>
+                
+                <p><strong>Function Libraries</strong> are collections of static functions available project-wide—perfect for utility functions you use everywhere.</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Blueprint Function Library:</strong> A special Blueprint class that contains only static (class-level) functions accessible from any Blueprint in your project without needing an instance. Think of it as a toolbox of utility functions—math helpers, string manipulations, common calculations—available everywhere.</p>
+                </div>
+                
+                <h3>Creating a Function Library</h3>
+                
+                <ol>
+                    <li>Content Browser → Right-click → <strong>Blueprint Class</strong></li>
+                    <li>Search for and select <strong>Blueprint Function Library</strong></li>
+                    <li>Name it (e.g., <code>BP_MathUtilities</code>, <code>BP_StringHelpers</code>)</li>
+                    <li>Open it</li>
+                    <li>Add functions (all are automatically static)</li>
+                </ol>
+                
+                <h3>Example: Math Utilities Library</h3>
+                
+                <pre><code class="language-plaintext">Blueprint Function Library: BP_MathUtilities
+
+Functions:
+  - ClampValue(Value, Min, Max) → Returns clamped value
+  - IsInRange(Value, Min, Max) → Returns boolean
+  - GetRandomPointInRadius(Center, Radius) → Returns Vector
+  - CalculatePercentage(Part, Whole) → Returns Float
+  - RoundToNearest(Value, Increment) → Returns rounded value
+</code></pre>
+                
+                <p>Now any Blueprint in your project can call these functions without needing a reference to the library—they just appear in the node menu!</p>
+                
+                <h3>Using Function Library Functions</h3>
+                
+                <ol>
+                    <li>In any Blueprint, right-click in Event Graph</li>
+                    <li>Search for your function name</li>
+                    <li>It appears under the library name</li>
+                    <li>Use it like any other function</li>
+                </ol>
+                
+                <pre class="mermaid">
+flowchart TD
+    A[BP_MathUtilities Library] --> B[ClampValue Function]
+    A --> C[IsInRange Function]
+    A --> D[GetRandomPoint Function]
+    
+    E[BP_Player] -.->|Can call| B
+    F[BP_Enemy] -.->|Can call| B
+    G[BP_Weapon] -.->|Can call| C
+    H[BP_SpawnManager] -.->|Can call| D
+    
+    I[Available project-wide without instances!]
+    
+    style A fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style B fill:#2196F3,stroke:#1565c0,color:#fff
+    style C fill:#2196F3,stroke:#1565c0,color:#fff
+    style D fill:#2196F3,stroke:#1565c0,color:#fff
+    style E fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style F fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style G fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style H fill:#4CAF50,stroke:#2e7d32,color:#fff
+    style I fill:#ff9800,stroke:#e65100,color:#fff
+</pre>
+<p class="caption"><em>Figure: Function Libraries provide project-wide utility functions accessible everywhere.</em></p>
+                
+                <h3>Best Practices for Function Libraries</h3>
+                
+                <ul>
+                    <li>✅ Group by category: <code>BP_MathUtilities</code>, <code>BP_StringHelpers</code>, <code>BP_ArrayUtils</code></li>
+                    <li>✅ Make functions pure when possible (no side effects)</li>
+                    <li>✅ Document well—add tooltips to each function</li>
+                    <li>✅ Keep functions generic and reusable</li>
+                    <li>❌ Don't put game-specific logic here—keep it universal</li>
+                </ul>
+                
+                <h3>Common Function Library Categories</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Library</th>
+                            <th>Example Functions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Math Utilities</strong></td>
+                            <td>Clamp, Lerp, Normalize, RoundTo, RandomInRange</td>
+                        </tr>
+                        <tr>
+                            <td><strong>String Helpers</strong></td>
+                            <td>Contains, StartsWith, EndsWith, Split, Join, Capitalize</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Array Utilities</strong></td>
+                            <td>Shuffle, RemoveDuplicates, FindClosest, SortByDistance</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vector/Transform</strong></td>
+                            <td>GetDirectionTo, GetDistance2D, RotateAround, LookAt</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Debug Helpers</strong></td>
+                            <td>DrawDebugLine, LogWarning, PrintStats, DumpVariables</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 10: Best Practices -->
+            <section id="best-practices" class="lesson-section">
+                <h2>Organization and Best Practices</h2>
+                
+                <h3>Function Naming Conventions</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Pattern</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Actions</strong></td>
+                            <td>Verb + Object</td>
+                            <td><code>ApplyDamage</code>, <code>OpenDoor</code>, <code>SpawnEnemy</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Getters</strong></td>
+                            <td>Get + Property</td>
+                            <td><code>GetHealth</code>, <code>GetPosition</code>, <code>GetPlayerName</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Setters</strong></td>
+                            <td>Set + Property</td>
+                            <td><code>SetHealth</code>, <code>SetPosition</code>, <code>SetPlayerName</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Booleans</strong></td>
+                            <td>Is/Has/Can + State</td>
+                            <td><code>IsAlive</code>, <code>HasKey</code>, <code>CanJump</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Calculations</strong></td>
+                            <td>Calculate/Compute + What</td>
+                            <td><code>CalculateDamage</code>, <code>ComputeDistance</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Events</strong></td>
+                            <td>On + Event</td>
+                            <td><code>OnPlayerDeath</code>, <code>OnLevelComplete</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Documentation: Tooltips and Categories</h3>
+                
+                <p><strong>Adding tooltips:</strong></p>
+                <ol>
+                    <li>Select your function in My Blueprint</li>
+                    <li>In Details panel, find <strong>Tooltip</strong> field</li>
+                    <li>Write a brief description of what it does</li>
+                    <li>This appears when hovering over the node</li>
+                </ol>
+                
+                <p><strong>Adding categories:</strong></p>
+                <ol>
+                    <li>In Details panel, find <strong>Category</strong> field</li>
+                    <li>Type category name (e.g., "Combat", "Movement", "Utilities")</li>
+                    <li>Functions are grouped by category in My Blueprint and node menu</li>
+                </ol>
+                
+                <h3>Organization Tips</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                        <h4>✅ Do This</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li>Group related functions in categories</li>
+                            <li>Keep functions small (single responsibility)</li>
+                            <li>Add descriptive tooltips</li>
+                            <li>Use consistent naming patterns</li>
+                            <li>Comment complex logic inside functions</li>
+                            <li>Create function libraries for utilities</li>
+                            <li>Make functions pure when possible</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                        <h4>❌ Avoid This</h4>
+                        <ul style="margin-bottom: 0;">
+                            <li>Giant "god functions" that do everything</li>
+                            <li>Vague names like <code>DoStuff</code> or <code>Process</code></li>
+                            <li>Mixing unrelated logic in one function</li>
+                            <li>Copy-pasting function code instead of reusing</li>
+                            <li>Leaving functions undocumented</li>
+                            <li>Too many parameters (>5 usually means split it)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Function Complexity Guidelines</h3>
+                
+                <ul>
+                    <li><strong>Small:</strong> 5-15 nodes - Perfect! Easy to understand and test</li>
+                    <li><strong>Medium:</strong> 15-40 nodes - Acceptable, consider breaking into helper functions</li>
+                    <li><strong>Large:</strong> 40-100 nodes - Too complex, definitely split it up</li>
+                    <li><strong>Huge:</strong> 100+ nodes - Red flag! This should be multiple functions</li>
+                </ul>
+                
+                <h3>Debugging Functions</h3>
+                
+                <p><strong>Techniques:</strong></p>
+                <ul>
+                    <li><strong>Print String:</strong> Add temporary prints to track execution flow</li>
+                    <li><strong>Breakpoints:</strong> Right-click node → Add Breakpoint (pauses execution)</li>
+                    <li><strong>Watch Values:</strong> Right-click variable → Watch This Value</li>
+                    <li><strong>Step Through:</strong> When paused at breakpoint, use F10 to step node-by-node</li>
+                    <li><strong>Return Values:</strong> Print return values to verify calculations</li>
+                </ul>
+            </section>
+
+            <!-- Section 11: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On Exercise: Health System with Functions</h2>
+                    
+                    <p>Build a complete health system using functions, demonstrating all the concepts from this lesson.</p>
+                    
+                    <h3>Part 1: Create the Blueprint</h3>
+                    
+                    <ol>
+                        <li>Create <code>BP_HealthSystem</code> (Actor)</li>
+                        <li>Add variables:
+                            <ul>
+                                <li><code>CurrentHealth</code> (Float) = 100.0</li>
+                                <li><code>MaxHealth</code> (Float) = 100.0 (Instance Editable)</li>
+                                <li><code>MinHealth</code> (Float) = 0.0</li>
+                                <li><code>RegenerationRate</code> (Float) = 5.0 (Instance Editable)</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Part 2: Create Pure Functions</h3>
+                    
+                    <p><strong>Function: GetHealthPercentage</strong></p>
+                    <ul>
+                        <li>Inputs: (none)</li>
+                        <li>Output: <code>Percentage</code> (Float)</li>
+                        <li>Check "Pure"</li>
+                        <li>Logic: CurrentHealth / MaxHealth</li>
+                    </ul>
+                    
+                    <p><strong>Function: IsAlive</strong></p>
+                    <ul>
+                        <li>Inputs: (none)</li>
+                        <li>Output: <code>bAlive</code> (Boolean)</li>
+                        <li>Check "Pure"</li>
+                        <li>Logic: CurrentHealth > 0</li>
+                    </ul>
+                    
+                    <p><strong>Function: IsLowHealth</strong></p>
+                    <ul>
+                        <li>Inputs: <code>Threshold</code> (Float, default 0.25)</li>
+                        <li>Output: <code>bIsLow</code> (Boolean)</li>
+                        <li>Check "Pure"</li>
+                        <li>Logic: GetHealthPercentage() < Threshold</li>
+                    </ul>
+                    
+                    <h3>Part 3: Create Action Functions</h3>
+                    
+                    <p><strong>Function: ApplyDamage</strong></p>
+                    <pre><code class="language-plaintext">Inputs: DamageAmount (Float)
+Output: ActualDamage (Float)
+
+Logic:
+  1. Clamp DamageAmount to be >= 0
+  2. Subtract from CurrentHealth
+  3. Clamp CurrentHealth (Min=MinHealth, Max=MaxHealth)
+  4. Return actual damage dealt
+  5. If CurrentHealth <= 0, call custom event OnDeath
+</code></pre>
+                    
+                    <p><strong>Function: ApplyHealing</strong></p>
+                    <pre><code class="language-plaintext">Inputs: HealAmount (Float)
+Output: ActualHealing (Float)
+
+Logic:
+  1. Store old health
+  2. Add HealAmount to CurrentHealth
+  3. Clamp CurrentHealth (Min=MinHealth, Max=MaxHealth)
+  4. Calculate actual healing = CurrentHealth - OldHealth
+  5. Return actual healing
+</code></pre>
+                    
+                    <h3>Part 4: Create Custom Event</h3>
+                    
+                    <p><strong>Custom Event: OnDeath</strong></p>
+                    <pre><code class="language-plaintext">Logic:
+  1. Print "Player has died!"
+  2. Delay 2 seconds
+  3. Print "Respawning..."
+  4. Set CurrentHealth = MaxHealth
+</code></pre>
+                    
+                    <h3>Part 5: Test in Event Graph</h3>
+                    
+                    <pre><code class="language-plaintext">Event BeginPlay
+  → Print: GetHealthPercentage() * 100 + "%"
+  
+Event Tick (simple regeneration)
+  → Branch: IsAlive() AND IsLowHealth(0.5)
+     → True: ApplyHealing(RegenerationRate * DeltaSeconds)
+
+Keyboard Event: 1
+  → ApplyDamage(10)
+  → Print: "Health: " + CurrentHealth
+
+Keyboard Event: 2
+  → ApplyHealing(25)
+  → Print: "Health: " + CurrentHealth
+</code></pre>
+                    
+                    <h3>Part 6: Test</h3>
+                    
+                    <ol>
+                        <li>Place BP_HealthSystem in level</li>
+                        <li>Play</li>
+                        <li>Press 1 repeatedly to damage (watch health decrease)</li>
+                        <li>Damage to 0 - "Player has died!" appears, then respawns</li>
+                        <li>Press 2 to heal</li>
+                        <li>Damage to below 50% and watch auto-regeneration</li>
+                    </ol>
+                    
+                    <details>
+                        <summary>✅ <strong>Checkpoint:</strong> What did you learn?</summary>
+                        <p>This exercise combined:
+                            <ul>
+                                <li><strong>Pure Functions:</strong> GetHealthPercentage, IsAlive, IsLowHealth</li>
+                                <li><strong>Functions with I/O:</strong> ApplyDamage, ApplyHealing with return values</li>
+                                <li><strong>Custom Events:</strong> OnDeath with Delay for timed sequence</li>
+                                <li><strong>Local Variables:</strong> OldHealth in ApplyHealing function</li>
+                                <li><strong>Organization:</strong> Clean separation of concerns</li>
+                            </ul>
+                            You've built a production-quality, reusable health system!
+                        </p>
+                    </details>
+                    
+                    <h3>Challenge: Create a Function Library</h3>
+                    
+                    <ol>
+                        <li>Create <code>BP_MathUtilities</code> (Function Library)</li>
+                        <li>Add function: <code>ClampValue(Value, Min, Max)</code> → Returns clamped Float</li>
+                        <li>Make it Pure</li>
+                        <li>Add tooltip: "Clamps a value between min and max"</li>
+                        <li>Use it in your ApplyDamage/ApplyHealing functions instead of the built-in Clamp node</li>
+                        <li>Verify it works from any Blueprint in your project!</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Section 12: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Functions and macros are the organizational backbone of professional Blueprint development. Master them and your code becomes readable, maintainable, and a pleasure to work with.</p>
+                
+                <h3>Key Takeaways</h3>
+                
+                <ul>
+                    <li>⚙️ <strong>Functions</strong> are reusable, named blocks of logic—write once, use everywhere</li>
+                    <li>📥 <strong>Inputs and Outputs</strong> make functions flexible—accept parameters, return values</li>
+                    <li>📍 <strong>Local Variables</strong> exist only within functions—perfect for temporary calculations</li>
+                    <li>✨ <strong>Pure Functions</strong> have no side effects, no execution pins—ideal for calculations</li>
+                    <li>📡 <strong>Custom Events</strong> can't return values but support Delay, Timelines, and replication</li>
+                    <li>🔀 <strong>Functions vs. Events:</strong> Functions for returns, Events for async/multiplayer/delays</li>
+                    <li>🎭 <strong>Macros</strong> have multiple execution outputs—use for custom flow control only</li>
+                    <li>📚 <strong>Function Libraries</strong> provide project-wide utilities accessible everywhere</li>
+                    <li>📝 <strong>Best Practices:</strong> Descriptive names, tooltips, categories, small functions, consistent patterns</li>
+                    <li>🐛 <strong>Debugging:</strong> Breakpoints, Print String, Watch Values, step-through execution</li>
+                </ul>
+                
+                <h3>What's Next?</h3>
+                
+                <p>With functions and macros mastered, the next lesson explores <strong>Lesson 3.5: Blueprint Project Organization</strong>. You'll learn folder structures, naming conventions, parent/child Blueprint hierarchies, and how to architect large-scale Blueprint projects that scale gracefully as your game grows.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Self-Check Quiz</h4>
+                    <p>Before moving on, make sure you can answer these questions:</p>
+                    <ol>
+                        <li>What's the difference between a function and a macro?</li>
+                        <li>How do you add inputs and outputs to a function?</li>
+                        <li>What are local variables and when should you use them?</li>
+                        <li>What makes a function "pure" and what are the benefits?</li>
+                        <li>When should you use a Custom Event instead of a Function?</li>
+                        <li>What are Function Libraries and why are they useful?</li>
+                        <li>Name three best practices for function organization.</li>
+                    </ol>
+                    <details>
+                        <summary>📝 <strong>Show Answers</strong></summary>
+                        <ol>
+                            <li>Functions have one execution output and are compiled once. Macros can have multiple execution outputs and are copy-pasted into each usage. Use functions for standard logic, macros only when you need multiple execution paths.</li>
+                            <li>Select the function in My Blueprint, then in Details panel use the Inputs and Outputs sections to add parameters with names and types.</li>
+                            <li>Local variables exist only within a single function, created on entry and destroyed on exit. Use them for intermediate calculations and temporary data that no other function needs.</li>
+                            <li>Pure functions have no side effects and no execution pins—they only perform calculations. Benefits: cleaner graphs, can be called from data wires, easier to test, predictable results.</li>
+                            <li>Use Custom Events when you need: Delay nodes, Timeline nodes, multiplayer replication, or binding to Event Dispatchers. Use Functions when you need return values or local variables.</li>
+                            <li>Function Libraries are collections of static utility functions available project-wide without needing instances. They're perfect for math helpers, string utilities, and common calculations used throughout your project.</li>
+                            <li>Use descriptive verb-noun names, add tooltips for documentation, organize with categories, keep functions small (single responsibility), make pure when possible, document complex logic with comments.</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Lesson Navigation -->
+    <nav class="lesson-nav" aria-label="Lesson Navigation">
+        <div class="container">
+            <a href="m05_l02_events_and_functions.html" class="nav-button prev">
+                <span class="arrow">←</span>
+                <span class="label">
+                    <span class="direction">Previous Lesson</span>
+                    <span class="title">Blueprint Flow Control</span>
+                </span>
+            </a>
+            <a href="index.html" class="nav-button home">
+                <span class="label">
+                    <span class="direction">Back to</span>
+                    <span class="title">Course Home</span>
+                </span>
+            </a>
+            <a href="m05_l04_flow_control.html" class="nav-button next">
+                <span class="label">
+                    <span class="direction">Next Lesson</span>
+                    <span class="title">Blueprint Project Organization</span>
+                </span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+            <p>
+                <a href="index.html">Course Home</a> | 
+                <a href="index.html#modules">All Modules</a> | 
+                <a href="#main-content">Back to Top ↑</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master the Unreal Editor interface - Complete guide to viewports, panels, tools, and workflows. Learn advanced navigation, customization, and productivity techniques.">
+    <meta name="author" content="Practical Ace">
+    <title>The Unreal Editor Interface - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 1: Getting Started</a></li>
+            <li aria-current="page">Lesson 1.4: The Unreal Editor Interface</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🖥️ The Unreal Editor Interface</h1>
+                <p class="lead">The Unreal Editor is your creative workspace—a powerful yet intuitive environment where ideas become reality. This lesson provides a comprehensive tour of every major component, teaching you advanced navigation, customization, and productivity techniques that will make you efficient and confident in your work.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Master advanced viewport navigation and camera controls</li>
+                        <li>Understand all viewport visualization modes and when to use them</li>
+                        <li>Use the Content Browser like a professional asset manager</li>
+                        <li>Organize complex scenes with the World Outliner</li>
+                        <li>Efficiently modify object properties using the Details Panel</li>
+                        <li>Customize the editor layout for your personal workflow</li>
+                        <li>Utilize essential keyboard shortcuts to speed up development</li>
+                        <li>Work with multiple viewports simultaneously</li>
+                        <li>Use the Quick Access toolbar effectively</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 60-75 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 1.3: Your First Project (project created and opened)</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#overview" class="toc-link">Interface Overview</a></li>
+                        <li><a href="#viewport-deep-dive" class="toc-link">Viewport Deep Dive</a></li>
+                        <li><a href="#content-browser-mastery" class="toc-link">Content Browser Mastery</a></li>
+                        <li><a href="#world-outliner" class="toc-link">World Outliner</a></li>
+                        <li><a href="#details-panel" class="toc-link">Details Panel</a></li>
+                        <li><a href="#toolbar-menus" class="toc-link">Toolbar and Menus</a></li>
+                        <li><a href="#customization" class="toc-link">Customization and Layouts</a></li>
+                        <li><a href="#keyboard-shortcuts" class="toc-link">Essential Keyboard Shortcuts</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Interface Overview -->
+            <section id="overview" class="lesson-section">
+                <h2>Interface Overview</h2>
+                
+                <p>Before we dive deep into individual components, let's understand the philosophy behind Unreal Engine's interface design and how everything fits together.</p>
+                
+                <h3>Design Philosophy</h3>
+                
+                <p>Unreal Engine's interface is built around three core principles:</p>
+                
+                <ul>
+                    <li><strong>Context-Awareness:</strong> Panels and tools adapt to what you're doing—editing a material shows material-specific options, selecting an actor shows actor properties</li>
+                    <li><strong>Non-Destructive Workflow:</strong> Most actions can be undone (Ctrl + Z), and the editor auto-saves to prevent data loss</li>
+                    <li><strong>Flexibility:</strong> Almost everything can be moved, resized, docked, or hidden to suit your workflow</li>
+                </ul>
+                
+                <h3>The Five Core Areas</h3>
+                
+                <p>The editor is organized into five main areas, each serving a distinct purpose:</p>
+                
+                <div class="mermaid">
+                    graph TB
+                        A[Unreal Editor] --> B[1. Menu Bar & Toolbar<br/>Commands and Quick Actions]
+                        A --> C[2. Viewport<br/>3D Scene Visualization]
+                        A --> D[3. Content Browser<br/>Asset Management]
+                        A --> E[4. World Outliner<br/>Scene Hierarchy]
+                        A --> F[5. Details Panel<br/>Object Properties]
+                        
+                        style B fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style C fill:#10b981,stroke:#059669,color:#fff
+                        style D fill:#fbbf24,stroke:#d97706,color:#000
+                        style E fill:#ef4444,stroke:#b91c1c,color:#fff
+                        style F fill:#8b5cf6,stroke:#6d28d9,color:#fff
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Area</th>
+                            <th>Primary Function</th>
+                            <th>When You Use It</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Menu Bar & Toolbar</strong></td>
+                            <td>Access commands, settings, and quick actions</td>
+                            <td>Opening files, changing settings, building, playing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Viewport</strong></td>
+                            <td>See and interact with your 3D scene</td>
+                            <td>90% of your time—placing, moving, and viewing objects</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Content Browser</strong></td>
+                            <td>Manage project assets and files</td>
+                            <td>Finding materials, importing assets, creating new content</td>
+                        </tr>
+                        <tr>
+                            <td><strong>World Outliner</strong></td>
+                            <td>List and organize scene objects</td>
+                            <td>Selecting hard-to-click objects, organizing large scenes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Details Panel</strong></td>
+                            <td>View and edit properties of selected objects</td>
+                            <td>Fine-tuning object settings, adjusting transforms</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Mental Model: The Production Pipeline</h4>
+                    <p>Think of the interface as stages in a production pipeline:</p>
+                    <ul>
+                        <li><strong>Content Browser:</strong> Your warehouse—where all materials and tools are stored</li>
+                        <li><strong>Viewport:</strong> Your workshop—where you assemble and arrange things</li>
+                        <li><strong>World Outliner:</strong> Your inventory list—keeping track of everything in the workshop</li>
+                        <li><strong>Details Panel:</strong> Your control panel—adjusting specific settings for each item</li>
+                        <li><strong>Toolbar:</strong> Your quick-access tools—frequently used actions at your fingertips</li>
+                    </ul>
+                </div>
+                
+                <h3>Interface Modes</h3>
+                
+                <p>The editor has different operational modes that change how the interface behaves:</p>
+                
+                <ul>
+                    <li><strong>Edit Mode (Default):</strong> Building and arranging your level—selecting, moving, editing objects</li>
+                    <li><strong>Play Mode:</strong> Testing your level as a player would experience it—viewport becomes game window</li>
+                    <li><strong>Simulate Mode:</strong> Similar to Play but without possessing a player character—useful for testing physics and AI</li>
+                    <li><strong>Blueprint Edit Mode:</strong> Opens when editing Blueprints—specialized interface for visual scripting</li>
+                </ul>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 PIE - Play In Editor</h4>
+                    <p style="color: white;"><strong>PIE (Play In Editor)</strong> refers to testing your level directly within the Unreal Editor viewport. It's the fastest way to test gameplay without packaging your project. When you press the Play button, you're entering PIE mode.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Viewport Deep Dive -->
+            <section id="viewport-deep-dive" class="lesson-section">
+                <h2>Viewport Deep Dive</h2>
+                
+                <p>The viewport is your window into the 3D world—the single most important part of the interface. Let's master every aspect of it.</p>
+                
+                <h3>Advanced Navigation Techniques</h3>
+                
+                <p>You learned basic navigation in the previous lesson. Now let's explore advanced techniques that professionals use:</p>
+                
+                <h4>Navigation Modes</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mode</th>
+                            <th>Controls</th>
+                            <th>Best For</th>
+                            <th>Speed Tip</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Fly Camera</strong></td>
+                            <td><kbd>Right Mouse + WASD</kbd></td>
+                            <td>General navigation, large scenes</td>
+                            <td>Hold <kbd>Shift</kbd> to fly faster</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Orbit Camera</strong></td>
+                            <td><kbd>Alt + Left Mouse</kbd></td>
+                            <td>Examining single objects</td>
+                            <td>Orbits around last clicked point</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pan Camera</strong></td>
+                            <td><kbd>Middle Mouse</kbd> or<br/><kbd>Alt + Middle Mouse</kbd></td>
+                            <td>Sliding view without rotation</td>
+                            <td>Useful for precise positioning</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Zoom</strong></td>
+                            <td><kbd>Scroll Wheel</kbd></td>
+                            <td>Quick distance adjustment</td>
+                            <td>Zooms toward mouse cursor position</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Focus Object</strong></td>
+                            <td><kbd>F</kbd> (with object selected)</td>
+                            <td>Finding lost objects quickly</td>
+                            <td>Centers view and adjusts distance</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>Speed Modifiers</h4>
+                
+                <p>Control your navigation speed with these modifiers:</p>
+                
+                <ul>
+                    <li><kbd>Right Mouse + Scroll Wheel</kbd> - Adjust fly speed on the fly</li>
+                    <li><kbd>Shift</kbd> (while flying) - Move faster (4x speed)</li>
+                    <li><kbd>Ctrl</kbd> (while flying) - Move slower (0.25x speed)</li>
+                    <li>Mouse wheel while holding <kbd>Right Mouse</kbd> - Precise speed adjustment</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Navigation Workflow</h4>
+                    <p>Professional level designers use this pattern:</p>
+                    <ol>
+                        <li><strong>Click object</strong> to select it</li>
+                        <li><strong>Press F</strong> to frame it</li>
+                        <li><strong>Alt + Left Mouse</strong> to orbit and examine</li>
+                        <li><strong>Make adjustments</strong> to the object</li>
+                        <li><strong>Right Mouse + WASD</strong> to fly to next object</li>
+                    </ol>
+                    <p>Practice this sequence until it becomes muscle memory!</p>
+                </div>
+                
+                <h3>Viewport Visualization Modes</h3>
+                
+                <p>The viewport can display your scene in many different ways. Each mode reveals different information:</p>
+                
+                <h4>View Modes (Click the "Lit" dropdown in top-left of viewport)</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mode</th>
+                            <th>What You See</th>
+                            <th>When to Use</th>
+                            <th>Hotkey</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Lit</strong></td>
+                            <td>Full lighting, materials, shadows—realistic view</td>
+                            <td>Default mode, final look preview</td>
+                            <td><kbd>Alt + 4</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Unlit</strong></td>
+                            <td>No lighting or shadows, only material colors</td>
+                            <td>Seeing base colors, working in dark areas</td>
+                            <td><kbd>Alt + 3</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Wireframe</strong></td>
+                            <td>Only mesh edges, see-through objects</td>
+                            <td>Checking mesh complexity, finding hidden objects</td>
+                            <td><kbd>Alt + 2</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Detail Lighting</strong></td>
+                            <td>Only lighting contribution, no base color</td>
+                            <td>Debugging lighting issues</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lighting Only</strong></td>
+                            <td>Only light intensity, no materials</td>
+                            <td>Analyzing light placement and coverage</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shader Complexity</strong></td>
+                            <td>Color-coded by rendering cost (green=fast, red=slow)</td>
+                            <td>Performance optimization</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Quick Experiment: View Modes</h4>
+                    <p>Right now, try switching between view modes:</p>
+                    <ol>
+                        <li>Press <kbd>Alt + 4</kbd> for Lit mode (default)</li>
+                        <li>Press <kbd>Alt + 3</kbd> for Unlit—notice how everything brightens</li>
+                        <li>Press <kbd>Alt + 2</kbd> for Wireframe—see the mesh structure</li>
+                        <li>Press <kbd>Alt + 4</kbd> to return to Lit</li>
+                    </ol>
+                    <p>Get comfortable switching—you'll use these constantly!</p>
+                </div>
+                
+                <h3>Show Flags: Controlling Visibility</h3>
+                
+                <p>The <strong>Show</strong> menu in the viewport lets you toggle visibility of specific element types:</p>
+                
+                <h4>Common Show Flags</h4>
+                
+                <ul>
+                    <li><strong>Lighting Features:</strong>
+                        <ul>
+                            <li>Dynamic Shadows - Toggle real-time shadows</li>
+                            <li>Fog - Show/hide atmospheric fog</li>
+                            <li>Sky Lighting - Toggle skylight contribution</li>
+                        </ul>
+                    </li>
+                    <li><strong>Scene Elements:</strong>
+                        <ul>
+                            <li>Static Meshes - Hide/show 3D models</li>
+                            <li>Landscape - Toggle terrain visibility</li>
+                            <li>Particles - Show/hide visual effects</li>
+                            <li>Translucency - Toggle transparent materials</li>
+                        </ul>
+                    </li>
+                    <li><strong>Editor Helpers:</strong>
+                        <ul>
+                            <li>Grid - Show/hide viewport grid</li>
+                            <li>Collision - Display collision boundaries</li>
+                            <li>Bounds - Show object bounding boxes</li>
+                            <li>Navigation - Display nav mesh for AI pathfinding</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Accidentally Hidden Everything?</h4>
+                    <p>If objects disappear unexpectedly, you may have toggled a Show flag:</p>
+                    <ol>
+                        <li>Click <strong>Show</strong> in the viewport toolbar</li>
+                        <li>Look for unchecked items (especially "Static Meshes")</li>
+                        <li>Re-enable them by clicking</li>
+                        <li>Or use <strong>Show → Show All</strong> to reset everything</li>
+                    </ol>
+                </div>
+                
+                <h3>Viewport Types and Perspectives</h3>
+                
+                <p>The viewport can display from different perspectives:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>View Type</th>
+                            <th>Description</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Perspective</strong></td>
+                            <td>3D view with depth—objects get smaller with distance</td>
+                            <td>Default, natural view</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Top (Orthographic)</strong></td>
+                            <td>Looking straight down, no perspective distortion</td>
+                            <td>Aligning objects, level layout</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Front (Orthographic)</strong></td>
+                            <td>Looking from front, flat view</td>
+                            <td>Vertical alignment, height adjustment</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Side (Orthographic)</strong></td>
+                            <td>Looking from side, flat view</td>
+                            <td>Precise placement along one axis</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>Switch perspective by clicking the <strong>Perspective</strong> dropdown in the top-left of the viewport.</p>
+                
+                <h3>Multiple Viewports</h3>
+                
+                <p>You can split the viewport to see from multiple angles simultaneously:</p>
+                
+                <ul>
+                    <li>Click the <strong>viewport options</strong> button (three horizontal lines)</li>
+                    <li>Select <strong>Layouts</strong></li>
+                    <li>Choose layout: 2x2, Vertical Split, Horizontal Split, etc.</li>
+                    <li>Each sub-viewport can have its own view mode and perspective</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ When to Use Multiple Viewports</h4>
+                    <p>Professional level designers use multiple viewports for:</p>
+                    <ul>
+                        <li><strong>Precise Placement:</strong> Perspective + Top view to align objects perfectly</li>
+                        <li><strong>Architecture:</strong> Multiple orthographic views for building construction</li>
+                        <li><strong>Animation:</strong> Different angles to check character movement</li>
+                    </ul>
+                    <p>For beginners, a single perspective viewport is usually sufficient. Add more as needed!</p>
+                </div>
+                
+                <h3>Viewport Statistics and Performance</h3>
+                
+                <p>The viewport can display performance statistics:</p>
+                
+                <ul>
+                    <li>Press <kbd>`</kbd> (backtick/tilde key) to open console</li>
+                    <li>Type <code>stat fps</code> to show frames per second</li>
+                    <li>Type <code>stat unit</code> to show detailed timing information</li>
+                    <li>Type <code>stat none</code> to hide all stats</li>
+                </ul>
+                
+                <p>Alternatively, enable permanently in <strong>Editor Preferences → Performance → Show Frame Rate and Memory</strong></p>
+            </section>
+
+            <!-- Section 3: Content Browser Mastery -->
+            <section id="content-browser-mastery" class="lesson-section">
+                <h2>Content Browser Mastery</h2>
+                
+                <p>The Content Browser is your asset management system—think of it as Windows Explorer or Mac Finder, but specifically designed for game assets. Mastering it is crucial for staying organized.</p>
+                
+                <h3>Content Browser Anatomy</h3>
+                
+                <p>The Content Browser has several distinct areas:</p>
+                
+                <div class="mermaid">
+                    graph TB
+                        A[Content Browser] --> B[1. Folder Tree<br/>Left Panel]
+                        A --> C[2. Asset View<br/>Main Area]
+                        A --> D[3. Search Bar<br/>Top Center]
+                        A --> E[4. Filters<br/>Top Right]
+                        A --> F[5. Path Bar<br/>Below Search]
+                        
+                        B --> B1[Navigate folders]
+                        C --> C1[Thumbnail/list view]
+                        D --> D1[Find assets quickly]
+                        E --> E1[Filter by type]
+                        F --> F1[Current location]
+                        
+                        style B fill:#3b82f6,stroke:#1e40af,color:#fff
+                        style C fill:#10b981,stroke:#059669,color:#fff
+                        style D fill:#fbbf24,stroke:#d97706,color:#000
+                </div>
+                
+                <h3>Navigation and Organization</h3>
+                
+                <h4>Folder Tree (Left Panel)</h4>
+                
+                <ul>
+                    <li><strong>Content:</strong> Root folder containing all project assets</li>
+                    <li><strong>Right-click folders:</strong> Create new, rename, delete, move</li>
+                    <li><strong>Drag and drop:</strong> Move assets between folders</li>
+                    <li><strong>Color coding:</strong> Assign colors to folders for organization</li>
+                </ul>
+                
+                <h4>Asset View Modes</h4>
+                
+                <p>Change how assets are displayed using the view options (bottom-right corner):</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>View Mode</th>
+                            <th>Best For</th>
+                            <th>Details Shown</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Tile View</strong></td>
+                            <td>Visual assets (textures, materials, models)</td>
+                            <td>Large thumbnails</td>
+                        </tr>
+                        <tr>
+                            <td><strong>List View</strong></td>
+                            <td>Many assets, finding specific names</td>
+                            <td>Name, type, size in rows</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Column View</strong></td>
+                            <td>Sorting by properties</td>
+                            <td>Customizable columns with metadata</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>Adjust thumbnail size with the slider at the bottom (Tile view only).</p>
+                
+                <h3>Searching and Filtering</h3>
+                
+                <h4>Search Bar Features</h4>
+                
+                <ul>
+                    <li><strong>Basic Search:</strong> Type asset name—results appear instantly</li>
+                    <li><strong>Partial Matching:</strong> Type "char" to find "Character", "CharacterBP", "CharControl", etc.</li>
+                    <li><strong>Search All:</strong> Searches entire Content folder by default</li>
+                    <li><strong>Clear Search:</strong> Click X to clear</li>
+                </ul>
+                
+                <h4>Filters</h4>
+                
+                <p>Click the <strong>Filters</strong> button to narrow results by asset type:</p>
+                
+                <ul>
+                    <li><strong>Blueprint Class</strong> - Visual scripts</li>
+                    <li><strong>Static Mesh</strong> - 3D models</li>
+                    <li><strong>Material</strong> - Surface appearances</li>
+                    <li><strong>Texture</strong> - Image files</li>
+                    <li><strong>Sound</strong> - Audio files</li>
+                    <li><strong>Particle System</strong> - Visual effects</li>
+                    <li>And dozens more...</li>
+                </ul>
+                
+                <p>Click multiple filters to combine them (e.g., show only Blueprints AND Materials).</p>
+                
+                <h3>Working with Assets</h3>
+                
+                <h4>Common Asset Operations</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>How To</th>
+                            <th>Shortcut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Open Asset</strong></td>
+                            <td>Double-click thumbnail</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rename</strong></td>
+                            <td>Right-click → Rename or F2</td>
+                            <td><kbd>F2</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Duplicate</strong></td>
+                            <td>Right-click → Duplicate or Ctrl + D</td>
+                            <td><kbd>Ctrl + D</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Delete</strong></td>
+                            <td>Right-click → Delete or Delete key</td>
+                            <td><kbd>Delete</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Show in Explorer</strong></td>
+                            <td>Right-click → Show in Explorer</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Find References</strong></td>
+                            <td>Right-click → Reference Viewer</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>Creating New Assets</h4>
+                
+                <p>Right-click in empty space of Content Browser to see the <strong>New Asset</strong> menu:</p>
+                
+                <ul>
+                    <li><strong>Blueprint Class</strong> - Create visual script</li>
+                    <li><strong>Material</strong> - Create new surface material</li>
+                    <li><strong>Level</strong> - Create new map/level</li>
+                    <li><strong>Folder</strong> - Organize assets</li>
+                    <li>Many specialized types under "Materials", "Blueprints", etc.</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Asset Naming Conventions</h4>
+                    <p>Professional teams use consistent naming conventions. Consider adopting these:</p>
+                    <ul>
+                        <li><strong>Prefixes by type:</strong>
+                            <ul>
+                                <li><code>BP_</code> - Blueprints (e.g., BP_PlayerCharacter)</li>
+                                <li><code>M_</code> - Materials (e.g., M_Metal_Rusty)</li>
+                                <li><code>T_</code> - Textures (e.g., T_Wood_Diffuse)</li>
+                                <li><code>SM_</code> - Static Meshes (e.g., SM_Chair_01)</li>
+                                <li><code>SK_</code> - Skeletal Meshes (e.g., SK_Character)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Descriptive names:</strong> Avoid "Untitled", "New", "Test"</li>
+                        <li><strong>No spaces:</strong> Use underscores or CamelCase</li>
+                        <li><strong>Version numbers:</strong> Chair_01, Chair_02 for variations</li>
+                    </ul>
+                    <p>Good naming makes finding assets much easier as projects grow!</p>
+                </div>
+                
+                <h3>Asset Collections</h3>
+                
+                <p>Collections let you create custom asset groupings without moving files:</p>
+                
+                <ul>
+                    <li><strong>Creating Collections:</strong>
+                        <ul>
+                            <li>Bottom of Content Browser, click "Collections" tab</li>
+                            <li>Right-click → New Collection</li>
+                            <li>Name it (e.g., "Level_01_Assets", "Player_Materials")</li>
+                        </ul>
+                    </li>
+                    <li><strong>Adding to Collections:</strong>
+                        <ul>
+                            <li>Drag assets from Asset View onto collection name</li>
+                            <li>Or right-click asset → Add to Collection</li>
+                        </ul>
+                    </li>
+                    <li><strong>Benefits:</strong>
+                        <ul>
+                            <li>Quick access to frequently used assets</li>
+                            <li>Organize assets by function, not location</li>
+                            <li>Assets can be in multiple collections</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h3>Sources Panel</h3>
+                
+                <p>The Sources panel (left side, below folder tree) provides quick access to:</p>
+                
+                <ul>
+                    <li><strong>Content:</strong> Your project assets (default)</li>
+                    <li><strong>C++ Classes:</strong> C++ code classes (if using C++)</li>
+                    <li><strong>Engine Content:</strong> Built-in engine assets (usually hidden—enable in View Options)</li>
+                    <li><strong>Plugin Content:</strong> Assets from installed plugins</li>
+                </ul>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Engine Content: Use with Caution</h4>
+                    <p>You can enable "Show Engine Content" in View Options to see built-in assets. However:</p>
+                    <ul>
+                        <li>⚠️ Very cluttered—thousands of assets</li>
+                        <li>⚠️ Easy to accidentally use engine assets that make your project dependent on them</li>
+                        <li>✅ Better to copy assets you need to your Content folder</li>
+                        <li>✅ Good for reference and learning how Epic builds things</li>
+                    </ul>
+                </div>
+                
+                <h3>Import and Export</h3>
+                
+                <h4>Importing Assets</h4>
+                
+                <p>Bring external files into your project:</p>
+                
+                <ul>
+                    <li><strong>Drag and Drop:</strong> Drag files from Windows Explorer directly into Content Browser</li>
+                    <li><strong>Import Button:</strong> Click "Import" in Content Browser toolbar → browse to file</li>
+                    <li><strong>Supported Formats:</strong>
+                        <ul>
+                            <li>3D Models: FBX, OBJ</li>
+                            <li>Textures: PNG, JPG, TGA, EXR, HDR</li>
+                            <li>Audio: WAV, MP3</li>
+                            <li>Video: MP4, AVI</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h4>Exporting Assets</h4>
+                
+                <ul>
+                    <li>Right-click asset → Asset Actions → Export</li>
+                    <li>Useful for taking assets to other software for editing</li>
+                    <li>Note: Some assets (like Blueprints) can't be exported—they're Unreal-specific</li>
+                </ul>
+                
+                <h3>Content Browser Shortcuts</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Shortcut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Open Content Browser</td>
+                            <td><kbd>Ctrl + Space</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Focus search bar</td>
+                            <td><kbd>Ctrl + F</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Rename asset</td>
+                            <td><kbd>F2</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Duplicate asset</td>
+                            <td><kbd>Ctrl + D</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Delete asset</td>
+                            <td><kbd>Delete</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Sync to asset in viewport</td>
+                            <td><kbd>Ctrl + B</kbd></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 4: World Outliner -->
+            <section id="world-outliner" class="lesson-section">
+                <h2>World Outliner</h2>
+                
+                <p>The World Outliner is your hierarchical list of every object (called "Actors" in Unreal) currently in your level. Think of it as the "Layers" panel in Photoshop or the "Hierarchy" in Unity—it shows everything in your scene.</p>
+                
+                <h3>Understanding Actors</h3>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Actors</h4>
+                    <p style="color: white;"><strong>Actors</strong> are any objects that can be placed in a level. This includes 3D models (Static Meshes), lights, cameras, triggers, character spawn points, sound emitters, and more. If it exists in your 3D scene, it's an Actor.</p>
+                </div>
+                
+                <h3>World Outliner Interface</h3>
+                
+                <p>The Outliner has several components:</p>
+                
+                <ul>
+                    <li><strong>Search Bar (Top):</strong> Quickly find actors by name</li>
+                    <li><strong>Actor List (Main Area):</strong> Hierarchical list of all actors</li>
+                    <li><strong>Eye Icons:</strong> Toggle actor visibility in viewport</li>
+                    <li><strong>Type Icons:</strong> Visual indicators of actor type (mesh, light, camera, etc.)</li>
+                </ul>
+                
+                <h3>Basic Operations</h3>
+                
+                <h4>Selecting Actors</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>How To</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Select Single</strong></td>
+                            <td>Click actor name</td>
+                            <td>Selects in Outliner and viewport</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multi-Select</strong></td>
+                            <td><kbd>Ctrl + Click</kbd></td>
+                            <td>Add to selection</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Range Select</strong></td>
+                            <td><kbd>Shift + Click</kbd></td>
+                            <td>Select all between clicks</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Select All</strong></td>
+                            <td><kbd>Ctrl + A</kbd></td>
+                            <td>Select everything in level</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Deselect All</strong></td>
+                            <td><kbd>Esc</kbd></td>
+                            <td>Clear selection</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>Visibility Controls</h4>
+                
+                <ul>
+                    <li><strong>Eye Icon (👁️):</strong> Click to hide/show actor in viewport (editor only—doesn't affect gameplay)</li>
+                    <li><strong>Hidden Actors:</strong> Shown in gray text with eye icon crossed out</li>
+                    <li><strong>Temporary Hiding:</strong> Great for working on crowded scenes</li>
+                    <li><strong>Show All:</strong> Right-click → Show All to unhide everything</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F2;">
+                    <h4>💡 Visibility vs. Selection</h4>
+                    <p>Hidden actors can still be selected and edited—they just don't appear in the viewport. This is useful when you want to:</p>
+                    <ul>
+                        <li>Edit properties of an object blocking your view</li>
+                        <li>Work on background elements without foreground clutter</li>
+                        <li>Focus on specific areas of a complex scene</li>
+                    </ul>
+                </div>
+                
+                <h3>Organizing with Folders</h3>
+                
+                <p>For complex scenes with hundreds of actors, folders are essential:</p>
+                
+                <h4>Creating Folders</h4>
+                
+                <ol>
+                    <li>Right-click in World Outliner</li>
+                    <li>Select <strong>Create Folder</strong></li>
+                    <li>Name it descriptively (e.g., "Environment", "Lighting", "Props_Level01")</li>
+                </ol>
+                
+                <h4>Using Folders</h4>
+                
+                <ul>
+                    <li><strong>Drag actors</strong> into folders to organize</li>
+                    <li><strong>Collapse/Expand:</strong> Click arrow next to folder name</li>
+                    <li><strong>Select Folder Contents:</strong> Click folder, then <kbd>Ctrl + A</kbd></li>
+                    <li><strong>Hide Entire Folder:</strong> Click eye icon on folder itself</li>
+                    <li><strong>Nest Folders:</strong> Drag folder into another folder for hierarchies</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Professional Folder Structure</h4>
+                    <p>Organize your level like this:</p>
+                    <ul>
+                        <li><strong>Lighting</strong> - All lights (Directional, Point, Spot, etc.)</li>
+                        <li><strong>Environment</strong>
+                            <ul>
+                                <li>Architecture - Buildings, walls, floors</li>
+                                <li>Nature - Trees, rocks, vegetation</li>
+                            </ul>
+                        </li>
+                        <li><strong>Gameplay</strong> - Player starts, triggers, volumes</li>
+                        <li><strong>Props</strong> - Furniture, decorative objects</li>
+                        <li><strong>Audio</strong> - Sound emitters, ambient audio</li>
+                        <li><strong>Effects</strong> - Particles, post-process volumes</li>
+                    </ul>
+                </div>
+                
+                <h3>Search and Filtering</h3>
+                
+                <h4>Search Bar</h4>
+                
+                <ul>
+                    <li><strong>Type name:</strong> Instantly filters to matching actors</li>
+                    <li><strong>Partial matching:</strong> Type "light" to find "DirectionalLight", "PointLight1", etc.</li>
+                    <li><strong>Clear search:</strong> Click X or press <kbd>Esc</kbd></li>
+                </ul>
+                
+                <h4>Type Filters</h4>
+                
+                <p>Click the filter icon in the Outliner to show only specific actor types:</p>
+                
+                <ul>
+                    <li>Static Meshes only</li>
+                    <li>Lights only</li>
+                    <li>Blueprints only</li>
+                    <li>And more...</li>
+                </ul>
+                
+                <h3>Actor Parenting (Attachment)</h3>
+                
+                <p>Actors can be attached to other actors, creating parent-child relationships:</p>
+                
+                <h4>Creating Attachments</h4>
+                
+                <ul>
+                    <li><strong>Drag and drop:</strong> Drag one actor onto another in the Outliner</li>
+                    <li><strong>Result:</strong> Child actor indents under parent</li>
+                    <li><strong>Behavior:</strong> When parent moves/rotates, children move with it</li>
+                </ul>
+                
+                <h4>When to Use Attachments</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Complex objects made of parts</td>
+                            <td>Lamp (base + bulb + shade)</td>
+                        </tr>
+                        <tr>
+                            <td>Moving platforms with objects</td>
+                            <td>Elevator platform with props on it</td>
+                        </tr>
+                        <tr>
+                            <td>Character equipment</td>
+                            <td>Weapon attached to character's hand</td>
+                        </tr>
+                        <tr>
+                            <td>Vehicle with parts</td>
+                            <td>Car body with attached wheels</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Try It: Create a Lamp</h4>
+                    <ol>
+                        <li>Place a Cylinder from Place Actors (lamp base)</li>
+                        <li>Place a Point Light above it</li>
+                        <li>In World Outliner, drag the Point Light onto the Cylinder</li>
+                        <li>Now move the Cylinder—the light moves with it!</li>
+                    </ol>
+                </div>
+                
+                <h3>Context Menu Actions</h3>
+                
+                <p>Right-click any actor in the Outliner for powerful options:</p>
+                
+                <ul>
+                    <li><strong>Edit:</strong> Opens appropriate editor (Blueprint editor, material editor, etc.)</li>
+                    <li><strong>Select → All Descendants:</strong> Select actor and all its children</li>
+                    <li><strong>Visibility:</strong> Show/hide selected actors</li>
+                    <li><strong>Pilot Actor:</strong> Control viewport camera from actor's perspective</li>
+                    <li><strong>Snap to:</strong> Alignment tools</li>
+                    <li><strong>Convert to:</strong> Change actor type</li>
+                </ul>
+                
+                <h3>World Outliner Settings</h3>
+                
+                <p>Click the settings icon (three dots) in the Outliner for customization:</p>
+                
+                <ul>
+                    <li><strong>Show Only Selected:</strong> Hide unselected actors from list</li>
+                    <li><strong>Show Actor Components:</strong> Show sub-components (advanced)</li>
+                    <li><strong>Show Only Current Level:</strong> In multi-level projects, hide actors from other levels</li>
+                    <li><strong>Sort Alphabetically:</strong> Or by type, or creation order</li>
+                </ul>
+            </section>
+
+            <!-- Section 5: Details Panel -->
+            <section id="details-panel" class="lesson-section">
+                <h2>Details Panel</h2>
+                
+                <p>The Details Panel is your control center for modifying any selected object. When you select an actor, the Details Panel populates with every property, setting, and option available for that object.</p>
+                
+                <h3>Understanding the Details Panel</h3>
+                
+                <p>The Details Panel is context-sensitive—it changes based on what you have selected:</p>
+                
+                <ul>
+                    <li><strong>Nothing selected:</strong> Empty or shows level settings</li>
+                    <li><strong>One actor selected:</strong> Shows that actor's properties</li>
+                    <li><strong>Multiple actors selected:</strong> Shows common properties, grays out different values</li>
+                    <li><strong>Different actor types:</strong> Each type has unique properties</li>
+                </ul>
+                
+                <h3>Common Property Categories</h3>
+                
+                <p>Most actors share these property categories (expandable sections):</p>
+                
+                <h4>Transform</h4>
+                
+                <p>Controls position, rotation, and scale:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Values</th>
+                            <th>What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Location</strong></td>
+                            <td>X, Y, Z (in centimeters)</td>
+                            <td>Position in 3D space</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rotation</strong></td>
+                            <td>Roll, Pitch, Yaw (in degrees)</td>
+                            <td>Object orientation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scale</strong></td>
+                            <td>X, Y, Z (1.0 = 100%)</td>
+                            <td>Size multiplier</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Coordinate System</h4>
+                    <p>Unreal uses a <strong>left-handed Z-up</strong> coordinate system:</p>
+                    <ul>
+                        <li><strong>X (Forward):</strong> Red axis, typically "forward" direction</li>
+                        <li><strong>Y (Right):</strong> Green axis, left/right</li>
+                        <li><strong>Z (Up):</strong> Blue axis, vertical height</li>
+                    </ul>
+                    <p>Units are in <strong>centimeters</strong> by default (100 units = 1 meter).</p>
+                </div>
+                
+                <h4>Static Mesh (for Static Mesh Actors)</h4>
+                
+                <ul>
+                    <li><strong>Static Mesh:</strong> Which 3D model to display (dropdown to change)</li>
+                    <li><strong>Materials:</strong> Array of materials applied to mesh (Element 0, Element 1, etc.)</li>
+                    <li><strong>Override Materials:</strong> Temporarily change material without affecting asset</li>
+                </ul>
+                
+                <h4>Rendering</h4>
+                
+                <ul>
+                    <li><strong>Visible:</strong> Toggle visibility in game (not just editor)</li>
+                    <li><strong>Cast Shadow:</strong> Whether object casts shadows</li>
+                    <li><strong>Receive Decals:</strong> Can decals project onto this object?</li>
+                    <li><strong>Custom Depth:</strong> Advanced rendering features</li>
+                </ul>
+                
+                <h4>Collision</h4>
+                
+                <ul>
+                    <li><strong>Collision Presets:</strong> Quick settings (Block All, No Collision, etc.)</li>
+                    <li><strong>Collision Enabled:</strong> Physics collision on/off</li>
+                    <li><strong>Object Type:</strong> What category (WorldStatic, WorldDynamic, Pawn, etc.)</li>
+                    <li><strong>Collision Responses:</strong> How it interacts with other objects</li>
+                </ul>
+                
+                <h4>Physics</h4>
+                
+                <ul>
+                    <li><strong>Simulate Physics:</strong> Enable gravity and physics simulation</li>
+                    <li><strong>Mass:</strong> Object weight (in kg)</li>
+                    <li><strong>Linear Damping:</strong> Air resistance for movement</li>
+                    <li><strong>Angular Damping:</strong> Air resistance for rotation</li>
+                </ul>
+                
+                <h4>Tags</h4>
+                
+                <ul>
+                    <li><strong>Actor Label:</strong> Display name in editor (doesn't affect gameplay)</li>
+                    <li><strong>Tags:</strong> Custom labels for gameplay logic (e.g., "Enemy", "Collectible")</li>
+                    <li><strong>Component Tags:</strong> Tags for sub-components</li>
+                </ul>
+                
+                <h3>Editing Properties</h3>
+                
+                <h4>Value Types and Input Methods</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property Type</th>
+                            <th>How to Edit</th>
+                            <th>Tips</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Numbers</strong></td>
+                            <td>Click and type, or drag label left/right</td>
+                            <td>Hold Ctrl while dragging for precise control</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Checkboxes</strong></td>
+                            <td>Click to toggle on/off</td>
+                            <td>Grayed = mixed values in multi-select</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dropdowns</strong></td>
+                            <td>Click to see options, select one</td>
+                            <td>Some support typing to search</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color Pickers</strong></td>
+                            <td>Click color swatch to open picker</td>
+                            <td>Can eyedropper from viewport</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Asset References</strong></td>
+                            <td>Drag asset from Content Browser, or use dropdown</td>
+                            <td>Arrow button navigates to asset</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Arrays</strong></td>
+                            <td>+ to add elements, - to remove</td>
+                            <td>Can reorder by dragging</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>Special Input Features</h4>
+                
+                <ul>
+                    <li><strong>Copy/Paste Values:</strong> Right-click property → Copy/Paste</li>
+                    <li><strong>Reset to Default:</strong> Yellow arrow resets property to default value</li>
+                    <li><strong>Drag Labels:</strong> Drag number field labels left/right to scrub values</li>
+                    <li><strong>Lock Values Together:</strong> Chain icon locks X/Y/Z together (for scale)</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Workflow: Copying Properties</h4>
+                    <p>When you need multiple objects with the same settings:</p>
+                    <ol>
+                        <li>Set up first object perfectly</li>
+                        <li>Select all objects (Ctrl + Click in Outliner)</li>
+                        <li>Modify shared properties—all objects update</li>
+                        <li>Or: Right-click property → Copy, then paste to other objects</li>
+                    </ol>
+                </div>
+                
+                <h3>Search and Filter</h3>
+                
+                <p>For actors with many properties, use the search bar at the top of the Details Panel:</p>
+                
+                <ul>
+                    <li>Type property name to filter (e.g., "shadow")</li>
+                    <li>Only matching properties show</li>
+                    <li>Highlights matching text in property names</li>
+                    <li>Great for finding specific settings in complex blueprints</li>
+                </ul>
+                
+                <h3>Details Panel Favorites</h3>
+                
+                <p>Pin frequently-used properties to the top:</p>
+                
+                <ol>
+                    <li>Click the star icon next to any property</li>
+                    <li>Property moves to "Favorites" section at top</li>
+                    <li>Quick access without scrolling</li>
+                    <li>Persists across sessions</li>
+                </ol>
+                
+                <h3>Components (Advanced)</h3>
+                
+                <p>Some actors have multiple <strong>Components</strong>—sub-objects that provide functionality:</p>
+                
+                <ul>
+                    <li><strong>Static Mesh Component:</strong> The visible 3D model</li>
+                    <li><strong>Collision Component:</strong> Physics boundaries</li>
+                    <li><strong>Light Component:</strong> Light emission</li>
+                    <li><strong>Audio Component:</strong> Sound playback</li>
+                </ul>
+                
+                <p>Click component name in Details Panel to view its specific properties.</p>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Be Careful with Multi-Select Edits</h4>
+                    <p>When multiple actors are selected:</p>
+                    <ul>
+                        <li>Changes apply to ALL selected actors</li>
+                        <li>Properties with different values show "Multiple Values"</li>
+                        <li>Easy to accidentally modify many objects at once</li>
+                        <li>Always check what's selected before editing!</li>
+                    </ul>
+                </div>
+                
+                <h3>World Settings</h3>
+                
+                <p>When nothing is selected, you can access <strong>World Settings</strong> from the toolbar:</p>
+                
+                <ul>
+                    <li>Click <strong>Settings</strong> button → World Settings</li>
+                    <li>Or press <kbd>Alt + 8</kbd></li>
+                    <li>Shows level-wide settings:
+                        <ul>
+                            <li>Lighting quality</li>
+                            <li>Default game mode</li>
+                            <li>Global post-processing</li>
+                            <li>Physics simulation settings</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Section 6: Toolbar and Menus -->
+            <section id="toolbar-menus" class="lesson-section">
+                <h2>Toolbar and Menus</h2>
+                
+                <p>The top bar of the editor contains two key areas: the Menu Bar (File, Edit, Window, etc.) and the Main Toolbar (with buttons for common actions). Let's explore both in detail.</p>
+                
+                <h3>Menu Bar Breakdown</h3>
+                
+                <p>The menu bar provides access to all editor commands, organized by category:</p>
+                
+                <h4>File Menu</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>What It Does</th>
+                            <th>Shortcut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>New Level</strong></td>
+                            <td>Create new empty level or from template</td>
+                            <td><kbd>Ctrl + N</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Open Level</strong></td>
+                            <td>Open existing level from Content folder</td>
+                            <td><kbd>Ctrl + O</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Save Current Level</strong></td>
+                            <td>Save the currently open level</td>
+                            <td><kbd>Ctrl + S</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Save All</strong></td>
+                            <td>Save all modified assets and levels</td>
+                            <td><kbd>Ctrl + Shift + S</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Open Recent</strong></td>
+                            <td>Quick access to recently opened levels</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Package Project</strong></td>
+                            <td>Build executable for distribution</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>Edit Menu</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>What It Does</th>
+                            <th>Shortcut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Undo</strong></td>
+                            <td>Reverse last action</td>
+                            <td><kbd>Ctrl + Z</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Redo</strong></td>
+                            <td>Reapply undone action</td>
+                            <td><kbd>Ctrl + Y</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cut/Copy/Paste</strong></td>
+                            <td>Standard clipboard operations</td>
+                            <td><kbd>Ctrl + X/C/V</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Duplicate</strong></td>
+                            <td>Create copy of selected actors</td>
+                            <td><kbd>Ctrl + D</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Delete</strong></td>
+                            <td>Remove selected actors</td>
+                            <td><kbd>Delete</kbd></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Editor Preferences</strong></td>
+                            <td>Configure editor settings</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Project Settings</strong></td>
+                            <td>Configure project-specific settings</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4>Window Menu</h4>
+                
+                <ul>
+                    <li><strong>Panel Toggles:</strong> Show/hide Content Browser, Outliner, Details, etc.</li>
+                    <li><strong>Layout Management:</strong> Save, load, or reset editor layouts</li>
+                    <li><strong>Developer Tools:</strong> Output Log, Message Log, Class Viewer</li>
+                    <li><strong>Cinematics:</strong> Sequencer for creating cutscenes</li>
+                </ul>
+                
+                <h4>Help Menu</h4>
+                
+                <ul>
+                    <li><strong>Documentation:</strong> Opens official Unreal Engine docs</li>
+                    <li><strong>Tutorials:</strong> In-editor guided tutorials</li>
+                    <li><strong>Forums:</strong> Links to community forums</li>
+                    <li><strong>Answer Hub:</strong> Community Q&A site</li>
+                    <li><strong>About Unreal Editor:</strong> Version info and credits</li>
+                </ul>
+                
+                <h3>Main Toolbar</h3>
+                
+                <p>The main toolbar provides quick access to frequently used actions. Here's what each button does:</p>
+                
+                <!-- SVG Toolbar Diagram -->
+                <div class="card" style="background: #f8f9fa; padding: 2rem;">
+                    <h4 style="text-align: center; margin-bottom: 1rem;">📊 Main Toolbar Layout</h4>
+                    <svg width="100%" height="120" viewBox="0 0 1000 120" style="max-width: 100%; height: auto;">
+                        <!-- Save Button -->
+                        <rect x="10" y="10" width="80" height="80" fill="#4CAF50" stroke="#2e7d32" stroke-width="2" rx="5"/>
+                        <text x="50" y="50" font-size="40" text-anchor="middle" fill="white">💾</text>
+                        <text x="50" y="110" font-size="12" text-anchor="middle" fill="#333">Save</text>
+                        
+                        <!-- Content Browser -->
+                        <rect x="110" y="10" width="80" height="80" fill="#2196F3" stroke="#1565c0" stroke-width="2" rx="5"/>
+                        <text x="150" y="50" font-size="40" text-anchor="middle" fill="white">📁</text>
+                        <text x="150" y="110" font-size="12" text-anchor="middle" fill="#333">Content</text>
+                        
+                        <!-- Marketplace -->
+                        <rect x="210" y="10" width="80" height="80" fill="#FF9800" stroke="#e65100" stroke-width="2" rx="5"/>
+                        <text x="250" y="50" font-size="40" text-anchor="middle" fill="white">🛒</text>
+                        <text x="250" y="110" font-size="12" text-anchor="middle" fill="#333">Market</text>
+                        
+                        <!-- Settings -->
+                        <rect x="310" y="10" width="80" height="80" fill="#9C27B0" stroke="#6a1b9a" stroke-width="2" rx="5"/>
+                        <text x="350" y="50" font-size="40" text-anchor="middle" fill="white">⚙️</text>
+                        <text x="350" y="110" font-size="12" text-anchor="middle" fill="#333">Settings</text>
+                        
+                        <!-- Separator -->
+                        <line x1="410" y1="20" x2="410" y2="90" stroke="#ccc" stroke-width="2"/>
+                        
+                        <!-- Play -->
+                        <rect x="430" y="10" width="100" height="80" fill="#4CAF50" stroke="#2e7d32" stroke-width="3" rx="5"/>
+                        <text x="480" y="50" font-size="40" text-anchor="middle" fill="white">▶️</text>
+                        <text x="480" y="110" font-size="12" text-anchor="middle" fill="#333" font-weight="bold">PLAY</text>
+                        
+                        <!-- Play Options Dropdown -->
+                        <rect x="550" y="10" width="60" height="80" fill="#66BB6A" stroke="#2e7d32" stroke-width="2" rx="5"/>
+                        <text x="580" y="50" font-size="30" text-anchor="middle" fill="white">▼</text>
+                        <text x="580" y="110" font-size="12" text-anchor="middle" fill="#333">Options</text>
+                        
+                        <!-- Separator -->
+                        <line x1="630" y1="20" x2="630" y2="90" stroke="#ccc" stroke-width="2"/>
+                        
+                        <!-- Build -->
+                        <rect x="650" y="10" width="80" height="80" fill="#FF5722" stroke="#d32f2f" stroke-width="2" rx="5"/>
+                        <text x="690" y="50" font-size="40" text-anchor="middle" fill="white">🔨</text>
+                        <text x="690" y="110" font-size="12" text-anchor="middle" fill="#333">Build</text>
+                        
+                        <!-- Source Control -->
+                        <rect x="750" y="10" width="80" height="80" fill="#607D8B" stroke="#37474f" stroke-width="2" rx="5"/>
+                        <text x="790" y="50" font-size="40" text-anchor="middle" fill="white">🔄</text>
+                        <text x="790" y="110" font-size="12" text-anchor="middle" fill="#333">Source</text>
+                        
+                        <!-- Cinematics -->
+                        <rect x="850" y="10" width="80" height="80" fill="#E91E63" stroke="#ad1457" stroke-width="2" rx="5"/>
+                        <text x="890" y="50" font-size="40" text-anchor="middle" fill="white">🎬</text>
+                        <text x="890" y="110" font-size="12" text-anchor="middle" fill="#333">Sequence</text>
+                    </svg>
+                </div>
+                
+                <h4>Toolbar Button Details</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Button</th>
+                            <th>Function</th>
+                            <th>Quick Tip</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>💾 <strong>Save</strong></td>
+                            <td>Quick save current level and assets</td>
+                            <td>Click dropdown for Save All, Save As</td>
+                        </tr>
+                        <tr>
+                            <td>📁 <strong>Content</strong></td>
+                            <td>Open Content Browser</td>
+                            <td>Or press <kbd>Ctrl + Space</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>🛒 <strong>Marketplace</strong></td>
+                            <td>Browse Unreal Marketplace for assets</td>
+                            <td>Free content available monthly</td>
+                        </tr>
+                        <tr>
+                            <td>⚙️ <strong>Settings</strong></td>
+                            <td>Quick access to project and editor settings</td>
+                            <td>Dropdown shows both options</td>
+                        </tr>
+                        <tr>
+                            <td>▶️ <strong>Play</strong></td>
+                            <td>Test level in Play In Editor mode</td>
+                            <td><kbd>Alt + P</kbd> or click dropdown for more options</td>
+                        </tr>
+                        <tr>
+                            <td>🔨 <strong>Build</strong></td>
+                            <td>Build lighting, navigation, and other systems</td>
+                            <td>Dropdown shows build options</td>
+                        </tr>
+                        <tr>
+                            <td>🔄 <strong>Source Control</strong></td>
+                            <td>Version control integration</td>
+                            <td>Requires setup (Perforce, Git, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td>🎬 <strong>Cinematics</strong></td>
+                            <td>Open Sequencer for creating cutscenes</td>
+                            <td>Advanced feature for cinematics</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Play Mode Options</h3>
+                
+                <p>The Play button dropdown reveals several testing options:</p>
+                
+                <ul>
+                    <li><strong>Play (Default):</strong> Test in viewport window</li>
+                    <li><strong>New Editor Window:</strong> Opens separate window for testing</li>
+                    <li><strong>Standalone Game:</strong> Launches as if packaged (more accurate)</li>
+                    <li><strong>Simulate:</strong> Like Play but without player control (for physics/AI testing)</li>
+                    <li><strong>Number of Players:</strong> Test multiplayer locally with 2-4 clients</li>
+                </ul>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Advanced: Simulate Mode</h4>
+                    <p><strong>Simulate Mode</strong> is incredibly useful for testing without possessing a player character:</p>
+                    <ul>
+                        <li>Physics simulations run while you fly camera around</li>
+                        <li>AI behaviors execute without player interference</li>
+                        <li>Perfect for debugging systems independently</li>
+                        <li>Press <kbd>Esc</kbd> to stop, just like regular Play mode</li>
+                    </ul>
+                </div>
+                
+                <h3>Build Options</h3>
+                
+                <p>The Build dropdown offers several build types:</p>
+                
+                <ul>
+                    <li><strong>Build Lighting Only:</strong> Recalculate lights and shadows (most common)</li>
+                    <li><strong>Build Reflection Captures:</strong> Update reflections</li>
+                    <li><strong>Build Navigation:</strong> Regenerate AI pathfinding data</li>
+                    <li><strong>Build All Levels:</strong> Build everything in project</li>
+                    <li><strong>Build Lighting Quality:</strong>
+                        <ul>
+                            <li>Preview - Fast, low quality (seconds)</li>
+                            <li>Medium - Good balance (minutes)</li>
+                            <li>High - Production quality (hours for large levels)</li>
+                            <li>Production - Final quality (many hours)</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Section 7: Customization and Layouts -->
+            <section id="customization" class="lesson-section">
+                <h2>Customization and Layouts</h2>
+                
+                <p>Unreal Engine's interface is highly customizable. You can arrange panels, save layouts, and create workspace configurations tailored to specific tasks.</p>
+                
+                <h3>Moving and Docking Panels</h3>
+                
+                <h4>How to Rearrange Panels</h4>
+                
+                <ol>
+                    <li><strong>Click and drag</strong> the tab at the top of any panel</li>
+                    <li><strong>Dock indicators</strong> appear showing where you can place it:
+                        <ul>
+                            <li>Center of panel = tabbed with existing panel</li>
+                            <li>Top/Bottom/Left/Right = split and dock beside</li>
+                        </ul>
+                    </li>
+                    <li><strong>Release mouse</strong> when hover over desired location</li>
+                    <li><strong>Floating panels:</strong> Drag away from dock areas to create floating window</li>
+                </ol>
+                
+                <!-- SVG Docking Diagram -->
+                <div class="card" style="background: #f8f9fa; padding: 2rem;">
+                    <h4 style="text-align: center; margin-bottom: 1rem;">📊 Panel Docking Zones</h4>
+                    <svg width="100%" height="300" viewBox="0 0 600 300" style="max-width: 100%; height: auto;">
+                        <!-- Main Panel -->
+                        <rect x="150" y="75" width="300" height="150" fill="#e3f2fd" stroke="#2196F3" stroke-width="3" rx="5"/>
+                        <text x="300" y="155" font-size="18" text-anchor="middle" fill="#1976d2" font-weight="bold">CURRENT PANEL</text>
+                        
+                        <!-- Docking Zones -->
+                        <!-- Top -->
+                        <rect x="250" y="30" width="100" height="30" fill="#4CAF50" opacity="0.7" stroke="#2e7d32" stroke-width="2" rx="3"/>
+                        <text x="300" y="50" font-size="14" text-anchor="middle" fill="white" font-weight="bold">TOP</text>
+                        <path d="M 300 60 L 300 75" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrowgreen)"/>
+                        
+                        <!-- Bottom -->
+                        <rect x="250" y="240" width="100" height="30" fill="#4CAF50" opacity="0.7" stroke="#2e7d32" stroke-width="2" rx="3"/>
+                        <text x="300" y="260" font-size="14" text-anchor="middle" fill="white" font-weight="bold">BOTTOM</text>
+                        <path d="M 300 240 L 300 225" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrowgreen)"/>
+                        
+                        <!-- Left -->
+                        <rect x="60" y="125" width="70" height="50" fill="#4CAF50" opacity="0.7" stroke="#2e7d32" stroke-width="2" rx="3"/>
+                        <text x="95" y="155" font-size="14" text-anchor="middle" fill="white" font-weight="bold">LEFT</text>
+                        <path d="M 130 150 L 150 150" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrowgreen)"/>
+                        
+                        <!-- Right -->
+                        <rect x="470" y="125" width="70" height="50" fill="#4CAF50" opacity="0.7" stroke="#2e7d32" stroke-width="2" rx="3"/>
+                        <text x="505" y="155" font-size="14" text-anchor="middle" fill="white" font-weight="bold">RIGHT</text>
+                        <path d="M 470 150 L 450 150" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrowgreen)"/>
+                        
+                        <!-- Center (Tabbed) -->
+                        <circle cx="300" cy="150" r="35" fill="#FF9800" opacity="0.7" stroke="#e65100" stroke-width="2"/>
+                        <text x="300" y="155" font-size="13" text-anchor="middle" fill="white" font-weight="bold">TAB</text>
+                        
+                        <!-- Arrow marker definition -->
+                        <defs>
+                            <marker id="arrowgreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                <path d="M0,0 L0,6 L9,3 z" fill="#2e7d32" />
+                            </marker>
+                        </defs>
+                        
+                        <!-- Labels -->
+                        <text x="300" y="20" font-size="12" text-anchor="middle" fill="#666">Drag panel tab to docking zone</text>
+                    </svg>
+                    <p style="text-align: center; margin-top: 1rem; color: #666;"><strong>Green zones:</strong> Dock beside | <strong>Orange center:</strong> Create tab group</p>
+                </div>
+                
+                <h4>Resizing Panels</h4>
+                
+                <ul>
+                    <li>Hover over the border between panels—cursor changes to resize arrows</li>
+                    <li>Click and drag to resize</li>
+                    <li>Both panels adjust proportionally</li>
+                </ul>
+                
+                <h3>Saving and Loading Layouts</h3>
+                
+                <p>Once you've arranged panels perfectly, save the layout for future use:</p>
+                
+                <h4>Saving a Layout</h4>
+                
+                <ol>
+                    <li>Arrange all panels exactly how you want them</li>
+                    <li>Go to <strong>Window → Save Layout</strong></li>
+                    <li>Give it a descriptive name (e.g., "Level Design", "Blueprint Editing", "Animation")</li>
+                    <li>Click Save</li>
+                </ol>
+                
+                <h4>Loading a Layout</h4>
+                
+                <ul>
+                    <li><strong>Window → Load Layout</strong> → choose saved layout</li>
+                    <li>All panels snap to saved positions instantly</li>
+                    <li>Or right-click toolbar → Layouts → select layout</li>
+                </ul>
+                
+                <h4>Resetting to Default</h4>
+                
+                <ul>
+                    <li><strong>Window → Load Layout → Default Editor Layout</strong></li>
+                    <li>Restores original panel arrangement</li>
+                    <li>Useful if you've messed something up</li>
+                </ul>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Recommended Layouts for Different Tasks</h4>
+                    <p>Consider creating specialized layouts:</p>
+                    <ul>
+                        <li><strong>"Level Design":</strong> Large viewport, Content Browser prominent, Outliner visible</li>
+                        <li><strong>"Blueprint Work":</strong> Maximize Blueprint editor, Details on right, minimal viewport</li>
+                        <li><strong>"Material Creation":</strong> Material editor full-screen, small preview viewport</li>
+                        <li><strong>"Animation":</strong> Sequencer bottom, viewport top, Details right</li>
+                    </ul>
+                    <p>Switch between layouts as you change tasks for maximum efficiency!</p>
+                </div>
+                
+                <h3>Multi-Monitor Setup</h3>
+                
+                <p>If you have multiple monitors, take advantage of extra screen space:</p>
+                
+                <ul>
+                    <li><strong>Drag panels to other monitors:</strong> Undock panel and drag to second screen</li>
+                    <li><strong>Suggested multi-monitor setup:</strong>
+                        <ul>
+                            <li><strong>Primary Monitor:</strong> Large viewport for level editing</li>
+                            <li><strong>Secondary Monitor:</strong> Content Browser, Outliner, Details Panel</li>
+                        </ul>
+                    </li>
+                    <li><strong>Save multi-monitor layouts:</strong> Layout positions save monitor information</li>
+                </ul>
+                
+                <h3>Panel-Specific Customization</h3>
+                
+                <h4>Content Browser</h4>
+                
+                <ul>
+                    <li><strong>View Options:</strong> Bottom-right gear icon → customize thumbnail size, show type, etc.</li>
+                    <li><strong>Show/Hide Folders:</strong> Toggle folder tree visibility</li>
+                    <li><strong>Color Code Folders:</strong> Right-click folder → Set Color</li>
+                </ul>
+                
+                <h4>Viewport</h4>
+                
+                <ul>
+                    <li><strong>Viewport Options:</strong> Top-left icon → Grid settings, snap settings, camera speed</li>
+                    <li><strong>Show Flags:</strong> Toggle specific element visibility</li>
+                    <li><strong>Realtime Toggle:</strong> Disable real-time updates to save GPU (animation won't play)</li>
+                </ul>
+                
+                <h4>World Outliner</h4>
+                
+                <ul>
+                    <li><strong>Settings Menu:</strong> Three dots → sort options, filter settings</li>
+                    <li><strong>Column Customization:</strong> Right-click header → add/remove columns</li>
+                </ul>
+            </section>
+
+            <!-- Section 8: Essential Keyboard Shortcuts -->
+            <section id="keyboard-shortcuts" class="lesson-section">
+                <h2>Essential Keyboard Shortcuts</h2>
+                
+                <p>Mastering keyboard shortcuts dramatically speeds up your workflow. Here are the most important shortcuts organized by function.</p>
+                
+                <!-- SVG Keyboard Layout -->
+                <div class="card" style="background: #f8f9fa; padding: 2rem; overflow-x: auto;">
+                    <h4 style="text-align: center; margin-bottom: 1rem;">⌨️ Essential Shortcuts Quick Reference</h4>
+                    <svg width="100%" height="400" viewBox="0 0 900 400" style="max-width: 100%; height: auto;">
+                        <!-- File Operations -->
+                        <g>
+                            <text x="50" y="30" font-size="16" font-weight="bold" fill="#2196F3">FILE OPERATIONS</text>
+                            <rect x="50" y="40" width="200" height="100" fill="#e3f2fd" stroke="#2196F3" stroke-width="2" rx="5"/>
+                            <text x="60" y="65" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + S</tspan> - Save</text>
+                            <text x="60" y="85" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + Shift + S</tspan> - Save All</text>
+                            <text x="60" y="105" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + N</tspan> - New Level</text>
+                            <text x="60" y="125" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + O</tspan> - Open Level</text>
+                        </g>
+                        
+                        <!-- Viewport Navigation -->
+                        <g>
+                            <text x="280" y="30" font-size="16" font-weight="bold" fill="#4CAF50">VIEWPORT NAVIGATION</text>
+                            <rect x="280" y="40" width="250" height="140" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2" rx="5"/>
+                            <text x="290" y="65" font-size="14" fill="#333"><tspan font-weight="bold">RMB + WASD</tspan> - Fly Camera</text>
+                            <text x="290" y="85" font-size="14" fill="#333"><tspan font-weight="bold">Alt + LMB</tspan> - Orbit Camera</text>
+                            <text x="290" y="105" font-size="14" fill="#333"><tspan font-weight="bold">MMB</tspan> - Pan Camera</text>
+                            <text x="290" y="125" font-size="14" fill="#333"><tspan font-weight="bold">F</tspan> - Frame Selected</text>
+                            <text x="290" y="145" font-size="14" fill="#333"><tspan font-weight="bold">Scroll</tspan> - Zoom</text>
+                            <text x="290" y="165" font-size="14" fill="#333"><tspan font-weight="bold">Alt + 2/3/4</tspan> - View Modes</text>
+                        </g>
+                        
+                        <!-- Transform Tools -->
+                        <g>
+                            <text x="560" y="30" font-size="16" font-weight="bold" fill="#FF9800">TRANSFORM</text>
+                            <rect x="560" y="40" width="180" height="100" fill="#fff3e0" stroke="#FF9800" stroke-width="2" rx="5"/>
+                            <text x="570" y="65" font-size="14" fill="#333"><tspan font-weight="bold">W</tspan> - Move Mode</text>
+                            <text x="570" y="85" font-size="14" fill="#333"><tspan font-weight="bold">E</tspan> - Rotate Mode</text>
+                            <text x="570" y="105" font-size="14" fill="#333"><tspan font-weight="bold">R</tspan> - Scale Mode</text>
+                            <text x="570" y="125" font-size="14" fill="#333"><tspan font-weight="bold">Space</tspan> - Cycle Modes</text>
+                        </g>
+                        
+                        <!-- Selection & Editing -->
+                        <g>
+                            <text x="50" y="200" font-size="16" font-weight="bold" fill="#9C27B0">SELECTION & EDITING</text>
+                            <rect x="50" y="210" width="220" height="160" fill="#f3e5f5" stroke="#9C27B0" stroke-width="2" rx="5"/>
+                            <text x="60" y="235" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + A</tspan> - Select All</text>
+                            <text x="60" y="255" font-size="14" fill="#333"><tspan font-weight="bold">Esc</tspan> - Deselect All</text>
+                            <text x="60" y="275" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + D</tspan> - Duplicate</text>
+                            <text x="60" y="295" font-size="14" fill="#333"><tspan font-weight="bold">Delete</tspan> - Delete</text>
+                            <text x="60" y="315" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + Z</tspan> - Undo</text>
+                            <text x="60" y="335" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + Y</tspan> - Redo</text>
+                            <text x="60" y="355" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + C/V</tspan> - Copy/Paste</text>
+                        </g>
+                        
+                        <!-- Play & Testing -->
+                        <g>
+                            <text x="300" y="200" font-size="16" font-weight="bold" fill="#F44336">PLAY & TESTING</text>
+                            <rect x="300" y="210" width="200" height="100" fill="#ffebee" stroke="#F44336" stroke-width="2" rx="5"/>
+                            <text x="310" y="235" font-size="14" fill="#333"><tspan font-weight="bold">Alt + P</tspan> - Play (PIE)</text>
+                            <text x="310" y="255" font-size="14" fill="#333"><tspan font-weight="bold">Esc</tspan> - Stop Playing</text>
+                            <text x="310" y="275" font-size="14" fill="#333"><tspan font-weight="bold">Alt + S</tspan> - Simulate</text>
+                            <text x="310" y="295" font-size="14" fill="#333"><tspan font-weight="bold">Pause</tspan> - Pause Game</text>
+                        </g>
+                        
+                        <!-- Panels & UI -->
+                        <g>
+                            <text x="530" y="200" font-size="16" font-weight="bold" fill="#00BCD4">PANELS & UI</text>
+                            <rect x="530" y="210" width="250" height="120" fill="#e0f7fa" stroke="#00BCD4" stroke-width="2" rx="5"/>
+                            <text x="540" y="235" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + Space</tspan> - Content Browser</text>
+                            <text x="540" y="255" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + Shift + O</tspan> - Outliner</text>
+                            <text x="540" y="275" font-size="14" fill="#333"><tspan font-weight="bold">Ctrl + B</tspan> - Find in CB</text>
+                            <text x="540" y="295" font-size="14" fill="#333"><tspan font-weight="bold">~</tspan> (backtick) - Console</text>
+                            <text x="540" y="315" font-size="14" fill="#333"><tspan font-weight="bold">F11</tspan> - Fullscreen</text>
+                        </g>
+                    </svg>
+                </div>
+                
+                <h3>Complete Shortcut Reference</h3>
+                
+                <h4>File Management</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><kbd>Ctrl + S</kbd></td><td>Save current level</td></tr>
+                        <tr><td><kbd>Ctrl + Shift + S</kbd></td><td>Save all</td></tr>
+                        <tr><td><kbd>Ctrl + N</kbd></td><td>New level</td></tr>
+                        <tr><td><kbd>Ctrl + O</kbd></td><td>Open level</td></tr>
+                        <tr><td><kbd>Ctrl + P</kbd></td><td>Open asset picker</td></tr>
+                    </tbody>
+                </table>
+                
+                <h4>Viewport Controls</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><kbd>Right Mouse + WASD</kbd></td><td>Fly camera (hold Shift to speed up)</td></tr>
+                        <tr><td><kbd>Alt + Left Mouse</kbd></td><td>Orbit around focus point</td></tr>
+                        <tr><td><kbd>Middle Mouse</kbd></td><td>Pan camera</td></tr>
+                        <tr><td><kbd>F</kbd></td><td>Frame selected object</td></tr>
+                        <tr><td><kbd>G</kbd></td><td>Toggle game view (hides editor icons)</td></tr>
+                        <tr><td><kbd>Alt + 2</kbd></td><td>Wireframe view mode</td></tr>
+                        <tr><td><kbd>Alt + 3</kbd></td><td>Unlit view mode</td></tr>
+                        <tr><td><kbd>Alt + 4</kbd></td><td>Lit view mode (default)</td></tr>
+                    </tbody>
+                </table>
+                
+                <h4>Transform Tools</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><kbd>W</kbd></td><td>Move/Translate mode</td></tr>
+                        <tr><td><kbd>E</kbd></td><td>Rotate mode</td></tr>
+                        <tr><td><kbd>R</kbd></td><td>Scale mode</td></tr>
+                        <tr><td><kbd>Spacebar</kbd></td><td>Cycle through transform modes</td></tr>
+                        <tr><td><kbd>Ctrl + W/E/R</kbd></td><td>Toggle World/Local space</td></tr>
+                    </tbody>
+                </table>
+                
+                <h4>Selection</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><kbd>Left Click</kbd></td><td>Select object</td></tr>
+                        <tr><td><kbd>Ctrl + Left Click</kbd></td><td>Add to selection</td></tr>
+                        <tr><td><kbd>Ctrl + A</kbd></td><td>Select all</td></tr>
+                        <tr><td><kbd>Esc</kbd></td><td>Deselect all</td></tr>
+                        <tr><td><kbd>Shift + E</kbd></td><td>Select all actors using same mesh</td></tr>
+                    </tbody>
+                </table>
+                
+                <h4>Editing</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><kbd>Ctrl + D</kbd></td><td>Duplicate selected</td></tr>
+                        <tr><td><kbd>Alt + Drag</kbd></td><td>Duplicate while moving</td></tr>
+                        <tr><td><kbd>Delete</kbd></td><td>Delete selected</td></tr>
+                        <tr><td><kbd>Ctrl + Z</kbd></td><td>Undo</td></tr>
+                        <tr><td><kbd>Ctrl + Y</kbd></td><td>Redo</td></tr>
+                        <tr><td><kbd>Ctrl + C</kbd></td><td>Copy</td></tr>
+                        <tr><td><kbd>Ctrl + V</kbd></td><td>Paste</td></tr>
+                        <tr><td><kbd>Ctrl + X</kbd></td><td>Cut</td></tr>
+                        <tr><td><kbd>End</kbd></td><td>Snap object to ground</td></tr>
+                    </tbody>
+                </table>
+                
+                <h4>Play and Simulation</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><kbd>Alt + P</kbd></td><td>Play in editor (PIE)</td></tr>
+                        <tr><td><kbd>Esc</kbd></td><td>Stop playing/simulating</td></tr>
+                        <tr><td><kbd>Alt + S</kbd></td><td>Simulate physics</td></tr>
+                        <tr><td><kbd>Pause</kbd></td><td>Pause game</td></tr>
+                        <tr><td><kbd>F8</kbd></td><td>Eject from player (PIE only)</td></tr>
+                    </tbody>
+                </table>
+                
+                <h4>Panels and Windows</h4>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><kbd>Ctrl + Space</kbd></td><td>Open Content Browser</td></tr>
+                        <tr><td><kbd>Ctrl + Shift + O</kbd></td><td>Focus World Outliner</td></tr>
+                        <tr><td><kbd>Ctrl + B</kbd></td><td>Find selected in Content Browser</td></tr>
+                        <tr><td><kbd>Ctrl + K</kbd></td><td>Open Asset Picker</td></tr>
+                        <tr><td><kbd>~</kbd> (backtick)</td><td>Open console command line</td></tr>
+                        <tr><td><kbd>F11</kbd></td><td>Toggle fullscreen</td></tr>
+                        <tr><td><kbd>Ctrl + Tab</kbd></td><td>Cycle through open editors</td></tr>
+                    </tbody>
+                </table>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Top 10 Shortcuts to Memorize First</h4>
+                    <p>Focus on these core shortcuts to see immediate productivity gains:</p>
+                    <ol>
+                        <li><kbd>Ctrl + S</kbd> - Save (muscle memory!)</li>
+                        <li><kbd>Right Mouse + WASD</kbd> - Fly camera</li>
+                        <li><kbd>F</kbd> - Frame selected object</li>
+                        <li><kbd>W / E / R</kbd> - Move / Rotate / Scale</li>
+                        <li><kbd>Ctrl + D</kbd> - Duplicate</li>
+                        <li><kbd>Ctrl + Z</kbd> - Undo</li>
+                        <li><kbd>Alt + P</kbd> - Play</li>
+                        <li><kbd>Esc</kbd> - Deselect / Stop Playing</li>
+                        <li><kbd>Ctrl + Space</kbd> - Content Browser</li>
+                        <li><kbd>End</kbd> - Snap to ground</li>
+                    </ol>
+                </div>
+                
+                <h3>Customizing Shortcuts</h3>
+                
+                <p>You can rebind any shortcut to your preference:</p>
+                
+                <ol>
+                    <li>Go to <strong>Edit → Editor Preferences</strong></li>
+                    <li>Navigate to <strong>General → Keyboard Shortcuts</strong></li>
+                    <li>Search for the command you want to rebind</li>
+                    <li>Click on the current binding</li>
+                    <li>Press your desired key combination</li>
+                    <li>Click "Accept" to save</li>
+                </ol>
+                
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Tip: Print a Cheat Sheet</h4>
+                    <p>While learning, keep a printed shortcuts reference nearby. Most developers have common shortcuts memorized within 1-2 weeks of regular use. The shortcuts become second nature quickly!</p>
+                </div>
+            </section>
+
+            <!-- Section 9: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+                
+                <p>Congratulations! You've completed an in-depth tour of the Unreal Editor interface. You now have the knowledge to navigate efficiently, customize your workspace, and work like a professional.</p>
+                
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h3>🎉 Key Takeaways</h3>
+                    <ul>
+                        <li><strong>Viewport Mastery:</strong> Multiple navigation modes (fly, orbit, pan), view modes (Lit, Unlit, Wireframe), and Show flags for controlling visibility.</li>
+                        <li><strong>Content Browser:</strong> Your asset library—use search, filters, and collections to stay organized. Follow naming conventions for scalability.</li>
+                        <li><strong>World Outliner:</strong> Hierarchical list of all actors—use folders for organization, visibility toggles for complex scenes, and parenting for compound objects.</li>
+                        <li><strong>Details Panel:</strong> Context-sensitive property editor—Transform controls, rendering settings, collision, physics, and more. Use search and favorites for efficiency.</li>
+                        <li><strong>Toolbar:</strong> Quick access to Save, Play, Build, Settings, and Content Browser. Dropdown menus reveal additional options.</li>
+                        <li><strong>Customization:</strong> Drag panels to rearrange, save layouts for different tasks, and optimize for multi-monitor setups.</li>
+                        <li><strong>Keyboard Shortcuts:</strong> Master the top 10 shortcuts first, then gradually add more. Rebind as needed for your workflow.</li>
+                    </ul>
+                </div>
+                
+                <h3>📚 Skills You've Mastered</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Skill Category</th>
+                            <th>What You Can Now Do</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Navigation</strong></td>
+                            <td>Fly, orbit, and pan smoothly; switch view modes; frame objects instantly</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Asset Management</strong></td>
+                            <td>Find, organize, import, and manage thousands of assets efficiently</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scene Organization</strong></td>
+                            <td>Use folders, search, and visibility to manage complex levels</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Property Editing</strong></td>
+                            <td>Modify transforms, materials, physics, and all object properties</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Workflow Optimization</strong></td>
+                            <td>Use shortcuts, custom layouts, and efficient techniques</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>🚀 What's Next?</h3>
+                
+                <p>With interface mastery under your belt, you're ready to start building! The next module will teach you fundamental level design concepts:</p>
+                
+                <ul>
+                    <li>Working with geometry and brushes</li>
+                    <li>Understanding actors and components</li>
+                    <li>Lighting your scenes</li>
+                    <li>Materials and textures basics</li>
+                    <li>Building your first complete environment</li>
+                </ul>
+                
+                <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; text-align: center; padding: 2rem;">
+                    <h3 style="color: white;">🎓 Interface Expert!</h3>
+                    <p style="color: white;">You've graduated from interface beginner to confident user! The editor that once seemed overwhelming is now a familiar workspace. Every professional started exactly where you are. Keep practicing, and soon these skills will be completely automatic!</p>
+                </div>
+                
+                <h3>💪 Practice Challenges</h3>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🏋️ Challenge 1: Speed Navigation Drill</h4>
+                    <p><strong>Goal:</strong> Build navigation muscle memory</p>
+                    <ol>
+                        <li>Place 10 cubes randomly throughout your level</li>
+                        <li>Practice flying to each one using <kbd>Right Mouse + WASD</kbd></li>
+                        <li>Click each cube, press <kbd>F</kbd> to frame it</li>
+                        <li>Time yourself—try to visit all 10 in under 30 seconds</li>
+                    </ol>
+                    <p><strong>Success:</strong> Smooth, confident navigation without thinking</p>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🏋️ Challenge 2: Asset Organization Master</h4>
+                    <p><strong>Goal:</strong> Practice Content Browser organization</p>
+                    <ol>
+                        <li>Create folders: Props, Materials, Meshes, Textures</li>
+                        <li>Move 5+ assets from StarterContent into appropriate folders</li>
+                        <li>Create a Collection called "Level_01_Assets"</li>
+                        <li>Add 5 assets to the collection</li>
+                        <li>Use search to find a specific asset quickly</li>
+                    </ol>
+                    <p><strong>Success:</strong> Clean, organized project structure</p>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🏋️ Challenge 3: Outliner Organization</h4>
+                    <p><strong>Goal:</strong> Master scene hierarchy</p>
+                    <ol>
+                        <li>Create folders in Outliner: Lighting, Environment, Props</li>
+                        <li>Organize all level actors into appropriate folders</li>
+                        <li>Create a lamp by parenting a Point Light to a Cylinder</li>
+                        <li>Hide the Environment folder—notice viewport clears</li>
+                        <li>Show all again</li>
+                    </ol>
+                    <p><strong>Success:</strong> Well-organized, easy-to-navigate scene</p>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🏋️ Challenge 4: Transform Precision</h4>
+                    <p><strong>Goal:</strong> Master object manipulation</p>
+                    <ol>
+                        <li>Place a cube at exactly X=0, Y=0, Z=100 using Details Panel</li>
+                        <li>Rotate it exactly 45 degrees on Z axis</li>
+                        <li>Scale it to 2.0 on all axes (use lock icon)</li>
+                        <li>Duplicate it and move copy to X=500</li>
+                        <li>Select both and scale them together to 1.5</li>
+                    </ol>
+                    <p><strong>Success:</strong> Precise control over object properties</p>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🏋️ Challenge 5: Custom Workspace</h4>
+                    <p><strong>Goal:</strong> Create personalized layout</p>
+                    <ol>
+                        <li>Rearrange panels to your preference</li>
+                        <li>Resize viewport to take up 60% of screen</li>
+                        <li>Dock Content Browser and Outliner side-by-side at bottom</li>
+                        <li>Save layout as "My Level Design Layout"</li>
+                        <li>Reset to default, then load your custom layout</li>
+                    </ol>
+                    <p><strong>Success:</strong> Efficient personalized workspace</p>
+                </div>
+                
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🏋️ Challenge 6: Shortcut Speed Test</h4>
+                    <p><strong>Goal:</strong> Memorize essential shortcuts</p>
+                    <ol>
+                        <li>Without looking at reference, try to remember:</li>
+                        <li>What does <kbd>W</kbd> do? <kbd>E</kbd>? <kbd>R</kbd>?</li>
+                        <li>How do you duplicate? Undo? Frame selected?</li>
+                        <li>How do you start playing? Stop playing?</li>
+                        <li>How do you open Content Browser?</li>
+                    </ol>
+                    <p><strong>Success:</strong> Answer all without checking reference</p>
+                </div>
+                
+                <h3>🤔 Common Questions</h3>
+                
+                <details>
+                    <summary><strong>Q: The interface feels overwhelming. Is that normal?</strong></summary>
+                    <p>Absolutely! Every Unreal developer felt the same way initially. The interface has a lot of panels and options because it's a professional tool. Focus on one panel at a time, and within a few days it will feel natural. Start with viewport, Content Browser, and Outliner—those three cover 90% of daily work.</p>
+                </details>
+                
+                <details>
+                    <summary><strong>Q: How long does it take to memorize shortcuts?</strong></summary>
+                    <p>Most developers memorize the top 10 essential shortcuts within 1 week of regular use. The full set of 30-40 common shortcuts takes about 2-4 weeks. Don't try to memorize everything at once—learn organically as you work.</p>
+                </details>
+                
+                <details>
+                    <summary><strong>Q: Can I use Unreal on a single monitor effectively?</strong></summary>
+                    <p>Yes! Most beginners use a single monitor. The default layout works well. If you get a second monitor later, you can expand your workspace, but it's not required. Many professionals still use single monitors.</p>
+                </details>
+                
+                <details>
+                    <summary><strong>Q: I accidentally closed a panel. How do I get it back?</strong></summary>
+                    <p>Go to Window menu and click the panel name (Content Browser, Outliner, Details, etc.). Or use Window → Load Layout → Default to reset everything.</p>
+                </details>
+                
+                <details>
+                    <summary><strong>Q: Should I customize my interface immediately?</strong></summary>
+                    <p>No—stick with defaults while learning. After a few weeks, you'll naturally discover what layout works best for you. Then customize and save layouts for different tasks.</p>
+                </details>
+                
+                <h3>📖 Additional Resources</h3>
+                
+                <ul>
+                    <li><strong>Official Documentation:</strong> <a href="https://docs.unrealengine.com/5.5/en-US/unreal-editor-interface/" target="_blank" rel="noopener">Unreal Editor Interface</a></li>
+                    <li><strong>Keyboard Shortcuts:</strong> <a href="https://docs.unrealengine.com/5.5/en-US/keyboard-shortcuts-in-unreal-engine/" target="_blank" rel="noopener">Complete Shortcut Reference</a></li>
+                    <li><strong>Video Tutorial:</strong> Search "Unreal Engine 5 Interface Complete Guide" on YouTube</li>
+                    <li><strong>Quick Reference Card:</strong> Print keyboard shortcut diagrams from this lesson for your desk</li>
+                </ul>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson Navigation">
+                <a href="m01_l03_your_first_project.html" class="prev-lesson">← Previous: Your First Project</a>
+                <a href="index.html" class="home-link">🏠 Course Home</a>
+                <a href="m02_l01_understanding_levels.html" class="next-lesson">Next: Module 2 →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; margin-top: 4rem;">
+        <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; opacity: 0.9;">Empowering creators to build amazing experiences with Unreal Engine.</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            <a href="index.html" style="color: white; text-decoration: underline;">Course Home</a> | 
+            <a href="index.html#modules" style="color: white; text-decoration: underline;">All Modules</a> | 
+            <a href="#main-content" style="color: white; text-decoration: underline;">Back to Top ↑</a>
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/clipboard.js"></script>
+    <script src="js/course-enhancements.js"></script>
+</body>
+</html>

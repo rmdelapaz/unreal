@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn to build complex materials in Unreal Engine 5 using math nodes, texture blending, Lerp operations, and Material Functions.">
+    <meta name="author" content="Practical Ace">
+    <title>Building Complex Materials - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 3: Materials and Textures</a></li>
+            <li aria-current="page">Lesson 3.3: Building Complex Materials</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🔧 Building Complex Materials</h1>
+                <p class="lead">Real-world surfaces are rarely simple—a concrete floor has cracks filled with dirt, a metal panel shows rust creeping from the edges, a forest floor blends grass, soil, and fallen leaves. In this lesson, you'll learn to combine textures and effects using math operations, creating materials that tell visual stories.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Use essential math nodes (Add, Multiply, Lerp) to combine and modify textures</li>
+                        <li>Explain how Lerp (Linear Interpolation) blends between two inputs using a mask</li>
+                        <li>Create Material Functions for reusable material logic</li>
+                        <li>Implement texture blending techniques for multi-surface materials</li>
+                        <li>Set up world-aligned textures that ignore mesh UVs</li>
+                        <li>Build a terrain blend material that transitions between multiple surfaces</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 3.2 - Texture Basics</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#math-nodes" class="toc-link">Using Math Nodes for Effects</a></li>
+                        <li><a href="#lerp-operations" class="toc-link">Lerp, Multiply, Add Operations</a></li>
+                        <li><a href="#material-functions" class="toc-link">Creating Material Functions</a></li>
+                        <li><a href="#texture-blending" class="toc-link">Texture Blending Techniques</a></li>
+                        <li><a href="#world-aligned" class="toc-link">World-Aligned Textures</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Create a Terrain Blend Material</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Using Math Nodes for Effects -->
+            <section id="math-nodes" class="lesson-section">
+                <h2>Using Math Nodes for Effects</h2>
+                
+                <p>The Material Editor isn't just about connecting textures to outputs—it's a visual programming environment where you manipulate data using mathematical operations. Every color is a set of numbers. Every texture is a grid of numbers. By applying math to these numbers, you can create effects that go far beyond simple texture mapping.</p>
+
+                <p>Think of it this way: if textures are your ingredients and the material output is your finished dish, math nodes are your cooking techniques—the chopping, mixing, seasoning, and layering that transform raw ingredients into something greater than the sum of its parts.</p>
+
+                <h3>Numbers Behind the Colors</h3>
+
+                <p>Before diving into specific nodes, remember that everything in the Material Editor is ultimately numbers:</p>
+
+                <p><strong>A color</strong> is three numbers (RGB), each ranging from 0 to 1. Black is (0, 0, 0). White is (1, 1, 1). Bright red is (1, 0, 0).</p>
+
+                <p><strong>A grayscale value</strong> is a single number from 0 (black) to 1 (white).</p>
+
+                <p><strong>A texture sample</strong> outputs numbers at each pixel—RGB values for color textures, a single value for grayscale masks.</p>
+
+                <p>When you understand that you're manipulating numbers, operations like "multiply two textures together" become intuitive: you're just multiplying the numbers at each corresponding pixel.</p>
+
+                <!-- SVG: Numbers Behind Colors -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1a1a2e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Colors Are Just Numbers</text>
+                    
+                    <!-- Black -->
+                    <g transform="translate(60, 55)">
+                        <rect x="0" y="0" width="80" height="80" fill="#000" stroke="#fff" stroke-width="2"/>
+                        <text x="40" y="110" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Black</text>
+                        <text x="40" y="130" text-anchor="middle" fill="#aaa" font-size="11">(0, 0, 0)</text>
+                    </g>
+                    
+                    <!-- Red -->
+                    <g transform="translate(180, 55)">
+                        <rect x="0" y="0" width="80" height="80" fill="#ff0000" stroke="#fff" stroke-width="2"/>
+                        <text x="40" y="110" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Red</text>
+                        <text x="40" y="130" text-anchor="middle" fill="#aaa" font-size="11">(1, 0, 0)</text>
+                    </g>
+                    
+                    <!-- Green -->
+                    <g transform="translate(300, 55)">
+                        <rect x="0" y="0" width="80" height="80" fill="#00ff00" stroke="#fff" stroke-width="2"/>
+                        <text x="40" y="110" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Green</text>
+                        <text x="40" y="130" text-anchor="middle" fill="#aaa" font-size="11">(0, 1, 0)</text>
+                    </g>
+                    
+                    <!-- Yellow -->
+                    <g transform="translate(420, 55)">
+                        <rect x="0" y="0" width="80" height="80" fill="#ffff00" stroke="#fff" stroke-width="2"/>
+                        <text x="40" y="110" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Yellow</text>
+                        <text x="40" y="130" text-anchor="middle" fill="#aaa" font-size="11">(1, 1, 0)</text>
+                    </g>
+                    
+                    <!-- Gray -->
+                    <g transform="translate(540, 55)">
+                        <rect x="0" y="0" width="80" height="80" fill="#808080" stroke="#fff" stroke-width="2"/>
+                        <text x="40" y="110" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Mid Gray</text>
+                        <text x="40" y="130" text-anchor="middle" fill="#aaa" font-size="11">(0.5, 0.5, 0.5)</text>
+                    </g>
+                    
+                    <!-- White -->
+                    <g transform="translate(660, 55)">
+                        <rect x="0" y="0" width="80" height="80" fill="#fff" stroke="#fff" stroke-width="2"/>
+                        <text x="40" y="110" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">White</text>
+                        <text x="40" y="130" text-anchor="middle" fill="#aaa" font-size="11">(1, 1, 1)</text>
+                    </g>
+                    
+                    <!-- Footer note -->
+                    <text x="400" y="175" text-anchor="middle" fill="#667eea" font-size="12">Each value represents intensity: 0 = none, 1 = full</text>
+                    <text x="400" y="195" text-anchor="middle" fill="#888" font-size="11">Math operations work on these numbers pixel by pixel</text>
+                </svg>
+                <p class="caption"><em>Figure: Every color is represented as RGB values between 0 and 1.</em></p>
+
+                <h3>Essential Math Node Categories</h3>
+
+                <p>Unreal's Material Editor provides dozens of math nodes, but you'll use a handful constantly:</p>
+
+                <!-- SVG: Math Node Categories -->
+                <svg width="100%" height="340" viewBox="0 0 800 340" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="18" font-weight="bold">Essential Math Nodes</text>
+                    
+                    <!-- Arithmetic Row -->
+                    <text x="50" y="65" fill="#667eea" font-size="14" font-weight="bold">Arithmetic</text>
+                    
+                    <g transform="translate(50, 80)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#4CAF50" opacity="0.2" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Add</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#666" font-size="10">A + B</text>
+                    </g>
+                    
+                    <g transform="translate(170, 80)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#FF9800" opacity="0.2" stroke="#FF9800" stroke-width="2"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Subtract</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#666" font-size="10">A - B</text>
+                    </g>
+                    
+                    <g transform="translate(290, 80)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#2196F3" opacity="0.2" stroke="#2196F3" stroke-width="2"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Multiply</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#666" font-size="10">A × B</text>
+                    </g>
+                    
+                    <g transform="translate(410, 80)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#9C27B0" opacity="0.2" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Divide</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#666" font-size="10">A ÷ B</text>
+                    </g>
+                    
+                    <g transform="translate(530, 80)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#e91e63" opacity="0.2" stroke="#e91e63" stroke-width="2"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Power</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#666" font-size="10">A ^ B</text>
+                    </g>
+                    
+                    <g transform="translate(650, 80)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#00BCD4" opacity="0.2" stroke="#00BCD4" stroke-width="2"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">OneMinus</text>
+                        <text x="50" y="40" text-anchor="middle" fill="#666" font-size="10">1 - A</text>
+                    </g>
+                    
+                    <!-- Blending Row -->
+                    <text x="50" y="170" fill="#667eea" font-size="14" font-weight="bold">Blending &amp; Interpolation</text>
+                    
+                    <g transform="translate(50, 185)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="2"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Lerp ⭐</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#666" font-size="10">Blend A→B by Alpha</text>
+                    </g>
+                    
+                    <g transform="translate(210, 185)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#795548" opacity="0.2" stroke="#795548" stroke-width="2"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Clamp</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#666" font-size="10">Keep between Min/Max</text>
+                    </g>
+                    
+                    <g transform="translate(370, 185)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#607D8B" opacity="0.2" stroke="#607D8B" stroke-width="2"/>
+                        <text x="70" y="22" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Saturate</text>
+                        <text x="70" y="40" text-anchor="middle" fill="#666" font-size="10">Clamp to 0-1 range</text>
+                    </g>
+                    
+                    <!-- Utility Row -->
+                    <text x="50" y="275" fill="#667eea" font-size="14" font-weight="bold">Utility</text>
+                    
+                    <g transform="translate(50, 290)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#8BC34A" opacity="0.2" stroke="#8BC34A" stroke-width="2"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#333" font-size="11">Abs (Absolute)</text>
+                    </g>
+                    
+                    <g transform="translate(190, 290)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#CDDC39" opacity="0.2" stroke="#CDDC39" stroke-width="2"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#333" font-size="11">Floor / Ceil</text>
+                    </g>
+                    
+                    <g transform="translate(330, 290)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#FFC107" opacity="0.2" stroke="#FFC107" stroke-width="2"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#333" font-size="11">Min / Max</text>
+                    </g>
+                    
+                    <g transform="translate(470, 290)">
+                        <rect x="0" y="0" width="120" height="40" rx="5" fill="#FF5722" opacity="0.2" stroke="#FF5722" stroke-width="2"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#333" font-size="11">Frac (Fractional)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: These math nodes form the foundation of complex material effects. Lerp is especially important!</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Keyboard Shortcuts</h4>
+                    <p>Speed up your workflow with these shortcuts—hold the key and click to create the node:</p>
+                    <p><strong>A</strong> = Add | <strong>M</strong> = Multiply | <strong>D</strong> = Divide | <strong>O</strong> = OneMinus</p>
+                    <p><strong>L</strong> = Lerp | <strong>1/2/3/4</strong> = Constant with 1/2/3/4 components</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Lerp, Multiply, Add Operations -->
+            <section id="lerp-operations" class="lesson-section">
+                <h2>Lerp, Multiply, Add Operations</h2>
+
+                <p>Of all the math nodes, three stand out as absolutely essential: <strong>Lerp</strong>, <strong>Multiply</strong>, and <strong>Add</strong>. Master these, and you can create the vast majority of material effects.</p>
+
+                <h3>Multiply: The Workhorse</h3>
+
+                <p>The <strong>Multiply</strong> node does exactly what it sounds like—it multiplies input A by input B. But the applications are surprisingly versatile:</p>
+
+                <p><strong>Tinting colors:</strong> Multiply a texture by a color to tint it. Multiplying by (1, 0.5, 0.5) makes the image more red by reducing green and blue.</p>
+
+                <p><strong>Adjusting intensity:</strong> Multiply by a single value to brighten (values &gt; 1) or darken (values &lt; 1) a texture.</p>
+
+                <p><strong>Masking:</strong> Multiply a texture by a black-and-white mask. Where the mask is white (1), the texture shows fully. Where the mask is black (0), the result is black.</p>
+
+                <!-- SVG: Multiply Examples -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Multiply Node Use Cases</text>
+                    
+                    <!-- Tinting Example -->
+                    <g transform="translate(50, 55)">
+                        <text x="90" y="0" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">Tinting</text>
+                        
+                        <!-- Original -->
+                        <rect x="0" y="15" width="60" height="60" fill="#888"/>
+                        <text x="30" y="95" text-anchor="middle" fill="#aaa" font-size="9">Original</text>
+                        
+                        <text x="80" y="50" fill="#fff" font-size="16">×</text>
+                        
+                        <!-- Tint color -->
+                        <rect x="100" y="15" width="60" height="60" fill="#ffaa00"/>
+                        <text x="130" y="95" text-anchor="middle" fill="#aaa" font-size="9">Orange tint</text>
+                        
+                        <text x="180" y="50" fill="#fff" font-size="16">=</text>
+                        
+                        <!-- Result -->
+                        <rect x="200" y="15" width="60" height="60" fill="#b38600"/>
+                        <text x="230" y="95" text-anchor="middle" fill="#aaa" font-size="9">Tinted result</text>
+                    </g>
+                    
+                    <!-- Intensity Example -->
+                    <g transform="translate(300, 55)">
+                        <text x="90" y="0" text-anchor="middle" fill="#2196F3" font-size="12" font-weight="bold">Intensity</text>
+                        
+                        <!-- Original -->
+                        <rect x="0" y="15" width="60" height="60" fill="#666"/>
+                        <text x="30" y="95" text-anchor="middle" fill="#aaa" font-size="9">Original</text>
+                        
+                        <text x="80" y="50" fill="#fff" font-size="16">×</text>
+                        
+                        <!-- Multiplier -->
+                        <rect x="100" y="15" width="60" height="60" fill="#333" stroke="#fff" stroke-width="1"/>
+                        <text x="130" y="50" text-anchor="middle" fill="#fff" font-size="14">2.0</text>
+                        <text x="130" y="95" text-anchor="middle" fill="#aaa" font-size="9">Scalar</text>
+                        
+                        <text x="180" y="50" fill="#fff" font-size="16">=</text>
+                        
+                        <!-- Result -->
+                        <rect x="200" y="15" width="60" height="60" fill="#ccc"/>
+                        <text x="230" y="95" text-anchor="middle" fill="#aaa" font-size="9">Brightened</text>
+                    </g>
+                    
+                    <!-- Masking Example -->
+                    <g transform="translate(550, 55)">
+                        <text x="90" y="0" text-anchor="middle" fill="#FF9800" font-size="12" font-weight="bold">Masking</text>
+                        
+                        <!-- Texture -->
+                        <rect x="0" y="15" width="60" height="60" fill="#c0392b"/>
+                        <text x="30" y="95" text-anchor="middle" fill="#aaa" font-size="9">Texture</text>
+                        
+                        <text x="80" y="50" fill="#fff" font-size="16">×</text>
+                        
+                        <!-- Mask -->
+                        <rect x="100" y="15" width="60" height="60" fill="#000"/>
+                        <circle cx="130" cy="45" r="20" fill="#fff"/>
+                        <text x="130" y="95" text-anchor="middle" fill="#aaa" font-size="9">Mask</text>
+                        
+                        <text x="180" y="50" fill="#fff" font-size="16">=</text>
+                        
+                        <!-- Result -->
+                        <rect x="200" y="15" width="60" height="60" fill="#000"/>
+                        <circle cx="230" cy="45" r="20" fill="#c0392b"/>
+                        <text x="230" y="95" text-anchor="middle" fill="#aaa" font-size="9">Masked</text>
+                    </g>
+                    
+                    <!-- Formula reminder -->
+                    <rect x="150" y="180" width="500" height="80" rx="8" fill="rgba(255,255,255,0.05)" stroke="#667eea"/>
+                    <text x="400" y="210" text-anchor="middle" fill="#fff" font-size="13">Per-pixel formula: Result = A × B</text>
+                    <text x="400" y="235" text-anchor="middle" fill="#888" font-size="11">Multiplying by 0 = black | by 1 = unchanged | by &gt;1 = brighter</text>
+                </svg>
+                <p class="caption"><em>Figure: Multiply is incredibly versatile—tinting, adjusting brightness, and masking all use the same node.</em></p>
+
+                <h3>Add: Layering and Brightening</h3>
+
+                <p>The <strong>Add</strong> node sums two inputs together. Unlike Multiply, which can only make things darker or unchanged (when multiplying by values ≤ 1), Add can push values higher:</p>
+
+                <p><strong>Adding light effects:</strong> Add emissive glow on top of a base color.</p>
+
+                <p><strong>Combining masks:</strong> Add two masks together to create a combined effect area.</p>
+
+                <p><strong>Shifting values:</strong> Add a constant to UV coordinates to offset textures.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Adding values can push results above 1.0, which can cause unexpected results. For Base Color, values above 1 may not look different, but for Roughness or other clamped inputs, you might get strange behavior. Use a <strong>Saturate</strong> or <strong>Clamp</strong> node after Add if you need to ensure values stay in the 0-1 range.</p>
+                </div>
+
+                <h3>Lerp: The Master Blender</h3>
+
+                <p>If you learn only one math node, make it <strong>Lerp</strong> (Linear Interpolation). This node blends between two inputs based on a third "alpha" input, and it's the foundation of almost every texture blending technique.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 How Lerp Works</h4>
+                    <p style="color: white;"><strong>Inputs:</strong></p>
+                    <p style="color: #aaa;">• <strong>A:</strong> The first value (shown when Alpha = 0)</p>
+                    <p style="color: #aaa;">• <strong>B:</strong> The second value (shown when Alpha = 1)</p>
+                    <p style="color: #aaa;">• <strong>Alpha:</strong> The blend factor (0 = all A, 1 = all B, 0.5 = 50/50 mix)</p>
+                    <p style="color: white;"><strong>Formula:</strong> Result = A + (B - A) × Alpha</p>
+                </div>
+
+                <p>The magic of Lerp is that the Alpha input doesn't have to be a single value—it can be a texture! This means you can use a grayscale mask to control where each input shows through:</p>
+
+                <!-- SVG: Lerp Visualization -->
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Lerp: Blending with a Mask</text>
+                    
+                    <!-- Input A -->
+                    <g transform="translate(80, 60)">
+                        <rect x="0" y="0" width="100" height="100" fill="#2ecc71" stroke="#fff" stroke-width="2"/>
+                        <text x="50" y="120" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Input A</text>
+                        <text x="50" y="138" text-anchor="middle" fill="#2ecc71" font-size="11">Grass texture</text>
+                    </g>
+                    
+                    <!-- Input B -->
+                    <g transform="translate(80, 185)">
+                        <rect x="0" y="0" width="100" height="100" fill="#8b4513" stroke="#fff" stroke-width="2"/>
+                        <text x="50" y="120" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Input B</text>
+                        <text x="50" y="138" text-anchor="middle" fill="#8b4513" font-size="11">Dirt texture</text>
+                    </g>
+                    
+                    <!-- Lerp Node -->
+                    <g transform="translate(280, 120)">
+                        <rect x="0" y="0" width="100" height="90" rx="8" fill="#667eea" stroke="#fff" stroke-width="2"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">LERP</text>
+                        
+                        <!-- Input indicators -->
+                        <circle cx="0" cy="30" r="6" fill="#2ecc71" stroke="#fff" stroke-width="1"/>
+                        <text x="-15" y="33" text-anchor="end" fill="#aaa" font-size="9">A</text>
+                        
+                        <circle cx="0" cy="60" r="6" fill="#8b4513" stroke="#fff" stroke-width="1"/>
+                        <text x="-15" y="63" text-anchor="end" fill="#aaa" font-size="9">B</text>
+                        
+                        <!-- Alpha input from bottom -->
+                        <circle cx="50" cy="90" r="6" fill="#888" stroke="#fff" stroke-width="1"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#aaa" font-size="9">Alpha</text>
+                        
+                        <!-- Output -->
+                        <circle cx="100" cy="45" r="6" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Wires -->
+                    <path d="M 180 110 C 220 110 240 150 280 150" stroke="#2ecc71" stroke-width="2" fill="none"/>
+                    <path d="M 180 235 C 220 235 240 180 280 180" stroke="#8b4513" stroke-width="2" fill="none"/>
+                    
+                    <!-- Alpha Mask -->
+                    <g transform="translate(260, 230)">
+                        <defs>
+                            <linearGradient id="alphaMask" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#000"/>
+                                <stop offset="100%" style="stop-color:#fff"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="0" y="0" width="80" height="50" fill="url(#alphaMask)" stroke="#fff" stroke-width="1"/>
+                        <text x="40" y="68" text-anchor="middle" fill="#aaa" font-size="10">Alpha mask</text>
+                    </g>
+                    
+                    <!-- Wire from mask to lerp -->
+                    <path d="M 300 230 L 330 210" stroke="#888" stroke-width="2" fill="none"/>
+                    
+                    <!-- Output Result -->
+                    <g transform="translate(480, 100)">
+                        <defs>
+                            <linearGradient id="resultGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#2ecc71"/>
+                                <stop offset="100%" style="stop-color:#8b4513"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="0" y="0" width="140" height="140" fill="url(#resultGrad)" stroke="#f1c40f" stroke-width="3"/>
+                        <text x="70" y="165" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Result</text>
+                        <text x="70" y="183" text-anchor="middle" fill="#aaa" font-size="11">Grass → Dirt blend</text>
+                    </g>
+                    
+                    <!-- Wire from lerp to result -->
+                    <path d="M 380 165 C 420 165 450 170 480 170" stroke="#f1c40f" stroke-width="2" fill="none"/>
+                    
+                    <!-- Legend -->
+                    <text x="680" y="80" text-anchor="middle" fill="#fff" font-size="11">Alpha = 0 → A</text>
+                    <text x="680" y="100" text-anchor="middle" fill="#888" font-size="11">(Black in mask)</text>
+                    <text x="680" y="140" text-anchor="middle" fill="#fff" font-size="11">Alpha = 1 → B</text>
+                    <text x="680" y="160" text-anchor="middle" fill="#888" font-size="11">(White in mask)</text>
+                </svg>
+                <p class="caption"><em>Figure: Lerp uses the Alpha input to blend between A and B. A mask texture creates smooth transitions.</em></p>
+
+                <h3>Practical Lerp Examples</h3>
+
+                <p>Here are common scenarios where Lerp shines:</p>
+
+                <p><strong>Terrain blending:</strong> Lerp between grass and dirt textures using a painted vertex color or height map as alpha.</p>
+
+                <p><strong>Weathering effects:</strong> Lerp between clean metal and rusty metal using an edge-wear mask.</p>
+
+                <p><strong>Detail variation:</strong> Lerp between two color variations using a noise texture for natural-looking randomness.</p>
+
+                <p><strong>Parameter-driven changes:</strong> Lerp between two states using a scalar parameter, allowing real-time control in Material Instances.</p>
+
+                <!-- Mermaid: Lerp use cases flow -->
+                <pre class="mermaid">
+flowchart TD
+    subgraph Inputs["Lerp Inputs"]
+        A["Texture/Color A"]
+        B["Texture/Color B"]
+        Alpha["Alpha Source"]
+    end
+    
+    subgraph AlphaSources["Common Alpha Sources"]
+        Mask["Grayscale Mask Texture"]
+        Vertex["Vertex Colors"]
+        Height["Height/Slope Data"]
+        Param["Scalar Parameter"]
+        Noise["Noise Texture"]
+    end
+    
+    subgraph Output["Lerp Output"]
+        Result["Blended Result\n(A where black, B where white)"]
+    end
+    
+    A --> Result
+    B --> Result
+    Alpha --> Result
+    
+    Mask --> Alpha
+    Vertex --> Alpha
+    Height --> Alpha
+    Param --> Alpha
+    Noise --> Alpha
+    
+    style Result fill:#667eea,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Lerp can use many different alpha sources depending on the effect you need.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: OneMinus for Inversion</h4>
+                    <p>Need to flip which texture shows where? Use the <strong>OneMinus</strong> node (shortcut: <strong>O</strong>) on your alpha input. OneMinus calculates (1 - input), turning black into white and vice versa. This inverts the blend direction without needing to re-author your mask texture.</p>
+                </div>
+            </section>
+            <!-- Section 3: Creating Material Functions -->
+            <section id="material-functions" class="lesson-section">
+                <h2>Creating Material Functions for Reusability</h2>
+
+                <p>As your materials grow more complex, you'll find yourself recreating the same node networks over and over. Need UV tiling controls? You build the same TexCoord → Multiply → Add setup. Want a height-based blend? Same Lerp configuration every time. This repetition wastes time and makes updates painful—if you improve the logic, you have to update every material manually.</p>
+
+                <p><strong>Material Functions</strong> solve this problem elegantly. They're reusable node networks that you build once and use anywhere, like functions in programming. Change the function, and every material using it updates automatically.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Material Function:</strong> A self-contained, reusable piece of material logic that can be shared across multiple materials. Functions have defined inputs and outputs, encapsulating complexity behind a simple interface.</p>
+                </div>
+
+                <h3>When to Create a Material Function</h3>
+
+                <p>Consider creating a Material Function when:</p>
+
+                <p><strong>You're repeating the same node pattern</strong> in multiple materials (UV manipulation, color adjustments, blend logic)</p>
+
+                <p><strong>The logic is complex</strong> and clutters your main material graph</p>
+
+                <p><strong>You want consistent behavior</strong> across your project (all materials should tint the same way)</p>
+
+                <p><strong>You anticipate changes</strong>—updating one function is easier than updating dozens of materials</p>
+
+                <!-- Mermaid: Material Function Benefits -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Without["Without Material Functions"]
+        M1["Material A\n(duplicate nodes)"]
+        M2["Material B\n(duplicate nodes)"]
+        M3["Material C\n(duplicate nodes)"]
+    end
+    
+    subgraph With["With Material Functions"]
+        MF["MF_TilingControls\n(single source)"]
+        MA["Material A"]
+        MB["Material B"]
+        MC["Material C"]
+        MF --> MA
+        MF --> MB
+        MF --> MC
+    end
+    
+    style MF fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Material Functions eliminate duplicate node networks and centralize logic.</em></p>
+
+                <h3>Creating Your First Material Function</h3>
+
+                <p>Let's create a simple but useful function: adjustable UV tiling with offset controls.</p>
+
+                <p><strong>Step 1:</strong> In the Content Browser, right-click and select <strong>Materials & Textures → Material Function</strong>. Name it <code>MF_TilingControls</code>.</p>
+
+                <p><strong>Step 2:</strong> Double-click to open the Material Function Editor. It looks similar to the Material Editor but without the main material output node.</p>
+
+                <p><strong>Step 3:</strong> Create the inputs your function needs. Right-click and search for <strong>FunctionInput</strong>. Create three of these:</p>
+
+                <ul>
+                    <li>First input: Set <strong>Input Name</strong> to "Tiling", <strong>Input Type</strong> to "Scalar", <strong>Preview Value</strong> to 1.0</li>
+                    <li>Second input: Name it "OffsetU", type Scalar, preview 0.0</li>
+                    <li>Third input: Name it "OffsetV", type Scalar, preview 0.0</li>
+                </ul>
+
+                <p><strong>Step 4:</strong> Build the node logic:</p>
+                <ul>
+                    <li>Add a <strong>TextureCoordinate</strong> node</li>
+                    <li>Add a <strong>Multiply</strong> node—connect TexCoord to A, Tiling input to B</li>
+                    <li>Add an <strong>Append</strong> node—connect OffsetU to A, OffsetV to B (this creates a 2D vector)</li>
+                    <li>Add an <strong>Add</strong> node—connect Multiply result to A, Append result to B</li>
+                </ul>
+
+                <p><strong>Step 5:</strong> Create the output. Right-click and add a <strong>FunctionOutput</strong> node. Name it "UVs" and connect the Add result to it.</p>
+
+                <!-- SVG: Material Function Graph -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">MF_TilingControls - Material Function Graph</text>
+                    
+                    <!-- Grid -->
+                    <defs>
+                        <pattern id="mfGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect x="10" y="40" width="780" height="230" fill="url(#mfGrid)"/>
+                    
+                    <!-- Function Inputs -->
+                    <g transform="translate(30, 60)">
+                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#e91e63" opacity="0.3" stroke="#e91e63" stroke-width="2"/>
+                        <text x="50" y="16" text-anchor="middle" fill="#fff" font-size="9">FunctionInput</text>
+                        <text x="50" y="30" text-anchor="middle" fill="#e91e63" font-size="10" font-weight="bold">Tiling</text>
+                        <circle cx="100" cy="20" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <g transform="translate(30, 115)">
+                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#e91e63" opacity="0.3" stroke="#e91e63" stroke-width="2"/>
+                        <text x="50" y="16" text-anchor="middle" fill="#fff" font-size="9">FunctionInput</text>
+                        <text x="50" y="30" text-anchor="middle" fill="#e91e63" font-size="10" font-weight="bold">OffsetU</text>
+                        <circle cx="100" cy="20" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <g transform="translate(30, 170)">
+                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#e91e63" opacity="0.3" stroke="#e91e63" stroke-width="2"/>
+                        <text x="50" y="16" text-anchor="middle" fill="#fff" font-size="9">FunctionInput</text>
+                        <text x="50" y="30" text-anchor="middle" fill="#e91e63" font-size="10" font-weight="bold">OffsetV</text>
+                        <circle cx="100" cy="20" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- TexCoord -->
+                    <g transform="translate(170, 55)">
+                        <rect x="0" y="0" width="80" height="35" rx="4" fill="#3d3d3d" stroke="#888" stroke-width="1"/>
+                        <text x="40" y="22" text-anchor="middle" fill="#aaa" font-size="9">TexCoord</text>
+                        <circle cx="80" cy="17" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Multiply -->
+                    <g transform="translate(290, 55)">
+                        <rect x="0" y="0" width="70" height="50" rx="4" fill="#3d3d3d" stroke="#FF9800" stroke-width="2"/>
+                        <text x="35" y="15" text-anchor="middle" fill="#fff" font-size="9">Multiply</text>
+                        <circle cx="0" cy="20" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                        <circle cx="0" cy="38" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
+                        <circle cx="70" cy="25" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Append -->
+                    <g transform="translate(170, 135)">
+                        <rect x="0" y="0" width="70" height="50" rx="4" fill="#3d3d3d" stroke="#9C27B0" stroke-width="2"/>
+                        <text x="35" y="15" text-anchor="middle" fill="#fff" font-size="9">Append</text>
+                        <circle cx="0" cy="20" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
+                        <circle cx="0" cy="38" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
+                        <circle cx="70" cy="25" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Add -->
+                    <g transform="translate(420, 90)">
+                        <rect x="0" y="0" width="70" height="50" rx="4" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="35" y="15" text-anchor="middle" fill="#fff" font-size="9">Add</text>
+                        <circle cx="0" cy="20" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                        <circle cx="0" cy="38" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                        <circle cx="70" cy="25" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Function Output -->
+                    <g transform="translate(560, 85)">
+                        <rect x="0" y="0" width="110" height="50" rx="4" fill="#4CAF50" opacity="0.3" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="55" y="18" text-anchor="middle" fill="#fff" font-size="9">FunctionOutput</text>
+                        <text x="55" y="35" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">UVs</text>
+                        <circle cx="0" cy="25" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Wires -->
+                    <path d="M 250 72 L 290 75" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    <path d="M 130 80 L 290 93" stroke="#888" stroke-width="1.5" fill="none"/>
+                    <path d="M 130 135 L 170 155" stroke="#888" stroke-width="1.5" fill="none"/>
+                    <path d="M 130 190 L 170 173" stroke="#888" stroke-width="1.5" fill="none"/>
+                    <path d="M 360 80 L 420 110" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    <path d="M 240 160 L 420 128" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    <path d="M 490 115 L 560 110" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    
+                    <!-- Labels -->
+                    <rect x="580" y="200" width="190" height="55" rx="5" fill="rgba(76,175,80,0.1)" stroke="#4CAF50"/>
+                    <text x="675" y="220" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Usage in Materials:</text>
+                    <text x="675" y="238" text-anchor="middle" fill="#aaa" font-size="9">Drag MF_TilingControls</text>
+                    <text x="675" y="252" text-anchor="middle" fill="#aaa" font-size="9">into any material graph</text>
+                </svg>
+                <p class="caption"><em>Figure: A complete Material Function with inputs, processing nodes, and output.</em></p>
+
+                <h3>Using Material Functions</h3>
+
+                <p>Once saved, your Material Function appears in the Content Browser like any other asset. To use it in a material:</p>
+
+                <p><strong>Drag and drop:</strong> Drag the function from Content Browser directly onto your material graph.</p>
+
+                <p><strong>Right-click search:</strong> Right-click in the material and search for your function name.</p>
+
+                <p>The function appears as a single node with your defined inputs on the left and outputs on the right. Connect its output to your Texture Sample UVs, and feed parameters or constants into its inputs.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Built-in Material Functions</h4>
+                    <p>Unreal includes hundreds of pre-built Material Functions! In the material editor, right-click and browse the "Material Functions" category, or search for functions like:</p>
+                    <p><strong>BlendAngleCorrectedNormals</strong> - Properly blend two normal maps</p>
+                    <p><strong>CheapContrast</strong> - Quick contrast adjustment</p>
+                    <p><strong>FuzzyShading</strong> - Soft, fabric-like shading</p>
+                    <p><strong>HeightLerp</strong> - Blend textures based on height with adjustable contrast</p>
+                </div>
+
+                <h3>Material Function Best Practices</h3>
+
+                <p><strong>Name clearly:</strong> Use the MF_ prefix and descriptive names (MF_TilingControls, MF_RustBlend, MF_SnowCoverage).</p>
+
+                <p><strong>Document with comments:</strong> Add comment nodes inside your function explaining what it does and how to use it.</p>
+
+                <p><strong>Set sensible defaults:</strong> Preview values in FunctionInput nodes should produce reasonable results when the function is first added.</p>
+
+                <p><strong>Keep them focused:</strong> Each function should do one thing well. Combine multiple simple functions rather than creating one massive function.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Material Functions are compiled into every material that uses them. Very complex functions can increase shader compilation time and instruction count. Check your material's Stats panel (Window → Stats in the Material Editor) to monitor instruction counts if performance becomes a concern.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Texture Blending Techniques -->
+            <section id="texture-blending" class="lesson-section">
+                <h2>Texture Blending Techniques</h2>
+
+                <p>Now that you understand the tools—Lerp, Multiply, and Material Functions—let's explore practical techniques for blending textures. These techniques form the foundation of realistic environment materials.</p>
+
+                <h3>Simple Two-Texture Blend</h3>
+
+                <p>The most basic blend uses a single mask to transition between two complete texture sets (each with Base Color, Normal, Roughness):</p>
+
+                <!-- SVG: Two-Texture Blend Diagram -->
+                <svg width="100%" height="350" viewBox="0 0 800 350" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">Two-Texture Blend Architecture</text>
+                    
+                    <!-- Texture Set A -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="150" height="120" rx="8" fill="#2ecc71" opacity="0.15" stroke="#2ecc71" stroke-width="2"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#2ecc71" font-size="11" font-weight="bold">Texture Set A (Grass)</text>
+                        
+                        <rect x="10" y="35" width="40" height="30" fill="#4a7c31" stroke="#333" stroke-width="1"/>
+                        <text x="30" y="80" text-anchor="middle" fill="#333" font-size="8">BaseColor</text>
+                        
+                        <rect x="55" y="35" width="40" height="30" fill="#8080ff" stroke="#333" stroke-width="1"/>
+                        <text x="75" y="80" text-anchor="middle" fill="#333" font-size="8">Normal</text>
+                        
+                        <rect x="100" y="35" width="40" height="30" fill="#666" stroke="#333" stroke-width="1"/>
+                        <text x="120" y="80" text-anchor="middle" fill="#333" font-size="8">Rough</text>
+                    </g>
+                    
+                    <!-- Texture Set B -->
+                    <g transform="translate(30, 195)">
+                        <rect x="0" y="0" width="150" height="120" rx="8" fill="#8b4513" opacity="0.15" stroke="#8b4513" stroke-width="2"/>
+                        <text x="75" y="20" text-anchor="middle" fill="#8b4513" font-size="11" font-weight="bold">Texture Set B (Dirt)</text>
+                        
+                        <rect x="10" y="35" width="40" height="30" fill="#5d3a1a" stroke="#333" stroke-width="1"/>
+                        <text x="30" y="80" text-anchor="middle" fill="#333" font-size="8">BaseColor</text>
+                        
+                        <rect x="55" y="35" width="40" height="30" fill="#7a7aee" stroke="#333" stroke-width="1"/>
+                        <text x="75" y="80" text-anchor="middle" fill="#333" font-size="8">Normal</text>
+                        
+                        <rect x="100" y="35" width="40" height="30" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="120" y="80" text-anchor="middle" fill="#333" font-size="8">Rough</text>
+                    </g>
+                    
+                    <!-- Blend Mask -->
+                    <g transform="translate(220, 140)">
+                        <defs>
+                            <linearGradient id="blendMask" x1="0%" y1="100%" x2="0%" y2="0%">
+                                <stop offset="0%" style="stop-color:#000"/>
+                                <stop offset="100%" style="stop-color:#fff"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="0" y="0" width="60" height="80" fill="url(#blendMask)" stroke="#667eea" stroke-width="2"/>
+                        <text x="30" y="100" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">Blend Mask</text>
+                    </g>
+                    
+                    <!-- Lerp Nodes -->
+                    <g transform="translate(350, 60)">
+                        <rect x="0" y="0" width="80" height="45" rx="5" fill="#667eea" stroke="#333" stroke-width="1"/>
+                        <text x="40" y="18" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Lerp</text>
+                        <text x="40" y="35" text-anchor="middle" fill="#ddd" font-size="9">BaseColor</text>
+                    </g>
+                    
+                    <g transform="translate(350, 130)">
+                        <rect x="0" y="0" width="80" height="45" rx="5" fill="#667eea" stroke="#333" stroke-width="1"/>
+                        <text x="40" y="18" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Lerp</text>
+                        <text x="40" y="35" text-anchor="middle" fill="#ddd" font-size="9">Normal</text>
+                    </g>
+                    
+                    <g transform="translate(350, 200)">
+                        <rect x="0" y="0" width="80" height="45" rx="5" fill="#667eea" stroke="#333" stroke-width="1"/>
+                        <text x="40" y="18" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Lerp</text>
+                        <text x="40" y="35" text-anchor="middle" fill="#ddd" font-size="9">Roughness</text>
+                    </g>
+                    
+                    <!-- Arrows from textures to lerps -->
+                    <path d="M 180 100 L 350 82" stroke="#2ecc71" stroke-width="1.5" fill="none" marker-end="url(#arrowGreen)"/>
+                    <path d="M 180 260 L 350 95" stroke="#8b4513" stroke-width="1.5" fill="none"/>
+                    
+                    <!-- Arrows from mask to lerps -->
+                    <path d="M 280 180 L 350 82" stroke="#667eea" stroke-width="1" stroke-dasharray="4,2" fill="none"/>
+                    <path d="M 280 180 L 350 152" stroke="#667eea" stroke-width="1" stroke-dasharray="4,2" fill="none"/>
+                    <path d="M 280 180 L 350 222" stroke="#667eea" stroke-width="1" stroke-dasharray="4,2" fill="none"/>
+                    
+                    <!-- Material Output -->
+                    <g transform="translate(500, 80)">
+                        <rect x="0" y="0" width="140" height="180" rx="8" fill="#4CAF50" opacity="0.15" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">Material Output</text>
+                        
+                        <circle cx="0" cy="60" r="5" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="63" fill="#333" font-size="10">Base Color</text>
+                        
+                        <circle cx="0" cy="100" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="103" fill="#333" font-size="10">Roughness</text>
+                        
+                        <circle cx="0" cy="140" r="5" fill="#9b59b6" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="143" fill="#333" font-size="10">Normal</text>
+                    </g>
+                    
+                    <!-- Output wires -->
+                    <path d="M 430 82 L 500 140" stroke="#f1c40f" stroke-width="2" fill="none"/>
+                    <path d="M 430 152 L 500 220" stroke="#9b59b6" stroke-width="2" fill="none"/>
+                    <path d="M 430 222 L 500 180" stroke="#888" stroke-width="2" fill="none"/>
+                    
+                    <!-- Key insight -->
+                    <rect x="500" y="280" width="280" height="50" rx="5" fill="#e3f2fd" stroke="#2196F3"/>
+                    <text x="640" y="300" text-anchor="middle" fill="#1565C0" font-size="10" font-weight="bold">💡 Key: Same mask drives ALL Lerp nodes</text>
+                    <text x="640" y="318" text-anchor="middle" fill="#333" font-size="9">This keeps all channels aligned</text>
+                </svg>
+                <p class="caption"><em>Figure: A complete two-texture blend requires three Lerp nodes sharing the same alpha mask.</em></p>
+
+                <p>The critical point: use the <strong>same blend mask</strong> for all three Lerp nodes (Base Color, Normal, Roughness). This ensures the surface properties stay aligned—you don't want grass color appearing where dirt roughness is.</p>
+
+                <h3>Height-Based Blending</h3>
+
+                <p>Simple Lerp blending produces soft, gradient transitions. But real surfaces don't blend that way—dirt accumulates in cracks, snow sits on top of surfaces, moss grows in crevices. <strong>Height-based blending</strong> creates these natural transitions.</p>
+
+                <p>The technique uses a height map (grayscale texture where white = high, black = low) to modify the blend mask:</p>
+
+                <!-- Mermaid: Height Blend Process -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Inputs
+        H1["Height Map A\n(e.g., grass bumps)"]
+        H2["Height Map B\n(e.g., dirt cracks)"]
+        Mask["Base Blend Mask"]
+    end
+    
+    subgraph Process["Height Blend Logic"]
+        Calc["Compare heights\nat each pixel"]
+        Adj["Adjust blend based\non which surface is 'higher'"]
+    end
+    
+    subgraph Result
+        Out["Sharp, natural\ntransitions"]
+    end
+    
+    H1 --> Calc
+    H2 --> Calc
+    Mask --> Adj
+    Calc --> Adj
+    Adj --> Out
+    
+    style Out fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Height-based blending considers surface elevation to create natural transitions.</em></p>
+
+                <p>Unreal provides a built-in Material Function called <strong>HeightLerp</strong> that handles this calculation. It takes two height values, a blend factor, and a contrast parameter to control transition sharpness.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Contrast Control</h4>
+                    <p>The HeightLerp function's contrast parameter is powerful:</p>
+                    <p><strong>Low contrast (0.1-0.3):</strong> Softer transitions, useful for subtle blends</p>
+                    <p><strong>Medium contrast (0.5-0.7):</strong> Natural-looking transitions for most cases</p>
+                    <p><strong>High contrast (0.8-1.0):</strong> Sharp, almost binary transitions where height difference is extreme</p>
+                </div>
+
+                <h3>Vertex Color Blending</h3>
+
+                <p>So far, our blend masks have been textures. But what if you want to paint blend zones directly on your mesh? That's where <strong>vertex colors</strong> come in.</p>
+
+                <p>Vertex colors are RGBA values stored at each vertex of a mesh. Artists can paint these values in Unreal's Mesh Paint mode or in 3D modeling software. The colors interpolate smoothly between vertices, creating gradients across faces.</p>
+
+                <p>To use vertex colors as a blend mask:</p>
+
+                <p><strong>1.</strong> Add a <strong>VertexColor</strong> node to your material (right-click → search "VertexColor")</p>
+
+                <p><strong>2.</strong> Connect one of its channels (R, G, B, or A) to your Lerp's Alpha input</p>
+
+                <p><strong>3.</strong> In the editor, switch to Mesh Paint mode (Shift+4) and paint on your mesh</p>
+
+                <!-- SVG: Vertex Color Workflow -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Vertex Color Blending Workflow</text>
+                    
+                    <!-- Step 1 -->
+                    <g transform="translate(60, 60)">
+                        <rect x="0" y="0" width="150" height="100" rx="8" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#667eea" font-size="11" font-weight="bold">1. Material Setup</text>
+                        <text x="75" y="50" text-anchor="middle" fill="#aaa" font-size="10">VertexColor node</text>
+                        <text x="75" y="68" text-anchor="middle" fill="#aaa" font-size="10">→ Lerp Alpha</text>
+                        <rect x="55" y="75" width="40" height="15" rx="3" fill="#e74c3c"/>
+                        <text x="75" y="86" text-anchor="middle" fill="#fff" font-size="8">R channel</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 230 110 L 280 110" stroke="#667eea" stroke-width="2" fill="none" marker-end="url(#arrowPurple)"/>
+                    <defs>
+                        <marker id="arrowPurple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                    
+                    <!-- Step 2 -->
+                    <g transform="translate(300, 60)">
+                        <rect x="0" y="0" width="150" height="100" rx="8" fill="#3d3d3d" stroke="#FF9800" stroke-width="2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#FF9800" font-size="11" font-weight="bold">2. Paint Mode</text>
+                        <text x="75" y="50" text-anchor="middle" fill="#aaa" font-size="10">Shift+4 or</text>
+                        <text x="75" y="68" text-anchor="middle" fill="#aaa" font-size="10">Mode → Mesh Paint</text>
+                        <text x="75" y="90" text-anchor="middle" fill="#888" font-size="9">🎨 Paint vertices</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 470 110 L 520 110" stroke="#667eea" stroke-width="2" fill="none" marker-end="url(#arrowPurple)"/>
+                    
+                    <!-- Step 3 -->
+                    <g transform="translate(540, 60)">
+                        <rect x="0" y="0" width="150" height="100" rx="8" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">3. Result</text>
+                        <defs>
+                            <linearGradient id="vcResult" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#2ecc71"/>
+                                <stop offset="50%" style="stop-color:#8b7355"/>
+                                <stop offset="100%" style="stop-color:#5d3a1a"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="25" y="40" width="100" height="45" fill="url(#vcResult)" rx="4"/>
+                        <text x="75" y="100" text-anchor="middle" fill="#aaa" font-size="9">Painted blend zones</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Vertex colors let artists hand-paint blend zones directly on meshes.</em></p>
+
+                <p>Vertex color blending is incredibly powerful for environmental art because it gives artists direct control over exactly where materials transition, without needing to create unique mask textures for every mesh.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Multi-Material Blending</h4>
+                    <p>Since vertex colors have four channels (R, G, B, A), you can blend up to <strong>five different materials</strong> on a single mesh:</p>
+                    <p>• Base material (where all channels are 0)</p>
+                    <p>• Red channel material</p>
+                    <p>• Green channel material</p>
+                    <p>• Blue channel material</p>
+                    <p>• Alpha channel material</p>
+                    <p>This technique is commonly used for terrain and large environmental pieces.</p>
+                </div>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Vertex colors are stored per-vertex, not per-pixel. On low-poly meshes, blends will appear blocky because there aren't enough vertices for smooth gradients. Either increase mesh density in blend areas or use a combination of vertex colors and texture masks for finer detail.</p>
+                </div>
+            </section>
+            <!-- Section 5: World-Aligned Textures -->
+            <section id="world-aligned" class="lesson-section">
+                <h2>World-Aligned Textures</h2>
+
+                <p>Sometimes mesh UVs are the enemy. Imagine texturing a rocky cliff made of dozens of separate mesh pieces. Even with perfect UV unwrapping, seams appear where meshes meet because each piece's UVs are independent. Or consider a modular building system—every wall section needs identical texturing at joints, but slight UV differences create visible mismatches.</p>
+
+                <p><strong>World-aligned textures</strong> solve this by ignoring mesh UVs entirely. Instead, they project textures based on the object's position in world space. Adjacent surfaces sample the same texture coordinates at their shared edges, creating seamless transitions regardless of how the meshes are constructed.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>World-Aligned Texturing:</strong> A technique where texture coordinates are derived from an object's world position rather than its UV map. The texture effectively "floats" in 3D space, and surfaces sample from wherever they intersect that space.</p>
+                </div>
+
+                <h3>How World Alignment Works</h3>
+
+                <p>Instead of using the <strong>TexCoord</strong> node (which reads mesh UVs), world-aligned textures use the <strong>WorldPosition</strong> node. This node outputs the XYZ coordinates of each pixel in world space.</p>
+
+                <p>By dividing the world position by a tiling value, you control how frequently the texture repeats. A larger divisor means larger texture tiles.</p>
+
+                <!-- SVG: World Alignment Concept -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 60%, #8B4513 60%, #8B4513 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">World-Aligned vs UV-Based Texturing</text>
+                    
+                    <!-- UV-Based Side -->
+                    <g transform="translate(50, 60)">
+                        <text x="150" y="0" text-anchor="middle" fill="#333" font-size="13" font-weight="bold">UV-Based (Traditional)</text>
+                        
+                        <!-- Two mesh pieces with seam -->
+                        <rect x="50" y="30" width="80" height="120" fill="#a0522d" stroke="#333" stroke-width="2"/>
+                        <rect x="135" y="30" width="80" height="120" fill="#a0522d" stroke="#333" stroke-width="2"/>
+                        
+                        <!-- Brick pattern (misaligned) -->
+                        <g fill="none" stroke="#8B4513" stroke-width="1">
+                            <line x1="50" y1="60" x2="130" y2="60"/>
+                            <line x1="50" y1="90" x2="130" y2="90"/>
+                            <line x1="50" y1="120" x2="130" y2="120"/>
+                            <line x1="90" y1="30" x2="90" y2="60"/>
+                            <line x1="70" y1="60" x2="70" y2="90"/>
+                            <line x1="110" y1="90" x2="110" y2="120"/>
+                            
+                            <!-- Second piece offset -->
+                            <line x1="135" y1="50" x2="215" y2="50"/>
+                            <line x1="135" y1="80" x2="215" y2="80"/>
+                            <line x1="135" y1="110" x2="215" y2="110"/>
+                            <line x1="175" y1="30" x2="175" y2="50"/>
+                            <line x1="155" y1="50" x2="155" y2="80"/>
+                            <line x1="195" y1="80" x2="195" y2="110"/>
+                        </g>
+                        
+                        <!-- Seam indicator -->
+                        <line x1="132" y1="25" x2="132" y2="155" stroke="#e74c3c" stroke-width="3" stroke-dasharray="5,3"/>
+                        <text x="132" y="175" text-anchor="middle" fill="#e74c3c" font-size="10" font-weight="bold">VISIBLE SEAM!</text>
+                        
+                        <text x="150" y="210" text-anchor="middle" fill="#333" font-size="10">Each mesh has</text>
+                        <text x="150" y="225" text-anchor="middle" fill="#333" font-size="10">independent UVs</text>
+                    </g>
+                    
+                    <!-- World-Aligned Side -->
+                    <g transform="translate(450, 60)">
+                        <text x="150" y="0" text-anchor="middle" fill="#333" font-size="13" font-weight="bold">World-Aligned</text>
+                        
+                        <!-- Two mesh pieces seamless -->
+                        <rect x="50" y="30" width="80" height="120" fill="#a0522d" stroke="#333" stroke-width="2"/>
+                        <rect x="130" y="30" width="80" height="120" fill="#a0522d" stroke="#333" stroke-width="2"/>
+                        
+                        <!-- Brick pattern (aligned across both) -->
+                        <g fill="none" stroke="#8B4513" stroke-width="1">
+                            <line x1="50" y1="60" x2="210" y2="60"/>
+                            <line x1="50" y1="90" x2="210" y2="90"/>
+                            <line x1="50" y1="120" x2="210" y2="120"/>
+                            <line x1="90" y1="30" x2="90" y2="60"/>
+                            <line x1="170" y1="30" x2="170" y2="60"/>
+                            <line x1="70" y1="60" x2="70" y2="90"/>
+                            <line x1="130" y1="60" x2="130" y2="90"/>
+                            <line x1="190" y1="60" x2="190" y2="90"/>
+                            <line x1="110" y1="90" x2="110" y2="120"/>
+                            <line x1="150" y1="90" x2="150" y2="120"/>
+                        </g>
+                        
+                        <!-- No seam indicator -->
+                        <line x1="130" y1="25" x2="130" y2="155" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="130" y="175" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">✓ SEAMLESS</text>
+                        
+                        <text x="150" y="210" text-anchor="middle" fill="#333" font-size="10">Texture aligned to</text>
+                        <text x="150" y="225" text-anchor="middle" fill="#333" font-size="10">world coordinates</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: World-aligned textures eliminate seams between adjacent mesh pieces.</em></p>
+
+                <h3>Basic World-Aligned Setup</h3>
+
+                <p>Here's the node setup for basic world-aligned texturing:</p>
+
+                <p><strong>1.</strong> Add a <strong>WorldPosition</strong> node (search "Absolute World Position")</p>
+
+                <p><strong>2.</strong> Add a <strong>Divide</strong> node. Connect WorldPosition to A, and a constant (your tile size in Unreal units) to B. A value of 100 means the texture repeats every 100 units (1 meter by default).</p>
+
+                <p><strong>3.</strong> Use a <strong>ComponentMask</strong> node to extract two channels (e.g., X and Y for horizontal surfaces, or X and Z for vertical walls)</p>
+
+                <p><strong>4.</strong> Connect the result to your Texture Sample's UVs input</p>
+
+                <!-- Mermaid: World Aligned Node Setup -->
+                <pre class="mermaid">
+flowchart LR
+    WP["WorldPosition\n(Absolute)"] --> DIV["Divide"]
+    SIZE["Scalar: 512\n(tile size)"] --> DIV
+    DIV --> MASK["ComponentMask\n(select 2 channels)"]
+    MASK --> TS["Texture Sample\nUVs"]
+    
+    style WP fill:#9C27B0,color:#fff
+    style SIZE fill:#4CAF50,color:#fff
+    style TS fill:#667eea,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Basic world-aligned texture coordinate setup.</em></p>
+
+                <h3>Tri-Planar Projection</h3>
+
+                <p>Basic world alignment has a flaw: it only works well for surfaces facing one direction. A floor uses XY coordinates, but what about walls facing different directions? The texture stretches horribly on surfaces perpendicular to your chosen plane.</p>
+
+                <p><strong>Tri-planar projection</strong> solves this by sampling the texture three times—once for each axis plane (XY, XZ, YZ)—then blending between them based on the surface normal. Surfaces facing up/down use XY, forward/back use XZ, and left/right use YZ.</p>
+
+                <!-- SVG: Tri-Planar Concept -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Tri-Planar Projection: Three Projections Blended</text>
+                    
+                    <!-- XY Plane (Top/Bottom) -->
+                    <g transform="translate(80, 60)">
+                        <rect x="0" y="0" width="120" height="80" rx="5" fill="#e74c3c" opacity="0.3" stroke="#e74c3c" stroke-width="2"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#e74c3c" font-size="12" font-weight="bold">XY Plane</text>
+                        <text x="60" y="50" text-anchor="middle" fill="#aaa" font-size="10">Top/Bottom</text>
+                        <text x="60" y="70" text-anchor="middle" fill="#888" font-size="9">World X, Y → UVs</text>
+                    </g>
+                    
+                    <!-- XZ Plane (Front/Back) -->
+                    <g transform="translate(240, 60)">
+                        <rect x="0" y="0" width="120" height="80" rx="5" fill="#2ecc71" opacity="0.3" stroke="#2ecc71" stroke-width="2"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#2ecc71" font-size="12" font-weight="bold">XZ Plane</text>
+                        <text x="60" y="50" text-anchor="middle" fill="#aaa" font-size="10">Front/Back</text>
+                        <text x="60" y="70" text-anchor="middle" fill="#888" font-size="9">World X, Z → UVs</text>
+                    </g>
+                    
+                    <!-- YZ Plane (Left/Right) -->
+                    <g transform="translate(400, 60)">
+                        <rect x="0" y="0" width="120" height="80" rx="5" fill="#3498db" opacity="0.3" stroke="#3498db" stroke-width="2"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#3498db" font-size="12" font-weight="bold">YZ Plane</text>
+                        <text x="60" y="50" text-anchor="middle" fill="#aaa" font-size="10">Left/Right</text>
+                        <text x="60" y="70" text-anchor="middle" fill="#888" font-size="9">World Y, Z → UVs</text>
+                    </g>
+                    
+                    <!-- Blend Node -->
+                    <g transform="translate(280, 160)">
+                        <rect x="0" y="0" width="160" height="60" rx="8" fill="#667eea" stroke="#fff" stroke-width="2"/>
+                        <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Blend by Normal</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#ddd" font-size="10">abs(VertexNormal)</text>
+                    </g>
+                    
+                    <!-- Arrows to blend -->
+                    <path d="M 140 140 L 280 180" stroke="#e74c3c" stroke-width="2" fill="none"/>
+                    <path d="M 300 140 L 340 160" stroke="#2ecc71" stroke-width="2" fill="none"/>
+                    <path d="M 460 140 L 440 160" stroke="#3498db" stroke-width="2" fill="none"/>
+                    
+                    <!-- Result -->
+                    <g transform="translate(560, 80)">
+                        <rect x="0" y="0" width="140" height="100" rx="8" fill="#4CAF50" opacity="0.2" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="70" y="30" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">Result</text>
+                        <text x="70" y="55" text-anchor="middle" fill="#aaa" font-size="10">Seamless texturing</text>
+                        <text x="70" y="75" text-anchor="middle" fill="#aaa" font-size="10">on ANY surface</text>
+                        <text x="70" y="95" text-anchor="middle" fill="#888" font-size="9">orientation</text>
+                    </g>
+                    
+                    <!-- Arrow to result -->
+                    <path d="M 440 190 L 560 140" stroke="#4CAF50" stroke-width="2" fill="none"/>
+                </svg>
+                <p class="caption"><em>Figure: Tri-planar projection samples three orientations and blends based on surface normal.</em></p>
+
+                <p>Unreal includes a built-in <strong>WorldAlignedTexture</strong> Material Function that handles tri-planar projection automatically. Simply search for it in the material editor and connect your texture and tiling values.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: When to Use World-Aligned Textures</h4>
+                    <p><strong>Great for:</strong> Terrain, large rock formations, modular architecture, cliff faces, anything made of many mesh pieces that should look continuous</p>
+                    <p><strong>Avoid for:</strong> Unique props with specific UV layouts, characters, anything with intentional texture placement (logos, decals, control panels)</p>
+                </div>
+
+                <h3>Performance Considerations</h3>
+
+                <p>World-aligned and tri-planar textures have tradeoffs:</p>
+
+                <p><strong>Tri-planar costs 3× the texture samples</strong> compared to standard UV mapping. Each pixel samples three times, which can impact performance on complex scenes.</p>
+
+                <p><strong>Blending seams between planes</strong> can be visible on surfaces at 45-degree angles if the blend falloff isn't tuned properly.</p>
+
+                <p>For large environments, consider using world-aligned textures only where needed (terrain, distant rocks) and standard UVs for hero assets that players see up close.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>World-aligned textures don't move with objects! If you move a mesh, its texture coordinates change because they're based on world position. This is usually fine for static environment pieces but problematic for moving or animated objects. For those, stick with standard UV mapping.</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On: Create a Terrain Blend Material</h2>
+                    
+                    <p>Let's apply everything from this lesson to create a practical material: a terrain surface that blends between grass and dirt using a mask texture. This technique is used in virtually every game with outdoor environments.</p>
+
+                    <h3>What You'll Create</h3>
+                    <p>A two-layer terrain material with adjustable blend mask, tiling controls for each layer, and proper PBR channel blending.</p>
+
+                    <p><strong>Estimated Time:</strong> 25-35 minutes</p>
+                </div>
+
+                <h3>Step 1: Gather Your Textures</h3>
+
+                <p>You'll need two texture sets. From Starter Content or downloaded PBR textures, gather:</p>
+
+                <p><strong>Grass set:</strong> Base Color, Normal, Roughness (or a combined ORM texture)</p>
+                <p><strong>Dirt/Ground set:</strong> Base Color, Normal, Roughness</p>
+                <p><strong>Blend mask:</strong> Any grayscale texture can work—noise, grunge, or a painted mask</p>
+
+                <details class="card">
+                    <summary><strong>🔍 Hint: Don't have textures?</strong></summary>
+                    <p>Starter Content includes grassy and rocky textures. You can also use solid colors instead of textures for testing—the blend logic works the same way. Just use Constant3Vector nodes for colors and Constant nodes for roughness values.</p>
+                </details>
+
+                <h3>Step 2: Create the Material</h3>
+
+                <p>Create a new material called <code>M_TerrainBlend</code>. Open it in the Material Editor.</p>
+
+                <p>First, set up your texture samples. Create six Texture Sample nodes (or four if using color-only for testing):</p>
+                <ul>
+                    <li>Grass Base Color</li>
+                    <li>Grass Normal</li>
+                    <li>Grass Roughness (or extract from ORM)</li>
+                    <li>Dirt Base Color</li>
+                    <li>Dirt Normal</li>
+                    <li>Dirt Roughness</li>
+                </ul>
+
+                <p>Create one more Texture Sample for your blend mask texture.</p>
+
+                <h3>Step 3: Add Tiling Parameters</h3>
+
+                <p>We want independent tiling control for each texture layer.</p>
+
+                <p>Create two <strong>Scalar Parameters</strong>:</p>
+                <ul>
+                    <li><code>Grass_Tiling</code> (default: 4.0)</li>
+                    <li><code>Dirt_Tiling</code> (default: 4.0)</li>
+                </ul>
+
+                <p>Create two <strong>TextureCoordinate</strong> nodes and two <strong>Multiply</strong> nodes to scale UVs separately for each texture set.</p>
+
+                <p>Connect the appropriate tiled UVs to each texture's UV input—all grass textures share one UV setup, all dirt textures share another.</p>
+
+                <details class="card">
+                    <summary><strong>🔍 Hint: Organizing your graph</strong></summary>
+                    <p>Material graphs get messy fast! Use <strong>Comment boxes</strong> (select nodes, press C) to group related nodes. Create sections for "Grass Layer," "Dirt Layer," "Blend Logic," and "Output." This makes the graph much easier to read and maintain.</p>
+                </details>
+
+                <h3>Step 4: Create the Blend Logic</h3>
+
+                <p>Now for the core of the material—blending with Lerp nodes.</p>
+
+                <p>Create three <strong>Lerp</strong> nodes for Base Color, Normal, and Roughness:</p>
+
+                <p><strong>Base Color Lerp:</strong></p>
+                <ul>
+                    <li>A input: Grass Base Color RGB</li>
+                    <li>B input: Dirt Base Color RGB</li>
+                    <li>Alpha input: Blend mask (Red channel or RGB if grayscale)</li>
+                </ul>
+
+                <p><strong>Normal Lerp:</strong></p>
+                <ul>
+                    <li>A input: Grass Normal RGB</li>
+                    <li>B input: Dirt Normal RGB</li>
+                    <li>Alpha input: Same blend mask as above</li>
+                </ul>
+
+                <p><strong>Roughness Lerp:</strong></p>
+                <ul>
+                    <li>A input: Grass Roughness (R channel)</li>
+                    <li>B input: Dirt Roughness (R channel)</li>
+                    <li>Alpha input: Same blend mask</li>
+                </ul>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Critical: Share the Same Alpha!</h4>
+                    <p>All three Lerp nodes must use the exact same blend mask input. Don't create separate mask samples—route one mask texture to all three Alpha pins. This ensures your Base Color, Normal, and Roughness stay perfectly aligned.</p>
+                </div>
+
+                <h3>Step 5: Add Blend Control Parameter</h3>
+
+                <p>Let's make the blend adjustable without changing the mask texture.</p>
+
+                <p>Create a <strong>Scalar Parameter</strong> called <code>Blend_Contrast</code> (default: 0.5, range 0-1).</p>
+
+                <p>Before the mask goes into the Lerp nodes, add processing:</p>
+                <ul>
+                    <li>Create a <strong>Subtract</strong> node: Mask - 0.5 (centers the mask around zero)</li>
+                    <li>Create a <strong>Multiply</strong> node: Result × Blend_Contrast × 2 (adjusts contrast)</li>
+                    <li>Create an <strong>Add</strong> node: Result + 0.5 (re-centers)</li>
+                    <li>Create a <strong>Saturate</strong> node: Clamps result to 0-1</li>
+                </ul>
+
+                <p>Use this processed mask for all three Lerp Alpha inputs. Now the <code>Blend_Contrast</code> parameter lets you sharpen or soften the transition in Material Instances!</p>
+
+                <h3>Step 6: Connect Outputs</h3>
+
+                <p>Wire your Lerp outputs to the main material node:</p>
+                <ul>
+                    <li>Base Color Lerp → Base Color</li>
+                    <li>Normal Lerp → Normal</li>
+                    <li>Roughness Lerp → Roughness</li>
+                </ul>
+
+                <p>Click <strong>Apply</strong> and <strong>Save</strong>.</p>
+
+                <!-- SVG: Simplified Final Graph Overview -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">M_TerrainBlend - Graph Overview</text>
+                    
+                    <!-- Grid -->
+                    <defs>
+                        <pattern id="terrainGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect x="10" y="40" width="780" height="250" fill="url(#terrainGrid)"/>
+                    
+                    <!-- Grass Layer Box -->
+                    <rect x="30" y="55" width="150" height="100" rx="5" fill="rgba(46,204,113,0.1)" stroke="#2ecc71" stroke-width="2"/>
+                    <text x="105" y="75" text-anchor="middle" fill="#2ecc71" font-size="11" font-weight="bold">GRASS LAYER</text>
+                    <text x="105" y="95" text-anchor="middle" fill="#aaa" font-size="9">BaseColor</text>
+                    <text x="105" y="110" text-anchor="middle" fill="#aaa" font-size="9">Normal</text>
+                    <text x="105" y="125" text-anchor="middle" fill="#aaa" font-size="9">Roughness</text>
+                    <text x="105" y="145" text-anchor="middle" fill="#888" font-size="8">+ Tiling param</text>
+                    
+                    <!-- Dirt Layer Box -->
+                    <rect x="30" y="165" width="150" height="100" rx="5" fill="rgba(139,69,19,0.2)" stroke="#8b4513" stroke-width="2"/>
+                    <text x="105" y="185" text-anchor="middle" fill="#cd853f" font-size="11" font-weight="bold">DIRT LAYER</text>
+                    <text x="105" y="205" text-anchor="middle" fill="#aaa" font-size="9">BaseColor</text>
+                    <text x="105" y="220" text-anchor="middle" fill="#aaa" font-size="9">Normal</text>
+                    <text x="105" y="235" text-anchor="middle" fill="#aaa" font-size="9">Roughness</text>
+                    <text x="105" y="255" text-anchor="middle" fill="#888" font-size="8">+ Tiling param</text>
+                    
+                    <!-- Blend Mask Box -->
+                    <rect x="220" y="180" width="120" height="70" rx="5" fill="rgba(102,126,234,0.2)" stroke="#667eea" stroke-width="2"/>
+                    <text x="280" y="200" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">BLEND MASK</text>
+                    <text x="280" y="220" text-anchor="middle" fill="#aaa" font-size="9">+ Contrast</text>
+                    <text x="280" y="235" text-anchor="middle" fill="#aaa" font-size="9">processing</text>
+                    
+                    <!-- Lerp Nodes -->
+                    <g transform="translate(400, 60)">
+                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#667eea"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="10">Lerp: BaseColor</text>
+                    </g>
+                    <g transform="translate(400, 115)">
+                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#667eea"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="10">Lerp: Normal</text>
+                    </g>
+                    <g transform="translate(400, 170)">
+                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#667eea"/>
+                        <text x="50" y="25" text-anchor="middle" fill="#fff" font-size="10">Lerp: Roughness</text>
+                    </g>
+                    
+                    <!-- Material Output -->
+                    <g transform="translate(580, 70)">
+                        <rect x="0" y="0" width="140" height="140" rx="8" fill="rgba(76,175,80,0.2)" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">MATERIAL</text>
+                        <circle cx="0" cy="55" r="5" fill="#f1c40f"/>
+                        <text x="15" y="58" fill="#aaa" font-size="9">Base Color</text>
+                        <circle cx="0" cy="85" r="5" fill="#9b59b6"/>
+                        <text x="15" y="88" fill="#aaa" font-size="9">Normal</text>
+                        <circle cx="0" cy="115" r="5" fill="#888"/>
+                        <text x="15" y="118" fill="#aaa" font-size="9">Roughness</text>
+                    </g>
+                    
+                    <!-- Connection arrows (simplified) -->
+                    <path d="M 180 105 L 400 80" stroke="#2ecc71" stroke-width="1.5" fill="none"/>
+                    <path d="M 180 215 L 400 95" stroke="#8b4513" stroke-width="1.5" fill="none"/>
+                    <path d="M 340 215 L 400 85" stroke="#667eea" stroke-width="1.5" stroke-dasharray="4,2" fill="none"/>
+                    <path d="M 340 215 L 400 140" stroke="#667eea" stroke-width="1.5" stroke-dasharray="4,2" fill="none"/>
+                    <path d="M 340 215 L 400 195" stroke="#667eea" stroke-width="1.5" stroke-dasharray="4,2" fill="none"/>
+                    <path d="M 500 80 L 580 125" stroke="#f1c40f" stroke-width="2" fill="none"/>
+                    <path d="M 500 135 L 580 155" stroke="#9b59b6" stroke-width="2" fill="none"/>
+                    <path d="M 500 190 L 580 185" stroke="#888" stroke-width="2" fill="none"/>
+                </svg>
+                <p class="caption"><em>Figure: Logical overview of the terrain blend material structure.</em></p>
+
+                <h3>Step 7: Test and Create Instances</h3>
+
+                <p>Apply your material to a large plane or landscape in your level. Create a Material Instance and experiment with the parameters:</p>
+
+                <ul>
+                    <li>Adjust <strong>Grass_Tiling</strong> and <strong>Dirt_Tiling</strong> to control texture repetition</li>
+                    <li>Adjust <strong>Blend_Contrast</strong> to sharpen or soften transitions</li>
+                    <li>Try different blend mask textures in the instance</li>
+                </ul>
+
+                <details class="card">
+                    <summary><strong>✅ Success Check: How do you know it worked?</strong></summary>
+                    <div style="padding: 1rem;">
+                        <p>Your terrain blend material is working correctly if:</p>
+                        <ul>
+                            <li>You see both grass and dirt textures on the surface</li>
+                            <li>The blend follows the mask pattern (where mask is dark = grass, white = dirt, or vice versa)</li>
+                            <li>Lighting responds correctly to both areas (normal maps working)</li>
+                            <li>Each area has correct roughness (grass might be slightly shinier, dirt more matte)</li>
+                            <li>Changing tiling parameters affects each layer independently</li>
+                            <li>Blend Contrast parameter sharpens/softens the transition</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>🎉 Excellent Work!</h4>
+                    <p>You've built a production-quality terrain blend material! This same architecture scales to more complex setups—add more layers, use vertex colors instead of mask textures, incorporate height blending, or add detail textures. The fundamentals you've learned here apply to all of them.</p>
+                </div>
+            </section>
+
+            <!-- Section 7: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>This lesson equipped you with the tools to build sophisticated, multi-layered materials. Let's review the key concepts:</p>
+
+                <p><strong>Math nodes are your creative toolkit.</strong> Add, Multiply, Divide, and especially Lerp transform simple textures into complex, controllable effects. Understanding that colors are just numbers opens up endless possibilities.</p>
+
+                <p><strong>Lerp is the master blender.</strong> With two inputs and an alpha mask, Lerp creates smooth transitions between any values—colors, roughness, entire texture sets. The alpha can be a constant, parameter, texture, vertex color, or calculated value.</p>
+
+                <p><strong>Material Functions promote reusability.</strong> Encapsulate common node patterns into functions to eliminate duplication, centralize updates, and keep your material graphs clean and maintainable.</p>
+
+                <p><strong>Texture blending follows patterns.</strong> Whether using simple Lerp, height-based blending, or vertex colors, the same architecture applies: blend each PBR channel with the same alpha mask to keep properties aligned.</p>
+
+                <p><strong>World-aligned textures solve seaming problems.</strong> By deriving UV coordinates from world position, adjacent mesh pieces texture seamlessly—essential for terrain, modular architecture, and large environmental pieces.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>🔑 Key Takeaways</h3>
+                    <ul>
+                        <li>Multiply: tinting, masking, intensity adjustment</li>
+                        <li>Add: combining effects, offsetting values</li>
+                        <li>Lerp: blending A→B controlled by Alpha (0-1)</li>
+                        <li>Same alpha mask must drive ALL blended channels</li>
+                        <li>Material Functions: create once, use everywhere</li>
+                        <li>HeightLerp: natural transitions using height data</li>
+                        <li>Vertex colors: paint blend zones directly on meshes</li>
+                        <li>World-aligned: seamless texturing across mesh boundaries</li>
+                        <li>Tri-planar: world-aligned on any surface orientation</li>
+                    </ul>
+                </div>
+
+                <h3>What's Next?</h3>
+
+                <p>In the next lesson, <strong>Material Instances and Parameters</strong>, you'll dive deeper into the parameter system—creating well-organized parameter groups, using Static Switch parameters for material variants, and building efficient material libraries that artists can customize without touching the parent material.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m03_l02_texture_basics.html" class="btn">← Previous: Texture Basics</a>
+                <a href="index.html" class="btn">Home</a>
+                <a href="m03_l04_material_instances_and_parameters.html" class="btn">Next: Material Instances and Parameters →</a>
+            </nav>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Educational content for aspiring game developers.</p>
+            <p>
+                <a href="index.html">Home</a> |
+                <a href="index.html#modules">All Modules</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+</body>
+</html>

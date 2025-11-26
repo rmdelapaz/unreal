@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Master Material Instances and Parameters in Unreal Engine 5. Learn to create flexible, reusable materials with scalar, vector, and texture parameters.">
+    <meta name="author" content="Practical Ace">
+    <title>Material Instances and Parameters - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 3: Materials and Textures</a></li>
+            <li aria-current="page">Lesson 3.4: Material Instances and Parameters</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎛️ Material Instances and Parameters</h1>
+                <p class="lead">You've learned to build complex materials—now it's time to make them truly flexible. Parameters transform rigid materials into customizable systems that artists can tweak without touching shader code. In this lesson, you'll master the parameter workflow that powers professional material libraries.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain the relationship between parent materials and Material Instances</li>
+                        <li>Create and configure Scalar, Vector, and Texture parameters</li>
+                        <li>Organize parameters into logical groups for artist-friendly interfaces</li>
+                        <li>Use Static Switch parameters to create material variants without shader duplication</li>
+                        <li>Preview dynamic material changes at runtime through Blueprints</li>
+                        <li>Design efficient material libraries with proper parameter architecture</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-55 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 3.3 - Building Complex Materials</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#instance-fundamentals" class="toc-link">Material Instance Fundamentals</a></li>
+                        <li><a href="#parameter-types" class="toc-link">Scalar and Vector Parameters</a></li>
+                        <li><a href="#texture-parameters" class="toc-link">Texture Parameters</a></li>
+                        <li><a href="#organizing-parameters" class="toc-link">Organizing Material Libraries</a></li>
+                        <li><a href="#static-switches" class="toc-link">Static Switch Parameters</a></li>
+                        <li><a href="#dynamic-materials" class="toc-link">Dynamic Material Changes at Runtime</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Build a Customizable Material</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Material Instance Fundamentals -->
+            <section id="instance-fundamentals" class="lesson-section">
+                <h2>Material Instance Fundamentals</h2>
+                
+                <p>We touched on Material Instances in Lesson 3.1, but now it's time to go deeper. Understanding the instance system isn't just helpful—it's essential for building materials that scale to production projects with hundreds or thousands of assets.</p>
+
+                <h3>The Parent-Instance Relationship</h3>
+
+                <p>Think of a parent material as a <strong>template</strong> or <strong>blueprint</strong> for how a surface should look. It contains all the logic: which textures to sample, how to blend them, what calculations to perform. But crucially, it exposes certain values as <strong>parameters</strong>—adjustable knobs that can be tweaked without changing the underlying code.</p>
+
+                <p>A <strong>Material Instance</strong> is a child of that parent. It inherits all the parent's logic but can override any exposed parameter with its own value. The magic? Changing a parameter in an instance doesn't require recompiling the shader. Changes are instant.</p>
+
+                <!-- SVG: Parent-Instance Relationship -->
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Parent Material → Material Instances</text>
+                    
+                    <!-- Parent Material -->
+                    <g transform="translate(300, 55)">
+                        <rect x="0" y="0" width="200" height="100" rx="10" fill="#667eea" stroke="#fff" stroke-width="2"/>
+                        <text x="100" y="30" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">M_Master_Surface</text>
+                        <text x="100" y="50" text-anchor="middle" fill="#ddd" font-size="10">PARENT MATERIAL</text>
+                        <line x1="20" y1="62" x2="180" y2="62" stroke="#fff" stroke-width="1" opacity="0.5"/>
+                        <text x="100" y="80" text-anchor="middle" fill="#aaa" font-size="9">Contains: Shader logic</text>
+                        <text x="100" y="95" text-anchor="middle" fill="#aaa" font-size="9">Exposes: Parameters</text>
+                    </g>
+                    
+                    <!-- Arrows down -->
+                    <path d="M 350 155 L 350 180 L 150 180 L 150 200" stroke="#4CAF50" stroke-width="2" fill="none" marker-end="url(#arrowGreen2)"/>
+                    <path d="M 400 155 L 400 200" stroke="#FF9800" stroke-width="2" fill="none" marker-end="url(#arrowOrange)"/>
+                    <path d="M 450 155 L 450 180 L 650 180 L 650 200" stroke="#e91e63" stroke-width="2" fill="none" marker-end="url(#arrowPink)"/>
+                    
+                    <defs>
+                        <marker id="arrowGreen2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4CAF50"/>
+                        </marker>
+                        <marker id="arrowOrange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#FF9800"/>
+                        </marker>
+                        <marker id="arrowPink" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#e91e63"/>
+                        </marker>
+                    </defs>
+                    
+                    <!-- Instance 1 -->
+                    <g transform="translate(50, 205)">
+                        <rect x="0" y="0" width="180" height="90" rx="8" fill="#4CAF50" opacity="0.2" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">MI_Surface_Brick</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#aaa" font-size="9">Color: Red-Brown</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#aaa" font-size="9">Roughness: 0.8</text>
+                        <text x="90" y="75" text-anchor="middle" fill="#aaa" font-size="9">Texture: T_Brick</text>
+                    </g>
+                    
+                    <!-- Instance 2 -->
+                    <g transform="translate(310, 205)">
+                        <rect x="0" y="0" width="180" height="90" rx="8" fill="#FF9800" opacity="0.2" stroke="#FF9800" stroke-width="2"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#FF9800" font-size="12" font-weight="bold">MI_Surface_Metal</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#aaa" font-size="9">Color: Silver</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#aaa" font-size="9">Roughness: 0.2</text>
+                        <text x="90" y="75" text-anchor="middle" fill="#aaa" font-size="9">Texture: T_Metal</text>
+                    </g>
+                    
+                    <!-- Instance 3 -->
+                    <g transform="translate(570, 205)">
+                        <rect x="0" y="0" width="180" height="90" rx="8" fill="#e91e63" opacity="0.2" stroke="#e91e63" stroke-width="2"/>
+                        <text x="90" y="25" text-anchor="middle" fill="#e91e63" font-size="12" font-weight="bold">MI_Surface_Wood</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#aaa" font-size="9">Color: Brown</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#aaa" font-size="9">Roughness: 0.6</text>
+                        <text x="90" y="75" text-anchor="middle" fill="#aaa" font-size="9">Texture: T_Wood</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: One parent material can spawn unlimited instances, each with unique parameter values.</em></p>
+
+                <h3>Why This Architecture Matters</h3>
+
+                <p>The instance system provides massive advantages for production workflows:</p>
+
+                <p><strong>Speed:</strong> Shader compilation is slow—complex materials can take minutes to compile. Material Instances bypass compilation entirely because the shader code doesn't change. Artists can iterate on values in real-time without waiting.</p>
+
+                <p><strong>Memory efficiency:</strong> The shader itself is stored once (in the parent). Instances only store their parameter overrides—a tiny amount of data. A project with 1000 material instances doesn't use 1000× the shader memory.</p>
+
+                <p><strong>Maintainability:</strong> Need to fix a bug or add a feature to your material? Update the parent once, and every instance inherits the change automatically. No need to track down and update hundreds of individual materials.</p>
+
+                <p><strong>Consistency:</strong> All instances share the same underlying behavior. A "metal" instance and "wood" instance from the same parent will respond to lighting identically—only the surface properties differ.</p>
+
+                <!-- Mermaid: Compilation comparison -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Traditional["Without Instances"]
+        M1["Material A\n⏱️ 30s compile"]
+        M2["Material B\n⏱️ 30s compile"]
+        M3["Material C\n⏱️ 30s compile"]
+        Total1["Total: 90 seconds"]
+    end
+    
+    subgraph Instances["With Instances"]
+        Parent["Parent Material\n⏱️ 30s compile"]
+        I1["Instance A\n⚡ Instant"]
+        I2["Instance B\n⚡ Instant"]
+        I3["Instance C\n⚡ Instant"]
+        Total2["Total: 30 seconds"]
+        Parent --> I1
+        Parent --> I2
+        Parent --> I3
+    end
+    
+    style Total1 fill:#e74c3c,color:#fff
+    style Total2 fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Material Instances eliminate redundant compilation, dramatically speeding up iteration.</em></p>
+
+                <h3>Creating Material Instances</h3>
+
+                <p>There are several ways to create a Material Instance:</p>
+
+                <p><strong>From the Content Browser:</strong> Right-click your parent material → <strong>Create Material Instance</strong>. This creates an instance with the parent already assigned.</p>
+
+                <p><strong>From scratch:</strong> Right-click in Content Browser → <strong>Materials & Textures → Material Instance</strong>. Then in the Details panel, assign the Parent property to your desired parent material.</p>
+
+                <p><strong>Duplicate an existing instance:</strong> Right-click an instance → <strong>Duplicate</strong>. The new instance shares the same parent but starts with the duplicated instance's parameter values.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Instance Chains</h4>
+                    <p>Material Instances can parent other instances! This creates inheritance chains:</p>
+                    <p><code>M_Master</code> → <code>MI_Metal_Base</code> → <code>MI_Metal_Rusty</code></p>
+                    <p>The middle instance sets common metal properties, while the final instance adds rust-specific overrides. This is powerful for building material hierarchies with shared traits.</p>
+                </div>
+
+                <h3>The Material Instance Editor</h3>
+
+                <p>Double-click any Material Instance to open its editor. Unlike the full Material Editor with its node graph, the Instance Editor shows a clean interface focused entirely on parameters.</p>
+
+                <p>You'll see a list of all parameters exposed by the parent material, organized into groups. Each parameter has a <strong>checkbox</strong> to enable/disable the override. When unchecked, the instance uses the parent's default value. When checked, you can specify a custom value.</p>
+
+                <!-- SVG: Material Instance Editor -->
+                <svg width="100%" height="340" viewBox="0 0 700 340" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <!-- Title bar -->
+                    <rect x="0" y="0" width="700" height="30" fill="#1a1a1a"/>
+                    <text x="15" y="20" fill="#fff" font-size="11">Material Instance Editor - MI_Example</text>
+                    <circle cx="670" cy="15" r="6" fill="#e74c3c"/>
+                    <circle cx="650" cy="15" r="6" fill="#f39c12"/>
+                    <circle cx="630" cy="15" r="6" fill="#2ecc71"/>
+                    
+                    <!-- Left Panel: Details -->
+                    <rect x="0" y="30" width="350" height="310" fill="#252525"/>
+                    <rect x="0" y="30" width="350" height="25" fill="#1f1f1f"/>
+                    <text x="15" y="48" fill="#aaa" font-size="11" font-weight="bold">Details</text>
+                    
+                    <!-- Parent Material -->
+                    <text x="15" y="80" fill="#888" font-size="10">Parent</text>
+                    <rect x="15" y="88" width="320" height="22" rx="3" fill="#333"/>
+                    <text x="25" y="103" fill="#667eea" font-size="10">M_Master_Surface</text>
+                    
+                    <!-- Parameter Groups -->
+                    <text x="15" y="135" fill="#667eea" font-size="11" font-weight="bold">▼ Surface Properties</text>
+                    
+                    <!-- Base Color Parameter -->
+                    <rect x="25" y="148" width="16" height="16" rx="2" fill="#4CAF50" stroke="#fff" stroke-width="1"/>
+                    <text x="28" y="160" fill="#fff" font-size="10">✓</text>
+                    <text x="50" y="161" fill="#aaa" font-size="10">Base Color Tint</text>
+                    <rect x="200" y="148" width="60" height="18" fill="#c0392b" stroke="#555" stroke-width="1"/>
+                    
+                    <!-- Roughness Parameter -->
+                    <rect x="25" y="175" width="16" height="16" rx="2" fill="#4CAF50" stroke="#fff" stroke-width="1"/>
+                    <text x="28" y="187" fill="#fff" font-size="10">✓</text>
+                    <text x="50" y="188" fill="#aaa" font-size="10">Roughness</text>
+                    <rect x="200" y="175" width="100" height="18" rx="2" fill="#333" stroke="#555"/>
+                    <rect x="200" y="175" width="60" height="18" rx="2" fill="#667eea"/>
+                    <text x="310" y="188" fill="#aaa" font-size="9">0.6</text>
+                    
+                    <!-- Metallic Parameter (unchecked) -->
+                    <rect x="25" y="202" width="16" height="16" rx="2" fill="#333" stroke="#555" stroke-width="1"/>
+                    <text x="50" y="215" fill="#666" font-size="10">Metallic</text>
+                    <text x="200" y="215" fill="#555" font-size="9">(using parent default)</text>
+                    
+                    <!-- Tiling Parameter -->
+                    <rect x="25" y="229" width="16" height="16" rx="2" fill="#4CAF50" stroke="#fff" stroke-width="1"/>
+                    <text x="28" y="241" fill="#fff" font-size="10">✓</text>
+                    <text x="50" y="242" fill="#aaa" font-size="10">Tiling</text>
+                    <rect x="200" y="229" width="80" height="18" rx="2" fill="#333" stroke="#555"/>
+                    <text x="210" y="242" fill="#fff" font-size="10">4.0</text>
+                    
+                    <!-- Textures Group -->
+                    <text x="15" y="275" fill="#667eea" font-size="11" font-weight="bold">▼ Textures</text>
+                    
+                    <!-- Texture Parameter -->
+                    <rect x="25" y="288" width="16" height="16" rx="2" fill="#4CAF50" stroke="#fff" stroke-width="1"/>
+                    <text x="28" y="300" fill="#fff" font-size="10">✓</text>
+                    <text x="50" y="301" fill="#aaa" font-size="10">Base Color Texture</text>
+                    <rect x="200" y="285" width="50" height="25" fill="#8B4513" stroke="#555" stroke-width="1"/>
+                    <text x="260" y="301" fill="#888" font-size="9">T_Brick_D</text>
+                    
+                    <!-- Right Panel: Preview -->
+                    <rect x="350" y="30" width="350" height="310" fill="#1e1e1e"/>
+                    <rect x="350" y="30" width="350" height="25" fill="#1f1f1f"/>
+                    <text x="365" y="48" fill="#aaa" font-size="11" font-weight="bold">Preview</text>
+                    
+                    <!-- Preview sphere -->
+                    <circle cx="525" cy="185" r="100" fill="url(#instancePreview)"/>
+                    <defs>
+                        <radialGradient id="instancePreview" cx="35%" cy="35%">
+                            <stop offset="0%" style="stop-color:#e8a090"/>
+                            <stop offset="50%" style="stop-color:#a0522d"/>
+                            <stop offset="100%" style="stop-color:#5d3a1a"/>
+                        </radialGradient>
+                    </defs>
+                    
+                    <!-- Callouts -->
+                    <rect x="400" y="295" width="240" height="35" rx="5" fill="rgba(76,175,80,0.2)" stroke="#4CAF50"/>
+                    <text x="520" y="315" text-anchor="middle" fill="#4CAF50" font-size="10">✓ = Override enabled (custom value)</text>
+                </svg>
+                <p class="caption"><em>Figure: The Material Instance Editor provides a clean interface for adjusting exposed parameters.</em></p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>If you don't see any parameters in the Instance Editor, the parent material hasn't exposed any! Parameters must be explicitly created in the parent using Parameter nodes (Scalar Parameter, Vector Parameter, etc.) instead of regular Constant nodes. We'll cover this in detail in the next section.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Scalar and Vector Parameters -->
+            <section id="parameter-types" class="lesson-section">
+                <h2>Scalar and Vector Parameters</h2>
+
+                <p>Parameters are the building blocks of customizable materials. Each parameter type serves a specific purpose, and choosing the right type affects both functionality and performance.</p>
+
+                <h3>Scalar Parameters</h3>
+
+                <p>A <strong>Scalar Parameter</strong> holds a single floating-point number. Use it for any single-value property:</p>
+
+                <p><strong>Common uses:</strong> Roughness, Metallic, Opacity, Tiling amount, Blend factors, Intensity multipliers, Normal strength</p>
+
+                <p>To create a Scalar Parameter in the Material Editor, right-click and search for "ScalarParameter" (or press <strong>S</strong> and click). In the Details panel, configure:</p>
+
+                <!-- SVG: Scalar Parameter Configuration -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">Scalar Parameter Properties</text>
+                    
+                    <!-- Parameter Node -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="180" height="80" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="180" height="22" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="17" width="180" height="5" fill="#4CAF50"/>
+                        <text x="90" y="16" text-anchor="middle" fill="#fff" font-size="10">Scalar Parameter</text>
+                        <text x="90" y="45" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">Roughness_Amount</text>
+                        <text x="90" y="65" text-anchor="middle" fill="#aaa" font-size="11">Default: 0.5</text>
+                        <circle cx="180" cy="50" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Properties Panel -->
+                    <g transform="translate(280, 50)">
+                        <rect x="0" y="0" width="480" height="170" rx="8" fill="#fff" stroke="#ddd" stroke-width="1"/>
+                        <rect x="0" y="0" width="480" height="30" rx="8" fill="#f0f0f0"/>
+                        <text x="20" y="20" fill="#333" font-size="12" font-weight="bold">📋 Configuration Options</text>
+                        
+                        <text x="20" y="55" fill="#667eea" font-size="11" font-weight="bold">Parameter Name</text>
+                        <text x="180" y="55" fill="#333" font-size="11">Unique identifier (e.g., "Roughness_Amount")</text>
+                        
+                        <text x="20" y="80" fill="#667eea" font-size="11" font-weight="bold">Group</text>
+                        <text x="180" y="80" fill="#333" font-size="11">Category for organization (e.g., "Surface")</text>
+                        
+                        <text x="20" y="105" fill="#667eea" font-size="11" font-weight="bold">Default Value</text>
+                        <text x="180" y="105" fill="#333" font-size="11">Initial value when instance created</text>
+                        
+                        <text x="20" y="130" fill="#667eea" font-size="11" font-weight="bold">Slider Min/Max</text>
+                        <text x="180" y="130" fill="#333" font-size="11">Range limits for the UI slider</text>
+                        
+                        <text x="20" y="155" fill="#667eea" font-size="11" font-weight="bold">Sort Priority</text>
+                        <text x="180" y="155" fill="#333" font-size="11">Order within group (lower = higher in list)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Scalar Parameter properties control how the parameter appears and behaves in instances.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Slider Ranges</h4>
+                    <p>Always set meaningful <strong>Slider Min</strong> and <strong>Slider Max</strong> values. For roughness, use 0-1. For tiling, maybe 0.1-10. For intensity multipliers, 0-5 or higher. This prevents artists from accidentally entering extreme values that break the material.</p>
+                </div>
+
+                <h3>Vector Parameters</h3>
+
+                <p>A <strong>Vector Parameter</strong> holds multiple values—typically 3 (RGB color) or 4 (RGBA). Despite the name, they're most commonly used for colors.</p>
+
+                <p><strong>Common uses:</strong> Base Color tint, Emissive color, Subsurface color, UV offset (2 values), Custom data</p>
+
+                <p>Create a Vector Parameter by right-clicking and searching for "VectorParameter" (or press <strong>V</strong> and click).</p>
+
+                <!-- SVG: Vector Parameter Color Picker -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Vector Parameter: Color Selection</text>
+                    
+                    <!-- Vector Parameter Node -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="160" height="90" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="160" height="22" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="17" width="160" height="5" fill="#4CAF50"/>
+                        <text x="80" y="16" text-anchor="middle" fill="#fff" font-size="9">Vector Parameter</text>
+                        <text x="80" y="40" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Base_Color_Tint</text>
+                        <rect x="15" y="50" width="30" height="30" fill="#c0392b" stroke="#fff" stroke-width="1"/>
+                        <text x="55" y="70" fill="#aaa" font-size="9">(0.75, 0.2, 0.15, 1)</text>
+                        <circle cx="160" cy="65" r="5" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- In Instance Editor -->
+                    <g transform="translate(280, 55)">
+                        <rect x="0" y="0" width="220" height="110" rx="8" fill="#252525" stroke="#667eea" stroke-width="2"/>
+                        <text x="110" y="25" text-anchor="middle" fill="#667eea" font-size="11" font-weight="bold">In Instance Editor</text>
+                        
+                        <rect x="20" y="40" width="50" height="50" fill="#c0392b" stroke="#fff" stroke-width="2"/>
+                        <text x="90" y="55" fill="#aaa" font-size="9">Click to open</text>
+                        <text x="90" y="70" fill="#aaa" font-size="9">color picker!</text>
+                        
+                        <!-- Color picker icon -->
+                        <rect x="150" y="45" width="40" height="40" rx="5" fill="linear-gradient(135deg, #ff0000 0%, #00ff00 50%, #0000ff 100%)" stroke="#fff"/>
+                    </g>
+                    
+                    <!-- Output usage -->
+                    <g transform="translate(560, 55)">
+                        <rect x="0" y="0" width="190" height="110" rx="8" fill="#333" stroke="#888" stroke-width="1"/>
+                        <text x="95" y="25" text-anchor="middle" fill="#aaa" font-size="11" font-weight="bold">Output Pins</text>
+                        
+                        <circle cx="30" cy="50" r="5" fill="#f1c40f"/>
+                        <text x="45" y="53" fill="#aaa" font-size="10">RGB (3 channels)</text>
+                        
+                        <circle cx="30" cy="75" r="5" fill="#888"/>
+                        <text x="45" y="78" fill="#aaa" font-size="10">R, G, B, A (individual)</text>
+                        
+                        <text x="95" y="100" text-anchor="middle" fill="#666" font-size="9">Use RGB for colors</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Vector Parameters provide color pickers in the Instance Editor and output multiple channels.</em></p>
+
+                <h3>Naming Conventions</h3>
+
+                <p>Good parameter names make materials self-documenting. Follow these conventions:</p>
+
+                <p><strong>Be descriptive:</strong> Use <code>Roughness_Amount</code> not <code>R</code> or <code>Param1</code></p>
+
+                <p><strong>Use underscores:</strong> <code>Base_Color_Tint</code> reads better than <code>BaseColorTint</code> in the UI</p>
+
+                <p><strong>Include units when relevant:</strong> <code>Tiling_Scale</code>, <code>Emission_Intensity</code></p>
+
+                <p><strong>Group related parameters:</strong> Prefix with category: <code>Layer1_Color</code>, <code>Layer1_Roughness</code>, <code>Layer2_Color</code>, etc.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Parameter Names Are Identifiers</h4>
+                    <p>Parameter names serve two purposes: display in the Instance Editor AND identification in Blueprints when changing materials at runtime. A descriptive name like <code>Damage_Blend_Amount</code> is much easier to find in code than <code>Param7</code>. Choose names you'll understand months later!</p>
+                </div>
+            </section>
+            <!-- Section 3: Texture Parameters -->
+            <section id="texture-parameters" class="lesson-section">
+                <h2>Texture Parameters</h2>
+
+                <p>While Scalar and Vector parameters handle numbers and colors, <strong>Texture Parameters</strong> let you swap entire textures in Material Instances. This is incredibly powerful—one parent material can serve brick, wood, metal, and fabric surfaces just by changing which textures each instance uses.</p>
+
+                <h3>Creating Texture Parameters</h3>
+
+                <p>Instead of using a regular <strong>Texture Sample</strong> node, use a <strong>Texture Sample Parameter 2D</strong> node. Right-click and search for it, or convert an existing Texture Sample by right-clicking it and selecting "Convert to Parameter."</p>
+
+                <p>Configure the parameter in the Details panel:</p>
+
+                <p><strong>Parameter Name:</strong> Descriptive name like <code>BaseColor_Texture</code> or <code>Normal_Map</code></p>
+
+                <p><strong>Group:</strong> Category for organization (e.g., "Textures")</p>
+
+                <p><strong>Texture:</strong> The default texture to use when no override is set</p>
+
+                <!-- SVG: Texture Parameter Node -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Texture Sample vs Texture Sample Parameter</text>
+                    
+                    <!-- Regular Texture Sample -->
+                    <g transform="translate(100, 55)">
+                        <rect x="0" y="0" width="180" height="100" rx="5" fill="#3d3d3d" stroke="#888" stroke-width="2"/>
+                        <rect x="0" y="0" width="180" height="22" rx="5" fill="#555"/>
+                        <rect x="0" y="17" width="180" height="5" fill="#555"/>
+                        <text x="90" y="16" text-anchor="middle" fill="#fff" font-size="10">Texture Sample</text>
+                        
+                        <rect x="15" y="35" width="50" height="50" fill="#8B4513" stroke="#555"/>
+                        <text x="80" y="55" fill="#aaa" font-size="9">T_Brick_D</text>
+                        <text x="80" y="75" fill="#666" font-size="8">(hardcoded)</text>
+                        
+                        <circle cx="180" cy="60" r="5" fill="#f1c40f" stroke="#333"/>
+                        
+                        <text x="90" y="130" text-anchor="middle" fill="#e74c3c" font-size="11">❌ Cannot change in instances</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <text x="400" y="110" text-anchor="middle" fill="#667eea" font-size="30">→</text>
+                    
+                    <!-- Texture Parameter -->
+                    <g transform="translate(520, 55)">
+                        <rect x="0" y="0" width="180" height="100" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="180" height="22" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="17" width="180" height="5" fill="#4CAF50"/>
+                        <text x="90" y="16" text-anchor="middle" fill="#fff" font-size="9">Texture Sample Parameter 2D</text>
+                        
+                        <rect x="15" y="35" width="50" height="50" fill="#8B4513" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="50" fill="#4CAF50" font-size="9" font-weight="bold">BaseColor_Tex</text>
+                        <text x="80" y="68" fill="#aaa" font-size="8">Default: T_Brick_D</text>
+                        <text x="80" y="82" fill="#4CAF50" font-size="8">(swappable!)</text>
+                        
+                        <circle cx="180" cy="60" r="5" fill="#f1c40f" stroke="#333"/>
+                        
+                        <text x="90" y="130" text-anchor="middle" fill="#4CAF50" font-size="11">✓ Artists can swap textures</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Texture Parameters allow texture swapping in Material Instances.</em></p>
+
+                <h3>Default Textures Matter</h3>
+
+                <p>Always assign a sensible default texture to your parameters. When an artist creates a new instance, they see the default in the preview. A good default helps them understand what kind of texture belongs there.</p>
+
+                <p>For certain parameter types, Unreal provides built-in defaults:</p>
+
+                <p><strong>Normal maps:</strong> If left empty, consider using the engine's default flat normal (or create a 1x1 pixel normal texture pointing straight up)</p>
+
+                <p><strong>Masks:</strong> White or black textures depending on whether the default state should be "on" or "off"</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Texture Parameter Groups</h4>
+                    <p>For materials with multiple texture sets (like a terrain blend), organize parameters clearly:</p>
+                    <p><strong>Group "Layer 1 - Grass":</strong> Grass_BaseColor, Grass_Normal, Grass_Roughness</p>
+                    <p><strong>Group "Layer 2 - Dirt":</strong> Dirt_BaseColor, Dirt_Normal, Dirt_Roughness</p>
+                    <p>This makes the Instance Editor much easier to navigate.</p>
+                </div>
+
+                <h3>Sampler Type Consistency</h3>
+
+                <p>When creating Texture Parameters, ensure the <strong>Sampler Type</strong> matches the intended texture type:</p>
+
+                <p><strong>Color (sRGB):</strong> For Base Color, Emissive, and any texture meant to display colors</p>
+
+                <p><strong>Linear Color:</strong> For masks, roughness, metallic, AO—data textures</p>
+
+                <p><strong>Normal:</strong> For normal maps (uses special compression handling)</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>If an artist swaps in a texture with the wrong type (e.g., puts a normal map in a Color slot), results will look wrong. While you can't prevent this entirely, clear parameter naming (<code>Normal_Map</code> vs <code>BaseColor_Texture</code>) reduces mistakes.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Organizing Material Libraries -->
+            <section id="organizing-parameters" class="lesson-section">
+                <h2>Organizing Material Libraries</h2>
+
+                <p>As materials grow complex, parameter organization becomes critical. A material with 30 unorganized parameters is a nightmare to use. A well-organized material with those same parameters grouped logically is a joy.</p>
+
+                <h3>Parameter Groups</h3>
+
+                <p>Every parameter has a <strong>Group</strong> property in its Details panel. Parameters with the same group name appear together in the Instance Editor under a collapsible header.</p>
+
+                <p>Think about groups from the artist's perspective—what settings do they typically adjust together?</p>
+
+                <!-- SVG: Parameter Group Organization -->
+                <svg width="100%" height="360" viewBox="0 0 800 360" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #252525;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Well-Organized Parameter Groups</text>
+                    
+                    <!-- Left: Poorly Organized -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="300" height="280" rx="8" fill="#1e1e1e" stroke="#e74c3c" stroke-width="2"/>
+                        <text x="150" y="25" text-anchor="middle" fill="#e74c3c" font-size="12" font-weight="bold">❌ Poorly Organized</text>
+                        
+                        <text x="20" y="55" fill="#888" font-size="10">Param1</text>
+                        <text x="20" y="75" fill="#888" font-size="10">Color</text>
+                        <text x="20" y="95" fill="#888" font-size="10">Tex1</text>
+                        <text x="20" y="115" fill="#888" font-size="10">Roughness</text>
+                        <text x="20" y="135" fill="#888" font-size="10">Layer2Color</text>
+                        <text x="20" y="155" fill="#888" font-size="10">NormalStrength</text>
+                        <text x="20" y="175" fill="#888" font-size="10">Tiling</text>
+                        <text x="20" y="195" fill="#888" font-size="10">Layer2Tex</text>
+                        <text x="20" y="215" fill="#888" font-size="10">BlendMask</text>
+                        <text x="20" y="235" fill="#888" font-size="10">Metallic</text>
+                        <text x="20" y="255" fill="#888" font-size="10">EmissiveColor</text>
+                        
+                        <text x="150" y="280" text-anchor="middle" fill="#e74c3c" font-size="9">All parameters in one flat list 😫</text>
+                    </g>
+                    
+                    <!-- Right: Well Organized -->
+                    <g transform="translate(450, 55)">
+                        <rect x="0" y="0" width="300" height="280" rx="8" fill="#1e1e1e" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="150" y="25" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">✓ Well Organized</text>
+                        
+                        <!-- Surface Group -->
+                        <text x="20" y="55" fill="#667eea" font-size="11" font-weight="bold">▼ Surface Properties</text>
+                        <text x="35" y="75" fill="#aaa" font-size="10">Base_Color_Tint</text>
+                        <text x="35" y="93" fill="#aaa" font-size="10">Roughness_Amount</text>
+                        <text x="35" y="111" fill="#aaa" font-size="10">Metallic_Amount</text>
+                        <text x="35" y="129" fill="#aaa" font-size="10">Normal_Intensity</text>
+                        
+                        <!-- Textures Group -->
+                        <text x="20" y="155" fill="#667eea" font-size="11" font-weight="bold">▼ Textures</text>
+                        <text x="35" y="175" fill="#aaa" font-size="10">BaseColor_Texture</text>
+                        <text x="35" y="193" fill="#aaa" font-size="10">Normal_Texture</text>
+                        <text x="35" y="211" fill="#aaa" font-size="10">Roughness_Texture</text>
+                        
+                        <!-- UV Group -->
+                        <text x="20" y="237" fill="#667eea" font-size="11" font-weight="bold">▼ UV Controls</text>
+                        <text x="35" y="257" fill="#aaa" font-size="10">Tiling_Scale</text>
+                        <text x="35" y="275" fill="#aaa" font-size="10">UV_Offset</text>
+                        
+                        <text x="150" y="295" text-anchor="middle" fill="#4CAF50" font-size="9">Logical groups, clear names 😊</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Proper grouping transforms a confusing parameter list into an intuitive interface.</em></p>
+
+                <h3>Common Group Categories</h3>
+
+                <p>Here's a proven grouping structure for general-purpose materials:</p>
+
+                <p><strong>"01 - Surface"</strong> or <strong>"Surface Properties":</strong> Base Color tint, Roughness, Metallic, Normal intensity—the core PBR values</p>
+
+                <p><strong>"02 - Textures":</strong> All swappable texture parameters</p>
+
+                <p><strong>"03 - UV/Tiling":</strong> Tiling scale, UV offset, rotation</p>
+
+                <p><strong>"04 - Effects":</strong> Emissive color/intensity, detail textures, weathering amount</p>
+
+                <p><strong>"05 - Blending":</strong> For multi-layer materials: blend masks, height blend contrast, layer weights</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Numbering Groups</h4>
+                    <p>Prefix group names with numbers (<code>01 - Surface</code>, <code>02 - Textures</code>) to control their order in the Instance Editor. Unreal sorts groups alphabetically, so numbers ensure your most-used parameters appear at the top.</p>
+                </div>
+
+                <h3>Sort Priority</h3>
+
+                <p>Within a group, parameters are sorted by their <strong>Sort Priority</strong> value (found in the parameter's Details panel). Lower numbers appear first.</p>
+
+                <p>Set priorities strategically: put the most commonly adjusted parameters at the top (priority 0-10), with less-used advanced options lower (priority 50-100).</p>
+
+                <h3>Material Library Architecture</h3>
+
+                <p>For large projects, plan your material hierarchy carefully. A common pattern:</p>
+
+                <!-- Mermaid: Material Library Hierarchy -->
+                <pre class="mermaid">
+flowchart TD
+    subgraph MasterMaterials["Master Materials (Full Logic)"]
+        M1["M_Master_Opaque\n(standard PBR)"]
+        M2["M_Master_Transparent\n(glass, water)"]
+        M3["M_Master_Foliage\n(subsurface, wind)"]
+    end
+    
+    subgraph BaseMaterials["Base Material Instances"]
+        B1["MI_Base_Metal"]
+        B2["MI_Base_Wood"]
+        B3["MI_Base_Stone"]
+        B4["MI_Base_Glass"]
+        B5["MI_Base_Leaf"]
+    end
+    
+    subgraph FinalMaterials["Final Material Instances"]
+        F1["MI_Metal_Steel_Clean"]
+        F2["MI_Metal_Steel_Rusty"]
+        F3["MI_Wood_Oak"]
+        F4["MI_Wood_Pine_Weathered"]
+        F5["MI_Stone_Granite"]
+    end
+    
+    M1 --> B1
+    M1 --> B2
+    M1 --> B3
+    M2 --> B4
+    M3 --> B5
+    
+    B1 --> F1
+    B1 --> F2
+    B2 --> F3
+    B2 --> F4
+    B3 --> F5
+    
+    style MasterMaterials fill:#667eea,color:#fff
+    style BaseMaterials fill:#FF9800,color:#fff
+    style FinalMaterials fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: A three-tier hierarchy provides flexibility while maintaining consistency.</em></p>
+
+                <p><strong>Tier 1 - Master Materials:</strong> A small number of parent materials containing all shader logic. These compile once and define your project's visual capabilities.</p>
+
+                <p><strong>Tier 2 - Base Instances:</strong> Category-specific instances that set common properties for a material type (all metals share certain roughness ranges, all woods have similar tiling defaults).</p>
+
+                <p><strong>Tier 3 - Final Instances:</strong> The actual materials applied to assets. These inherit from base instances and add asset-specific customization.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Start Simple, Scale Up</h4>
+                    <p>Don't over-architect from day one. Start with a single master material and create instances directly from it. As patterns emerge (you keep making similar metal variations), introduce base instances for those categories. Let the hierarchy grow organically based on actual needs.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Static Switch Parameters -->
+            <section id="static-switches" class="lesson-section">
+                <h2>Static Switch Parameters</h2>
+
+                <p>Sometimes you need material variants that aren't just different values—they need different <em>logic</em>. Maybe some instances should use a detail texture overlay while others skip it entirely. Or some need vertex color blending while others use a mask texture.</p>
+
+                <p><strong>Static Switch Parameters</strong> enable this by letting instances toggle entire branches of material logic on or off.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Static Switch Parameter:</strong> A boolean (true/false) parameter that controls which branch of material logic compiles into an instance. Unlike regular parameters, static switches cause shader recompilation when changed—but they completely remove unused code paths, improving performance.</p>
+                </div>
+
+                <h3>How Static Switches Work</h3>
+
+                <p>A Static Switch node has three inputs: <strong>True</strong>, <strong>False</strong>, and the switch value itself (set by a Static Bool Parameter). When an instance sets the switch to True, only the True input's node chain is compiled. The False branch is completely eliminated.</p>
+
+                <!-- SVG: Static Switch Diagram -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Static Switch: Compile-Time Branch Selection</text>
+                    
+                    <!-- True Branch -->
+                    <g transform="translate(80, 60)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#4CAF50" opacity="0.2" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">TRUE Branch</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#aaa" font-size="9">Detail texture overlay</text>
+                        <circle cx="150" cy="30" r="5" fill="#4CAF50"/>
+                    </g>
+                    
+                    <!-- False Branch -->
+                    <g transform="translate(80, 150)">
+                        <rect x="0" y="0" width="150" height="60" rx="5" fill="#e74c3c" opacity="0.2" stroke="#e74c3c" stroke-width="2"/>
+                        <text x="75" y="25" text-anchor="middle" fill="#e74c3c" font-size="11" font-weight="bold">FALSE Branch</text>
+                        <text x="75" y="45" text-anchor="middle" fill="#aaa" font-size="9">Simple color only</text>
+                        <circle cx="150" cy="30" r="5" fill="#e74c3c"/>
+                    </g>
+                    
+                    <!-- Static Switch Node -->
+                    <g transform="translate(320, 90)">
+                        <rect x="0" y="0" width="140" height="90" rx="8" fill="#667eea" stroke="#fff" stroke-width="2"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Static Switch</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#ddd" font-size="9">Use_Detail_Texture</text>
+                        
+                        <circle cx="0" cy="35" r="5" fill="#4CAF50"/>
+                        <text x="-10" y="38" text-anchor="end" fill="#aaa" font-size="8">True</text>
+                        
+                        <circle cx="0" cy="65" r="5" fill="#e74c3c"/>
+                        <text x="-10" y="68" text-anchor="end" fill="#aaa" font-size="8">False</text>
+                        
+                        <circle cx="140" cy="50" r="5" fill="#f1c40f"/>
+                    </g>
+                    
+                    <!-- Connection wires -->
+                    <path d="M 230 90 L 320 125" stroke="#4CAF50" stroke-width="2" fill="none"/>
+                    <path d="M 230 180 L 320 155" stroke="#e74c3c" stroke-width="2" fill="none"/>
+                    
+                    <!-- Output to material -->
+                    <g transform="translate(540, 100)">
+                        <rect x="0" y="0" width="140" height="70" rx="5" fill="#333" stroke="#f1c40f" stroke-width="2"/>
+                        <text x="70" y="25" text-anchor="middle" fill="#f1c40f" font-size="11" font-weight="bold">To Base Color</text>
+                        <text x="70" y="50" text-anchor="middle" fill="#aaa" font-size="9">Only selected branch</text>
+                        <text x="70" y="65" text-anchor="middle" fill="#aaa" font-size="9">compiles into instance</text>
+                    </g>
+                    
+                    <path d="M 460 140 L 540 135" stroke="#f1c40f" stroke-width="2" fill="none"/>
+                    
+                    <!-- Bottom note -->
+                    <rect x="150" y="230" width="500" height="35" rx="5" fill="rgba(102,126,234,0.2)" stroke="#667eea"/>
+                    <text x="400" y="252" text-anchor="middle" fill="#fff" font-size="11">⚡ Unused branch is completely eliminated from compiled shader</text>
+                </svg>
+                <p class="caption"><em>Figure: Static Switches select which code path compiles, eliminating the unused branch entirely.</em></p>
+
+                <h3>Creating Static Switch Parameters</h3>
+
+                <p><strong>Step 1:</strong> Create a <strong>Static Bool Parameter</strong> node (right-click → search "StaticBoolParameter"). Name it descriptively, like <code>Use_Detail_Texture</code>.</p>
+
+                <p><strong>Step 2:</strong> Create a <strong>Static Switch Parameter</strong> node (search "StaticSwitch").</p>
+
+                <p><strong>Step 3:</strong> Connect your True and False branch outputs to the respective inputs on the switch.</p>
+
+                <p><strong>Step 4:</strong> In the Static Switch's Details panel, set the <strong>Parameter Name</strong> to match your Static Bool's name exactly.</p>
+
+                <h3>When to Use Static Switches</h3>
+
+                <p><strong>Good use cases:</strong></p>
+                <p>• Optional features that many instances won't use (detail textures, vertex color blending, emissive effects)</p>
+                <p>• Platform-specific optimizations (high/low quality branches)</p>
+                <p>• Completely different texturing approaches (world-aligned vs UV-based)</p>
+
+                <p><strong>Avoid for:</strong></p>
+                <p>• Anything that needs to change at runtime (static switches only change at instance compile time)</p>
+                <p>• Simple value differences (use regular scalar parameters instead)</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out: Shader Variants</h4>
+                    <p>Each combination of static switch states creates a separate shader permutation. A material with 3 static switches has up to 8 variants (2³). Too many switches can explode your shader count and increase memory usage. Use them strategically for meaningful feature toggles, not minor variations.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Quality Scalability</h4>
+                    <p>Static switches are perfect for scalability settings. Create switches like <code>Use_High_Quality_Normals</code> or <code>Enable_Parallax_Occlusion</code>. On lower-end hardware, instances with these disabled run faster because the expensive code paths don't exist in their compiled shaders.</p>
+                </div>
+            </section>
+            <!-- Section 6: Dynamic Material Changes at Runtime -->
+            <section id="dynamic-materials" class="lesson-section">
+                <h2>Dynamic Material Changes at Runtime</h2>
+
+                <p>Everything we've covered so far involves setting up materials in the editor. But what if you want materials to change while the game is running? A health bar that shifts from green to red? Damage effects that intensify over time? A magic spell that pulses with energy? <strong>Dynamic Material Instances</strong> make this possible.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Dynamic Material Instance (DMI):</strong> A Material Instance created at runtime through Blueprints or C++ that allows parameter values to be changed in real-time during gameplay. Unlike editor-created instances, DMIs exist only in memory and are created per-object.</p>
+                </div>
+
+                <h3>The Runtime Material Pipeline</h3>
+
+                <p>When you apply a Material Instance to an object in the editor, that instance is shared. If you change a parameter, every object using that instance changes. That's fine for editor work, but at runtime you often want individual objects to have unique material states.</p>
+
+                <p>The solution: create a <strong>Dynamic Material Instance</strong> from your base material, then modify that unique copy.</p>
+
+                <!-- Mermaid: Runtime Material Flow -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Editor["Editor Time"]
+        MI["MI_Character_Skin\n(shared instance)"]
+        Obj1["Character A"]
+        Obj2["Character B"]
+        MI --> Obj1
+        MI --> Obj2
+    end
+    
+    subgraph Runtime["Runtime (with DMI)"]
+        Base["MI_Character_Skin\n(source)"]
+        DMI1["DMI Copy A\nHealth: 100%\nColor: Green"]
+        DMI2["DMI Copy B\nHealth: 30%\nColor: Red"]
+        CharA["Character A"]
+        CharB["Character B"]
+        Base -.->|Create DMI| DMI1
+        Base -.->|Create DMI| DMI2
+        DMI1 --> CharA
+        DMI2 --> CharB
+    end
+    
+    style MI fill:#667eea,color:#fff
+    style DMI1 fill:#4CAF50,color:#fff
+    style DMI2 fill:#e74c3c,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Dynamic Material Instances let each object have independently modifiable material parameters.</em></p>
+
+                <h3>Creating Dynamic Material Instances in Blueprints</h3>
+
+                <p>The Blueprint node you need is <strong>Create Dynamic Material Instance</strong>. Here's the typical workflow:</p>
+
+                <p><strong>Step 1:</strong> Get a reference to the mesh component whose material you want to modify (usually through a variable or "Get Component by Class").</p>
+
+                <p><strong>Step 2:</strong> Call <strong>Create Dynamic Material Instance</strong> on that component. Specify which material slot (Element Index) if the mesh has multiple materials.</p>
+
+                <p><strong>Step 3:</strong> Store the returned Dynamic Material Instance in a variable—you'll need it to change parameters later.</p>
+
+                <p><strong>Step 4:</strong> Use <strong>Set Scalar Parameter Value</strong> or <strong>Set Vector Parameter Value</strong> on the stored DMI to modify parameters.</p>
+
+                <!-- SVG: Blueprint Node Flow -->
+                <svg width="100%" height="320" viewBox="0 0 850 320" style="max-width: 850px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="425" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Blueprint: Creating and Using Dynamic Material Instances</text>
+                    
+                    <!-- Event BeginPlay -->
+                    <g transform="translate(30, 60)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#8B0000" stroke="#fff" stroke-width="1"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Event BeginPlay</text>
+                        <text x="65" y="38" text-anchor="middle" fill="#ccc" font-size="8">Runs once at start</text>
+                        <circle cx="130" cy="25" r="6" fill="#fff" stroke="#333"/>
+                    </g>
+                    
+                    <!-- Wire -->
+                    <path d="M 160 85 L 200 85" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- Get Static Mesh Component -->
+                    <g transform="translate(200, 55)">
+                        <rect x="0" y="0" width="160" height="60" rx="5" fill="#2196F3" stroke="#fff" stroke-width="1"/>
+                        <text x="80" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Get Component</text>
+                        <text x="80" y="32" text-anchor="middle" fill="#fff" font-size="9">by Class</text>
+                        <text x="80" y="50" text-anchor="middle" fill="#aaa" font-size="8">Static Mesh Component</text>
+                        <circle cx="0" cy="30" r="6" fill="#fff" stroke="#333"/>
+                        <circle cx="160" cy="25" r="6" fill="#fff" stroke="#333"/>
+                        <circle cx="160" cy="40" r="6" fill="#0ff" stroke="#333"/>
+                    </g>
+                    
+                    <!-- Wire -->
+                    <path d="M 360 80 L 400 80" stroke="#fff" stroke-width="2"/>
+                    <path d="M 360 95 L 380 95 L 380 150 L 400 150" stroke="#0ff" stroke-width="2"/>
+                    
+                    <!-- Create Dynamic Material Instance -->
+                    <g transform="translate(400, 55)">
+                        <rect x="0" y="0" width="180" height="80" rx="5" fill="#4CAF50" stroke="#fff" stroke-width="2"/>
+                        <text x="90" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Create Dynamic</text>
+                        <text x="90" y="32" text-anchor="middle" fill="#fff" font-size="9">Material Instance</text>
+                        <text x="20" y="55" fill="#aaa" font-size="8">Target</text>
+                        <text x="20" y="70" fill="#aaa" font-size="8">Element Index: 0</text>
+                        <circle cx="0" cy="25" r="6" fill="#fff" stroke="#333"/>
+                        <circle cx="0" cy="55" r="6" fill="#0ff" stroke="#333"/>
+                        <circle cx="180" cy="25" r="6" fill="#fff" stroke="#333"/>
+                        <circle cx="180" cy="55" r="6" fill="#9c27b0" stroke="#333"/>
+                        <text x="160" y="72" fill="#9c27b0" font-size="7">Return Value</text>
+                    </g>
+                    
+                    <!-- Wire to Set Variable -->
+                    <path d="M 580 80 L 620 80" stroke="#fff" stroke-width="2"/>
+                    <path d="M 580 110 L 600 110 L 600 155 L 620 155" stroke="#9c27b0" stroke-width="2"/>
+                    
+                    <!-- SET Variable -->
+                    <g transform="translate(620, 55)">
+                        <rect x="0" y="0" width="140" height="70" rx="5" fill="#667eea" stroke="#fff" stroke-width="1"/>
+                        <text x="70" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">SET</text>
+                        <text x="70" y="35" text-anchor="middle" fill="#fff" font-size="9">MyDynamicMaterial</text>
+                        <text x="70" y="55" text-anchor="middle" fill="#aaa" font-size="7">(Variable: Material</text>
+                        <text x="70" y="65" text-anchor="middle" fill="#aaa" font-size="7">Instance Dynamic)</text>
+                        <circle cx="0" cy="25" r="6" fill="#fff" stroke="#333"/>
+                        <circle cx="0" cy="55" r="6" fill="#9c27b0" stroke="#333"/>
+                        <circle cx="140" cy="25" r="6" fill="#fff" stroke="#333"/>
+                    </g>
+                    
+                    <!-- Second Row: Using the DMI -->
+                    <text x="425" y="175" text-anchor="middle" fill="#888" font-size="11">Later, when you need to change a parameter:</text>
+                    
+                    <!-- Custom Event -->
+                    <g transform="translate(100, 200)">
+                        <rect x="0" y="0" width="130" height="50" rx="5" fill="#8B0000" stroke="#fff" stroke-width="1"/>
+                        <text x="65" y="20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">On Take Damage</text>
+                        <text x="65" y="38" text-anchor="middle" fill="#ccc" font-size="8">(Custom Event)</text>
+                        <circle cx="130" cy="25" r="6" fill="#fff" stroke="#333"/>
+                    </g>
+                    
+                    <!-- Wire -->
+                    <path d="M 230 225 L 280 225" stroke="#fff" stroke-width="2"/>
+                    
+                    <!-- GET Variable -->
+                    <g transform="translate(280, 200)">
+                        <rect x="0" y="0" width="140" height="50" rx="5" fill="#667eea" stroke="#fff" stroke-width="1"/>
+                        <text x="70" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">GET</text>
+                        <text x="70" y="35" text-anchor="middle" fill="#fff" font-size="9">MyDynamicMaterial</text>
+                        <circle cx="140" cy="25" r="6" fill="#9c27b0" stroke="#333"/>
+                    </g>
+                    
+                    <!-- Wire -->
+                    <path d="M 420 225 L 480 225" stroke="#9c27b0" stroke-width="2"/>
+                    
+                    <!-- Set Scalar Parameter -->
+                    <g transform="translate(480, 190)">
+                        <rect x="0" y="0" width="180" height="80" rx="5" fill="#FF9800" stroke="#fff" stroke-width="2"/>
+                        <text x="90" y="18" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Set Scalar</text>
+                        <text x="90" y="32" text-anchor="middle" fill="#fff" font-size="9">Parameter Value</text>
+                        <text x="20" y="50" fill="#aaa" font-size="8">Parameter: "Damage_Amount"</text>
+                        <text x="20" y="65" fill="#aaa" font-size="8">Value: 0.75</text>
+                        <circle cx="0" cy="35" r="6" fill="#9c27b0" stroke="#333"/>
+                        <circle cx="180" cy="35" r="6" fill="#fff" stroke="#333"/>
+                    </g>
+                    
+                    <!-- Note -->
+                    <rect x="680" y="200" width="150" height="70" rx="5" fill="rgba(76,175,80,0.2)" stroke="#4CAF50"/>
+                    <text x="755" y="225" text-anchor="middle" fill="#4CAF50" font-size="9">✓ Material updates</text>
+                    <text x="755" y="242" text-anchor="middle" fill="#4CAF50" font-size="9">instantly on this</text>
+                    <text x="755" y="259" text-anchor="middle" fill="#4CAF50" font-size="9">specific object only!</text>
+                </svg>
+                <p class="caption"><em>Figure: Blueprint flow for creating and modifying Dynamic Material Instances.</em></p>
+
+                <h3>Common Parameter Modification Nodes</h3>
+
+                <p>Once you have a DMI reference, these nodes let you modify parameters in real-time:</p>
+
+                <p><strong>Set Scalar Parameter Value:</strong> Changes a single float parameter (roughness, opacity, blend amount, etc.)</p>
+
+                <p><strong>Set Vector Parameter Value:</strong> Changes a color or multi-value parameter. Use "Make Linear Color" to construct RGBA values.</p>
+
+                <p><strong>Set Texture Parameter Value:</strong> Swaps textures at runtime—useful for damage states, customization systems, etc.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Parameter Names Must Match Exactly</h4>
+                    <p>The "Parameter Name" string in your Blueprint must exactly match the parameter name in your material (case-sensitive!). If they don't match, the node silently does nothing. Double-check spelling and use copy-paste when possible.</p>
+                </div>
+
+                <h3>Performance Considerations</h3>
+
+                <p>Dynamic Material Instances are powerful but have costs:</p>
+
+                <p><strong>Memory:</strong> Each DMI is a separate material in memory. 1000 objects with unique DMIs = 1000 material copies. For large crowds, consider alternative approaches like vertex colors or material parameter collections.</p>
+
+                <p><strong>Draw calls:</strong> Objects with identical materials can be batched together. Objects with unique DMIs cannot. Heavy DMI usage can increase draw calls significantly.</p>
+
+                <p><strong>Update frequency:</strong> Changing parameters every frame is expensive. When possible, only update when values actually change (on damage events, not every tick).</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out: Don't Create DMIs Every Frame</h4>
+                    <p>A common mistake is calling "Create Dynamic Material Instance" inside Tick or frequently-called functions. This creates new DMIs constantly, leaking memory. Create the DMI once (usually in BeginPlay), store it, and reuse that reference for all parameter changes.</p>
+                </div>
+
+                <h3>Material Parameter Collections</h3>
+
+                <p>For global parameters that affect many materials simultaneously (time of day, weather intensity, global tint), use <strong>Material Parameter Collections</strong> instead of DMIs.</p>
+
+                <p>Create one in Content Browser: Right-click → <strong>Materials & Textures → Material Parameter Collection</strong>. Add scalar or vector parameters to the collection. In your materials, use <strong>Collection Parameter</strong> nodes to read these values.</p>
+
+                <p>At runtime, a single Blueprint node (<strong>Set Scalar Parameter Value</strong> or <strong>Set Vector Parameter Value</strong> on the collection) updates the parameter across ALL materials using that collection—far more efficient than updating thousands of individual DMIs.</p>
+
+                <!-- SVG: MPC vs DMI Comparison -->
+                <svg width="100%" height="250" viewBox="0 0 800 250" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">When to Use DMI vs Material Parameter Collection</text>
+                    
+                    <!-- DMI Column -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="320" height="170" rx="10" fill="#fff" stroke="#667eea" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="35" rx="10" fill="#667eea"/>
+                        <rect x="0" y="25" width="320" height="10" fill="#667eea"/>
+                        <text x="160" y="25" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">Dynamic Material Instance</text>
+                        
+                        <text x="20" y="60" fill="#333" font-size="11" font-weight="bold">✓ Best for:</text>
+                        <text x="30" y="80" fill="#555" font-size="10">• Per-object unique states</text>
+                        <text x="30" y="97" fill="#555" font-size="10">• Character damage/health indicators</text>
+                        <text x="30" y="114" fill="#555" font-size="10">• Individual object highlighting</text>
+                        <text x="30" y="131" fill="#555" font-size="10">• Player customization colors</text>
+                        
+                        <text x="20" y="155" fill="#e74c3c" font-size="10">⚠️ One DMI per object = higher memory</text>
+                    </g>
+                    
+                    <!-- MPC Column -->
+                    <g transform="translate(430, 55)">
+                        <rect x="0" y="0" width="320" height="170" rx="10" fill="#fff" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="35" rx="10" fill="#4CAF50"/>
+                        <rect x="0" y="25" width="320" height="10" fill="#4CAF50"/>
+                        <text x="160" y="25" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">Material Parameter Collection</text>
+                        
+                        <text x="20" y="60" fill="#333" font-size="11" font-weight="bold">✓ Best for:</text>
+                        <text x="30" y="80" fill="#555" font-size="10">• Global effects (time of day, weather)</text>
+                        <text x="30" y="97" fill="#555" font-size="10">• Synchronized changes across many objects</text>
+                        <text x="30" y="114" fill="#555" font-size="10">• Environment mood shifts</text>
+                        <text x="30" y="131" fill="#555" font-size="10">• Performance-critical scenarios</text>
+                        
+                        <text x="20" y="155" fill="#4CAF50" font-size="10">✓ One update affects all materials instantly</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Choose DMIs for per-object control, MPCs for global synchronized changes.</em></p>
+            </section>
+
+            <!-- Section 7: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Build a Customizable Material</h2>
+
+                <p>Time to put everything together! In this exercise, you'll create a master material with multiple parameter types, build instances from it, and set up a simple runtime parameter change.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>🏋️ Exercise: Configurable Surface Material</h3>
+                    
+                    <p><strong>Goal:</strong> Create a flexible PBR material that can represent metal, plastic, or painted surfaces through parameter adjustments alone.</p>
+                    
+                    <p><strong>Time:</strong> 20-30 minutes</p>
+                    
+                    <p><strong>What you'll practice:</strong></p>
+                    <ul>
+                        <li>Creating Scalar, Vector, and Texture parameters</li>
+                        <li>Organizing parameters into groups</li>
+                        <li>Building Material Instances with different looks</li>
+                        <li>Setting up a Dynamic Material Instance in Blueprints</li>
+                    </ul>
+                </div>
+
+                <h3>Part 1: Create the Master Material</h3>
+
+                <p><strong>Step 1:</strong> In Content Browser, create a new Material: Right-click → <strong>Material</strong>. Name it <code>M_ConfigurableSurface</code>.</p>
+
+                <p><strong>Step 2:</strong> Double-click to open the Material Editor. We'll add parameters for complete surface control.</p>
+
+                <p><strong>Step 3:</strong> Create surface property parameters:</p>
+
+                <p>Add a <strong>Vector Parameter</strong> (press V, click). Name it <code>Base_Color_Tint</code>. Set Group to <code>01 - Surface</code>. Set default to a neutral gray (0.5, 0.5, 0.5). Connect to <strong>Base Color</strong>.</p>
+
+                <p>Add a <strong>Scalar Parameter</strong> (press S, click). Name it <code>Roughness_Amount</code>. Set Group to <code>01 - Surface</code>. Set default to 0.5, Slider Min to 0, Slider Max to 1. Connect to <strong>Roughness</strong>.</p>
+
+                <p>Add another <strong>Scalar Parameter</strong>. Name it <code>Metallic_Amount</code>. Set Group to <code>01 - Surface</code>. Set default to 0, Slider Min to 0, Slider Max to 1. Connect to <strong>Metallic</strong>.</p>
+
+                <details style="margin: 1rem 0; padding: 1rem; background: #f5f5f5; border-radius: 8px; border: 1px solid #ddd;">
+                    <summary style="cursor: pointer; font-weight: bold; color: #667eea;">💡 Hint: Quick Parameter Creation</summary>
+                    <p style="margin-top: 1rem;">Hold down the appropriate key and click to quickly create parameter nodes:</p>
+                    <ul>
+                        <li><strong>S + Click</strong> = Scalar Parameter</li>
+                        <li><strong>V + Click</strong> = Vector Parameter</li>
+                        <li><strong>T + Click</strong> = Texture Sample (then convert to parameter)</li>
+                    </ul>
+                </details>
+
+                <p><strong>Step 4:</strong> Add texture parameters for optional detail:</p>
+
+                <p>Create a <strong>Texture Sample Parameter 2D</strong> (search for it). Name it <code>Detail_Normal</code>. Set Group to <code>02 - Textures</code>. Leave the default texture empty for now. Connect to <strong>Normal</strong>.</p>
+
+                <p><strong>Step 5:</strong> Add a tiling control:</p>
+
+                <p>Create a <strong>Scalar Parameter</strong> named <code>UV_Tiling</code>. Set Group to <code>03 - UV</code>. Default: 1.0, Slider Min: 0.1, Slider Max: 10.</p>
+
+                <p>Create a <strong>Texture Coordinate</strong> node. Create a <strong>Multiply</strong> node. Connect TexCoord → Multiply A, UV_Tiling → Multiply B. Connect Multiply output to the UVs input of your Detail_Normal texture parameter.</p>
+
+                <p><strong>Step 6:</strong> Click <strong>Apply</strong> to compile the material.</p>
+
+                <!-- SVG: Material Graph Overview -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">M_ConfigurableSurface - Node Layout</text>
+                    
+                    <!-- Parameters Column -->
+                    <g transform="translate(30, 50)">
+                        <text x="80" y="0" text-anchor="middle" fill="#667eea" font-size="11" font-weight="bold">Parameters</text>
+                        
+                        <!-- Base Color Tint -->
+                        <rect x="0" y="15" width="160" height="40" rx="4" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="35" text-anchor="middle" fill="#4CAF50" font-size="9">Base_Color_Tint</text>
+                        <text x="80" y="48" text-anchor="middle" fill="#aaa" font-size="8">(Vector Parameter)</text>
+                        <circle cx="160" cy="35" r="4" fill="#f1c40f"/>
+                        
+                        <!-- Roughness -->
+                        <rect x="0" y="65" width="160" height="40" rx="4" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="85" text-anchor="middle" fill="#4CAF50" font-size="9">Roughness_Amount</text>
+                        <text x="80" y="98" text-anchor="middle" fill="#aaa" font-size="8">(Scalar Parameter)</text>
+                        <circle cx="160" cy="85" r="4" fill="#888"/>
+                        
+                        <!-- Metallic -->
+                        <rect x="0" y="115" width="160" height="40" rx="4" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="135" text-anchor="middle" fill="#4CAF50" font-size="9">Metallic_Amount</text>
+                        <text x="80" y="148" text-anchor="middle" fill="#aaa" font-size="8">(Scalar Parameter)</text>
+                        <circle cx="160" cy="135" r="4" fill="#888"/>
+                        
+                        <!-- Detail Normal -->
+                        <rect x="0" y="165" width="160" height="40" rx="4" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="185" text-anchor="middle" fill="#4CAF50" font-size="9">Detail_Normal</text>
+                        <text x="80" y="198" text-anchor="middle" fill="#aaa" font-size="8">(Texture Parameter)</text>
+                        <circle cx="160" cy="185" r="4" fill="#f1c40f"/>
+                    </g>
+                    
+                    <!-- UV Section -->
+                    <g transform="translate(220, 200)">
+                        <rect x="0" y="0" width="100" height="35" rx="4" fill="#3d3d3d" stroke="#888"/>
+                        <text x="50" y="22" text-anchor="middle" fill="#aaa" font-size="9">TexCoord</text>
+                        <circle cx="100" cy="17" r="4" fill="#f1c40f"/>
+                        
+                        <rect x="0" y="50" width="100" height="35" rx="4" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="50" y="72" text-anchor="middle" fill="#4CAF50" font-size="9">UV_Tiling</text>
+                        <circle cx="100" cy="67" r="4" fill="#888"/>
+                    </g>
+                    
+                    <!-- Multiply -->
+                    <g transform="translate(360, 220)">
+                        <rect x="0" y="0" width="80" height="50" rx="4" fill="#3d3d3d" stroke="#888"/>
+                        <text x="40" y="30" text-anchor="middle" fill="#fff" font-size="10">Multiply</text>
+                        <circle cx="0" cy="15" r="4" fill="#f1c40f"/>
+                        <circle cx="0" cy="35" r="4" fill="#888"/>
+                        <circle cx="80" cy="25" r="4" fill="#f1c40f"/>
+                    </g>
+                    
+                    <!-- Wires to Multiply -->
+                    <path d="M 320 217 L 340 217 L 340 235 L 360 235" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    <path d="M 320 267 L 340 267 L 340 255 L 360 255" stroke="#888" stroke-width="1.5" fill="none"/>
+                    
+                    <!-- Wire from Multiply to Texture UVs (implied) -->
+                    <path d="M 440 245 L 460 245 L 460 185 L 190 185" stroke="#f1c40f" stroke-width="1.5" fill="none" stroke-dasharray="4,2"/>
+                    
+                    <!-- Main Material Node -->
+                    <g transform="translate(550, 45)">
+                        <rect x="0" y="0" width="200" height="200" rx="8" fill="#2d2d2d" stroke="#f1c40f" stroke-width="2"/>
+                        <rect x="0" y="0" width="200" height="30" rx="8" fill="#f1c40f"/>
+                        <rect x="0" y="22" width="200" height="8" fill="#f1c40f"/>
+                        <text x="100" y="20" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">M_ConfigurableSurface</text>
+                        
+                        <circle cx="0" cy="55" r="5" fill="#f1c40f"/>
+                        <text x="15" y="58" fill="#aaa" font-size="9">Base Color</text>
+                        
+                        <circle cx="0" cy="85" r="5" fill="#888"/>
+                        <text x="15" y="88" fill="#aaa" font-size="9">Metallic</text>
+                        
+                        <circle cx="0" cy="115" r="5" fill="#888"/>
+                        <text x="15" y="118" fill="#aaa" font-size="9">Roughness</text>
+                        
+                        <circle cx="0" cy="145" r="5" fill="#6688ff"/>
+                        <text x="15" y="148" fill="#aaa" font-size="9">Normal</text>
+                    </g>
+                    
+                    <!-- Connection wires -->
+                    <path d="M 190 85 L 550 100" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    <path d="M 190 135 L 400 135 L 400 130 L 550 130" stroke="#888" stroke-width="1.5" fill="none"/>
+                    <path d="M 190 185 L 300 185 L 300 160 L 550 160" stroke="#888" stroke-width="1.5" fill="none"/>
+                    <path d="M 190 235 L 480 235 L 480 190 L 550 190" stroke="#6688ff" stroke-width="1.5" fill="none"/>
+                </svg>
+                <p class="caption"><em>Figure: Complete node layout for the configurable surface material.</em></p>
+
+                <h3>Part 2: Create Material Instances</h3>
+
+                <p><strong>Step 7:</strong> Right-click <code>M_ConfigurableSurface</code> in Content Browser → <strong>Create Material Instance</strong>. Name it <code>MI_ShinyPlastic_Red</code>.</p>
+
+                <p><strong>Step 8:</strong> Double-click to open the Instance Editor. Configure for shiny red plastic:</p>
+
+                <ul>
+                    <li>Enable and set <strong>Base_Color_Tint</strong> to bright red (1.0, 0.1, 0.1)</li>
+                    <li>Enable and set <strong>Roughness_Amount</strong> to 0.2 (shiny)</li>
+                    <li>Leave <strong>Metallic_Amount</strong> at 0 (plastic is non-metallic)</li>
+                </ul>
+
+                <p><strong>Step 9:</strong> Create another instance: <code>MI_BrushedMetal_Gold</code>. Configure:</p>
+
+                <ul>
+                    <li><strong>Base_Color_Tint:</strong> Gold color (1.0, 0.8, 0.3)</li>
+                    <li><strong>Roughness_Amount:</strong> 0.4 (slightly brushed)</li>
+                    <li><strong>Metallic_Amount:</strong> 1.0 (fully metallic)</li>
+                </ul>
+
+                <p><strong>Step 10:</strong> Create a third: <code>MI_MattePaint_Blue</code>. Configure:</p>
+
+                <ul>
+                    <li><strong>Base_Color_Tint:</strong> Blue (0.2, 0.4, 0.9)</li>
+                    <li><strong>Roughness_Amount:</strong> 0.85 (very matte)</li>
+                    <li><strong>Metallic_Amount:</strong> 0 (painted surface)</li>
+                </ul>
+
+                <p><strong>Step 11:</strong> Place three cubes or spheres in your level and apply each instance to see the variety from one parent material!</p>
+
+                <details style="margin: 1rem 0; padding: 1rem; background: #e8f5e9; border-radius: 8px; border: 1px solid #4CAF50;">
+                    <summary style="cursor: pointer; font-weight: bold; color: #4CAF50;">✅ Solution Check: What You Should See</summary>
+                    <div style="margin-top: 1rem;">
+                        <p>Your three objects should look distinctly different:</p>
+                        <ul>
+                            <li><strong>Red Plastic:</strong> Bright red with clear highlights, no metallic reflection</li>
+                            <li><strong>Gold Metal:</strong> Warm gold with metallic reflections, slightly diffuse highlights</li>
+                            <li><strong>Blue Matte:</strong> Flat blue with very soft, spread-out highlights</li>
+                        </ul>
+                        <p>All three use the exact same shader code—only parameter values differ!</p>
+                    </div>
+                </details>
+
+                <h3>Part 3: Dynamic Material at Runtime (Bonus)</h3>
+
+                <p><strong>Step 12:</strong> Create a new Blueprint Actor: Right-click in Content Browser → <strong>Blueprint Class → Actor</strong>. Name it <code>BP_ColorChangingCube</code>.</p>
+
+                <p><strong>Step 13:</strong> Open the Blueprint. In the Components panel, add a <strong>Static Mesh</strong> component. Set its mesh to a cube and assign <code>MI_ShinyPlastic_Red</code> as the material.</p>
+
+                <p><strong>Step 14:</strong> Create a variable: Name it <code>DynamicMat</code>, type <strong>Material Instance Dynamic</strong> (Object Reference).</p>
+
+                <p><strong>Step 15:</strong> In the Event Graph, from <strong>Event BeginPlay</strong>:</p>
+
+                <ul>
+                    <li>Drag from the execution pin → search <strong>Create Dynamic Material Instance</strong></li>
+                    <li>For Target, drag in your Static Mesh component reference</li>
+                    <li>Element Index: 0</li>
+                    <li>Drag from the Return Value → <strong>Set DynamicMat</strong> (to store the reference)</li>
+                </ul>
+
+                <p><strong>Step 16:</strong> Add a custom event called <code>ChangeToRandomColor</code>. From this event:</p>
+
+                <ul>
+                    <li>Get your <code>DynamicMat</code> variable</li>
+                    <li>Call <strong>Set Vector Parameter Value</strong></li>
+                    <li>Parameter Name: <code>Base_Color_Tint</code> (must match exactly!)</li>
+                    <li>Value: Use <strong>Make Linear Color</strong> with <strong>Random Float in Range</strong> (0-1) for R, G, B</li>
+                </ul>
+
+                <p><strong>Step 17:</strong> To test, add a <strong>Keyboard Event</strong> (like pressing "C") that calls your <code>ChangeToRandomColor</code> event.</p>
+
+                <p><strong>Step 18:</strong> Compile, place the Blueprint in your level, and press Play. Hit "C" to see the cube change to random colors instantly!</p>
+
+                <details style="margin: 1rem 0; padding: 1rem; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107;">
+                    <summary style="cursor: pointer; font-weight: bold; color: #856404;">🔧 Troubleshooting: Color Not Changing?</summary>
+                    <div style="margin-top: 1rem;">
+                        <p><strong>Check these common issues:</strong></p>
+                        <ul>
+                            <li><strong>Parameter name mismatch:</strong> Ensure "Base_Color_Tint" is spelled exactly as in the material</li>
+                            <li><strong>DMI not stored:</strong> Verify you're setting the DynamicMat variable in BeginPlay</li>
+                            <li><strong>Wrong component:</strong> Make sure Create Dynamic Material Instance targets your Static Mesh component</li>
+                            <li><strong>Event not firing:</strong> Add a Print String after the keyboard event to confirm it's being called</li>
+                        </ul>
+                    </div>
+                </details>
+            </section>
+
+            <!-- Section 8: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>Material Instances and Parameters are the foundation of efficient, artist-friendly material workflows in Unreal Engine. Let's recap what you've learned:</p>
+
+                <div class="card" style="background: #f5f5f5; border-left: 4px solid #667eea;">
+                    <h4>🎯 Key Takeaways</h4>
+                    
+                    <p><strong>Material Instances</strong> inherit from parent materials, allowing parameter customization without shader recompilation. This enables instant iteration and massive memory savings.</p>
+
+                    <p><strong>Scalar Parameters</strong> control single float values (roughness, metallic, opacity, tiling). Always set sensible slider ranges to guide artists.</p>
+
+                    <p><strong>Vector Parameters</strong> control colors and multi-value data. They provide color pickers in the Instance Editor for intuitive adjustment.</p>
+
+                    <p><strong>Texture Parameters</strong> allow texture swapping in instances—one material can serve countless surface types by swapping texture sets.</p>
+
+                    <p><strong>Parameter Groups</strong> organize complex materials into logical categories. Number prefixes control display order. Good organization transforms confusing parameter lists into intuitive interfaces.</p>
+
+                    <p><strong>Static Switch Parameters</strong> toggle entire shader branches at compile time. Use them for optional features that should be completely eliminated when disabled.</p>
+
+                    <p><strong>Dynamic Material Instances</strong> enable runtime parameter changes through Blueprints. Create once in BeginPlay, store the reference, and modify parameters as needed.</p>
+
+                    <p><strong>Material Parameter Collections</strong> provide efficient global parameters that update across all materials simultaneously—perfect for time-of-day or weather systems.</p>
+                </div>
+
+                <h3>Material Architecture Best Practices</h3>
+
+                <!-- Mermaid: Best Practices Summary -->
+                <pre class="mermaid">
+flowchart TD
+    subgraph Planning["1. Plan Your Hierarchy"]
+        P1["Identify common surface types"]
+        P2["Design master materials with\nall needed parameters"]
+        P3["Create base instances\nfor categories"]
+    end
+    
+    subgraph Building["2. Build Smart"]
+        B1["Use descriptive parameter names"]
+        B2["Organize into logical groups"]
+        B3["Set sensible defaults\nand slider ranges"]
+    end
+    
+    subgraph Runtime["3. Runtime Considerations"]
+        R1["Create DMIs once, reuse reference"]
+        R2["Use MPCs for global effects"]
+        R3["Update only when values change"]
+    end
+    
+    Planning --> Building --> Runtime
+    
+    style Planning fill:#667eea,color:#fff
+    style Building fill:#FF9800,color:#fff
+    style Runtime fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: The three phases of effective material architecture.</em></p>
+
+                <h3>Common Pitfalls to Avoid</h3>
+
+                <p><strong>❌ Creating DMIs every frame</strong> — Memory leak! Create once, store, reuse.</p>
+
+                <p><strong>❌ Misspelled parameter names</strong> — Blueprint changes silently fail. Copy-paste names when possible.</p>
+
+                <p><strong>❌ Too many static switches</strong> — Each combination creates a shader variant. Use sparingly.</p>
+
+                <p><strong>❌ Unorganized parameters</strong> — A flat list of 30 parameters is unusable. Group everything.</p>
+
+                <p><strong>❌ Missing default values</strong> — Instances with no defaults show unexpected results. Always set sensible defaults.</p>
+
+                <h3>What's Next?</h3>
+
+                <p>With solid parameter and instance skills, you're ready to explore special material types. In the next lesson, we'll cover:</p>
+
+                <ul>
+                    <li>Translucent and masked materials for glass, foliage, and cutouts</li>
+                    <li>Emissive materials for glowing effects and light sources</li>
+                    <li>Decals for adding detail without extra geometry</li>
+                    <li>Introduction to landscape materials for terrain</li>
+                </ul>
+
+                <p>These specialized techniques build directly on the parameter knowledge you've gained today!</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m03_l03_building_complex_materials.html" class="btn">← Previous: Building Complex Materials</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m03_l05_special_material_types.html" class="btn">Next: Special Material Types →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

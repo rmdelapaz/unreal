@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn the fundamentals of materials in Unreal Engine 5, including PBR workflows, the Material Editor, and creating your first material.">
+    <meta name="author" content="Practical Ace">
+    <title>Material Fundamentals - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 3: Materials and Textures</a></li>
+            <li aria-current="page">Lesson 3.1: Material Fundamentals</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🎨 Material Fundamentals</h1>
+                <p class="lead">If geometry is the skeleton of your 3D world, materials are its skin. They define how every surface looks—whether it gleams like polished chrome, absorbs light like rough concrete, or glows with inner fire. In this lesson, you'll discover how Unreal Engine's powerful material system brings your environments to life.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what a material is and how it defines surface appearance in Unreal Engine</li>
+                        <li>Describe the principles of Physically Based Rendering (PBR) and why it matters</li>
+                        <li>Identify the core PBR channels: Base Color, Metallic, Roughness, and Normal</li>
+                        <li>Navigate the Material Editor interface confidently</li>
+                        <li>Understand Material Instances and when to use them</li>
+                        <li>Create a simple material from scratch and apply it to an object</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Module 2 - Working with Levels and Actors</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-is-material" class="toc-link">What is a Material?</a></li>
+                        <li><a href="#pbr-overview" class="toc-link">Physically Based Rendering (PBR)</a></li>
+                        <li><a href="#pbr-channels" class="toc-link">The Core PBR Channels</a></li>
+                        <li><a href="#material-editor" class="toc-link">The Material Editor Interface</a></li>
+                        <li><a href="#material-instances" class="toc-link">Material Instances</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Create Your First Material</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What is a Material? -->
+            <section id="what-is-material" class="lesson-section">
+                <h2>What is a Material?</h2>
+                
+                <p>Think of a material like a recipe for how a surface should look. Just as a chef combines ingredients to create a dish, you combine various properties—color, shininess, bumpiness, transparency—to create the visual appearance of any surface in your game.</p>
+
+                <p>In Unreal Engine, a <strong>Material</strong> is an asset that controls the visual properties of surfaces. It's applied to meshes (3D objects) and determines how those surfaces interact with light. Without materials, every object in your scene would look like flat gray plastic—not exactly the immersive experience players expect!</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Material:</strong> An asset in Unreal Engine that defines the visual characteristics of a surface, including its color, reflectivity, transparency, and surface detail. Materials are created in the Material Editor using a node-based visual system.</p>
+                </div>
+
+                <h3>The Real-World Analogy</h3>
+
+                <p>Consider how different surfaces behave in real life. A polished marble floor reflects your image like a mirror. A rubber ball absorbs light and appears matte. A stained glass window lets colored light pass through. Your brain instantly recognizes these differences because of how light interacts with each material.</p>
+
+                <p>Unreal Engine's material system simulates these same physical properties. When you create a material, you're essentially telling the engine: "When light hits this surface, here's exactly how it should behave."</p>
+
+                <!-- SVG: Material Examples Comparison -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <!-- Title -->
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">How Different Materials Respond to Light</text>
+                    
+                    <!-- Material 1: Polished Metal -->
+                    <g transform="translate(100, 80)">
+                        <circle cx="60" cy="60" r="55" fill="url(#metalGradient)" stroke="#667eea" stroke-width="2"/>
+                        <ellipse cx="45" cy="40" rx="20" ry="10" fill="rgba(255,255,255,0.6)"/>
+                        <text x="60" y="145" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Polished Metal</text>
+                        <text x="60" y="165" text-anchor="middle" fill="#aaa" font-size="11">Sharp reflections</text>
+                        <text x="60" y="180" text-anchor="middle" fill="#aaa" font-size="11">High metallic</text>
+                    </g>
+                    
+                    <!-- Material 2: Rough Concrete -->
+                    <g transform="translate(300, 80)">
+                        <circle cx="60" cy="60" r="55" fill="#6b6b6b" stroke="#667eea" stroke-width="2"/>
+                        <circle cx="40" cy="45" r="8" fill="#5a5a5a"/>
+                        <circle cx="70" cy="55" r="6" fill="#5a5a5a"/>
+                        <circle cx="55" cy="75" r="10" fill="#5a5a5a"/>
+                        <circle cx="80" cy="40" r="5" fill="#5a5a5a"/>
+                        <text x="60" y="145" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Rough Concrete</text>
+                        <text x="60" y="165" text-anchor="middle" fill="#aaa" font-size="11">Diffuse scattering</text>
+                        <text x="60" y="180" text-anchor="middle" fill="#aaa" font-size="11">High roughness</text>
+                    </g>
+                    
+                    <!-- Material 3: Glowing Emissive -->
+                    <g transform="translate(500, 80)">
+                        <circle cx="60" cy="60" r="55" fill="url(#glowGradient)" stroke="#667eea" stroke-width="2"/>
+                        <circle cx="60" cy="60" r="70" fill="none" stroke="#ff6b6b" stroke-width="1" opacity="0.3"/>
+                        <circle cx="60" cy="60" r="80" fill="none" stroke="#ff6b6b" stroke-width="1" opacity="0.15"/>
+                        <text x="60" y="145" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Emissive Glow</text>
+                        <text x="60" y="165" text-anchor="middle" fill="#aaa" font-size="11">Produces light</text>
+                        <text x="60" y="180" text-anchor="middle" fill="#aaa" font-size="11">Self-illuminated</text>
+                    </g>
+                    
+                    <!-- Material 4: Glass -->
+                    <g transform="translate(700, 80)">
+                        <circle cx="60" cy="60" r="55" fill="rgba(135,206,235,0.3)" stroke="#667eea" stroke-width="2"/>
+                        <ellipse cx="40" cy="35" rx="25" ry="12" fill="rgba(255,255,255,0.4)"/>
+                        <path d="M 30 80 Q 60 90 90 80" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/>
+                        <text x="60" y="145" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Glass</text>
+                        <text x="60" y="165" text-anchor="middle" fill="#aaa" font-size="11">Transparent</text>
+                        <text x="60" y="180" text-anchor="middle" fill="#aaa" font-size="11">Refractive</text>
+                    </g>
+                    
+                    <!-- Gradients -->
+                    <defs>
+                        <radialGradient id="metalGradient" cx="30%" cy="30%">
+                            <stop offset="0%" style="stop-color:#e0e0e0"/>
+                            <stop offset="50%" style="stop-color:#8888aa"/>
+                            <stop offset="100%" style="stop-color:#4a4a6a"/>
+                        </radialGradient>
+                        <radialGradient id="glowGradient" cx="50%" cy="50%">
+                            <stop offset="0%" style="stop-color:#ff8888"/>
+                            <stop offset="70%" style="stop-color:#ff4444"/>
+                            <stop offset="100%" style="stop-color:#cc2222"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: Different materials produce dramatically different visual results based on how they interact with light.</em></p>
+
+                <h3>Materials vs. Textures: What's the Difference?</h3>
+
+                <p>New developers often confuse materials with textures, so let's clear that up right away:</p>
+
+                <p>A <strong>texture</strong> is a 2D image file—a photograph, a painted pattern, or a procedurally generated graphic. It's just a picture. By itself, a texture can't do anything in your game.</p>
+
+                <p>A <strong>material</strong> is the complete system that uses textures (and other inputs) to define how a surface appears. Think of it this way: if a texture is an ingredient (like flour), a material is the complete recipe that uses that ingredient along with others to create the final dish (bread).</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Key Insight</h4>
+                    <p>A material can use multiple textures—one for color, one for surface bumps, one for reflectivity—and combine them with mathematical operations to achieve complex visual effects. You can also create materials with no textures at all, using only solid colors and procedural patterns.</p>
+                </div>
+
+                <!-- Mermaid: Texture vs Material relationship -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Textures["📁 Textures (2D Images)"]
+        T1["🖼️ Color Map"]
+        T2["🖼️ Normal Map"]
+        T3["🖼️ Roughness Map"]
+    end
+    
+    subgraph Material["🎨 Material (The Recipe)"]
+        M["Material Editor\nCombines & processes\nall inputs"]
+    end
+    
+    subgraph Result["✨ Final Appearance"]
+        R["Surface rendering\non 3D mesh"]
+    end
+    
+    T1 --> M
+    T2 --> M
+    T3 --> M
+    M --> R
+    
+    style Material fill:#667eea,color:#fff
+    style Result fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Textures are inputs that feed into a material, which then produces the final rendered appearance.</em></p>
+            </section>
+
+            <!-- Section 2: Physically Based Rendering (PBR) -->
+            <section id="pbr-overview" class="lesson-section">
+                <h2>Physically Based Rendering (PBR)</h2>
+
+                <p>Before we dive into creating materials, you need to understand the philosophy that drives modern material creation: <strong>Physically Based Rendering</strong>, or PBR.</p>
+
+                <p>In the early days of computer graphics, artists created materials by tweaking arbitrary values until things "looked right." The result? Materials that only worked under specific lighting conditions. Move that shiny sword from a bright outdoor scene to a dim dungeon, and suddenly it looked completely wrong.</p>
+
+                <p>PBR solved this problem by grounding material creation in real-world physics. Instead of asking "what settings make this look good right now?", PBR asks "how does this material actually behave in real life?"</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Physically Based Rendering (PBR):</strong> A rendering approach that uses real-world physical principles to calculate how light interacts with surfaces. PBR materials respond correctly to any lighting condition because they're based on measurable physical properties rather than arbitrary artistic tweaks.</p>
+                </div>
+
+                <h3>Why PBR Matters</h3>
+
+                <p>PBR offers several game-changing advantages:</p>
+
+                <p><strong>Consistency across lighting:</strong> A PBR gold material looks like gold whether it's under harsh noon sunlight, soft twilight, or flickering torchlight. The physics-based calculations handle all scenarios automatically.</p>
+
+                <p><strong>Realistic results:</strong> Because PBR is based on how real materials work, your virtual surfaces immediately feel more believable. Players might not know why something looks "right," but they'll definitely notice when it doesn't.</p>
+
+                <p><strong>Standardized workflow:</strong> PBR uses a consistent set of channels (Base Color, Metallic, Roughness, Normal) that work across different engines and tools. Artists can create texture sets in Substance Painter, Quixel Mixer, or other software, and they'll work in Unreal Engine without modification.</p>
+
+                <p><strong>Easier iteration:</strong> With traditional methods, changing the lighting meant re-tweaking all your materials. With PBR, you adjust the lighting and everything just works.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Unreal Engine 5 is designed around PBR from the ground up. When you create materials using the standard PBR channels, you're working with the engine rather than against it. Your materials will integrate seamlessly with Lumen (Unreal's global illumination system) and produce realistic results with minimal effort.</p>
+                </div>
+
+                <h3>The Two PBR Workflows</h3>
+
+                <p>You'll encounter two main PBR workflows in the industry. Unreal Engine primarily uses the <strong>Metallic/Roughness</strong> workflow, but it's worth knowing both:</p>
+
+                <!-- SVG: PBR Workflow Comparison -->
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <!-- Title -->
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="18" font-weight="bold">PBR Workflow Comparison</text>
+                    
+                    <!-- Metallic/Roughness (Left) -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="320" height="230" rx="10" fill="#667eea" opacity="0.1" stroke="#667eea" stroke-width="2"/>
+                        <text x="160" y="30" text-anchor="middle" fill="#667eea" font-size="16" font-weight="bold">Metallic/Roughness</text>
+                        <text x="160" y="50" text-anchor="middle" fill="#667eea" font-size="12">(Unreal Engine Default)</text>
+                        
+                        <!-- Channels -->
+                        <rect x="20" y="70" width="130" height="35" rx="5" fill="#4CAF50"/>
+                        <text x="85" y="93" text-anchor="middle" fill="#fff" font-size="13">Base Color</text>
+                        
+                        <rect x="170" y="70" width="130" height="35" rx="5" fill="#2196F3"/>
+                        <text x="235" y="93" text-anchor="middle" fill="#fff" font-size="13">Metallic</text>
+                        
+                        <rect x="20" y="115" width="130" height="35" rx="5" fill="#FF9800"/>
+                        <text x="85" y="138" text-anchor="middle" fill="#fff" font-size="13">Roughness</text>
+                        
+                        <rect x="170" y="115" width="130" height="35" rx="5" fill="#9C27B0"/>
+                        <text x="235" y="138" text-anchor="middle" fill="#fff" font-size="13">Normal</text>
+                        
+                        <!-- Pros -->
+                        <text x="20" y="175" fill="#333" font-size="12">✓ Industry standard</text>
+                        <text x="20" y="195" fill="#333" font-size="12">✓ Fewer textures needed</text>
+                        <text x="20" y="215" fill="#333" font-size="12">✓ Intuitive metal/non-metal</text>
+                    </g>
+                    
+                    <!-- Specular/Glossiness (Right) -->
+                    <g transform="translate(430, 60)">
+                        <rect x="0" y="0" width="320" height="230" rx="10" fill="#888" opacity="0.1" stroke="#888" stroke-width="2"/>
+                        <text x="160" y="30" text-anchor="middle" fill="#666" font-size="16" font-weight="bold">Specular/Glossiness</text>
+                        <text x="160" y="50" text-anchor="middle" fill="#666" font-size="12">(Alternative Workflow)</text>
+                        
+                        <!-- Channels -->
+                        <rect x="20" y="70" width="130" height="35" rx="5" fill="#78909C"/>
+                        <text x="85" y="93" text-anchor="middle" fill="#fff" font-size="13">Diffuse</text>
+                        
+                        <rect x="170" y="70" width="130" height="35" rx="5" fill="#78909C"/>
+                        <text x="235" y="93" text-anchor="middle" fill="#fff" font-size="13">Specular</text>
+                        
+                        <rect x="20" y="115" width="130" height="35" rx="5" fill="#78909C"/>
+                        <text x="85" y="138" text-anchor="middle" fill="#fff" font-size="13">Glossiness</text>
+                        
+                        <rect x="170" y="115" width="130" height="35" rx="5" fill="#78909C"/>
+                        <text x="235" y="138" text-anchor="middle" fill="#fff" font-size="13">Normal</text>
+                        
+                        <!-- Notes -->
+                        <text x="20" y="175" fill="#666" font-size="12">• Used by some older engines</text>
+                        <text x="20" y="195" fill="#666" font-size="12">• More artistic control</text>
+                        <text x="20" y="215" fill="#666" font-size="12">• Requires more expertise</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Unreal Engine uses the Metallic/Roughness workflow (left), which is the current industry standard.</em></p>
+
+                <p>For this course, we'll focus exclusively on the Metallic/Roughness workflow since that's what Unreal Engine uses natively. If you ever need to use textures created for the Specular/Glossiness workflow, Unreal provides conversion tools.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>When downloading texture sets from online sources, make sure they're in the Metallic/Roughness format. Many free texture sites offer both formats—look for files labeled "Metallic" rather than "Specular" to ensure compatibility with Unreal's default workflow.</p>
+                </div>
+            </section>
+            <!-- Section 3: The Core PBR Channels -->
+            <section id="pbr-channels" class="lesson-section">
+                <h2>The Core PBR Channels</h2>
+
+                <p>Now that you understand why PBR matters, let's examine the four fundamental channels that define every PBR material. Think of these as the "ingredients" in your material recipe—each one controls a specific aspect of how the surface interacts with light.</p>
+
+                <h3>Base Color</h3>
+
+                <p>The <strong>Base Color</strong> (sometimes called "Albedo") represents the inherent color of a surface with all lighting information removed. Imagine taking a photo of a wall in a room with perfectly even, shadowless lighting—that flat color is the base color.</p>
+
+                <p>For non-metallic surfaces (wood, plastic, fabric, skin), the base color is simply the diffuse color you'd expect. For metallic surfaces, the base color defines the reflection tint—gold has an orange-yellow base color, copper has a reddish-brown tint, and so on.</p>
+
+                <!-- SVG: Base Color Examples -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1a1a2e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Base Color Examples</text>
+                    
+                    <!-- Wood -->
+                    <g transform="translate(80, 50)">
+                        <rect x="0" y="0" width="100" height="80" rx="8" fill="#8B4513"/>
+                        <line x1="10" y1="20" x2="90" y2="20" stroke="#6B3510" stroke-width="2"/>
+                        <line x1="10" y1="40" x2="90" y2="40" stroke="#6B3510" stroke-width="2"/>
+                        <line x1="10" y1="60" x2="90" y2="60" stroke="#6B3510" stroke-width="2"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#fff" font-size="13">Wood</text>
+                        <text x="50" y="128" text-anchor="middle" fill="#aaa" font-size="11">#8B4513</text>
+                    </g>
+                    
+                    <!-- Concrete -->
+                    <g transform="translate(230, 50)">
+                        <rect x="0" y="0" width="100" height="80" rx="8" fill="#808080"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#fff" font-size="13">Concrete</text>
+                        <text x="50" y="128" text-anchor="middle" fill="#aaa" font-size="11">#808080</text>
+                    </g>
+                    
+                    <!-- Gold (Metal) -->
+                    <g transform="translate(380, 50)">
+                        <rect x="0" y="0" width="100" height="80" rx="8" fill="#FFD700"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#fff" font-size="13">Gold (Metal)</text>
+                        <text x="50" y="128" text-anchor="middle" fill="#aaa" font-size="11">#FFD700</text>
+                    </g>
+                    
+                    <!-- Skin -->
+                    <g transform="translate(530, 50)">
+                        <rect x="0" y="0" width="100" height="80" rx="8" fill="#DEB887"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#fff" font-size="13">Skin</text>
+                        <text x="50" y="128" text-anchor="middle" fill="#aaa" font-size="11">#DEB887</text>
+                    </g>
+                    
+                    <!-- Plastic -->
+                    <g transform="translate(680, 50)">
+                        <rect x="0" y="0" width="100" height="80" rx="8" fill="#DC143C"/>
+                        <text x="50" y="110" text-anchor="middle" fill="#fff" font-size="13">Red Plastic</text>
+                        <text x="50" y="128" text-anchor="middle" fill="#aaa" font-size="11">#DC143C</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Base Color represents the pure color of a surface without any lighting effects.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Real-world surfaces rarely have pure black or pure white base colors. Even coal has some color (dark gray), and even fresh snow isn't perfectly white. Keep your base color values between roughly 30-240 (on a 0-255 scale) to maintain physically accurate results. Pure black absorbs all light unnaturally, and pure white can cause blown-out highlights.</p>
+                </div>
+
+                <h3>Metallic</h3>
+
+                <p>The <strong>Metallic</strong> channel is beautifully simple: it's a grayscale value that tells the engine whether a surface is a metal or not. In practice, this is almost always a binary choice:</p>
+
+                <p><strong>0 (Black) = Non-metal:</strong> Wood, plastic, fabric, skin, concrete, rubber, glass—anything that isn't a metal uses a value of 0. Non-metals reflect light diffusely (scattering in many directions) and show their base color as the surface color.</p>
+
+                <p><strong>1 (White) = Metal:</strong> Gold, silver, copper, iron, aluminum, brass—all metals use a value of 1. Metals reflect light specularly (like a mirror) and tint their reflections with their base color.</p>
+
+                <!-- SVG: Metallic Comparison -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(180deg, #2a2a4a 0%, #1a1a2e 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Metallic Channel: The Metal/Non-Metal Switch</text>
+                    
+                    <!-- Non-Metal Side -->
+                    <g transform="translate(100, 60)">
+                        <text x="100" y="0" text-anchor="middle" fill="#4CAF50" font-size="14" font-weight="bold">NON-METAL (Metallic = 0)</text>
+                        
+                        <!-- Sphere visualization -->
+                        <circle cx="100" cy="80" r="50" fill="#c0392b"/>
+                        <ellipse cx="80" cy="60" rx="15" ry="8" fill="rgba(255,255,255,0.2)"/>
+                        
+                        <text x="100" y="155" text-anchor="middle" fill="#fff" font-size="12">Diffuse reflection</text>
+                        <text x="100" y="175" text-anchor="middle" fill="#aaa" font-size="11">Light scatters in all directions</text>
+                        <text x="100" y="195" text-anchor="middle" fill="#aaa" font-size="11">Base color = surface color</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <g transform="translate(350, 100)">
+                        <rect x="0" y="30" width="100" height="40" rx="5" fill="#333" stroke="#667eea" stroke-width="2"/>
+                        <text x="50" y="45" text-anchor="middle" fill="#fff" font-size="11">METALLIC</text>
+                        <text x="50" y="60" text-anchor="middle" fill="#fff" font-size="11">VALUE</text>
+                        
+                        <!-- Gradient bar -->
+                        <defs>
+                            <linearGradient id="metallicGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#000"/>
+                                <stop offset="100%" style="stop-color:#fff"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="10" y="85" width="80" height="15" fill="url(#metallicGrad)" rx="3"/>
+                        <text x="10" y="115" fill="#aaa" font-size="10">0</text>
+                        <text x="90" y="115" text-anchor="end" fill="#aaa" font-size="10">1</text>
+                    </g>
+                    
+                    <!-- Metal Side -->
+                    <g transform="translate(500, 60)">
+                        <text x="100" y="0" text-anchor="middle" fill="#FFD700" font-size="14" font-weight="bold">METAL (Metallic = 1)</text>
+                        
+                        <!-- Sphere visualization -->
+                        <circle cx="100" cy="80" r="50" fill="url(#goldSphere)"/>
+                        <ellipse cx="75" cy="55" rx="20" ry="12" fill="rgba(255,255,255,0.7)"/>
+                        
+                        <defs>
+                            <radialGradient id="goldSphere" cx="30%" cy="30%">
+                                <stop offset="0%" style="stop-color:#fff8dc"/>
+                                <stop offset="30%" style="stop-color:#FFD700"/>
+                                <stop offset="100%" style="stop-color:#B8860B"/>
+                            </radialGradient>
+                        </defs>
+                        
+                        <text x="100" y="155" text-anchor="middle" fill="#fff" font-size="12">Specular reflection</text>
+                        <text x="100" y="175" text-anchor="middle" fill="#aaa" font-size="11">Mirror-like reflections</text>
+                        <text x="100" y="195" text-anchor="middle" fill="#aaa" font-size="11">Base color = reflection tint</text>
+                    </g>
+                    
+                    <!-- Examples list -->
+                    <text x="200" y="240" text-anchor="middle" fill="#888" font-size="11">Wood, Plastic, Fabric, Skin, Stone</text>
+                    <text x="600" y="240" text-anchor="middle" fill="#888" font-size="11">Gold, Silver, Iron, Copper, Aluminum</text>
+                </svg>
+                <p class="caption"><em>Figure: The Metallic channel acts as a switch between non-metal (0) and metal (1) surface behavior.</em></p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Avoid using in-between metallic values like 0.5. In the real world, something is either a metal or it isn't—there's no "half metal." The only time you'd use grayscale metallic values is to represent surfaces where metal and non-metal materials mix, like rusted metal (metal with non-metal rust spots) or painted metal (non-metal paint over metal base).</p>
+                </div>
+
+                <h3>Roughness</h3>
+
+                <p>While Metallic determines the type of reflection, <strong>Roughness</strong> determines the quality of that reflection. It controls how sharp or blurry the surface reflections appear:</p>
+
+                <p><strong>0 (Black) = Smooth:</strong> Mirror-like reflections. Think polished chrome, still water, or freshly waxed cars. Light rays bounce in a uniform direction, creating sharp, clear reflections.</p>
+
+                <p><strong>1 (White) = Rough:</strong> Completely diffuse, no visible reflections. Think chalk, unfinished concrete, or rough fabric. Light rays scatter in random directions, eliminating any mirror-like qualities.</p>
+
+                <p>Most real materials fall somewhere in between. A wooden floor might have a roughness of 0.6-0.8. Brushed metal might be 0.3-0.5. The beauty of roughness is that you can use the full range of values to achieve exactly the surface finish you want.</p>
+
+                <!-- SVG: Roughness Spectrum -->
+                <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1a1a2e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Roughness Spectrum</text>
+                    
+                    <!-- Gradient bar -->
+                    <defs>
+                        <linearGradient id="roughnessGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#111"/>
+                            <stop offset="100%" style="stop-color:#eee"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="50" y="50" width="700" height="30" fill="url(#roughnessGrad)" rx="5"/>
+                    <text x="50" y="100" fill="#4CAF50" font-size="13" font-weight="bold">0.0 - Smooth</text>
+                    <text x="750" y="100" text-anchor="end" fill="#FF9800" font-size="13" font-weight="bold">1.0 - Rough</text>
+                    
+                    <!-- Example spheres -->
+                    <g transform="translate(100, 120)">
+                        <circle cx="0" cy="30" r="25" fill="url(#smoothSphere)"/>
+                        <defs>
+                            <radialGradient id="smoothSphere" cx="30%" cy="30%">
+                                <stop offset="0%" style="stop-color:#fff"/>
+                                <stop offset="40%" style="stop-color:#888"/>
+                                <stop offset="100%" style="stop-color:#222"/>
+                            </radialGradient>
+                        </defs>
+                        <text x="0" y="75" text-anchor="middle" fill="#aaa" font-size="11">Mirror</text>
+                        <text x="0" y="90" text-anchor="middle" fill="#666" font-size="10">R: 0.0</text>
+                    </g>
+                    
+                    <g transform="translate(250, 120)">
+                        <circle cx="0" cy="30" r="25" fill="url(#polishedSphere)"/>
+                        <defs>
+                            <radialGradient id="polishedSphere" cx="35%" cy="35%">
+                                <stop offset="0%" style="stop-color:#ddd"/>
+                                <stop offset="50%" style="stop-color:#777"/>
+                                <stop offset="100%" style="stop-color:#333"/>
+                            </radialGradient>
+                        </defs>
+                        <text x="0" y="75" text-anchor="middle" fill="#aaa" font-size="11">Polished</text>
+                        <text x="0" y="90" text-anchor="middle" fill="#666" font-size="10">R: 0.2</text>
+                    </g>
+                    
+                    <g transform="translate(400, 120)">
+                        <circle cx="0" cy="30" r="25" fill="url(#semiSphere)"/>
+                        <defs>
+                            <radialGradient id="semiSphere" cx="40%" cy="40%">
+                                <stop offset="0%" style="stop-color:#aaa"/>
+                                <stop offset="60%" style="stop-color:#666"/>
+                                <stop offset="100%" style="stop-color:#444"/>
+                            </radialGradient>
+                        </defs>
+                        <text x="0" y="75" text-anchor="middle" fill="#aaa" font-size="11">Satin</text>
+                        <text x="0" y="90" text-anchor="middle" fill="#666" font-size="10">R: 0.5</text>
+                    </g>
+                    
+                    <g transform="translate(550, 120)">
+                        <circle cx="0" cy="30" r="25" fill="#606060"/>
+                        <text x="0" y="75" text-anchor="middle" fill="#aaa" font-size="11">Matte</text>
+                        <text x="0" y="90" text-anchor="middle" fill="#666" font-size="10">R: 0.8</text>
+                    </g>
+                    
+                    <g transform="translate(700, 120)">
+                        <circle cx="0" cy="30" r="25" fill="#555555"/>
+                        <text x="0" y="75" text-anchor="middle" fill="#aaa" font-size="11">Chalk</text>
+                        <text x="0" y="90" text-anchor="middle" fill="#666" font-size="10">R: 1.0</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Roughness controls reflection sharpness from mirror-smooth (0) to completely diffuse (1).</em></p>
+
+                <h3>Normal Maps</h3>
+
+                <p>The <strong>Normal</strong> channel is where material magic really happens. A normal map creates the illusion of surface detail—bumps, scratches, grooves, fabric weave—without adding any actual geometry. It's one of the most powerful tools for creating realistic surfaces efficiently.</p>
+
+                <p>Here's how it works: every pixel in a normal map stores a direction (a "normal vector") encoded as RGB color values. The engine uses these directions to calculate how light should bounce off the surface at each pixel. Even though the underlying mesh is flat, the lighting calculations make it appear bumpy and detailed.</p>
+
+                <!-- SVG: Normal Map Explanation -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">How Normal Maps Create Fake Depth</text>
+                    
+                    <!-- Flat surface -->
+                    <g transform="translate(100, 70)">
+                        <text x="80" y="0" text-anchor="middle" fill="#666" font-size="13" font-weight="bold">Flat Geometry</text>
+                        <rect x="0" y="20" width="160" height="80" fill="#888" stroke="#333" stroke-width="2"/>
+                        
+                        <!-- Light rays -->
+                        <line x1="80" y1="-30" x2="40" y2="20" stroke="#FFD700" stroke-width="2" marker-end="url(#arrowYellow)"/>
+                        <line x1="80" y1="-30" x2="80" y2="20" stroke="#FFD700" stroke-width="2" marker-end="url(#arrowYellow)"/>
+                        <line x1="80" y1="-30" x2="120" y2="20" stroke="#FFD700" stroke-width="2" marker-end="url(#arrowYellow)"/>
+                        
+                        <!-- Reflection rays (all same direction) -->
+                        <line x1="40" y1="20" x2="40" y2="-20" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        <line x1="80" y1="20" x2="80" y2="-40" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        <line x1="120" y1="20" x2="120" y2="-20" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        
+                        <text x="80" y="125" text-anchor="middle" fill="#666" font-size="11">All normals point same direction</text>
+                        <text x="80" y="145" text-anchor="middle" fill="#666" font-size="11">= Flat, boring surface</text>
+                    </g>
+                    
+                    <!-- Plus sign -->
+                    <text x="340" y="130" text-anchor="middle" fill="#667eea" font-size="40" font-weight="bold">+</text>
+                    
+                    <!-- Normal map texture -->
+                    <g transform="translate(380, 70)">
+                        <text x="60" y="0" text-anchor="middle" fill="#666" font-size="13" font-weight="bold">Normal Map</text>
+                        <rect x="0" y="20" width="120" height="80" fill="url(#normalMapPattern)" stroke="#333" stroke-width="2"/>
+                        <defs>
+                            <pattern id="normalMapPattern" patternUnits="userSpaceOnUse" width="30" height="20">
+                                <rect width="30" height="20" fill="#8080FF"/>
+                                <circle cx="15" cy="10" r="8" fill="#9090FF"/>
+                                <circle cx="15" cy="10" r="4" fill="#7070EE"/>
+                            </pattern>
+                        </defs>
+                        <text x="60" y="125" text-anchor="middle" fill="#666" font-size="11">RGB encodes direction</text>
+                        <text x="60" y="145" text-anchor="middle" fill="#666" font-size="11">(typical blue-ish color)</text>
+                    </g>
+                    
+                    <!-- Equals sign -->
+                    <text x="540" y="130" text-anchor="middle" fill="#667eea" font-size="40" font-weight="bold">=</text>
+                    
+                    <!-- Result with normal map -->
+                    <g transform="translate(580, 70)">
+                        <text x="100" y="0" text-anchor="middle" fill="#666" font-size="13" font-weight="bold">Perceived Surface</text>
+                        
+                        <!-- Bumpy looking surface -->
+                        <path d="M 20 60 Q 40 40 60 60 Q 80 80 100 60 Q 120 40 140 60 Q 160 80 180 60" fill="none" stroke="#888" stroke-width="3"/>
+                        <path d="M 20 80 Q 40 60 60 80 Q 80 100 100 80 Q 120 60 140 80 Q 160 100 180 80" fill="none" stroke="#888" stroke-width="3"/>
+                        
+                        <!-- Varied light bounces -->
+                        <line x1="40" y1="50" x2="25" y2="20" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        <line x1="80" y1="70" x2="80" y2="30" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        <line x1="120" y1="50" x2="140" y2="20" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        <line x1="160" y1="70" x2="160" y2="35" stroke="#4CAF50" stroke-width="2" stroke-dasharray="5,3"/>
+                        
+                        <text x="100" y="125" text-anchor="middle" fill="#666" font-size="11">Light bounces differently</text>
+                        <text x="100" y="145" text-anchor="middle" fill="#666" font-size="11">= Detailed, realistic surface!</text>
+                    </g>
+                    
+                    <!-- Arrow markers -->
+                    <defs>
+                        <marker id="arrowYellow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#FFD700"/>
+                        </marker>
+                    </defs>
+                    
+                    <!-- Bottom note -->
+                    <rect x="150" y="220" width="500" height="60" rx="8" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                    <text x="400" y="245" text-anchor="middle" fill="#1565C0" font-size="13" font-weight="bold">💡 Key Insight</text>
+                    <text x="400" y="265" text-anchor="middle" fill="#333" font-size="12">Normal maps add visual detail without extra polygons = better performance!</text>
+                </svg>
+                <p class="caption"><em>Figure: Normal maps modify how light bounces per-pixel, creating the illusion of surface detail on flat geometry.</em></p>
+
+                <p>Normal maps are typically recognizable by their distinctive blue-purple color. This is because a "flat" normal pointing straight up is encoded as RGB (128, 128, 255)—the blue channel is maxed out because "up" in tangent space corresponds to the Z axis.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Texture Channel Summary</h4>
+                    <p>Here's a quick reference for the four core PBR channels:</p>
+                    <p><strong>Base Color:</strong> The surface color (RGB). Keep values between 30-240 for realism.</p>
+                    <p><strong>Metallic:</strong> Metal or not (Grayscale). Use 0 for non-metals, 1 for metals.</p>
+                    <p><strong>Roughness:</strong> Reflection sharpness (Grayscale). 0 = mirror, 1 = matte.</p>
+                    <p><strong>Normal:</strong> Surface detail direction (RGB). Creates bumps without geometry.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: The Material Editor Interface -->
+            <section id="material-editor" class="lesson-section">
+                <h2>The Material Editor Interface</h2>
+
+                <p>Now that you understand what goes into a material, let's explore where you'll actually build them: the <strong>Material Editor</strong>. This is a visual, node-based workspace where you connect inputs and operations to create your final material.</p>
+
+                <p>If you've ever used node-based tools like Blender's shader editor, Substance Designer, or even visual programming tools like Blueprints, the Material Editor will feel familiar. If not, don't worry—the concept is straightforward once you see it in action.</p>
+
+                <h3>Opening the Material Editor</h3>
+
+                <p>There are several ways to open the Material Editor:</p>
+
+                <p><strong>Create a new material:</strong> Right-click in the Content Browser, select <em>Material</em> from the menu, name your material, then double-click it to open the editor.</p>
+
+                <p><strong>Edit an existing material:</strong> Double-click any material asset in the Content Browser.</p>
+
+                <p><strong>From a mesh:</strong> Select a mesh in your level, find its material in the Details panel, and click the material name to open it.</p>
+
+                <!-- SVG: Material Editor Interface -->
+                <svg width="100%" height="500" viewBox="0 0 900 500" style="max-width: 900px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <!-- Title bar -->
+                    <rect x="0" y="0" width="900" height="35" fill="#1a1a1a"/>
+                    <text x="20" y="23" fill="#fff" font-size="13">Material Editor - M_BasicMaterial</text>
+                    <circle cx="860" cy="17" r="8" fill="#e74c3c"/>
+                    <circle cx="835" cy="17" r="8" fill="#f39c12"/>
+                    <circle cx="810" cy="17" r="8" fill="#2ecc71"/>
+                    
+                    <!-- Toolbar -->
+                    <rect x="0" y="35" width="900" height="40" fill="#3d3d3d"/>
+                    <rect x="10" y="45" width="60" height="22" rx="3" fill="#4a4a4a" stroke="#555" stroke-width="1"/>
+                    <text x="40" y="60" text-anchor="middle" fill="#ccc" font-size="10">Save</text>
+                    <rect x="80" y="45" width="60" height="22" rx="3" fill="#4a4a4a" stroke="#555" stroke-width="1"/>
+                    <text x="110" y="60" text-anchor="middle" fill="#ccc" font-size="10">Apply</text>
+                    <rect x="150" y="45" width="80" height="22" rx="3" fill="#667eea" stroke="#555" stroke-width="1"/>
+                    <text x="190" y="60" text-anchor="middle" fill="#fff" font-size="10">▶ Preview</text>
+                    
+                    <!-- Left Panel: Palette -->
+                    <rect x="0" y="75" width="180" height="425" fill="#252525"/>
+                    <rect x="0" y="75" width="180" height="30" fill="#1f1f1f"/>
+                    <text x="15" y="95" fill="#aaa" font-size="12" font-weight="bold">Palette</text>
+                    
+                    <!-- Search box -->
+                    <rect x="10" y="115" width="160" height="25" rx="3" fill="#333" stroke="#444"/>
+                    <text x="20" y="132" fill="#888" font-size="11">🔍 Search nodes...</text>
+                    
+                    <!-- Category list -->
+                    <text x="15" y="165" fill="#667eea" font-size="11">▼ Constants</text>
+                    <text x="25" y="185" fill="#aaa" font-size="10">Constant</text>
+                    <text x="25" y="200" fill="#aaa" font-size="10">Constant2Vector</text>
+                    <text x="25" y="215" fill="#aaa" font-size="10">Constant3Vector</text>
+                    <text x="15" y="240" fill="#667eea" font-size="11">▼ Math</text>
+                    <text x="25" y="260" fill="#aaa" font-size="10">Add</text>
+                    <text x="25" y="275" fill="#aaa" font-size="10">Multiply</text>
+                    <text x="25" y="290" fill="#aaa" font-size="10">Lerp</text>
+                    <text x="15" y="315" fill="#667eea" font-size="11">▼ Texture</text>
+                    <text x="25" y="335" fill="#aaa" font-size="10">TextureSample</text>
+                    <text x="25" y="350" fill="#aaa" font-size="10">TextureCoordinate</text>
+                    
+                    <!-- Main Graph Area -->
+                    <rect x="180" y="75" width="520" height="425" fill="#1e1e1e"/>
+                    
+                    <!-- Grid pattern -->
+                    <defs>
+                        <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect x="180" y="75" width="520" height="425" fill="url(#gridPattern)"/>
+                    
+                    <!-- Constant3Vector Node (Color) -->
+                    <g transform="translate(220, 150)">
+                        <rect x="0" y="0" width="140" height="70" rx="5" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
+                        <rect x="0" y="0" width="140" height="20" rx="5" fill="#667eea"/>
+                        <rect x="0" y="15" width="140" height="5" fill="#667eea"/>
+                        <text x="70" y="14" text-anchor="middle" fill="#fff" font-size="10">Constant3Vector</text>
+                        <rect x="10" y="30" width="30" height="30" fill="#c0392b" stroke="#fff" stroke-width="1"/>
+                        <text x="50" y="50" fill="#aaa" font-size="9">(0.75, 0.2, 0.15)</text>
+                        <!-- Output pin -->
+                        <circle cx="140" cy="45" r="6" fill="#f1c40f" stroke="#333" stroke-width="2"/>
+                    </g>
+                    
+                    <!-- Constant Node (Metallic) -->
+                    <g transform="translate(220, 250)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#3d3d3d" stroke="#888" stroke-width="1"/>
+                        <rect x="0" y="0" width="100" height="18" rx="5" fill="#555"/>
+                        <rect x="0" y="13" width="100" height="5" fill="#555"/>
+                        <text x="50" y="13" text-anchor="middle" fill="#fff" font-size="9">Constant</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#aaa" font-size="11">0.0</text>
+                        <circle cx="100" cy="35" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Constant Node (Roughness) -->
+                    <g transform="translate(220, 320)">
+                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#3d3d3d" stroke="#888" stroke-width="1"/>
+                        <rect x="0" y="0" width="100" height="18" rx="5" fill="#555"/>
+                        <rect x="0" y="13" width="100" height="5" fill="#555"/>
+                        <text x="50" y="13" text-anchor="middle" fill="#fff" font-size="9">Constant</text>
+                        <text x="50" y="38" text-anchor="middle" fill="#aaa" font-size="11">0.6</text>
+                        <circle cx="100" cy="35" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Main Material Node -->
+                    <g transform="translate(470, 130)">
+                        <rect x="0" y="0" width="200" height="280" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="200" height="25" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="20" width="200" height="5" fill="#4CAF50"/>
+                        <text x="100" y="17" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">M_BasicMaterial</text>
+                        
+                        <!-- Input pins with labels -->
+                        <circle cx="0" cy="55" r="6" fill="#f1c40f" stroke="#333" stroke-width="2"/>
+                        <text x="15" y="58" fill="#f1c40f" font-size="10">Base Color</text>
+                        
+                        <circle cx="0" cy="85" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="88" fill="#aaa" font-size="10">Metallic</text>
+                        
+                        <circle cx="0" cy="115" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="118" fill="#aaa" font-size="10">Specular</text>
+                        
+                        <circle cx="0" cy="145" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="148" fill="#aaa" font-size="10">Roughness</text>
+                        
+                        <circle cx="0" cy="175" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="178" fill="#aaa" font-size="10">Emissive Color</text>
+                        
+                        <circle cx="0" cy="205" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="208" fill="#aaa" font-size="10">Opacity</text>
+                        
+                        <circle cx="0" cy="235" r="5" fill="#9b59b6" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="238" fill="#9b59b6" font-size="10">Normal</text>
+                        
+                        <circle cx="0" cy="265" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="268" fill="#aaa" font-size="10">World Position Offset</text>
+                    </g>
+                    
+                    <!-- Connection wires -->
+                    <path d="M 360 195 C 400 195 430 185 470 185" stroke="#f1c40f" stroke-width="2" fill="none"/>
+                    <path d="M 320 285 C 380 285 430 215 470 215" stroke="#888" stroke-width="2" fill="none"/>
+                    <path d="M 320 355 C 400 355 430 275 470 275" stroke="#888" stroke-width="2" fill="none"/>
+                    
+                    <!-- Right Panel: Details/Preview -->
+                    <rect x="700" y="75" width="200" height="425" fill="#252525"/>
+                    
+                    <!-- Preview section -->
+                    <rect x="700" y="75" width="200" height="30" fill="#1f1f1f"/>
+                    <text x="715" y="95" fill="#aaa" font-size="12" font-weight="bold">Preview</text>
+                    
+                    <!-- Preview sphere -->
+                    <circle cx="800" cy="180" r="70" fill="url(#previewSphere)"/>
+                    <defs>
+                        <radialGradient id="previewSphere" cx="30%" cy="30%">
+                            <stop offset="0%" style="stop-color:#e8a090"/>
+                            <stop offset="50%" style="stop-color:#c0392b"/>
+                            <stop offset="100%" style="stop-color:#6d1f1f"/>
+                        </radialGradient>
+                    </defs>
+                    
+                    <!-- Details section -->
+                    <rect x="700" y="270" width="200" height="30" fill="#1f1f1f"/>
+                    <text x="715" y="290" fill="#aaa" font-size="12" font-weight="bold">Details</text>
+                    
+                    <text x="715" y="320" fill="#888" font-size="10">Shading Model</text>
+                    <rect x="715" y="325" width="170" height="20" rx="3" fill="#333"/>
+                    <text x="725" y="340" fill="#fff" font-size="10">Default Lit</text>
+                    
+                    <text x="715" y="370" fill="#888" font-size="10">Blend Mode</text>
+                    <rect x="715" y="375" width="170" height="20" rx="3" fill="#333"/>
+                    <text x="725" y="390" fill="#fff" font-size="10">Opaque</text>
+                    
+                    <!-- Callout labels -->
+                    <rect x="195" y="85" width="70" height="18" rx="3" fill="#667eea"/>
+                    <text x="230" y="97" text-anchor="middle" fill="#fff" font-size="9">① Palette</text>
+                    
+                    <rect x="400" y="440" width="100" height="18" rx="3" fill="#667eea"/>
+                    <text x="450" y="452" text-anchor="middle" fill="#fff" font-size="9">② Graph Canvas</text>
+                    
+                    <rect x="760" y="85" width="80" height="18" rx="3" fill="#667eea"/>
+                    <text x="800" y="97" text-anchor="middle" fill="#fff" font-size="9">③ Preview</text>
+                </svg>
+                <p class="caption"><em>Figure: The Material Editor interface with key areas labeled. The graph canvas (center) is where you build your node network.</em></p>
+
+                <h3>Key Interface Elements</h3>
+
+                <p><strong>① Palette Panel (Left):</strong> This searchable list contains every node type you can add to your material. Nodes are organized into categories like Constants, Math, Texture, Coordinates, and more. You can drag nodes from here onto the canvas, or right-click on the canvas to search and add nodes directly.</p>
+
+                <p><strong>② Graph Canvas (Center):</strong> The main workspace where you build your material by placing and connecting nodes. Pan by holding the right mouse button and dragging. Zoom with the scroll wheel. This is where the creative work happens.</p>
+
+                <p><strong>③ Preview Panel (Right):</strong> Shows a real-time preview of your material applied to a shape (sphere by default, but you can change it to a cube, plane, cylinder, or custom mesh). Changes update instantly as you modify the graph.</p>
+
+                <p><strong>④ Details Panel (Right, below Preview):</strong> When you select a node or the main material output, this panel shows its properties. The main material node has settings for Shading Model, Blend Mode, and many other options.</p>
+
+                <h3>Understanding Nodes and Connections</h3>
+
+                <p>The Material Editor uses a "node graph" paradigm. Each node performs a specific operation—providing a color value, sampling a texture, multiplying two values together, etc. You connect nodes by dragging wires from output pins to input pins.</p>
+
+                <!-- Mermaid: Node connection flow -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Inputs["Input Nodes"]
+        C["🎨 Color\n(Constant3Vector)"]
+        R["📊 Roughness\n(Constant)"]
+        T["🖼️ Texture\n(TextureSample)"]
+    end
+    
+    subgraph Processing["Processing Nodes"]
+        M["✖️ Multiply"]
+        L["↔️ Lerp"]
+    end
+    
+    subgraph Output["Material Output"]
+        O["🎯 Main Material Node\nBase Color | Metallic | Roughness | Normal"]
+    end
+    
+    C --> M
+    T --> M
+    M --> O
+    R --> O
+    
+    style Output fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Data flows from input nodes through processing nodes into the main material output.</em></p>
+
+                <p><strong>Pin colors indicate data types:</strong> Yellow pins carry RGB color data, gray pins carry single float values, purple pins carry normal vectors. You can only connect pins of compatible types (though the editor will often auto-convert when possible).</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Hold the <strong>1, 2, 3, or 4 key</strong> and click on the canvas to quickly create Constant nodes with 1, 2, 3, or 4 components. This is much faster than searching the palette! Similarly, hold <strong>T</strong> and click to create a Texture Sample node, or <strong>V</strong> for a Vector Parameter.</p>
+                </div>
+
+                <h3>The Main Material Node</h3>
+
+                <p>Every material has one special node: the <strong>Main Material Node</strong>. This is the final destination for all your calculations. It has input pins for each PBR channel:</p>
+
+                <p><strong>Base Color:</strong> Expects an RGB value (0-1 range per channel). Connect a Constant3Vector for solid colors, or a Texture Sample for image-based color.</p>
+
+                <p><strong>Metallic:</strong> Expects a single float (0-1). Usually either 0 or 1, sometimes driven by a texture for mixed surfaces.</p>
+
+                <p><strong>Specular:</strong> Controls non-metallic specular intensity. Usually left at the default (0.5) unless you have a specific reason to change it.</p>
+
+                <p><strong>Roughness:</strong> Expects a single float (0-1). Can be a constant value or driven by a texture for surface variation.</p>
+
+                <p><strong>Emissive Color:</strong> Makes the surface emit light (glow). Values above 1 create bloom effects with post-processing enabled.</p>
+
+                <p><strong>Normal:</strong> Expects a normal vector (typically from a Normal Map texture). Adds surface detail without geometry.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Any pin you don't connect will use a default value. Base Color defaults to black, Metallic to 0, Roughness to 0.5. This means an "empty" material will look like semi-shiny black plastic. Always set at least your Base Color to see something meaningful!</p>
+                </div>
+            </section>
+            <!-- Section 5: Material Instances -->
+            <section id="material-instances" class="lesson-section">
+                <h2>Material Instances: Why They Matter</h2>
+
+                <p>Imagine you've created the perfect brick material. It has the right color, the right roughness, beautiful normal map detail. Now you need brick walls in three different colors—red, tan, and weathered gray. Do you create three separate materials from scratch?</p>
+
+                <p>Absolutely not. This is where <strong>Material Instances</strong> save the day.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Material Instance:</strong> A child of a parent material that inherits all its functionality but allows you to override specific parameter values without recompiling. Changes to instances are instant and don't require shader recompilation.</p>
+                </div>
+
+                <h3>The Parent-Child Relationship</h3>
+
+                <p>Think of it like a template system. Your <strong>parent material</strong> (also called the "Master Material") defines the complete logic—which textures to use, how to combine them, what calculations to perform. But instead of hardcoding values, you expose certain inputs as <strong>parameters</strong>.</p>
+
+                <p>A <strong>Material Instance</strong> inherits everything from the parent but lets you change those exposed parameters. Want red bricks? Change the color parameter. Want smoother bricks? Adjust the roughness parameter. The underlying logic stays the same; only the values change.</p>
+
+                <!-- Mermaid: Material Instance hierarchy -->
+                <pre class="mermaid">
+flowchart TD
+    subgraph Parent["🎨 M_Brick (Parent Material)"]
+        P["Complete shader logic\nTexture sampling\nNormal mapping\nPBR calculations"]
+        Params["📋 Exposed Parameters:\n• Base Color Tint\n• Roughness Multiplier\n• Normal Intensity\n• Tiling Scale"]
+    end
+    
+    subgraph Instances["Material Instances (No Recompile!)"]
+        I1["MI_Brick_Red\nColor: Red\nRoughness: 0.7"]
+        I2["MI_Brick_Tan\nColor: Tan\nRoughness: 0.8"]
+        I3["MI_Brick_Weathered\nColor: Gray\nRoughness: 0.9"]
+    end
+    
+    Parent --> I1
+    Parent --> I2
+    Parent --> I3
+    
+    style Parent fill:#667eea,color:#fff
+    style I1 fill:#c0392b,color:#fff
+    style I2 fill:#d4a574,color:#333
+    style I3 fill:#7f8c8d,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: One parent material can spawn unlimited instances, each with unique parameter values.</em></p>
+
+                <h3>Why Use Material Instances?</h3>
+
+                <p><strong>Performance:</strong> When you modify a regular material, Unreal must recompile the shader—a process that can take seconds to minutes depending on complexity. Material Instances skip this entirely because the shader code doesn't change, only the input values. Changes are instantaneous.</p>
+
+                <p><strong>Organization:</strong> Instead of dozens of nearly-identical materials cluttering your Content Browser, you have one master material and clearly-named instances. Finding and managing assets becomes much easier.</p>
+
+                <p><strong>Consistency:</strong> If you need to update the underlying logic (say, adding a detail texture layer), you change the parent material once. All instances automatically inherit the improvement.</p>
+
+                <p><strong>Runtime changes:</strong> Material Instances can be modified during gameplay through Blueprints. This enables effects like color shifts, damage states, or environmental reactions—all without the overhead of creating new materials.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Professional projects almost never apply parent materials directly to objects. The workflow is: create a parameterized parent material, then create instances for every variation you need. Even if you only need one version right now, using an instance means you're ready to create variations later without refactoring.</p>
+                </div>
+
+                <h3>Creating Parameters in Parent Materials</h3>
+
+                <p>To make a value adjustable in instances, you convert it from a Constant node to a <strong>Parameter</strong> node. The process is simple:</p>
+
+                <p><strong>For scalar values (Roughness, Metallic):</strong> Instead of a Constant node, use a <strong>Scalar Parameter</strong> node. Give it a descriptive name like "Roughness_Amount" and set a default value.</p>
+
+                <p><strong>For colors:</strong> Use a <strong>Vector Parameter</strong> node (specifically Constant3Vector converted to parameter, or create directly). Name it something like "Base_Color_Tint".</p>
+
+                <p><strong>For textures:</strong> Use a <strong>Texture Parameter</strong> node instead of a regular Texture Sample. This lets instances swap in different textures entirely.</p>
+
+                <!-- SVG: Parameter Node Comparison -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Constant Nodes vs. Parameter Nodes</text>
+                    
+                    <!-- Constant Node -->
+                    <g transform="translate(150, 60)">
+                        <rect x="0" y="0" width="140" height="60" rx="5" fill="#3d3d3d" stroke="#888" stroke-width="2"/>
+                        <rect x="0" y="0" width="140" height="20" rx="5" fill="#555"/>
+                        <rect x="0" y="15" width="140" height="5" fill="#555"/>
+                        <text x="70" y="15" text-anchor="middle" fill="#fff" font-size="10">Constant</text>
+                        <text x="70" y="45" text-anchor="middle" fill="#aaa" font-size="12">0.6</text>
+                        <circle cx="140" cy="40" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        
+                        <text x="70" y="90" text-anchor="middle" fill="#e74c3c" font-size="11">❌ Fixed value</text>
+                        <text x="70" y="108" text-anchor="middle" fill="#888" font-size="10">Cannot change in instances</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <text x="400" y="100" text-anchor="middle" fill="#667eea" font-size="30">→</text>
+                    
+                    <!-- Parameter Node -->
+                    <g transform="translate(510, 60)">
+                        <rect x="0" y="0" width="160" height="60" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="160" height="20" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="15" width="160" height="5" fill="#4CAF50"/>
+                        <text x="80" y="15" text-anchor="middle" fill="#fff" font-size="10">Scalar Parameter</text>
+                        <text x="80" y="38" text-anchor="middle" fill="#4CAF50" font-size="9">Roughness_Amount</text>
+                        <text x="80" y="52" text-anchor="middle" fill="#aaa" font-size="11">0.6</text>
+                        <circle cx="160" cy="40" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        
+                        <text x="80" y="90" text-anchor="middle" fill="#4CAF50" font-size="11">✓ Adjustable!</text>
+                        <text x="80" y="108" text-anchor="middle" fill="#888" font-size="10">Instances can override</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Converting Constants to Parameters enables customization in Material Instances.</em></p>
+
+                <h3>Creating a Material Instance</h3>
+
+                <p>Once your parent material has parameters, creating an instance is straightforward:</p>
+
+                <p><strong>Method 1:</strong> Right-click your parent material in the Content Browser and select <em>Create Material Instance</em>.</p>
+
+                <p><strong>Method 2:</strong> Right-click in the Content Browser, go to <em>Materials & Textures → Material Instance</em>, then assign the parent material in the Details panel.</p>
+
+                <p>When you open a Material Instance, you'll see a simple interface listing all available parameters with checkboxes. Check a parameter to override it, then adjust the value. The preview updates in real-time.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Naming Convention</h4>
+                    <p>A common naming convention helps keep materials organized:</p>
+                    <p><strong>Parent Material:</strong> M_MaterialName (e.g., M_Brick, M_Metal, M_Fabric)</p>
+                    <p><strong>Material Instance:</strong> MI_MaterialName_Variant (e.g., MI_Brick_Red, MI_Metal_Rusty, MI_Fabric_Velvet)</p>
+                    <p>The "M_" and "MI_" prefixes make it instantly clear what type of asset you're looking at.</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On: Create Your First Material</h2>
+                    
+                    <p>Let's put everything together by creating a simple colored material with adjustable properties. By the end of this exercise, you'll have a parent material and two instances—proof that you understand the core material workflow.</p>
+
+                    <h3>What You'll Create</h3>
+                    <p>A basic PBR material with parameters for Base Color, Metallic, and Roughness. Then you'll create two instances: one for shiny red plastic, one for matte blue rubber.</p>
+
+                    <p><strong>Estimated Time:</strong> 15-20 minutes</p>
+                </div>
+
+                <h3>Step 1: Create a New Material</h3>
+
+                <p>Open your Unreal project (or create a new Blank project if needed). In the Content Browser, navigate to a folder where you want to store your materials—or create a new folder called "Materials".</p>
+
+                <p>Right-click in the Content Browser and select <strong>Material</strong>. Name it <code>M_BasicColor</code>. Double-click to open the Material Editor.</p>
+
+                <details class="card">
+                    <summary><strong>🔍 Hint: Can't find the Material option?</strong></summary>
+                    <p>Make sure you're right-clicking in an empty area of the Content Browser, not on an existing asset. The context menu should show a "Material" option near the top, or you can find it under <em>Materials & Textures → Material</em>.</p>
+                </details>
+
+                <h3>Step 2: Create a Color Parameter</h3>
+
+                <p>We want the base color to be adjustable in instances, so we'll use a Vector Parameter instead of a regular Constant.</p>
+
+                <p>Right-click on the graph canvas and search for <strong>VectorParameter</strong> (or hold <strong>V</strong> and click). Place the node on the left side of the canvas.</p>
+
+                <p>With the node selected, look at the Details panel on the left:</p>
+                <ul>
+                    <li>Set <strong>Parameter Name</strong> to: <code>Base_Color</code></li>
+                    <li>Click the color swatch next to <strong>Default Value</strong> and choose a medium gray (we'll override this in instances)</li>
+                </ul>
+
+                <p>Drag a wire from the Vector Parameter's output pin to the <strong>Base Color</strong> input on the Main Material Node.</p>
+
+                <h3>Step 3: Create Metallic and Roughness Parameters</h3>
+
+                <p>Right-click and search for <strong>ScalarParameter</strong> (or hold <strong>S</strong> and click). Create two of these nodes.</p>
+
+                <p>For the first Scalar Parameter:</p>
+                <ul>
+                    <li>Set <strong>Parameter Name</strong> to: <code>Metallic_Amount</code></li>
+                    <li>Set <strong>Default Value</strong> to: <code>0.0</code></li>
+                    <li>Connect it to the <strong>Metallic</strong> input</li>
+                </ul>
+
+                <p>For the second Scalar Parameter:</p>
+                <ul>
+                    <li>Set <strong>Parameter Name</strong> to: <code>Roughness_Amount</code></li>
+                    <li>Set <strong>Default Value</strong> to: <code>0.5</code></li>
+                    <li>Connect it to the <strong>Roughness</strong> input</li>
+                </ul>
+
+                <details class="card">
+                    <summary><strong>🔍 Hint: Organizing your nodes</strong></summary>
+                    <p>Keep your graph tidy! Place input nodes on the left, processing nodes in the middle, and the Main Material Node on the right. You can select multiple nodes and press <strong>C</strong> to add a comment box around them for organization.</p>
+                </details>
+
+                <h3>Step 4: Save and Apply</h3>
+
+                <p>Your material graph should now have three parameter nodes connected to Base Color, Metallic, and Roughness. The Preview sphere in the right panel should show a gray, semi-shiny surface.</p>
+
+                <p>Click the <strong>Apply</strong> button in the toolbar (or press <strong>Enter</strong>). This compiles the shader. Then click <strong>Save</strong> (or press <strong>Ctrl+S</strong>).</p>
+
+                <!-- SVG: Expected material graph -->
+                <svg width="100%" height="280" viewBox="0 0 700 280" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Your Material Should Look Like This</text>
+                    
+                    <!-- Grid -->
+                    <defs>
+                        <pattern id="exerciseGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect x="10" y="40" width="680" height="230" fill="url(#exerciseGrid)"/>
+                    
+                    <!-- Base_Color Parameter -->
+                    <g transform="translate(50, 70)">
+                        <rect x="0" y="0" width="130" height="55" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="130" height="18" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="13" width="130" height="5" fill="#4CAF50"/>
+                        <text x="65" y="13" text-anchor="middle" fill="#fff" font-size="9">VectorParameter</text>
+                        <text x="65" y="35" text-anchor="middle" fill="#4CAF50" font-size="8">Base_Color</text>
+                        <rect x="10" y="40" width="12" height="12" fill="#808080" stroke="#fff" stroke-width="1"/>
+                        <circle cx="130" cy="35" r="5" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Metallic_Amount Parameter -->
+                    <g transform="translate(50, 145)">
+                        <rect x="0" y="0" width="130" height="45" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="130" height="18" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="13" width="130" height="5" fill="#4CAF50"/>
+                        <text x="65" y="13" text-anchor="middle" fill="#fff" font-size="9">ScalarParameter</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#4CAF50" font-size="8">Metallic_Amount: 0.0</text>
+                        <circle cx="130" cy="30" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Roughness_Amount Parameter -->
+                    <g transform="translate(50, 205)">
+                        <rect x="0" y="0" width="130" height="45" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="130" height="18" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="13" width="130" height="5" fill="#4CAF50"/>
+                        <text x="65" y="13" text-anchor="middle" fill="#fff" font-size="9">ScalarParameter</text>
+                        <text x="65" y="32" text-anchor="middle" fill="#4CAF50" font-size="8">Roughness_Amount: 0.5</text>
+                        <circle cx="130" cy="30" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Main Material Node -->
+                    <g transform="translate(450, 60)">
+                        <rect x="0" y="0" width="180" height="180" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="180" height="22" rx="5" fill="#4CAF50"/>
+                        <rect x="0" y="17" width="180" height="5" fill="#4CAF50"/>
+                        <text x="90" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">M_BasicColor</text>
+                        
+                        <circle cx="0" cy="50" r="5" fill="#f1c40f" stroke="#333" stroke-width="2"/>
+                        <text x="15" y="53" fill="#f1c40f" font-size="9">Base Color</text>
+                        
+                        <circle cx="0" cy="80" r="5" fill="#888" stroke="#333" stroke-width="2"/>
+                        <text x="15" y="83" fill="#aaa" font-size="9">Metallic</text>
+                        
+                        <circle cx="0" cy="110" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="113" fill="#666" font-size="9">Specular</text>
+                        
+                        <circle cx="0" cy="140" r="5" fill="#888" stroke="#333" stroke-width="2"/>
+                        <text x="15" y="143" fill="#aaa" font-size="9">Roughness</text>
+                        
+                        <circle cx="0" cy="170" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="173" fill="#666" font-size="9">Normal</text>
+                    </g>
+                    
+                    <!-- Connection wires -->
+                    <path d="M 180 105 C 280 105 350 110 450 110" stroke="#f1c40f" stroke-width="2" fill="none"/>
+                    <path d="M 180 175 C 280 175 350 140 450 140" stroke="#888" stroke-width="2" fill="none"/>
+                    <path d="M 180 235 C 280 235 350 200 450 200" stroke="#888" stroke-width="2" fill="none"/>
+                </svg>
+                <p class="caption"><em>Figure: The completed M_BasicColor material graph with three parameter nodes.</em></p>
+
+                <h3>Step 5: Create Material Instances</h3>
+
+                <p>Close the Material Editor and return to the Content Browser. Right-click on <code>M_BasicColor</code> and select <strong>Create Material Instance</strong>. Name it <code>MI_BasicColor_RedPlastic</code>.</p>
+
+                <p>Double-click to open the Material Instance editor. You'll see your three parameters listed with checkboxes. Check the boxes to enable overriding, then set:</p>
+                <ul>
+                    <li><strong>Base_Color:</strong> Bright red (e.g., RGB: 0.9, 0.1, 0.1)</li>
+                    <li><strong>Metallic_Amount:</strong> 0.0 (plastic is non-metallic)</li>
+                    <li><strong>Roughness_Amount:</strong> 0.3 (shiny plastic)</li>
+                </ul>
+
+                <p>Save this instance. Now create a second instance named <code>MI_BasicColor_BlueRubber</code> with:</p>
+                <ul>
+                    <li><strong>Base_Color:</strong> Blue (e.g., RGB: 0.1, 0.2, 0.8)</li>
+                    <li><strong>Metallic_Amount:</strong> 0.0</li>
+                    <li><strong>Roughness_Amount:</strong> 0.9 (matte rubber)</li>
+                </ul>
+
+                <h3>Step 6: Test Your Materials</h3>
+
+                <p>Add some primitive shapes to your level (Place Actors panel → Basic → Cube or Sphere). Drag your material instances from the Content Browser directly onto the shapes in the viewport.</p>
+
+                <p>You should see one object with shiny red plastic and another with matte blue rubber—both created from the same parent material!</p>
+
+                <details class="card">
+                    <summary><strong>✅ Success Check: How do you know it worked?</strong></summary>
+                    <div style="padding: 1rem;">
+                        <p>Your materials are working correctly if:</p>
+                        <ul>
+                            <li>The red plastic sphere has visible specular highlights (shiny reflection spots)</li>
+                            <li>The blue rubber object looks flat and diffuse with no sharp reflections</li>
+                            <li>Both objects respond to lighting in the scene (rotate around them to see)</li>
+                            <li>You can change instance parameters and see instant updates (no shader recompile)</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>🎉 Congratulations!</h4>
+                    <p>You've just created your first parameterized material and instances in Unreal Engine! This parent-instance workflow is the foundation of professional material creation. Every complex material you encounter in production games uses this same pattern.</p>
+                </div>
+            </section>
+
+            <!-- Section 7: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've built a solid foundation for understanding Unreal Engine's material system. Let's recap the key concepts:</p>
+
+                <p><strong>Materials define surface appearance</strong> by controlling how light interacts with objects. They combine colors, textures, and mathematical operations to create everything from realistic metals to glowing sci-fi panels.</p>
+
+                <p><strong>Physically Based Rendering (PBR)</strong> grounds material creation in real-world physics, ensuring surfaces look correct under any lighting condition. Unreal uses the Metallic/Roughness workflow as its standard.</p>
+
+                <p><strong>The four core PBR channels</strong> are Base Color (surface color), Metallic (metal vs. non-metal), Roughness (reflection sharpness), and Normal (surface detail without geometry). Understanding these channels is essential for creating believable materials.</p>
+
+                <p><strong>The Material Editor</strong> is a node-based visual workspace where you build materials by connecting nodes. Data flows from input nodes through processing operations into the Main Material Node.</p>
+
+                <p><strong>Material Instances</strong> let you create variations of a parent material without duplicating work or recompiling shaders. This is the professional workflow for material management.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>🔑 Key Takeaways</h3>
+                    <ul>
+                        <li>Materials are recipes; textures are ingredients</li>
+                        <li>PBR = physics-based, works under any lighting</li>
+                        <li>Metallic: 0 = non-metal, 1 = metal (no in-between)</li>
+                        <li>Roughness: 0 = mirror, 1 = matte (full range is valid)</li>
+                        <li>Normal maps add detail without geometry cost</li>
+                        <li>Always use Material Instances in production</li>
+                        <li>Parameters enable instance customization</li>
+                    </ul>
+                </div>
+
+                <h3>What's Next?</h3>
+
+                <p>In the next lesson, <strong>Texture Basics</strong>, you'll learn how to import and configure textures properly—the images that feed into your materials to create detailed, realistic surfaces. You'll explore texture formats, compression settings, UV coordinates, and how to connect texture samples in the Material Editor.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m02_l05_materials_and_lighting.html" class="btn">← Previous: Materials and Lighting Basics</a>
+                <a href="index.html" class="btn">Home</a>
+                <a href="m03_l02_texture_basics.html" class="btn">Next: Texture Basics →</a>
+            </nav>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Educational content for aspiring game developers.</p>
+            <p>
+                <a href="index.html">Home</a> |
+                <a href="index.html#modules">All Modules</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn texture fundamentals in Unreal Engine 5, including importing textures, compression settings, UV mapping, and applying textures to materials.">
+    <meta name="author" content="Practical Ace">
+    <title>Texture Basics - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 3: Materials and Textures</a></li>
+            <li aria-current="page">Lesson 3.2: Texture Basics</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🖼️ Texture Basics</h1>
+                <p class="lead">Textures are the images that bring your materials to life—the wood grain on a table, the rust on a metal pipe, the fabric weave on a character's clothing. In this lesson, you'll learn how to import, configure, and use textures effectively in Unreal Engine.</p>
+                
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Identify which texture formats work best for different use cases in Unreal Engine</li>
+                        <li>Import textures correctly using the Content Browser</li>
+                        <li>Configure texture settings including compression, mipmaps, and sRGB</li>
+                        <li>Explain UV mapping fundamentals and how textures wrap onto 3D surfaces</li>
+                        <li>Use Texture Coordinate nodes to control tiling and offset</li>
+                        <li>Apply textures to a material using the Texture Sample node</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 40-50 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 3.1 - Material Fundamentals</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#texture-formats" class="toc-link">Supported Texture Formats</a></li>
+                        <li><a href="#importing-textures" class="toc-link">Importing Textures Properly</a></li>
+                        <li><a href="#texture-settings" class="toc-link">Texture Settings: Compression, Mipmaps, sRGB</a></li>
+                        <li><a href="#uv-mapping" class="toc-link">UV Mapping Fundamentals</a></li>
+                        <li><a href="#texture-coordinates" class="toc-link">Texture Coordinates and Tiling</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Apply Textures to a Material</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Supported Texture Formats -->
+            <section id="texture-formats" class="lesson-section">
+                <h2>Supported Texture Formats</h2>
+                
+                <p>Before you can use a texture in Unreal Engine, you need to have it in a compatible format. Think of texture formats like different languages—Unreal speaks some fluently, understands others with effort, and can't read a few at all.</p>
+
+                <p>Unreal Engine supports a variety of image formats, but not all are created equal. Your choice of format affects import speed, quality preservation, and how much control you have over the final result.</p>
+
+                <h3>Recommended Formats</h3>
+
+                <p>These formats work excellently with Unreal Engine and should be your go-to choices:</p>
+
+                <!-- SVG: Texture Format Comparison -->
+                <svg width="100%" height="380" viewBox="0 0 800 380" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="18" font-weight="bold">Texture Formats for Unreal Engine</text>
+                    
+                    <!-- PNG Card -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="170" height="140" rx="8" fill="#4CAF50" opacity="0.15" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="8" fill="#4CAF50"/>
+                        <rect x="0" y="27" width="170" height="8" fill="#4CAF50"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">PNG</text>
+                        <text x="85" y="60" text-anchor="middle" fill="#333" font-size="11">✓ Lossless quality</text>
+                        <text x="85" y="78" text-anchor="middle" fill="#333" font-size="11">✓ Alpha transparency</text>
+                        <text x="85" y="96" text-anchor="middle" fill="#333" font-size="11">✓ Universal support</text>
+                        <text x="85" y="120" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">⭐ RECOMMENDED</text>
+                    </g>
+                    
+                    <!-- TGA Card -->
+                    <g transform="translate(220, 55)">
+                        <rect x="0" y="0" width="170" height="140" rx="8" fill="#4CAF50" opacity="0.15" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="8" fill="#4CAF50"/>
+                        <rect x="0" y="27" width="170" height="8" fill="#4CAF50"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">TGA (Targa)</text>
+                        <text x="85" y="60" text-anchor="middle" fill="#333" font-size="11">✓ Lossless quality</text>
+                        <text x="85" y="78" text-anchor="middle" fill="#333" font-size="11">✓ Alpha transparency</text>
+                        <text x="85" y="96" text-anchor="middle" fill="#333" font-size="11">✓ Industry standard</text>
+                        <text x="85" y="120" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">⭐ RECOMMENDED</text>
+                    </g>
+                    
+                    <!-- EXR Card -->
+                    <g transform="translate(410, 55)">
+                        <rect x="0" y="0" width="170" height="140" rx="8" fill="#2196F3" opacity="0.15" stroke="#2196F3" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="8" fill="#2196F3"/>
+                        <rect x="0" y="27" width="170" height="8" fill="#2196F3"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">EXR / HDR</text>
+                        <text x="85" y="60" text-anchor="middle" fill="#333" font-size="11">✓ High dynamic range</text>
+                        <text x="85" y="78" text-anchor="middle" fill="#333" font-size="11">✓ 16/32-bit precision</text>
+                        <text x="85" y="96" text-anchor="middle" fill="#333" font-size="11">✓ HDRIs, lightmaps</text>
+                        <text x="85" y="120" text-anchor="middle" fill="#2196F3" font-size="10" font-weight="bold">SPECIALIZED USE</text>
+                    </g>
+                    
+                    <!-- TIFF Card -->
+                    <g transform="translate(600, 55)">
+                        <rect x="0" y="0" width="170" height="140" rx="8" fill="#9C27B0" opacity="0.15" stroke="#9C27B0" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="8" fill="#9C27B0"/>
+                        <rect x="0" y="27" width="170" height="8" fill="#9C27B0"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">TIFF</text>
+                        <text x="85" y="60" text-anchor="middle" fill="#333" font-size="11">✓ Lossless quality</text>
+                        <text x="85" y="78" text-anchor="middle" fill="#333" font-size="11">✓ High bit depth</text>
+                        <text x="85" y="96" text-anchor="middle" fill="#333" font-size="11">✓ Layers supported</text>
+                        <text x="85" y="120" text-anchor="middle" fill="#9C27B0" font-size="10" font-weight="bold">ARCHIVAL / SOURCE</text>
+                    </g>
+                    
+                    <!-- Second Row: Acceptable but Limited -->
+                    <text x="400" y="225" text-anchor="middle" fill="#666" font-size="14" font-weight="bold">Acceptable (With Limitations)</text>
+                    
+                    <!-- JPEG Card -->
+                    <g transform="translate(130, 245)">
+                        <rect x="0" y="0" width="170" height="110" rx="8" fill="#FF9800" opacity="0.15" stroke="#FF9800" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="8" fill="#FF9800"/>
+                        <rect x="0" y="27" width="170" height="8" fill="#FF9800"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">JPEG / JPG</text>
+                        <text x="85" y="58" text-anchor="middle" fill="#333" font-size="11">✓ Small file size</text>
+                        <text x="85" y="76" text-anchor="middle" fill="#c62828" font-size="11">✗ Lossy compression</text>
+                        <text x="85" y="94" text-anchor="middle" fill="#c62828" font-size="11">✗ No alpha channel</text>
+                    </g>
+                    
+                    <!-- BMP Card -->
+                    <g transform="translate(320, 245)">
+                        <rect x="0" y="0" width="170" height="110" rx="8" fill="#FF9800" opacity="0.15" stroke="#FF9800" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="8" fill="#FF9800"/>
+                        <rect x="0" y="27" width="170" height="8" fill="#FF9800"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">BMP</text>
+                        <text x="85" y="58" text-anchor="middle" fill="#333" font-size="11">✓ Uncompressed</text>
+                        <text x="85" y="76" text-anchor="middle" fill="#c62828" font-size="11">✗ Very large files</text>
+                        <text x="85" y="94" text-anchor="middle" fill="#c62828" font-size="11">✗ Limited features</text>
+                    </g>
+                    
+                    <!-- PSD Card -->
+                    <g transform="translate(510, 245)">
+                        <rect x="0" y="0" width="170" height="110" rx="8" fill="#FF9800" opacity="0.15" stroke="#FF9800" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="8" fill="#FF9800"/>
+                        <rect x="0" y="27" width="170" height="8" fill="#FF9800"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">PSD</text>
+                        <text x="85" y="58" text-anchor="middle" fill="#333" font-size="11">✓ Direct from Photoshop</text>
+                        <text x="85" y="76" text-anchor="middle" fill="#c62828" font-size="11">✗ Layers flattened</text>
+                        <text x="85" y="94" text-anchor="middle" fill="#c62828" font-size="11">✗ Slower import</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: PNG and TGA are the best general-purpose formats. Use EXR/HDR for high dynamic range needs.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>When in doubt, use <strong>PNG</strong>. It's lossless (no quality degradation), supports transparency, and every image editing program can create it. For production pipelines, TGA is equally excellent and is the traditional game industry standard.</p>
+                </div>
+
+                <h3>Why Format Matters</h3>
+
+                <p>You might wonder: "Unreal compresses textures anyway, so why does the source format matter?" Great question!</p>
+
+                <p>When you import a texture, Unreal converts it to an internal format optimized for your target platform. But the quality of that conversion depends entirely on what you start with. If you import a heavily-compressed JPEG, Unreal is working with already-degraded data. Artifacts from JPEG compression get baked into the final texture permanently.</p>
+
+                <p>Think of it like photocopying a photocopy—each generation loses quality. Start with the best source possible, and Unreal's compression will preserve maximum detail.</p>
+
+                <!-- Mermaid: Import quality flow -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Source["Source Image"]
+        PNG["PNG/TGA\n(Lossless)"]
+        JPG["JPEG\n(Already Lossy)"]
+    end
+    
+    subgraph Import["Unreal Import"]
+        I["Compression\n& Processing"]
+    end
+    
+    subgraph Result["In-Engine Quality"]
+        Good["✓ Maximum Detail\nClean edges\nNo artifacts"]
+        Bad["✗ Degraded Quality\nBlurry details\nCompression artifacts"]
+    end
+    
+    PNG --> I
+    JPG --> I
+    I --> Good
+    I --> Bad
+    
+    PNG -.->|"produces"| Good
+    JPG -.->|"produces"| Bad
+    
+    style Good fill:#4CAF50,color:#fff
+    style Bad fill:#e74c3c,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Your source format determines the ceiling for final in-engine quality.</em></p>
+
+                <h3>Texture Resolution Guidelines</h3>
+
+                <p>Unreal Engine works best with textures that have <strong>power-of-two</strong> dimensions: 256×256, 512×512, 1024×1024, 2048×2048, 4096×4096, and so on. While Unreal can handle non-power-of-two textures, they won't generate mipmaps correctly and may have performance implications.</p>
+
+                <p>Textures don't need to be square. A 2048×1024 texture is perfectly valid—just keep both dimensions as powers of two.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Common Texture Sizes</h4>
+                    <p>Here's when to use different resolutions:</p>
+                    <p><strong>512×512:</strong> Small props, distant objects, UI elements</p>
+                    <p><strong>1024×1024 (1K):</strong> Standard props, secondary characters</p>
+                    <p><strong>2048×2048 (2K):</strong> Main characters, hero props, close-up surfaces</p>
+                    <p><strong>4096×4096 (4K):</strong> Large surfaces (walls, terrain), cinematics, photogrammetry</p>
+                </div>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Bigger isn't always better! A 4K texture uses 4× the memory of a 2K texture. If a texture is only seen from far away, that extra detail is wasted. Choose resolution based on how closely players will see the surface—not just "the highest I have."</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Importing Textures Properly -->
+            <section id="importing-textures" class="lesson-section">
+                <h2>Importing Textures Properly</h2>
+
+                <p>Getting textures into Unreal Engine is straightforward, but doing it <em>properly</em> requires understanding a few key steps. Let's walk through the import process and the decisions you'll make along the way.</p>
+
+                <h3>Basic Import Methods</h3>
+
+                <p>Unreal offers several ways to import textures:</p>
+
+                <p><strong>Drag and Drop:</strong> The simplest method. Drag image files directly from your file explorer into the Content Browser. Unreal creates texture assets automatically.</p>
+
+                <p><strong>Import Button:</strong> Click the <em>Import</em> button in the Content Browser toolbar, then browse to select your files. This gives you more control over import settings before the files are added.</p>
+
+                <p><strong>Right-Click Menu:</strong> Right-click in the Content Browser, select <em>Import to...</em>, and choose your files.</p>
+
+                <!-- SVG: Import Methods -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Three Ways to Import Textures</text>
+                    
+                    <!-- Method 1: Drag & Drop -->
+                    <g transform="translate(80, 55)">
+                        <rect x="0" y="0" width="180" height="110" rx="8" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
+                        <text x="90" y="30" text-anchor="middle" fill="#667eea" font-size="24">📁 → 📥</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">Drag &amp; Drop</text>
+                        <text x="90" y="82" text-anchor="middle" fill="#aaa" font-size="11">From file explorer</text>
+                        <text x="90" y="98" text-anchor="middle" fill="#aaa" font-size="11">into Content Browser</text>
+                    </g>
+                    
+                    <!-- Method 2: Import Button -->
+                    <g transform="translate(310, 55)">
+                        <rect x="0" y="0" width="180" height="110" rx="8" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
+                        <text x="90" y="30" text-anchor="middle" fill="#667eea" font-size="24">📥</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">Import Button</text>
+                        <text x="90" y="82" text-anchor="middle" fill="#aaa" font-size="11">Click Import in toolbar</text>
+                        <text x="90" y="98" text-anchor="middle" fill="#aaa" font-size="11">Browse to select files</text>
+                    </g>
+                    
+                    <!-- Method 3: Right-Click -->
+                    <g transform="translate(540, 55)">
+                        <rect x="0" y="0" width="180" height="110" rx="8" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
+                        <text x="90" y="30" text-anchor="middle" fill="#667eea" font-size="24">🖱️</text>
+                        <text x="90" y="60" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">Right-Click Menu</text>
+                        <text x="90" y="82" text-anchor="middle" fill="#aaa" font-size="11">Right-click → Import</text>
+                        <text x="90" y="98" text-anchor="middle" fill="#aaa" font-size="11">Choose destination folder</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: All three methods achieve the same result. Drag and drop is fastest for quick imports.</em></p>
+
+                <h3>The Import Dialog</h3>
+
+                <p>When you import multiple textures at once (especially using the Import button), Unreal shows an import dialog with options. For textures, you'll typically see options like:</p>
+
+                <p><strong>Import All:</strong> Accepts default settings for all selected files.</p>
+
+                <p><strong>Import:</strong> Imports individual files, letting you review each one.</p>
+
+                <p>For most texture imports, the defaults work fine. However, Unreal makes assumptions about your textures based on their names—and sometimes those assumptions are wrong.</p>
+
+                <h3>Automatic Detection (and When It Fails)</h3>
+
+                <p>Unreal tries to be smart about detecting texture types. If your file is named <code>brick_normal.png</code>, Unreal assumes it's a normal map and configures settings accordingly. Similarly, <code>wood_basecolor.tga</code> gets treated as a color texture.</p>
+
+                <p>This auto-detection works great when you follow standard naming conventions. But if your texture is named something generic like <code>texture_01.png</code>, Unreal guesses—and may guess wrong.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Naming Conventions That Trigger Auto-Detection</h4>
+                    <p>Include these suffixes in your filenames for automatic configuration:</p>
+                    <p><strong>_BaseColor, _Diffuse, _Albedo, _D:</strong> Color texture (sRGB enabled)</p>
+                    <p><strong>_Normal, _N:</strong> Normal map (linear, specific compression)</p>
+                    <p><strong>_Roughness, _R:</strong> Roughness map (linear, grayscale)</p>
+                    <p><strong>_Metallic, _M:</strong> Metallic map (linear, grayscale)</p>
+                    <p><strong>_AO, _AmbientOcclusion:</strong> Ambient occlusion (linear)</p>
+                    <p><strong>_Emissive, _E:</strong> Emissive texture (sRGB enabled)</p>
+                </div>
+
+                <h3>Organizing Imported Textures</h3>
+
+                <p>Before importing, create a logical folder structure. A common approach:</p>
+
+                <pre class="mermaid">
+flowchart TD
+    Content["📁 Content"]
+    Content --> Textures["📁 Textures"]
+    Textures --> Env["📁 Environment"]
+    Textures --> Char["📁 Characters"]
+    Textures --> Props["📁 Props"]
+    Textures --> UI["📁 UI"]
+    
+    Env --> Brick["📁 Brick"]
+    Brick --> T1["🖼️ T_Brick_BaseColor"]
+    Brick --> T2["🖼️ T_Brick_Normal"]
+    Brick --> T3["🖼️ T_Brick_Roughness"]
+    
+    style Content fill:#667eea,color:#fff
+    style Textures fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Organize textures by category and material type for easy management.</em></p>
+
+                <p>Use a consistent prefix for texture assets. The convention <code>T_</code> (for Texture) makes textures easy to find when searching. For example: <code>T_Brick_BaseColor</code>, <code>T_Brick_Normal</code>, <code>T_Metal_Roughness</code>.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Keep texture sets together! When you have <code>T_Brick_BaseColor</code>, <code>T_Brick_Normal</code>, and <code>T_Brick_Roughness</code>, they should all be in the same folder. This makes it easy to find all textures for a single material and helps with asset management in larger projects.</p>
+                </div>
+            </section>
+            <!-- Section 3: Texture Settings -->
+            <section id="texture-settings" class="lesson-section">
+                <h2>Texture Settings: Compression, Mipmaps, sRGB</h2>
+
+                <p>Once a texture is imported, you can fine-tune how Unreal handles it. Double-click any texture in the Content Browser to open the Texture Editor, where you'll find a wealth of settings. Let's focus on the three most important ones that affect quality and performance.</p>
+
+                <h3>Compression Settings</h3>
+
+                <p>Unreal doesn't store textures in their original format—that would consume enormous amounts of memory. Instead, textures are compressed using GPU-friendly formats that can be decoded quickly during rendering.</p>
+
+                <p>The <strong>Compression Settings</strong> dropdown determines which compression algorithm Unreal uses. Different texture types need different compression:</p>
+
+                <!-- SVG: Compression Settings Guide -->
+                <svg width="100%" height="400" viewBox="0 0 800 400" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="18" font-weight="bold">Compression Settings by Texture Type</text>
+                    
+                    <!-- Default (DXT1/DXT5) -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="230" height="100" rx="8" fill="#4CAF50" opacity="0.15" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="30" rx="8" fill="#4CAF50"/>
+                        <rect x="0" y="22" width="230" height="8" fill="#4CAF50"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Default (DXT1/DXT5)</text>
+                        <text x="15" y="55" fill="#333" font-size="11">Use for: Base Color, Emissive</text>
+                        <text x="15" y="73" fill="#333" font-size="11">• Standard compression</text>
+                        <text x="15" y="91" fill="#333" font-size="11">• DXT5 if alpha channel present</text>
+                    </g>
+                    
+                    <!-- Normalmap -->
+                    <g transform="translate(285, 55)">
+                        <rect x="0" y="0" width="230" height="100" rx="8" fill="#9C27B0" opacity="0.15" stroke="#9C27B0" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="30" rx="8" fill="#9C27B0"/>
+                        <rect x="0" y="22" width="230" height="8" fill="#9C27B0"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Normalmap</text>
+                        <text x="15" y="55" fill="#333" font-size="11">Use for: Normal maps only!</text>
+                        <text x="15" y="73" fill="#333" font-size="11">• BC5 compression (2 channels)</text>
+                        <text x="15" y="91" fill="#333" font-size="11">• Preserves X/Y direction data</text>
+                    </g>
+                    
+                    <!-- Masks -->
+                    <g transform="translate(540, 55)">
+                        <rect x="0" y="0" width="230" height="100" rx="8" fill="#FF9800" opacity="0.15" stroke="#FF9800" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="30" rx="8" fill="#FF9800"/>
+                        <rect x="0" y="22" width="230" height="8" fill="#FF9800"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Masks (Grayscale)</text>
+                        <text x="15" y="55" fill="#333" font-size="11">Use for: Roughness, Metallic, AO</text>
+                        <text x="15" y="73" fill="#333" font-size="11">• Single channel compression</text>
+                        <text x="15" y="91" fill="#333" font-size="11">• Smaller memory footprint</text>
+                    </g>
+                    
+                    <!-- Second Row -->
+                    <!-- BC7 -->
+                    <g transform="translate(30, 175)">
+                        <rect x="0" y="0" width="230" height="100" rx="8" fill="#2196F3" opacity="0.15" stroke="#2196F3" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="30" rx="8" fill="#2196F3"/>
+                        <rect x="0" y="22" width="230" height="8" fill="#2196F3"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">BC7 (High Quality)</text>
+                        <text x="15" y="55" fill="#333" font-size="11">Use for: UI, important close-ups</text>
+                        <text x="15" y="73" fill="#333" font-size="11">• Best quality compression</text>
+                        <text x="15" y="91" fill="#333" font-size="11">• Larger file size, slower encode</text>
+                    </g>
+                    
+                    <!-- HDR -->
+                    <g transform="translate(285, 175)">
+                        <rect x="0" y="0" width="230" height="100" rx="8" fill="#e91e63" opacity="0.15" stroke="#e91e63" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="30" rx="8" fill="#e91e63"/>
+                        <rect x="0" y="22" width="230" height="8" fill="#e91e63"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">HDR Compressed</text>
+                        <text x="15" y="55" fill="#333" font-size="11">Use for: HDRI, cubemaps</text>
+                        <text x="15" y="73" fill="#333" font-size="11">• Preserves HDR range</text>
+                        <text x="15" y="91" fill="#333" font-size="11">• BC6H format</text>
+                    </g>
+                    
+                    <!-- UserInterface2D -->
+                    <g transform="translate(540, 175)">
+                        <rect x="0" y="0" width="230" height="100" rx="8" fill="#00BCD4" opacity="0.15" stroke="#00BCD4" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="30" rx="8" fill="#00BCD4"/>
+                        <rect x="0" y="22" width="230" height="8" fill="#00BCD4"/>
+                        <text x="115" y="22" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">UserInterface2D</text>
+                        <text x="15" y="55" fill="#333" font-size="11">Use for: UI icons, HUD elements</text>
+                        <text x="15" y="73" fill="#333" font-size="11">• Uncompressed or light comp</text>
+                        <text x="15" y="91" fill="#333" font-size="11">• Crisp edges, no artifacts</text>
+                    </g>
+                    
+                    <!-- Warning box -->
+                    <rect x="100" y="300" width="600" height="80" rx="8" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="130" y="330" fill="#856404" font-size="13" font-weight="bold">⚠️ Common Mistake</text>
+                    <text x="130" y="352" fill="#856404" font-size="12">Using "Default" compression on normal maps causes visible artifacts and incorrect</text>
+                    <text x="130" y="370" fill="#856404" font-size="12">lighting. Always use "Normalmap" compression for normal maps!</text>
+                </svg>
+                <p class="caption"><em>Figure: Choose compression based on texture type, not file size concerns.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Channel Packing</h4>
+                    <p>Advanced workflows often "pack" multiple grayscale maps into a single RGB texture—for example, putting Roughness in the Red channel, Metallic in Green, and Ambient Occlusion in Blue. This reduces the number of texture samples and saves memory. When using packed textures, use "Masks" compression and disable sRGB.</p>
+                </div>
+
+                <h3>Mipmaps Explained</h3>
+
+                <p>Imagine looking at a brick wall. Up close, you can see every detail in the texture—individual scratches, mortar lines, color variations. But when that same wall is far away, it's just a tiny cluster of pixels on screen. Does it make sense to sample a 2048×2048 texture for something that's only 20 pixels tall?</p>
+
+                <p><strong>Mipmaps</strong> solve this problem. A mipmap is a pre-calculated, smaller version of the texture. Unreal generates a chain of progressively smaller images: the full resolution, then half size, then quarter size, and so on, down to 1×1 pixel.</p>
+
+                <!-- SVG: Mipmap Chain Visualization -->
+                <svg width="100%" height="250" viewBox="0 0 800 250" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1a1a2e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Mipmap Chain: Pre-calculated LODs for Textures</text>
+                    
+                    <!-- Mip 0 (Full res) -->
+                    <g transform="translate(50, 50)">
+                        <rect x="0" y="0" width="120" height="120" fill="#667eea" stroke="#fff" stroke-width="2"/>
+                        <text x="60" y="65" text-anchor="middle" fill="#fff" font-size="11">2048 × 2048</text>
+                        <text x="60" y="145" text-anchor="middle" fill="#aaa" font-size="10">Mip 0 (Full)</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <text x="190" y="115" fill="#667eea" font-size="20">→</text>
+                    
+                    <!-- Mip 1 -->
+                    <g transform="translate(220, 65)">
+                        <rect x="0" y="0" width="90" height="90" fill="#7c4dff" stroke="#fff" stroke-width="2"/>
+                        <text x="45" y="50" text-anchor="middle" fill="#fff" font-size="10">1024²</text>
+                        <text x="45" y="115" text-anchor="middle" fill="#aaa" font-size="10">Mip 1</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <text x="325" y="115" fill="#667eea" font-size="20">→</text>
+                    
+                    <!-- Mip 2 -->
+                    <g transform="translate(355, 80)">
+                        <rect x="0" y="0" width="60" height="60" fill="#9c27b0" stroke="#fff" stroke-width="2"/>
+                        <text x="30" y="35" text-anchor="middle" fill="#fff" font-size="9">512²</text>
+                        <text x="30" y="85" text-anchor="middle" fill="#aaa" font-size="10">Mip 2</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <text x="430" y="115" fill="#667eea" font-size="20">→</text>
+                    
+                    <!-- Mip 3 -->
+                    <g transform="translate(460, 90)">
+                        <rect x="0" y="0" width="40" height="40" fill="#e91e63" stroke="#fff" stroke-width="2"/>
+                        <text x="20" y="25" text-anchor="middle" fill="#fff" font-size="8">256²</text>
+                        <text x="20" y="65" text-anchor="middle" fill="#aaa" font-size="10">Mip 3</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <text x="515" y="115" fill="#667eea" font-size="20">→</text>
+                    
+                    <!-- Mip 4 -->
+                    <g transform="translate(545, 98)">
+                        <rect x="0" y="0" width="24" height="24" fill="#ff5722" stroke="#fff" stroke-width="2"/>
+                        <text x="12" y="50" text-anchor="middle" fill="#aaa" font-size="10">Mip 4</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <text x="585" y="115" fill="#667eea" font-size="20">→</text>
+                    
+                    <!-- Remaining mips -->
+                    <g transform="translate(615, 103)">
+                        <rect x="0" y="0" width="14" height="14" fill="#ff9800" stroke="#fff" stroke-width="1"/>
+                        <rect x="22" y="3" width="8" height="8" fill="#ffc107" stroke="#fff" stroke-width="1"/>
+                        <rect x="38" y="5" width="4" height="4" fill="#ffeb3b" stroke="#fff" stroke-width="1"/>
+                        <circle cx="52" cy="7" r="2" fill="#fff"/>
+                        <text x="30" y="45" text-anchor="middle" fill="#aaa" font-size="10">...to 1×1</text>
+                    </g>
+                    
+                    <!-- Explanation -->
+                    <rect x="100" y="185" width="600" height="50" rx="5" fill="rgba(255,255,255,0.1)"/>
+                    <text x="400" y="210" text-anchor="middle" fill="#4CAF50" font-size="12">✓ GPU automatically selects appropriate mip level based on distance</text>
+                    <text x="400" y="228" text-anchor="middle" fill="#aaa" font-size="11">Close objects → high-res mips | Distant objects → low-res mips</text>
+                </svg>
+                <p class="caption"><em>Figure: Each mip level is half the resolution of the previous one, forming a complete chain.</em></p>
+
+                <p>When rendering, the GPU automatically selects the appropriate mip level based on how large the texture appears on screen. This provides two major benefits:</p>
+
+                <p><strong>Performance:</strong> Sampling a 64×64 mip is much faster than sampling a 2048×2048 texture when only a few pixels are needed.</p>
+
+                <p><strong>Quality:</strong> Without mipmaps, distant textures exhibit "shimmer" or "crawling" artifacts as the camera moves. Mipmaps eliminate this by pre-filtering the texture data.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Mipmaps only generate correctly for <strong>power-of-two</strong> textures (256, 512, 1024, etc.). A 1000×1000 texture can't create a proper mip chain because you can't halve odd numbers evenly. Unreal will warn you about this and may disable mipmaps for non-power-of-two textures.</p>
+                </div>
+
+                <p>You can control mipmap behavior in the texture settings:</p>
+                <p><strong>Mip Gen Settings:</strong> Choose how mips are generated (Sharpen, Blur, etc.)</p>
+                <p><strong>LOD Bias:</strong> Offset which mip level is selected (negative = sharper, positive = blurrier)</p>
+                <p><strong>Never Stream:</strong> Keep all mip levels in memory (for critical textures)</p>
+
+                <h3>sRGB: The Color Space Setting</h3>
+
+                <p>This single checkbox causes more confusion than almost any other texture setting. Understanding <strong>sRGB</strong> requires knowing a bit about how computers store and display color.</p>
+
+                <p>Human eyes don't perceive brightness linearly—we're more sensitive to differences in dark tones than bright tones. The sRGB color space accounts for this by encoding images with a "gamma curve" that dedicates more precision to shadows.</p>
+
+                <p>The key question is: <strong>Does your texture represent colors that will be displayed, or data that will be calculated?</strong></p>
+
+                <!-- SVG: sRGB Decision Guide -->
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="18" font-weight="bold">sRGB Setting Decision Guide</text>
+                    
+                    <!-- sRGB ON side -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="320" height="240" rx="10" fill="#4CAF50" opacity="0.1" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="40" rx="10" fill="#4CAF50"/>
+                        <rect x="0" y="30" width="320" height="10" fill="#4CAF50"/>
+                        <text x="160" y="27" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">✓ sRGB ENABLED</text>
+                        
+                        <text x="20" y="70" fill="#333" font-size="13" font-weight="bold">Color data (viewed by humans)</text>
+                        
+                        <rect x="20" y="85" width="280" height="35" rx="5" fill="#fff" stroke="#4CAF50"/>
+                        <text x="35" y="108" fill="#333" font-size="11">🎨 Base Color / Diffuse / Albedo</text>
+                        
+                        <rect x="20" y="130" width="280" height="35" rx="5" fill="#fff" stroke="#4CAF50"/>
+                        <text x="35" y="153" fill="#333" font-size="11">✨ Emissive textures</text>
+                        
+                        <rect x="20" y="175" width="280" height="35" rx="5" fill="#fff" stroke="#4CAF50"/>
+                        <text x="35" y="198" fill="#333" font-size="11">🖼️ UI elements and icons</text>
+                        
+                        <text x="160" y="235" text-anchor="middle" fill="#4CAF50" font-size="11">Gamma-corrected for accurate display</text>
+                    </g>
+                    
+                    <!-- sRGB OFF side -->
+                    <g transform="translate(430, 55)">
+                        <rect x="0" y="0" width="320" height="240" rx="10" fill="#2196F3" opacity="0.1" stroke="#2196F3" stroke-width="2"/>
+                        <rect x="0" y="0" width="320" height="40" rx="10" fill="#2196F3"/>
+                        <rect x="0" y="30" width="320" height="10" fill="#2196F3"/>
+                        <text x="160" y="27" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">✗ sRGB DISABLED (Linear)</text>
+                        
+                        <text x="20" y="70" fill="#333" font-size="13" font-weight="bold">Data (used in calculations)</text>
+                        
+                        <rect x="20" y="85" width="280" height="35" rx="5" fill="#fff" stroke="#2196F3"/>
+                        <text x="35" y="108" fill="#333" font-size="11">🗺️ Normal maps</text>
+                        
+                        <rect x="20" y="130" width="280" height="35" rx="5" fill="#fff" stroke="#2196F3"/>
+                        <text x="35" y="153" fill="#333" font-size="11">📊 Roughness, Metallic, AO masks</text>
+                        
+                        <rect x="20" y="175" width="280" height="35" rx="5" fill="#fff" stroke="#2196F3"/>
+                        <text x="35" y="198" fill="#333" font-size="11">📐 Height maps, displacement</text>
+                        
+                        <text x="160" y="235" text-anchor="middle" fill="#2196F3" font-size="11">Linear data for math operations</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Enable sRGB for color textures; disable it for data textures like normal and roughness maps.</em></p>
+
+                <p><strong>sRGB ON:</strong> The texture contains color information meant to be seen by humans. Unreal applies gamma correction during rendering so colors appear correct on your monitor.</p>
+
+                <p><strong>sRGB OFF (Linear):</strong> The texture contains raw data that will be used in mathematical calculations. A roughness value of 0.5 should mean exactly 50%, not a gamma-adjusted value. Leaving sRGB on for data textures causes incorrect shading.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Simple Rule</h4>
+                    <p style="color: white;">If the texture's purpose is to <strong>look like something</strong> (colors, images, emissive glow), enable sRGB.</p>
+                    <p style="color: white;">If the texture's purpose is to <strong>store numbers</strong> (roughness values, normal directions, height data), disable sRGB.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: UV Mapping Fundamentals -->
+            <section id="uv-mapping" class="lesson-section">
+                <h2>UV Mapping Fundamentals</h2>
+
+                <p>You have a 3D cube. You have a 2D texture. How does the engine know which part of the texture goes on which face of the cube? The answer is <strong>UV mapping</strong>—a system of coordinates that tells each point on a 3D surface where to sample from a 2D texture.</p>
+
+                <h3>What Are UVs?</h3>
+
+                <p>UV coordinates are like a treasure map. Every vertex on a 3D mesh has a corresponding location on a 2D grid. The letters "U" and "V" represent the horizontal and vertical axes of this 2D space (we use U and V instead of X and Y to avoid confusion with the 3D world coordinates).</p>
+
+                <!-- SVG: UV Mapping Concept -->
+                <svg width="100%" height="350" viewBox="0 0 800 350" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">UV Mapping: From 2D Texture to 3D Surface</text>
+                    
+                    <!-- 2D Texture Space -->
+                    <g transform="translate(50, 60)">
+                        <text x="110" y="0" text-anchor="middle" fill="#aaa" font-size="13">2D Texture (UV Space)</text>
+                        
+                        <!-- UV grid background -->
+                        <rect x="0" y="15" width="220" height="220" fill="#333"/>
+                        
+                        <!-- Checkerboard pattern -->
+                        <defs>
+                            <pattern id="checker" width="55" height="55" patternUnits="userSpaceOnUse">
+                                <rect width="55" height="55" fill="#555"/>
+                                <rect width="27.5" height="27.5" fill="#777"/>
+                                <rect x="27.5" y="27.5" width="27.5" height="27.5" fill="#777"/>
+                            </pattern>
+                        </defs>
+                        <rect x="0" y="15" width="220" height="220" fill="url(#checker)"/>
+                        
+                        <!-- UV axes -->
+                        <line x1="0" y1="235" x2="220" y2="235" stroke="#e74c3c" stroke-width="2"/>
+                        <line x1="0" y1="15" x2="0" y2="235" stroke="#2ecc71" stroke-width="2"/>
+                        <text x="230" y="240" fill="#e74c3c" font-size="12">U →</text>
+                        <text x="5" y="10" fill="#2ecc71" font-size="12">V ↓</text>
+                        
+                        <!-- Coordinate labels -->
+                        <text x="-5" y="20" fill="#aaa" font-size="10" text-anchor="end">0</text>
+                        <text x="-5" y="237" fill="#aaa" font-size="10" text-anchor="end">1</text>
+                        <text x="0" y="250" fill="#aaa" font-size="10">0</text>
+                        <text x="215" y="250" fill="#aaa" font-size="10">1</text>
+                        
+                        <!-- UV shell overlay -->
+                        <polygon points="20,35 200,35 200,215 20,215" fill="rgba(102,126,234,0.3)" stroke="#667eea" stroke-width="2"/>
+                        <circle cx="20" cy="35" r="5" fill="#667eea"/>
+                        <circle cx="200" cy="35" r="5" fill="#667eea"/>
+                        <circle cx="200" cy="215" r="5" fill="#667eea"/>
+                        <circle cx="20" cy="215" r="5" fill="#667eea"/>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <g transform="translate(310, 170)">
+                        <path d="M 0 0 L 80 0" stroke="#667eea" stroke-width="3" marker-end="url(#arrowhead)"/>
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#667eea"/>
+                            </marker>
+                        </defs>
+                        <text x="40" y="-10" text-anchor="middle" fill="#aaa" font-size="11">maps to</text>
+                    </g>
+                    
+                    <!-- 3D Mesh -->
+                    <g transform="translate(430, 60)">
+                        <text x="160" y="0" text-anchor="middle" fill="#aaa" font-size="13">3D Mesh Surface</text>
+                        
+                        <!-- Pseudo-3D cube face -->
+                        <polygon points="50,80 270,50 320,180 100,220" fill="url(#checker3d)" stroke="#667eea" stroke-width="2"/>
+                        <defs>
+                            <pattern id="checker3d" width="40" height="45" patternUnits="userSpaceOnUse" patternTransform="skewX(-10)">
+                                <rect width="40" height="45" fill="#555"/>
+                                <rect width="20" height="22.5" fill="#777"/>
+                                <rect x="20" y="22.5" width="20" height="22.5" fill="#777"/>
+                            </pattern>
+                        </defs>
+                        
+                        <!-- Vertex markers -->
+                        <circle cx="50" cy="80" r="5" fill="#667eea"/>
+                        <circle cx="270" cy="50" r="5" fill="#667eea"/>
+                        <circle cx="320" cy="180" r="5" fill="#667eea"/>
+                        <circle cx="100" cy="220" r="5" fill="#667eea"/>
+                        
+                        <!-- Labels -->
+                        <text x="35" y="75" fill="#667eea" font-size="10">A</text>
+                        <text x="280" y="48" fill="#667eea" font-size="10">B</text>
+                        <text x="330" y="185" fill="#667eea" font-size="10">C</text>
+                        <text x="85" y="230" fill="#667eea" font-size="10">D</text>
+                    </g>
+                    
+                    <!-- Explanation box -->
+                    <rect x="50" y="295" width="700" height="40" rx="5" fill="rgba(102,126,234,0.1)" stroke="#667eea"/>
+                    <text x="400" y="320" text-anchor="middle" fill="#fff" font-size="12">Each vertex (A, B, C, D) has UV coordinates that specify where to sample the texture</text>
+                </svg>
+                <p class="caption"><em>Figure: UV coordinates map 2D texture pixels to 3D surface points.</em></p>
+
+                <p>UV coordinates typically range from 0 to 1, where (0,0) is one corner of the texture and (1,1) is the opposite corner. When a mesh is textured, each vertex stores its UV position, and the engine interpolates between vertices to determine the color at every pixel.</p>
+
+                <h3>UV Unwrapping: The Art of Flattening</h3>
+
+                <p>Creating good UVs is called "unwrapping"—you're essentially flattening a 3D shape into 2D, like peeling an orange and laying the peel flat. This is typically done in 3D modeling software (Blender, Maya, 3ds Max) before importing the mesh into Unreal.</p>
+
+                <p>A well-unwrapped mesh has:</p>
+                <p><strong>Minimal stretching:</strong> UV islands maintain proportional sizes relative to the 3D surface</p>
+                <p><strong>Efficient use of space:</strong> UV islands are packed tightly to maximize texture resolution</p>
+                <p><strong>Logical seams:</strong> UV cuts are hidden in natural edges or less-visible areas</p>
+
+                <!-- Mermaid: UV Workflow -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Modeling["3D Software"]
+        A["Create Mesh"] --> B["UV Unwrap"]
+        B --> C["Export FBX"]
+    end
+    
+    subgraph Unreal["Unreal Engine"]
+        D["Import Mesh\n(with UVs)"] --> E["Apply Material\n(with Textures)"]
+        E --> F["Texture appears\ncorrectly on surface"]
+    end
+    
+    C --> D
+    
+    style B fill:#667eea,color:#fff
+    style E fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: UV unwrapping happens in your modeling software before import.</em></p>
+
+                <h3>Multiple UV Channels</h3>
+
+                <p>A mesh can have multiple sets of UV coordinates, stored in different "channels." This is useful because different purposes have different requirements:</p>
+
+                <p><strong>UV Channel 0:</strong> Typically used for material textures (base color, normal, roughness). Often has overlapping islands—multiple faces can share the same texture area if they should look identical.</p>
+
+                <p><strong>UV Channel 1:</strong> Often used for lightmaps. Lightmap UVs must be non-overlapping because each surface point needs unique lighting data.</p>
+
+                <p>Unreal automatically generates lightmap UVs on import if needed, but the results aren't always optimal. For best quality, create dedicated lightmap UVs in your modeling software.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 For This Course</h4>
+                    <p>You won't need to create UVs yourself—Unreal's primitive shapes and Starter Content meshes come with proper UVs already. But understanding how UVs work helps you troubleshoot issues like stretched textures or incorrect tiling. If a texture looks distorted, the mesh's UVs are usually the cause.</p>
+                </div>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>If you see textures appearing "stretched," "squished," or mapped incorrectly, check these common causes:</p>
+                    <p>• The mesh has bad or missing UV coordinates</p>
+                    <p>• The material is using the wrong UV channel</p>
+                    <p>• The texture's tiling values are incorrect</p>
+                    <p>• Scale was applied incorrectly during modeling</p>
+                </div>
+            </section>
+            <!-- Section 5: Texture Coordinates and Tiling -->
+            <section id="texture-coordinates" class="lesson-section">
+                <h2>Texture Coordinates and Tiling</h2>
+
+                <p>Now that you understand UV mapping conceptually, let's see how to control it in the Material Editor. The <strong>Texture Coordinate</strong> node (often called "TexCoord") is your primary tool for manipulating how textures are applied to surfaces.</p>
+
+                <h3>The Texture Coordinate Node</h3>
+
+                <p>By default, when you create a Texture Sample node, it automatically uses the mesh's UV coordinates from channel 0. But what if you want to tile the texture, offset it, or use a different UV channel? That's where the Texture Coordinate node comes in.</p>
+
+                <p>To add one, right-click in the Material Editor and search for "TextureCoordinate" (or press <strong>U</strong> and click). Connect its output to the <strong>UVs</strong> input of a Texture Sample node.</p>
+
+                <!-- SVG: TexCoord Node Connection -->
+                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Texture Coordinate → Texture Sample Connection</text>
+                    
+                    <!-- Grid background -->
+                    <defs>
+                        <pattern id="tcGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect x="10" y="40" width="680" height="150" fill="url(#tcGrid)"/>
+                    
+                    <!-- TexCoord Node -->
+                    <g transform="translate(80, 70)">
+                        <rect x="0" y="0" width="150" height="70" rx="5" fill="#3d3d3d" stroke="#888" stroke-width="2"/>
+                        <rect x="0" y="0" width="150" height="22" rx="5" fill="#555"/>
+                        <rect x="0" y="17" width="150" height="5" fill="#555"/>
+                        <text x="75" y="16" text-anchor="middle" fill="#fff" font-size="10">TextureCoordinate</text>
+                        <text x="20" y="42" fill="#aaa" font-size="9">UTiling: 1.0</text>
+                        <text x="20" y="56" fill="#aaa" font-size="9">VTiling: 1.0</text>
+                        <circle cx="150" cy="45" r="5" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Connection wire -->
+                    <path d="M 230 115 C 300 115 320 100 390 100" stroke="#f1c40f" stroke-width="2" fill="none"/>
+                    
+                    <!-- Texture Sample Node -->
+                    <g transform="translate(390, 55)">
+                        <rect x="0" y="0" width="180" height="100" rx="5" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
+                        <rect x="0" y="0" width="180" height="22" rx="5" fill="#667eea"/>
+                        <rect x="0" y="17" width="180" height="5" fill="#667eea"/>
+                        <text x="90" y="16" text-anchor="middle" fill="#fff" font-size="10">Texture Sample</text>
+                        
+                        <!-- Texture preview -->
+                        <rect x="10" y="30" width="50" height="50" fill="url(#brickPreview)"/>
+                        <defs>
+                            <pattern id="brickPreview" width="25" height="12" patternUnits="userSpaceOnUse">
+                                <rect width="25" height="12" fill="#8B4513"/>
+                                <rect x="0" y="0" width="12" height="5" fill="#a0522d" stroke="#5d3a1a" stroke-width="0.5"/>
+                                <rect x="13" y="0" width="12" height="5" fill="#a0522d" stroke="#5d3a1a" stroke-width="0.5"/>
+                                <rect x="6" y="6" width="12" height="5" fill="#a0522d" stroke="#5d3a1a" stroke-width="0.5"/>
+                            </pattern>
+                        </defs>
+                        
+                        <!-- Input pin for UVs -->
+                        <circle cx="0" cy="45" r="5" fill="#f1c40f" stroke="#333" stroke-width="2"/>
+                        <text x="10" y="48" fill="#f1c40f" font-size="9">UVs</text>
+                        
+                        <!-- Output pins -->
+                        <circle cx="180" cy="40" r="5" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                        <text x="165" y="43" text-anchor="end" fill="#aaa" font-size="8">RGB</text>
+                        <circle cx="180" cy="58" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="165" y="61" text-anchor="end" fill="#aaa" font-size="8">R</text>
+                        <circle cx="180" cy="76" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="165" y="79" text-anchor="end" fill="#aaa" font-size="8">A</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Connect a Texture Coordinate node to the UVs input to control texture mapping.</em></p>
+
+                <h3>Tiling: Repeating Textures</h3>
+
+                <p>The most common use for Texture Coordinates is <strong>tiling</strong>—repeating a texture across a surface. Imagine you have a 1-meter brick texture, but your wall is 10 meters wide. Without tiling, that brick texture would be stretched to 10× its intended size, making each brick look enormous.</p>
+
+                <p>By setting the <strong>UTiling</strong> and <strong>VTiling</strong> values in the Texture Coordinate node, you control how many times the texture repeats:</p>
+
+                <p><strong>UTiling = 1, VTiling = 1:</strong> No tiling (default). The texture maps once across the UV space.</p>
+                <p><strong>UTiling = 4, VTiling = 4:</strong> The texture repeats 4 times horizontally and 4 times vertically (16 total tiles).</p>
+                <p><strong>UTiling = 2, VTiling = 1:</strong> The texture repeats twice horizontally but only once vertically.</p>
+
+                <!-- SVG: Tiling Visualization -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="25" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">Tiling Values Control Texture Repetition</text>
+                    
+                    <!-- Tile pattern definitions -->
+                    <defs>
+                        <pattern id="tile1x1" width="140" height="140" patternUnits="userSpaceOnUse">
+                            <rect width="140" height="140" fill="#c9a86c"/>
+                            <rect x="5" y="5" width="60" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="1"/>
+                            <rect x="75" y="5" width="60" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="1"/>
+                            <rect x="35" y="38" width="60" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="1"/>
+                            <rect x="5" y="71" width="60" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="1"/>
+                            <rect x="75" y="71" width="60" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="1"/>
+                            <rect x="35" y="104" width="60" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="1"/>
+                        </pattern>
+                        <pattern id="tile2x2" width="70" height="70" patternUnits="userSpaceOnUse">
+                            <rect width="70" height="70" fill="#c9a86c"/>
+                            <rect x="2" y="2" width="30" height="14" fill="#a67c52" stroke="#8b6914" stroke-width="0.5"/>
+                            <rect x="37" y="2" width="30" height="14" fill="#a67c52" stroke="#8b6914" stroke-width="0.5"/>
+                            <rect x="17" y="19" width="30" height="14" fill="#a67c52" stroke="#8b6914" stroke-width="0.5"/>
+                            <rect x="2" y="36" width="30" height="14" fill="#a67c52" stroke="#8b6914" stroke-width="0.5"/>
+                            <rect x="37" y="36" width="30" height="14" fill="#a67c52" stroke="#8b6914" stroke-width="0.5"/>
+                            <rect x="17" y="53" width="30" height="14" fill="#a67c52" stroke="#8b6914" stroke-width="0.5"/>
+                        </pattern>
+                        <pattern id="tile4x4" width="35" height="35" patternUnits="userSpaceOnUse">
+                            <rect width="35" height="35" fill="#c9a86c"/>
+                            <rect x="1" y="1" width="15" height="7" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                            <rect x="18" y="1" width="15" height="7" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                            <rect x="8" y="10" width="15" height="7" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                            <rect x="1" y="18" width="15" height="7" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                            <rect x="18" y="18" width="15" height="7" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                            <rect x="8" y="27" width="15" height="7" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                        </pattern>
+                    </defs>
+                    
+                    <!-- 1x1 Tiling -->
+                    <g transform="translate(60, 50)">
+                        <rect x="0" y="0" width="140" height="140" fill="url(#tile1x1)" stroke="#333" stroke-width="2"/>
+                        <text x="70" y="165" text-anchor="middle" fill="#333" font-size="13" font-weight="bold">1 × 1</text>
+                        <text x="70" y="182" text-anchor="middle" fill="#666" font-size="11">No tiling</text>
+                        <text x="70" y="198" text-anchor="middle" fill="#888" font-size="10">(default)</text>
+                    </g>
+                    
+                    <!-- 2x2 Tiling -->
+                    <g transform="translate(260, 50)">
+                        <rect x="0" y="0" width="140" height="140" fill="url(#tile2x2)" stroke="#333" stroke-width="2"/>
+                        <!-- Grid lines showing tile boundaries -->
+                        <line x1="70" y1="0" x2="70" y2="140" stroke="#667eea" stroke-width="1" stroke-dasharray="4,2"/>
+                        <line x1="0" y1="70" x2="140" y2="70" stroke="#667eea" stroke-width="1" stroke-dasharray="4,2"/>
+                        <text x="70" y="165" text-anchor="middle" fill="#333" font-size="13" font-weight="bold">2 × 2</text>
+                        <text x="70" y="182" text-anchor="middle" fill="#666" font-size="11">4 tiles total</text>
+                    </g>
+                    
+                    <!-- 4x4 Tiling -->
+                    <g transform="translate(460, 50)">
+                        <rect x="0" y="0" width="140" height="140" fill="url(#tile4x4)" stroke="#333" stroke-width="2"/>
+                        <text x="70" y="165" text-anchor="middle" fill="#333" font-size="13" font-weight="bold">4 × 4</text>
+                        <text x="70" y="182" text-anchor="middle" fill="#666" font-size="11">16 tiles total</text>
+                    </g>
+                    
+                    <!-- Asymmetric Tiling -->
+                    <g transform="translate(660, 50)">
+                        <defs>
+                            <pattern id="tile4x1" width="35" height="140" patternUnits="userSpaceOnUse">
+                                <rect width="35" height="140" fill="#c9a86c"/>
+                                <rect x="1" y="5" width="15" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                                <rect x="18" y="5" width="15" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                                <rect x="8" y="38" width="15" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                                <rect x="1" y="71" width="15" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                                <rect x="18" y="71" width="15" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                                <rect x="8" y="104" width="15" height="28" fill="#a67c52" stroke="#8b6914" stroke-width="0.3"/>
+                            </pattern>
+                        </defs>
+                        <rect x="0" y="0" width="80" height="140" fill="url(#tile4x1)" stroke="#333" stroke-width="2"/>
+                        <text x="40" y="165" text-anchor="middle" fill="#333" font-size="13" font-weight="bold">4 × 1</text>
+                        <text x="40" y="182" text-anchor="middle" fill="#666" font-size="11">Horizontal</text>
+                        <text x="40" y="198" text-anchor="middle" fill="#888" font-size="10">stretch fix</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Increasing tiling values makes textures repeat more times across the surface.</em></p>
+
+                <h3>Dynamic Tiling with Math</h3>
+
+                <p>Sometimes you need tiling that adjusts based on object size or other factors. Instead of hardcoding values in the Texture Coordinate node, you can multiply the UV output by a parameter.</p>
+
+                <!-- Mermaid: Dynamic Tiling Setup -->
+                <pre class="mermaid">
+flowchart LR
+    TC["TexCoord\n(1,1)"] --> MUL["Multiply"]
+    PARAM["Scalar Parameter\n'Tiling_Amount'\nDefault: 2.0"] --> MUL
+    MUL --> TS["Texture Sample\nUVs input"]
+    TS --> OUT["To Base Color"]
+    
+    style PARAM fill:#4CAF50,color:#fff
+    style MUL fill:#FF9800,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Multiply TexCoord by a parameter for adjustable tiling in Material Instances.</em></p>
+
+                <p>This setup lets you expose a "Tiling_Amount" parameter that can be adjusted per Material Instance—perfect for reusing the same material on different-sized surfaces.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>For world-aligned textures (textures that should tile based on world position rather than UV coordinates), use the <strong>WorldPosition</strong> node divided by your desired tile size. This makes textures tile consistently regardless of the mesh's UVs—useful for terrain or large architectural surfaces.</p>
+                </div>
+
+                <h3>Texture Offset</h3>
+
+                <p>Besides tiling, you might want to <strong>offset</strong> (shift) a texture. This is done by adding a value to the UV coordinates before sampling:</p>
+
+                <p><strong>Adding to U:</strong> Shifts the texture horizontally</p>
+                <p><strong>Adding to V:</strong> Shifts the texture vertically</p>
+
+                <p>Create an <strong>Add</strong> node, connect the Texture Coordinate output to one input, and a <strong>Constant2Vector</strong> (or Vector Parameter for adjustability) to the other. The result goes to the Texture Sample's UVs.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Common Use Cases for UV Manipulation</h4>
+                    <p><strong>Tiling:</strong> Repeating floor tiles, brick walls, fabric patterns</p>
+                    <p><strong>Offset:</strong> Animating textures (scrolling water, conveyor belts), aligning patterns</p>
+                    <p><strong>Rotation:</strong> Matching texture direction to surface features (use a Custom Rotator node)</p>
+                    <p><strong>Channel switching:</strong> Using lightmap UVs (Channel 1) for certain effects</p>
+                </div>
+
+                <h3>Selecting UV Channels</h3>
+
+                <p>If your mesh has multiple UV sets, you can choose which one to use. In the Texture Coordinate node's Details panel, find the <strong>Coordinate Index</strong> property:</p>
+
+                <p><strong>0:</strong> Primary UVs (default, used for material textures)</p>
+                <p><strong>1:</strong> Secondary UVs (often lightmap UVs)</p>
+                <p><strong>2, 3, etc.:</strong> Additional UV channels if the mesh has them</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>If you select a UV channel that doesn't exist on the mesh, the texture will appear black or behave unexpectedly. Most simple meshes only have channels 0 and 1. Check your mesh's UV channels in the Static Mesh Editor if you're unsure.</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Hands-On Exercise -->
+            <section id="hands-on" class="lesson-section">
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h2>🏋️ Hands-On: Apply Textures to a Material</h2>
+                    
+                    <p>Let's create a textured material using Unreal's Starter Content. You'll import texture files (or use existing ones), connect them properly in the Material Editor, and control tiling with a parameter.</p>
+
+                    <h3>What You'll Create</h3>
+                    <p>A complete PBR material with Base Color, Normal, and Roughness textures, plus adjustable tiling.</p>
+
+                    <p><strong>Estimated Time:</strong> 20-25 minutes</p>
+                </div>
+
+                <h3>Step 1: Enable Starter Content (if needed)</h3>
+
+                <p>If you created your project without Starter Content, you can add it now. Go to <strong>Edit → Plugins</strong>, search for "Starter Content," and enable it. Alternatively, create a new project with Starter Content included.</p>
+
+                <p>The Starter Content includes several texture sets we can use. Navigate to <code>Content/StarterContent/Textures</code> in the Content Browser.</p>
+
+                <details class="card">
+                    <summary><strong>🔍 Hint: Don't have Starter Content?</strong></summary>
+                    <p>You can also download free textures from sites like <a href="https://ambientcg.com" target="_blank">ambientCG</a>, <a href="https://polyhaven.com" target="_blank">Poly Haven</a>, or <a href="https://quixel.com/megascans" target="_blank">Quixel Megascans</a> (free with Unreal Engine). Import the textures to your project and use them instead.</p>
+                </details>
+
+                <h3>Step 2: Create a New Material</h3>
+
+                <p>In your Materials folder (or create one), right-click and select <strong>Material</strong>. Name it <code>M_TexturedSurface</code>. Double-click to open the Material Editor.</p>
+
+                <h3>Step 3: Add Texture Sample Nodes</h3>
+
+                <p>We need three Texture Sample nodes—one each for Base Color, Normal, and Roughness.</p>
+
+                <p>Right-click on the canvas and search for "TextureSample" (or hold <strong>T</strong> and click). Create three of these nodes and arrange them vertically on the left side of your canvas.</p>
+
+                <p>For each Texture Sample node, click on it and look at the Details panel. Click the dropdown next to <strong>Texture</strong> and select:</p>
+
+                <ul>
+                    <li><strong>Top node:</strong> A base color texture (e.g., <code>T_Brick_Clay_New_D</code> or any "_D" or "_BaseColor" texture)</li>
+                    <li><strong>Middle node:</strong> A normal map (e.g., <code>T_Brick_Clay_New_N</code> or any "_N" or "_Normal" texture)</li>
+                    <li><strong>Bottom node:</strong> A roughness texture (e.g., <code>T_Brick_Clay_New_R</code> or any "_R" texture)</li>
+                </ul>
+
+                <details class="card">
+                    <summary><strong>🔍 Hint: Finding matching textures</strong></summary>
+                    <p>Texture sets usually share a common base name with different suffixes. For example: <code>T_Brick_Clay_New_D</code> (Diffuse/Color), <code>T_Brick_Clay_New_N</code> (Normal), <code>T_Brick_Clay_New_R</code> (Roughness). Look for textures with matching prefixes.</p>
+                </details>
+
+                <h3>Step 4: Connect to Material Outputs</h3>
+
+                <p>Now wire up your textures to the correct material inputs:</p>
+
+                <ul>
+                    <li><strong>Base Color texture:</strong> Connect its <strong>RGB</strong> output to the <strong>Base Color</strong> input on the Main Material Node</li>
+                    <li><strong>Normal texture:</strong> Connect its <strong>RGB</strong> output to the <strong>Normal</strong> input</li>
+                    <li><strong>Roughness texture:</strong> Connect its <strong>R</strong> (red channel) output to the <strong>Roughness</strong> input</li>
+                </ul>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Important: Normal Map Sampler Type</h4>
+                    <p>When you assign a normal map texture to a Texture Sample node, Unreal should automatically detect it and set the correct Sampler Type. If the preview looks wrong (flat or has strange colors), select the normal map's Texture Sample node and in the Details panel, change <strong>Sampler Type</strong> to <strong>Normal</strong>.</p>
+                </div>
+
+                <h3>Step 5: Add Tiling Control</h3>
+
+                <p>Let's make the tiling adjustable. Create a <strong>Texture Coordinate</strong> node (press <strong>U</strong> and click).</p>
+
+                <p>Create a <strong>Scalar Parameter</strong> node (press <strong>S</strong> and click). Name it <code>Tiling</code> and set the default value to <code>2.0</code>.</p>
+
+                <p>Create a <strong>Multiply</strong> node (press <strong>M</strong> and click). Connect:</p>
+                <ul>
+                    <li>Texture Coordinate output → Multiply input A</li>
+                    <li>Tiling parameter output → Multiply input B</li>
+                </ul>
+
+                <p>Now connect the <strong>Multiply output</strong> to the <strong>UVs input</strong> of ALL THREE Texture Sample nodes. You can drag a wire from Multiply, then hold <strong>Ctrl</strong> and click on each Texture Sample's UVs pin to connect multiple wires from one output.</p>
+
+                <!-- SVG: Expected Final Graph -->
+                <svg width="100%" height="380" viewBox="0 0 800 380" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Complete Material Graph</text>
+                    
+                    <!-- Grid -->
+                    <defs>
+                        <pattern id="finalGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect x="10" y="40" width="780" height="330" fill="url(#finalGrid)"/>
+                    
+                    <!-- TexCoord Node -->
+                    <g transform="translate(30, 140)">
+                        <rect x="0" y="0" width="90" height="45" rx="4" fill="#3d3d3d" stroke="#888" stroke-width="1"/>
+                        <rect x="0" y="0" width="90" height="16" rx="4" fill="#555"/>
+                        <text x="45" y="12" text-anchor="middle" fill="#fff" font-size="8">TexCoord</text>
+                        <circle cx="90" cy="30" r="4" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Tiling Parameter -->
+                    <g transform="translate(30, 200)">
+                        <rect x="0" y="0" width="90" height="45" rx="4" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="90" height="16" rx="4" fill="#4CAF50"/>
+                        <text x="45" y="12" text-anchor="middle" fill="#fff" font-size="8">Tiling: 2.0</text>
+                        <circle cx="90" cy="30" r="4" fill="#888" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Multiply Node -->
+                    <g transform="translate(150, 160)">
+                        <rect x="0" y="0" width="70" height="50" rx="4" fill="#3d3d3d" stroke="#FF9800" stroke-width="2"/>
+                        <rect x="0" y="0" width="70" height="16" rx="4" fill="#FF9800"/>
+                        <text x="35" y="12" text-anchor="middle" fill="#fff" font-size="8">Multiply</text>
+                        <circle cx="0" cy="28" r="4" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                        <circle cx="0" cy="42" r="4" fill="#888" stroke="#333" stroke-width="1"/>
+                        <circle cx="70" cy="35" r="4" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Wires to Multiply -->
+                    <path d="M 120 170 L 150 188" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    <path d="M 120 230 L 150 202" stroke="#888" stroke-width="1.5" fill="none"/>
+                    
+                    <!-- Base Color Texture Sample -->
+                    <g transform="translate(280, 60)">
+                        <rect x="0" y="0" width="140" height="70" rx="4" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
+                        <rect x="0" y="0" width="140" height="16" rx="4" fill="#667eea"/>
+                        <text x="70" y="12" text-anchor="middle" fill="#fff" font-size="8">T_Brick_BaseColor</text>
+                        <rect x="8" y="22" width="40" height="40" fill="#a0522d"/>
+                        <circle cx="0" cy="45" r="4" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                        <text x="8" y="48" fill="#aaa" font-size="7">UVs</text>
+                        <circle cx="140" cy="35" r="4" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                        <text x="130" y="38" text-anchor="end" fill="#aaa" font-size="7">RGB</text>
+                    </g>
+                    
+                    <!-- Normal Texture Sample -->
+                    <g transform="translate(280, 155)">
+                        <rect x="0" y="0" width="140" height="70" rx="4" fill="#3d3d3d" stroke="#9C27B0" stroke-width="2"/>
+                        <rect x="0" y="0" width="140" height="16" rx="4" fill="#9C27B0"/>
+                        <text x="70" y="12" text-anchor="middle" fill="#fff" font-size="8">T_Brick_Normal</text>
+                        <rect x="8" y="22" width="40" height="40" fill="#8080ff"/>
+                        <circle cx="0" cy="45" r="4" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                        <text x="8" y="48" fill="#aaa" font-size="7">UVs</text>
+                        <circle cx="140" cy="35" r="4" fill="#9b59b6" stroke="#333" stroke-width="1"/>
+                        <text x="130" y="38" text-anchor="end" fill="#aaa" font-size="7">RGB</text>
+                    </g>
+                    
+                    <!-- Roughness Texture Sample -->
+                    <g transform="translate(280, 250)">
+                        <rect x="0" y="0" width="140" height="70" rx="4" fill="#3d3d3d" stroke="#888" stroke-width="2"/>
+                        <rect x="0" y="0" width="140" height="16" rx="4" fill="#555"/>
+                        <text x="70" y="12" text-anchor="middle" fill="#fff" font-size="8">T_Brick_Roughness</text>
+                        <rect x="8" y="22" width="40" height="40" fill="#666"/>
+                        <circle cx="0" cy="45" r="4" fill="#f1c40f" stroke="#333" stroke-width="1"/>
+                        <text x="8" y="48" fill="#aaa" font-size="7">UVs</text>
+                        <circle cx="140" cy="45" r="4" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="130" y="48" text-anchor="end" fill="#aaa" font-size="7">R</text>
+                    </g>
+                    
+                    <!-- UV Wires from Multiply to Texture Samples -->
+                    <path d="M 220 195 C 250 195 250 105 280 105" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    <path d="M 220 195 L 280 200" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    <path d="M 220 195 C 250 195 250 295 280 295" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+                    
+                    <!-- Main Material Node -->
+                    <g transform="translate(530, 70)">
+                        <rect x="0" y="0" width="200" height="240" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
+                        <rect x="0" y="0" width="200" height="22" rx="5" fill="#4CAF50"/>
+                        <text x="100" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">M_TexturedSurface</text>
+                        
+                        <circle cx="0" cy="50" r="5" fill="#f1c40f" stroke="#333" stroke-width="2"/>
+                        <text x="15" y="53" fill="#f1c40f" font-size="9">Base Color</text>
+                        
+                        <circle cx="0" cy="85" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="88" fill="#666" font-size="9">Metallic</text>
+                        
+                        <circle cx="0" cy="120" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="123" fill="#666" font-size="9">Specular</text>
+                        
+                        <circle cx="0" cy="155" r="5" fill="#888" stroke="#333" stroke-width="2"/>
+                        <text x="15" y="158" fill="#aaa" font-size="9">Roughness</text>
+                        
+                        <circle cx="0" cy="190" r="5" fill="#888" stroke="#333" stroke-width="1"/>
+                        <text x="15" y="193" fill="#666" font-size="9">Emissive</text>
+                        
+                        <circle cx="0" cy="225" r="5" fill="#9b59b6" stroke="#333" stroke-width="2"/>
+                        <text x="15" y="228" fill="#9b59b6" font-size="9">Normal</text>
+                    </g>
+                    
+                    <!-- Output wires -->
+                    <path d="M 420 95 C 470 95 480 120 530 120" stroke="#f1c40f" stroke-width="2" fill="none"/>
+                    <path d="M 420 190 C 470 190 480 295 530 295" stroke="#9b59b6" stroke-width="2" fill="none"/>
+                    <path d="M 420 295 C 470 295 480 225 530 225" stroke="#888" stroke-width="2" fill="none"/>
+                </svg>
+                <p class="caption"><em>Figure: The complete textured material with tiling control. All three textures share the same UV manipulation.</em></p>
+
+                <h3>Step 6: Apply and Test</h3>
+
+                <p>Click <strong>Apply</strong>, then <strong>Save</strong>. Close the Material Editor.</p>
+
+                <p>In your level, add a primitive shape (cube or plane works well). Drag your <code>M_TexturedSurface</code> material onto it.</p>
+
+                <p>Now create a Material Instance: right-click the material → <strong>Create Material Instance</strong> → name it <code>MI_TexturedSurface_Tiled</code>. Open the instance and adjust the <strong>Tiling</strong> parameter. Watch how the texture repetition changes in real-time!</p>
+
+                <details class="card">
+                    <summary><strong>✅ Success Check: How do you know it worked?</strong></summary>
+                    <div style="padding: 1rem;">
+                        <p>Your material is working correctly if:</p>
+                        <ul>
+                            <li>The surface shows the color texture (not just gray)</li>
+                            <li>Light interacts with the surface detail (you can see bumps from the normal map)</li>
+                            <li>The roughness varies across the surface (some areas shinier than others)</li>
+                            <li>Changing the Tiling parameter in the instance makes the texture repeat more or fewer times</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>🎉 Excellent Work!</h4>
+                    <p>You've created a fully-textured PBR material with adjustable tiling! This workflow—Base Color + Normal + Roughness with shared UV controls—is the foundation for virtually every surface material in professional games.</p>
+                </div>
+            </section>
+
+            <!-- Section 7: Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>In this lesson, you've learned how to work with textures in Unreal Engine—from choosing the right file format to configuring import settings to applying textures in materials. Here's what we covered:</p>
+
+                <p><strong>Texture formats matter.</strong> PNG and TGA are your best choices for source files because they're lossless. Start with the highest quality source, and let Unreal handle the compression for runtime.</p>
+
+                <p><strong>Compression settings depend on texture type.</strong> Use "Default" for color textures, "Normalmap" for normal maps, and "Masks" for grayscale data like roughness. Getting this wrong causes visible artifacts.</p>
+
+                <p><strong>Mipmaps improve both performance and quality</strong> by providing pre-calculated smaller versions of textures for distant surfaces. They require power-of-two dimensions to generate correctly.</p>
+
+                <p><strong>sRGB is for color, Linear is for data.</strong> Enable sRGB for textures humans will see (base color, emissive). Disable it for textures that store numerical data (normal, roughness, metallic).</p>
+
+                <p><strong>UV coordinates map 2D textures to 3D surfaces.</strong> Understanding UVs helps you troubleshoot stretched or incorrectly mapped textures.</p>
+
+                <p><strong>Texture Coordinates control tiling and offset.</strong> Use the TexCoord node with Multiply to create adjustable tiling parameters in your materials.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>🔑 Key Takeaways</h3>
+                    <ul>
+                        <li>Use PNG or TGA for source textures (lossless quality)</li>
+                        <li>Power-of-two dimensions (512, 1024, 2048) for proper mipmaps</li>
+                        <li>Match compression settings to texture type</li>
+                        <li>sRGB ON for colors, OFF for data (normal, roughness, etc.)</li>
+                        <li>UV coordinates range 0-1, defined in modeling software</li>
+                        <li>Texture Coordinate × Scalar Parameter = adjustable tiling</li>
+                        <li>All PBR textures in a material should share the same UV setup</li>
+                    </ul>
+                </div>
+
+                <h3>What's Next?</h3>
+
+                <p>In the next lesson, <strong>Building Complex Materials</strong>, you'll learn to combine multiple textures and effects using math nodes. We'll explore Lerp (blend) operations, texture masking, and creating reusable Material Functions—techniques that let you build sophisticated materials like weathered surfaces, terrain blends, and dynamic effects.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m03_l01_material_fundamentals.html" class="btn">← Previous: Material Fundamentals</a>
+                <a href="index.html" class="btn">Home</a>
+                <a href="m03_l03_building_complex_materials.html" class="btn">Next: Building Complex Materials →</a>
+            </nav>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Educational content for aspiring game developers.</p>
+            <p>
+                <a href="index.html">Home</a> |
+                <a href="index.html#modules">All Modules</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+</body>
+</html>

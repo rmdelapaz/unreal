@@ -110,6 +110,49 @@
                 
                 <p>A typical project contains:</p>
                 
+                <!-- SVG: What's Inside a Project -->
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">What's Inside an Unreal Project?</text>
+                    
+                    <!-- Central Project Box -->
+                    <rect x="300" y="50" width="200" height="70" rx="10" fill="#667eea" stroke="#5c6bc0" stroke-width="3"/>
+                    <text x="400" y="80" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">📁 Your Project</text>
+                    <text x="400" y="100" text-anchor="middle" fill="#c5cae9" font-size="10">MyFirstProject/</text>
+                    
+                    <!-- Content -->
+                    <line x1="350" y1="120" x2="130" y2="170" stroke="#4CAF50" stroke-width="2"/>
+                    <rect x="30" y="160" width="200" height="70" rx="8" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+                    <text x="130" y="185" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🎨 Content</text>
+                    <text x="130" y="205" text-anchor="middle" fill="#c8e6c9" font-size="9">Models, Textures, Materials</text>
+                    <text x="130" y="218" text-anchor="middle" fill="#c8e6c9" font-size="9">Sounds, Blueprints</text>
+                    
+                    <!-- Levels -->
+                    <line x1="400" y1="120" x2="400" y2="170" stroke="#2196F3" stroke-width="2"/>
+                    <rect x="300" y="170" width="200" height="60" rx="8" fill="#2196F3" stroke="#1565c0" stroke-width="2"/>
+                    <text x="400" y="195" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🗺️ Levels (Maps)</text>
+                    <text x="400" y="215" text-anchor="middle" fill="#bbdefb" font-size="9">3D environments &amp; scenes</text>
+                    
+                    <!-- Code -->
+                    <line x1="450" y1="120" x2="670" y2="170" stroke="#FF9800" stroke-width="2"/>
+                    <rect x="570" y="160" width="200" height="70" rx="8" fill="#FF9800" stroke="#ef6c00" stroke-width="2"/>
+                    <text x="670" y="185" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">💻 Code</text>
+                    <text x="670" y="205" text-anchor="middle" fill="#ffe0b2" font-size="9">Blueprints (visual)</text>
+                    <text x="670" y="218" text-anchor="middle" fill="#ffe0b2" font-size="9">C++ (text-based)</text>
+                    
+                    <!-- Config -->
+                    <line x1="130" y1="230" x2="130" y2="260" stroke="#9C27B0" stroke-width="2"/>
+                    <rect x="30" y="250" width="200" height="55" rx="8" fill="#9C27B0" stroke="#7b1fa2" stroke-width="2"/>
+                    <text x="130" y="275" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">⚙️ Configuration</text>
+                    <text x="130" y="293" text-anchor="middle" fill="#e1bee7" font-size="9">Settings, Input, Rules</text>
+                    
+                    <!-- Build Files -->
+                    <line x1="670" y1="230" x2="670" y2="260" stroke="#f44336" stroke-width="2"/>
+                    <rect x="570" y="250" width="200" height="55" rx="8" fill="#f44336" stroke="#c62828" stroke-width="2"/>
+                    <text x="670" y="275" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">📦 Build Files</text>
+                    <text x="670" y="293" text-anchor="middle" fill="#ffcdd2" font-size="9">Package &amp; Distribution</text>
+                </svg>
+                <p class="caption"><em>Figure: The five main components of an Unreal Engine project.</em></p>
+                
                 <ul>
                     <li><strong>Content:</strong> 3D models, textures, materials, sounds, animations, Blueprints</li>
                     <li><strong>Levels (Maps):</strong> The 3D environments where your game takes place</li>
@@ -162,6 +205,94 @@
                 <p>Think of templates like home blueprints. You could design a house from scratch, figuring out plumbing, electrical, structural requirements—or you could start with a blueprint that already has those systems in place and customize from there. Templates save you hours (or days) of setup work.</p>
                 
                 <h3>Template Categories</h3>
+                
+                <!-- SVG: Game Templates at a Glance -->
+                <svg width="100%" height="340" viewBox="0 0 800 340" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <text x="400" y="28" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Game Templates at a Glance</text>
+                    
+                    <!-- Third Person - Highlighted as recommended -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="170" height="130" rx="10" fill="#4CAF50" stroke="#2e7d32" stroke-width="3"/>
+                        <rect x="0" y="0" width="170" height="35" rx="10" fill="#2e7d32"/>
+                        <rect x="0" y="25" width="170" height="10" fill="#2e7d32"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">🎮 Third Person</text>
+                        <text x="85" y="55" text-anchor="middle" fill="#c8e6c9" font-size="9">Over-shoulder camera</text>
+                        <text x="85" y="70" text-anchor="middle" fill="#c8e6c9" font-size="9">Character movement</text>
+                        <text x="85" y="85" text-anchor="middle" fill="#c8e6c9" font-size="9">Sample level</text>
+                        <rect x="25" y="100" width="120" height="20" rx="4" fill="#fff"/>
+                        <text x="85" y="115" text-anchor="middle" fill="#2e7d32" font-size="9" font-weight="bold">⭐ RECOMMENDED</text>
+                    </g>
+                    
+                    <!-- First Person -->
+                    <g transform="translate(220, 50)">
+                        <rect x="0" y="0" width="170" height="130" rx="10" fill="#2196F3" stroke="#1565c0" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="10" fill="#1565c0"/>
+                        <rect x="0" y="25" width="170" height="10" fill="#1565c0"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">🔫 First Person</text>
+                        <text x="85" y="55" text-anchor="middle" fill="#bbdefb" font-size="9">FPS-style camera</text>
+                        <text x="85" y="70" text-anchor="middle" fill="#bbdefb" font-size="9">Weapon mechanics</text>
+                        <text x="85" y="85" text-anchor="middle" fill="#bbdefb" font-size="9">Shooting targets</text>
+                        <text x="85" y="115" text-anchor="middle" fill="#e3f2fd" font-size="8">Shooters, VR</text>
+                    </g>
+                    
+                    <!-- Top Down -->
+                    <g transform="translate(410, 50)">
+                        <rect x="0" y="0" width="170" height="130" rx="10" fill="#FF9800" stroke="#ef6c00" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="10" fill="#ef6c00"/>
+                        <rect x="0" y="25" width="170" height="10" fill="#ef6c00"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">🗺️ Top Down</text>
+                        <text x="85" y="55" text-anchor="middle" fill="#ffe0b2" font-size="9">Isometric camera</text>
+                        <text x="85" y="70" text-anchor="middle" fill="#ffe0b2" font-size="9">Click-to-move</text>
+                        <text x="85" y="85" text-anchor="middle" fill="#ffe0b2" font-size="9">Strategy controls</text>
+                        <text x="85" y="115" text-anchor="middle" fill="#fff3e0" font-size="8">RTS, MOBAs, RPGs</text>
+                    </g>
+                    
+                    <!-- Side Scroller -->
+                    <g transform="translate(600, 50)">
+                        <rect x="0" y="0" width="170" height="130" rx="10" fill="#9C27B0" stroke="#7b1fa2" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="10" fill="#7b1fa2"/>
+                        <rect x="0" y="25" width="170" height="10" fill="#7b1fa2"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">➡️ Side Scroller</text>
+                        <text x="85" y="55" text-anchor="middle" fill="#e1bee7" font-size="9">2D/2.5D view</text>
+                        <text x="85" y="70" text-anchor="middle" fill="#e1bee7" font-size="9">Platform mechanics</text>
+                        <text x="85" y="85" text-anchor="middle" fill="#e1bee7" font-size="9">Jump controls</text>
+                        <text x="85" y="115" text-anchor="middle" fill="#f3e5f5" font-size="8">Platformers</text>
+                    </g>
+                    
+                    <!-- Vehicle -->
+                    <g transform="translate(125, 200)">
+                        <rect x="0" y="0" width="170" height="110" rx="10" fill="#00bcd4" stroke="#00838f" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="10" fill="#00838f"/>
+                        <rect x="0" y="25" width="170" height="10" fill="#00838f"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">🚗 Vehicle</text>
+                        <text x="85" y="55" text-anchor="middle" fill="#b2ebf2" font-size="9">Drivable vehicle</text>
+                        <text x="85" y="70" text-anchor="middle" fill="#b2ebf2" font-size="9">Physics setup</text>
+                        <text x="85" y="95" text-anchor="middle" fill="#e0f7fa" font-size="8">Racing games</text>
+                    </g>
+                    
+                    <!-- Blank -->
+                    <g transform="translate(315, 200)">
+                        <rect x="0" y="0" width="170" height="110" rx="10" fill="#607d8b" stroke="#455a64" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="10" fill="#455a64"/>
+                        <rect x="0" y="25" width="170" height="10" fill="#455a64"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">📋 Blank</text>
+                        <text x="85" y="55" text-anchor="middle" fill="#cfd8dc" font-size="9">Empty level</text>
+                        <text x="85" y="70" text-anchor="middle" fill="#cfd8dc" font-size="9">No character</text>
+                        <text x="85" y="95" text-anchor="middle" fill="#eceff1" font-size="8">Advanced users</text>
+                    </g>
+                    
+                    <!-- Puzzle -->
+                    <g transform="translate(505, 200)">
+                        <rect x="0" y="0" width="170" height="110" rx="10" fill="#e91e63" stroke="#c2185b" stroke-width="2"/>
+                        <rect x="0" y="0" width="170" height="35" rx="10" fill="#c2185b"/>
+                        <rect x="0" y="25" width="170" height="10" fill="#c2185b"/>
+                        <text x="85" y="24" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">🧩 Puzzle</text>
+                        <text x="85" y="55" text-anchor="middle" fill="#f8bbd9" font-size="9">Grid-based</text>
+                        <text x="85" y="70" text-anchor="middle" fill="#f8bbd9" font-size="9">Movable pieces</text>
+                        <text x="85" y="95" text-anchor="middle" fill="#fce4ec" font-size="8">Puzzle games</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Game template options—Third Person is recommended for beginners.</em></p>
                 
                 <p>Unreal Engine organizes templates into several categories:</p>
                 
@@ -456,6 +587,68 @@
                     <p style="color: white;"><strong>Blueprints</strong> are Unreal Engine's visual scripting system. Instead of writing code as text, you create logic by connecting nodes in a graph. It's like flowcharting—you can see the logic flow visually.</p>
                 </div>
                 
+                <!-- SVG: Blueprint vs C++ Comparison -->
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <text x="400" y="28" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Blueprint vs C++ — Which to Choose?</text>
+                    
+                    <!-- Blueprint Panel -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="350" height="250" rx="10" fill="#4CAF50" stroke="#2e7d32" stroke-width="3"/>
+                        <rect x="0" y="0" width="350" height="40" rx="10" fill="#2e7d32"/>
+                        <rect x="0" y="30" width="350" height="10" fill="#2e7d32"/>
+                        <text x="175" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">📊 Blueprint (Visual)</text>
+                        
+                        <!-- Visual representation of nodes -->
+                        <rect x="20" y="55" width="80" height="30" rx="5" fill="#388e3c" stroke="#fff" stroke-width="1"/>
+                        <text x="60" y="75" text-anchor="middle" fill="#fff" font-size="8">Event</text>
+                        <line x1="100" y1="70" x2="130" y2="70" stroke="#fff" stroke-width="2"/>
+                        <rect x="130" y="55" width="80" height="30" rx="5" fill="#388e3c" stroke="#fff" stroke-width="1"/>
+                        <text x="170" y="75" text-anchor="middle" fill="#fff" font-size="8">Function</text>
+                        <line x1="210" y1="70" x2="240" y2="70" stroke="#fff" stroke-width="2"/>
+                        <rect x="240" y="55" width="80" height="30" rx="5" fill="#388e3c" stroke="#fff" stroke-width="1"/>
+                        <text x="280" y="75" text-anchor="middle" fill="#fff" font-size="8">Output</text>
+                        
+                        <text x="20" y="110" fill="#c8e6c9" font-size="10">✅ Visual, drag-and-drop logic</text>
+                        <text x="20" y="130" fill="#c8e6c9" font-size="10">✅ No programming knowledge needed</text>
+                        <text x="20" y="150" fill="#c8e6c9" font-size="10">✅ Instant testing (no compile wait)</text>
+                        <text x="20" y="170" fill="#c8e6c9" font-size="10">✅ Easy debugging with visual flow</text>
+                        <text x="20" y="190" fill="#c8e6c9" font-size="10">✅ Perfect for game logic &amp; UI</text>
+                        
+                        <line x1="20" y1="205" x2="330" y2="205" stroke="#2e7d32" stroke-width="1"/>
+                        
+                        <rect x="75" y="215" width="200" height="25" rx="5" fill="#fff"/>
+                        <text x="175" y="233" text-anchor="middle" fill="#2e7d32" font-size="11" font-weight="bold">⭐ CHOOSE FOR BEGINNERS</text>
+                    </g>
+                    
+                    <!-- VS -->
+                    <text x="400" y="185" text-anchor="middle" fill="#667eea" font-size="20" font-weight="bold">VS</text>
+                    
+                    <!-- C++ Panel -->
+                    <g transform="translate(420, 50)">
+                        <rect x="0" y="0" width="350" height="250" rx="10" fill="#607d8b" stroke="#455a64" stroke-width="2"/>
+                        <rect x="0" y="0" width="350" height="40" rx="10" fill="#455a64"/>
+                        <rect x="0" y="30" width="350" height="10" fill="#455a64"/>
+                        <text x="175" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">💻 C++ (Code)</text>
+                        
+                        <!-- Code representation -->
+                        <rect x="20" y="55" width="310" height="35" rx="3" fill="#37474f"/>
+                        <text x="30" y="70" fill="#81d4fa" font-size="8" font-family="monospace">void AMyActor::BeginPlay()</text>
+                        <text x="30" y="82" fill="#aaa" font-size="8" font-family="monospace">{ Super::BeginPlay(); }</text>
+                        
+                        <text x="20" y="110" fill="#cfd8dc" font-size="10">🟡 Requires programming knowledge</text>
+                        <text x="20" y="130" fill="#cfd8dc" font-size="10">🟡 Compilation required for testing</text>
+                        <text x="20" y="150" fill="#cfd8dc" font-size="10">✅ Better performance for complex systems</text>
+                        <text x="20" y="170" fill="#cfd8dc" font-size="10">✅ Full engine access</text>
+                        <text x="20" y="190" fill="#cfd8dc" font-size="10">✅ Industry standard for AAA games</text>
+                        
+                        <line x1="20" y1="205" x2="330" y2="205" stroke="#455a64" stroke-width="1"/>
+                        
+                        <rect x="75" y="215" width="200" height="25" rx="5" fill="#455a64"/>
+                        <text x="175" y="233" text-anchor="middle" fill="#cfd8dc" font-size="11">For experienced programmers</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Blueprint is recommended for beginners—you can add C++ later when needed.</em></p>
+                
                 <table>
                     <thead>
                         <tr>
@@ -582,6 +775,125 @@
                 <h3>Top-Level Folder Structure</h3>
                 
                 <p>When you navigate to your project folder in Windows Explorer or Finder, you'll see:</p>
+                
+                <!-- Canvas: Project Folder Hierarchy -->
+                <canvas id="project-folder-hierarchy" width="750" height="350" style="max-width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;"></canvas>
+                <p class="caption"><em>Figure: Project folder structure—Content is where you work, Intermediate can be deleted to save space.</em></p>
+                
+                <script>
+                (function() {
+                    const canvas = document.getElementById('project-folder-hierarchy');
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Background
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.fillRect(0, 0, 750, 350);
+                    
+                    // Title
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 15px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Project Folder Structure', 375, 25);
+                    
+                    // Root folder
+                    ctx.fillStyle = '#667eea';
+                    ctx.fillRect(300, 45, 150, 35);
+                    ctx.strokeStyle = '#5c6bc0';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(300, 45, 150, 35);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('📁 MyFirstProject/', 375, 68);
+                    
+                    // Connection lines from root
+                    ctx.strokeStyle = '#555';
+                    ctx.lineWidth = 2;
+                    
+                    // Folders data
+                    const folders = [
+                        { x: 50, name: 'Content/', color: '#4CAF50', icon: '🎨', desc: 'YOUR WORKSPACE', items: ['Maps/', 'Blueprints/', 'Materials/'], safe: true },
+                        { x: 200, name: 'Config/', color: '#2196F3', icon: '⚙️', desc: 'Settings', items: ['DefaultEngine.ini', 'DefaultGame.ini'], safe: false },
+                        { x: 350, name: 'Saved/', color: '#FF9800', icon: '💾', desc: 'Auto-saves, Logs', items: ['Autosaves/', 'Logs/', 'Backup/'], safe: true },
+                        { x: 500, name: 'Intermediate/', color: '#9C27B0', icon: '🛠️', desc: 'Build Cache', items: ['Build/', 'ShaderCache/'], safe: true },
+                        { x: 650, name: '.uproject', color: '#f44336', icon: '📝', desc: 'Project File', items: ['Double-click to open'], safe: false }
+                    ];
+                    
+                    folders.forEach((folder, index) => {
+                        // Line from root
+                        ctx.beginPath();
+                        ctx.moveTo(375, 80);
+                        ctx.lineTo(375, 100);
+                        ctx.lineTo(folder.x + 50, 100);
+                        ctx.lineTo(folder.x + 50, 120);
+                        ctx.stroke();
+                        
+                        // Folder box
+                        ctx.fillStyle = folder.color;
+                        ctx.fillRect(folder.x, 120, 100, 55);
+                        ctx.strokeStyle = folder.color;
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(folder.x, 120, 100, 55);
+                        
+                        // Folder name
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(folder.icon + ' ' + folder.name, folder.x + 50, 142);
+                        
+                        // Description
+                        ctx.font = '8px Arial';
+                        ctx.fillText(folder.desc, folder.x + 50, 158);
+                        
+                        // Safe to delete indicator
+                        if (folder.safe && folder.name !== 'Content/') {
+                            ctx.fillStyle = '#ffeb3b';
+                            ctx.font = '7px Arial';
+                            ctx.fillText('(safe to delete)', folder.x + 50, 170);
+                        }
+                        
+                        // Subfolder items
+                        ctx.fillStyle = '#3a3a5a';
+                        ctx.fillRect(folder.x - 5, 185, 110, folder.items.length * 18 + 10);
+                        
+                        folder.items.forEach((item, i) => {
+                            ctx.fillStyle = '#aaa';
+                            ctx.font = '9px Arial';
+                            ctx.textAlign = 'left';
+                            ctx.fillText('• ' + item, folder.x + 5, 202 + i * 18);
+                        });
+                    });
+                    
+                    // Legend at bottom
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('Legend:', 30, 320);
+                    
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillRect(100, 310, 12, 12);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '10px Arial';
+                    ctx.fillText('Your workspace', 118, 320);
+                    
+                    ctx.fillStyle = '#9C27B0';
+                    ctx.fillRect(230, 310, 12, 12);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText('Can delete to save space', 248, 320);
+                    
+                    ctx.fillStyle = '#f44336';
+                    ctx.fillRect(420, 310, 12, 12);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText('Never edit directly', 438, 320);
+                    
+                    // Tip
+                    ctx.fillStyle = '#667eea';
+                    ctx.font = 'italic 10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Tip: Delete Intermediate/ and Saved/ to free up 5-10GB (regenerates automatically)', 375, 345);
+                })();
+                </script>
                 
                 <div class="mermaid">
                     graph TD
@@ -732,6 +1044,78 @@
                 <h3>Main Editor Layout</h3>
                 
                 <p>The editor consists of several main panels, each with a specific purpose:</p>
+                
+                <!-- SVG: Editor Interface Layout -->
+                <svg width="100%" height="380" viewBox="0 0 800 380" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Unreal Editor Interface Overview</text>
+                    
+                    <!-- Top Menu Bar -->
+                    <rect x="10" y="40" width="780" height="25" rx="3" fill="#3d3d3d" stroke="#555" stroke-width="1"/>
+                    <text x="30" y="57" fill="#aaa" font-size="9">File</text>
+                    <text x="60" y="57" fill="#aaa" font-size="9">Edit</text>
+                    <text x="90" y="57" fill="#aaa" font-size="9">Window</text>
+                    <text x="130" y="57" fill="#aaa" font-size="9">Tools</text>
+                    <text x="165" y="57" fill="#aaa" font-size="9">Build</text>
+                    <text x="200" y="57" fill="#aaa" font-size="9">Help</text>
+                    <text x="400" y="57" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">① Menu Bar</text>
+                    
+                    <!-- Main Toolbar -->
+                    <rect x="10" y="70" width="780" height="35" rx="3" fill="#404040" stroke="#555" stroke-width="1"/>
+                    <rect x="20" y="78" width="50" height="20" rx="3" fill="#4CAF50"/>
+                    <text x="45" y="92" text-anchor="middle" fill="#fff" font-size="8">▶ Play</text>
+                    <rect x="80" y="78" width="50" height="20" rx="3" fill="#555"/>
+                    <text x="105" y="92" text-anchor="middle" fill="#aaa" font-size="8">Save</text>
+                    <rect x="140" y="78" width="60" height="20" rx="3" fill="#555"/>
+                    <text x="170" y="92" text-anchor="middle" fill="#aaa" font-size="8">Content</text>
+                    <rect x="210" y="78" width="60" height="20" rx="3" fill="#555"/>
+                    <text x="240" y="92" text-anchor="middle" fill="#aaa" font-size="8">Settings</text>
+                    <text x="400" y="92" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">② Toolbar</text>
+                    
+                    <!-- Main Content Area -->
+                    <!-- Viewport (largest) -->
+                    <rect x="10" y="110" width="520" height="220" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+                    <text x="270" y="135" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🌍 Viewport</text>
+                    <text x="270" y="155" text-anchor="middle" fill="#93c5fd" font-size="9">3D Scene View</text>
+                    <!-- Simple scene representation -->
+                    <rect x="180" y="200" width="80" height="60" fill="#555" stroke="#777"/>
+                    <polygon points="220,170 180,200 260,200" fill="#777" stroke="#999"/>
+                    <ellipse cx="350" cy="280" rx="60" ry="20" fill="#2a4a6a"/>
+                    <rect x="100" y="290" width="250" height="30" fill="#1a2a3a" stroke="#2a4a6a"/>
+                    <text x="270" y="310" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">③ Your 3D World</text>
+                    
+                    <!-- Right Panels -->
+                    <!-- Outliner -->
+                    <rect x="540" y="110" width="250" height="100" rx="5" fill="#383838" stroke="#fbbf24" stroke-width="2"/>
+                    <rect x="540" y="110" width="250" height="25" rx="5" fill="#4a4a4a"/>
+                    <text x="665" y="127" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">📋 World Outliner</text>
+                    <text x="555" y="150" fill="#aaa" font-size="8">▼ Scene</text>
+                    <text x="565" y="165" fill="#ccc" font-size="8">  ■ PlayerStart</text>
+                    <text x="565" y="180" fill="#ccc" font-size="8">  ■ Floor</text>
+                    <text x="565" y="195" fill="#ccc" font-size="8">  ■ DirectionalLight</text>
+                    <text x="665" y="203" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="bold">④ Object List</text>
+                    
+                    <!-- Details -->
+                    <rect x="540" y="220" width="250" height="110" rx="5" fill="#383838" stroke="#ef4444" stroke-width="2"/>
+                    <rect x="540" y="220" width="250" height="25" rx="5" fill="#4a4a4a"/>
+                    <text x="665" y="237" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🔧 Details Panel</text>
+                    <text x="555" y="260" fill="#aaa" font-size="8">Transform</text>
+                    <text x="560" y="275" fill="#ccc" font-size="7">Location: X=0 Y=0 Z=0</text>
+                    <text x="560" y="288" fill="#ccc" font-size="7">Rotation: R=0 P=0 Y=0</text>
+                    <text x="560" y="301" fill="#ccc" font-size="7">Scale: X=1 Y=1 Z=1</text>
+                    <text x="665" y="320" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="bold">⑤ Properties</text>
+                    
+                    <!-- Content Browser -->
+                    <rect x="10" y="335" width="780" height="40" rx="5" fill="#383838" stroke="#10b981" stroke-width="2"/>
+                    <rect x="10" y="335" width="150" height="40" rx="5" fill="#2a2a2a"/>
+                    <text x="85" y="358" text-anchor="middle" fill="#aaa" font-size="8">📁 Content</text>
+                    <rect x="170" y="342" width="30" height="26" rx="3" fill="#555"/>
+                    <rect x="205" y="342" width="30" height="26" rx="3" fill="#555"/>
+                    <rect x="240" y="342" width="30" height="26" rx="3" fill="#555"/>
+                    <rect x="275" y="342" width="30" height="26" rx="3" fill="#555"/>
+                    <text x="500" y="360" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">📂 Content Browser - Asset Library</text>
+                    <text x="730" y="360" text-anchor="middle" fill="#10b981" font-size="9" font-weight="bold">⑥</text>
+                </svg>
+                <p class="caption"><em>Figure: The main Unreal Editor interface showing all key panels and their purposes.</em></p>
                 
                 <div class="mermaid">
                     graph TB
@@ -1055,6 +1439,202 @@
                 
                 <p>When you select an object, you'll see colorful arrows and arcs—this is the <strong>Transform Gizmo</strong>.</p>
                 
+                <!-- Canvas: Transform Gizmo Visualization -->
+                <canvas id="transform-gizmo-demo" width="750" height="320" style="max-width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;"></canvas>
+                <p class="caption"><em>Figure: The three transform modes (Move, Rotate, Scale) with color-coded axes.</em></p>
+                
+                <script>
+                (function() {
+                    const canvas = document.getElementById('transform-gizmo-demo');
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Background
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.fillRect(0, 0, 750, 320);
+                    
+                    // Title
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Transform Gizmo - Move (W), Rotate (E), Scale (R)', 375, 25);
+                    
+                    // Draw three panels
+                    const panels = [
+                        { x: 30, title: 'MOVE (W)', color: '#4CAF50' },
+                        { x: 270, title: 'ROTATE (E)', color: '#2196F3' },
+                        { x: 510, title: 'SCALE (R)', color: '#FF9800' }
+                    ];
+                    
+                    panels.forEach((panel, index) => {
+                        // Panel background
+                        ctx.fillStyle = '#2a2a4a';
+                        ctx.fillRect(panel.x, 45, 210, 260);
+                        ctx.strokeStyle = panel.color;
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(panel.x, 45, 210, 260);
+                        
+                        // Panel title
+                        ctx.fillStyle = panel.color;
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(panel.title, panel.x + 105, 65);
+                        
+                        // Center point for gizmo
+                        const cx = panel.x + 105;
+                        const cy = 170;
+                        
+                        // Draw cube (object being transformed)
+                        ctx.fillStyle = '#555';
+                        ctx.fillRect(cx - 20, cy - 15, 40, 30);
+                        ctx.strokeStyle = '#777';
+                        ctx.strokeRect(cx - 20, cy - 15, 40, 30);
+                        
+                        if (index === 0) {
+                            // MOVE - Draw arrows
+                            // X axis (Red) - right
+                            ctx.strokeStyle = '#ef5350';
+                            ctx.fillStyle = '#ef5350';
+                            ctx.lineWidth = 4;
+                            ctx.beginPath();
+                            ctx.moveTo(cx + 25, cy);
+                            ctx.lineTo(cx + 80, cy);
+                            ctx.stroke();
+                            // Arrow head
+                            ctx.beginPath();
+                            ctx.moveTo(cx + 80, cy);
+                            ctx.lineTo(cx + 70, cy - 8);
+                            ctx.lineTo(cx + 70, cy + 8);
+                            ctx.fill();
+                            ctx.font = '11px Arial';
+                            ctx.fillText('X', cx + 90, cy + 4);
+                            
+                            // Y axis (Green) - forward/into screen represented as diagonal
+                            ctx.strokeStyle = '#4CAF50';
+                            ctx.fillStyle = '#4CAF50';
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy + 20);
+                            ctx.lineTo(cx - 40, cy + 60);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(cx - 40, cy + 60);
+                            ctx.lineTo(cx - 30, cy + 52);
+                            ctx.lineTo(cx - 38, cy + 48);
+                            ctx.fill();
+                            ctx.fillText('Y', cx - 50, cy + 70);
+                            
+                            // Z axis (Blue) - up
+                            ctx.strokeStyle = '#2196F3';
+                            ctx.fillStyle = '#2196F3';
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - 20);
+                            ctx.lineTo(cx, cy - 75);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - 75);
+                            ctx.lineTo(cx - 8, cy - 65);
+                            ctx.lineTo(cx + 8, cy - 65);
+                            ctx.fill();
+                            ctx.fillText('Z', cx, cy - 82);
+                            
+                        } else if (index === 1) {
+                            // ROTATE - Draw arcs
+                            ctx.lineWidth = 4;
+                            
+                            // X rotation (Red) - around X axis
+                            ctx.strokeStyle = '#ef5350';
+                            ctx.beginPath();
+                            ctx.arc(cx, cy, 50, -0.5, 1.5, false);
+                            ctx.stroke();
+                            
+                            // Y rotation (Green)
+                            ctx.strokeStyle = '#4CAF50';
+                            ctx.beginPath();
+                            ctx.ellipse(cx, cy + 10, 40, 20, 0, Math.PI, 0, false);
+                            ctx.stroke();
+                            
+                            // Z rotation (Blue)
+                            ctx.strokeStyle = '#2196F3';
+                            ctx.beginPath();
+                            ctx.arc(cx, cy, 60, 2.5, 5, false);
+                            ctx.stroke();
+                            
+                            // Labels
+                            ctx.font = '10px Arial';
+                            ctx.fillStyle = '#ef5350';
+                            ctx.fillText('Roll', cx + 55, cy - 30);
+                            ctx.fillStyle = '#4CAF50';
+                            ctx.fillText('Pitch', cx - 60, cy + 35);
+                            ctx.fillStyle = '#2196F3';
+                            ctx.fillText('Yaw', cx + 50, cy + 55);
+                            
+                        } else {
+                            // SCALE - Draw arrows with cubes
+                            ctx.lineWidth = 4;
+                            
+                            // X axis (Red)
+                            ctx.strokeStyle = '#ef5350';
+                            ctx.fillStyle = '#ef5350';
+                            ctx.beginPath();
+                            ctx.moveTo(cx + 25, cy);
+                            ctx.lineTo(cx + 70, cy);
+                            ctx.stroke();
+                            ctx.fillRect(cx + 65, cy - 6, 12, 12);
+                            ctx.font = '11px Arial';
+                            ctx.fillText('X', cx + 85, cy + 4);
+                            
+                            // Y axis (Green)
+                            ctx.strokeStyle = '#4CAF50';
+                            ctx.fillStyle = '#4CAF50';
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy + 20);
+                            ctx.lineTo(cx - 35, cy + 55);
+                            ctx.stroke();
+                            ctx.fillRect(cx - 43, cy + 50, 12, 12);
+                            ctx.fillText('Y', cx - 50, cy + 75);
+                            
+                            // Z axis (Blue)
+                            ctx.strokeStyle = '#2196F3';
+                            ctx.fillStyle = '#2196F3';
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - 20);
+                            ctx.lineTo(cx, cy - 65);
+                            ctx.stroke();
+                            ctx.fillRect(cx - 6, cy - 77, 12, 12);
+                            ctx.fillText('Z', cx, cy - 85);
+                        }
+                        
+                        // Hotkey reminder
+                        ctx.fillStyle = '#aaa';
+                        ctx.font = '10px Arial';
+                        ctx.fillText('Press ' + panel.title.split(' ')[1], panel.x + 105, 290);
+                    });
+                    
+                    // Color legend at bottom
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Axis Colors:', 80, 315);
+                    
+                    ctx.fillStyle = '#ef5350';
+                    ctx.fillRect(140, 305, 15, 15);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '11px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('X (Red)', 160, 317);
+                    
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillRect(230, 305, 15, 15);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText('Y (Green)', 250, 317);
+                    
+                    ctx.fillStyle = '#2196F3';
+                    ctx.fillRect(340, 305, 15, 15);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText('Z (Blue)', 360, 317);
+                })();
+                </script>
+                
                 <table>
                     <thead>
                         <tr>
@@ -1198,6 +1778,75 @@
                 <h3>Types of Saves in Unreal Engine</h3>
                 
                 <p>Unreal Engine has different save operations for different purposes:</p>
+                
+                <!-- SVG: Save Types Comparison -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <text x="400" y="28" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Save Methods in Unreal Engine</text>
+                    
+                    <!-- Save Current -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="230" height="200" rx="10" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="45" rx="10" fill="#2e7d32"/>
+                        <rect x="0" y="35" width="230" height="10" fill="#2e7d32"/>
+                        <text x="115" y="28" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">💾 Save Current</text>
+                        
+                        <text x="115" y="70" text-anchor="middle" fill="#c8e6c9" font-size="10">Ctrl + S</text>
+                        
+                        <rect x="20" y="85" width="190" height="35" rx="5" fill="#388e3c"/>
+                        <text x="115" y="105" text-anchor="middle" fill="#fff" font-size="9">What: Current asset/level only</text>
+                        <text x="115" y="118" text-anchor="middle" fill="#c8e6c9" font-size="8">Single file you're working on</text>
+                        
+                        <rect x="20" y="130" width="190" height="35" rx="5" fill="#388e3c"/>
+                        <text x="115" y="150" text-anchor="middle" fill="#fff" font-size="9">When: Quick, frequent saves</text>
+                        <text x="115" y="163" text-anchor="middle" fill="#c8e6c9" font-size="8">Every few minutes</text>
+                        
+                        <text x="115" y="190" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">⭐ Most Common</text>
+                        <text x="115" y="210" text-anchor="middle" fill="#c8e6c9" font-size="8">Use this constantly!</text>
+                    </g>
+                    
+                    <!-- Save All -->
+                    <g transform="translate(285, 50)">
+                        <rect x="0" y="0" width="230" height="200" rx="10" fill="#2196F3" stroke="#1565c0" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="45" rx="10" fill="#1565c0"/>
+                        <rect x="0" y="35" width="230" height="10" fill="#1565c0"/>
+                        <text x="115" y="28" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">📚 Save All</text>
+                        
+                        <text x="115" y="70" text-anchor="middle" fill="#bbdefb" font-size="10">Ctrl + Shift + S</text>
+                        
+                        <rect x="20" y="85" width="190" height="35" rx="5" fill="#1976d2"/>
+                        <text x="115" y="105" text-anchor="middle" fill="#fff" font-size="9">What: All modified files</text>
+                        <text x="115" y="118" text-anchor="middle" fill="#bbdefb" font-size="8">Levels, assets, everything</text>
+                        
+                        <rect x="20" y="130" width="190" height="35" rx="5" fill="#1976d2"/>
+                        <text x="115" y="150" text-anchor="middle" fill="#fff" font-size="9">When: Before testing/closing</text>
+                        <text x="115" y="163" text-anchor="middle" fill="#bbdefb" font-size="8">End of work session</text>
+                        
+                        <text x="115" y="190" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🛡️ Comprehensive</text>
+                        <text x="115" y="210" text-anchor="middle" fill="#bbdefb" font-size="8">Before Play testing!</text>
+                    </g>
+                    
+                    <!-- Auto-Save -->
+                    <g transform="translate(540, 50)">
+                        <rect x="0" y="0" width="230" height="200" rx="10" fill="#FF9800" stroke="#ef6c00" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="45" rx="10" fill="#ef6c00"/>
+                        <rect x="0" y="35" width="230" height="10" fill="#ef6c00"/>
+                        <text x="115" y="28" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">⏰ Auto-Save</text>
+                        
+                        <text x="115" y="70" text-anchor="middle" fill="#ffe0b2" font-size="10">Automatic (5-10 min)</text>
+                        
+                        <rect x="20" y="85" width="190" height="35" rx="5" fill="#f57c00"/>
+                        <text x="115" y="105" text-anchor="middle" fill="#fff" font-size="9">What: Periodic backups</text>
+                        <text x="115" y="118" text-anchor="middle" fill="#ffe0b2" font-size="8">Stored in Saved/Backup/</text>
+                        
+                        <rect x="20" y="130" width="190" height="35" rx="5" fill="#f57c00"/>
+                        <text x="115" y="150" text-anchor="middle" fill="#fff" font-size="9">When: Runs in background</text>
+                        <text x="115" y="163" text-anchor="middle" fill="#ffe0b2" font-size="8">When you've made changes</text>
+                        
+                        <text x="115" y="190" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🩼 Safety Net</text>
+                        <text x="115" y="210" text-anchor="middle" fill="#ffe0b2" font-size="8">Crash recovery!</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: The three save methods—use Ctrl+S frequently and Ctrl+Shift+S before testing.</em></p>
                 
                 <table>
                     <thead>

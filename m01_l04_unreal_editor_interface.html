@@ -181,6 +181,117 @@
                     </ul>
                 </div>
                 
+                <!-- SVG: Editor Interface Layout Overview -->
+                <svg viewBox="0 0 800 500" style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                    <defs>
+                        <linearGradient id="editorBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1a1a2e"/>
+                            <stop offset="100%" style="stop-color:#16213e"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Background -->
+                    <rect width="800" height="500" fill="url(#editorBg)"/>
+                    
+                    <!-- Title -->
+                    <text x="400" y="30" font-size="18" font-weight="bold" fill="white" text-anchor="middle">Unreal Editor Interface Layout</text>
+                    
+                    <!-- Menu Bar -->
+                    <rect x="20" y="50" width="760" height="30" fill="#3d3d3d" stroke="#3b82f6" stroke-width="2" rx="3"/>
+                    <text x="30" y="70" font-size="11" fill="#ccc">File  Edit  Window  Tools  Build  Help</text>
+                    <text x="720" y="70" font-size="10" fill="#3b82f6" text-anchor="end">① Menu Bar</text>
+                    
+                    <!-- Toolbar -->
+                    <rect x="20" y="85" width="760" height="35" fill="#404040" stroke="#FF9800" stroke-width="2" rx="3"/>
+                    <rect x="30" y="92" width="25" height="20" fill="#4CAF50" rx="2"/>
+                    <text x="42" y="106" font-size="12" fill="white" text-anchor="middle">💾</text>
+                    <rect x="60" y="92" width="25" height="20" fill="#2196F3" rx="2"/>
+                    <text x="72" y="106" font-size="12" fill="white" text-anchor="middle">📁</text>
+                    <rect x="100" y="92" width="50" height="20" fill="#4CAF50" rx="2"/>
+                    <text x="125" y="106" font-size="11" fill="white" text-anchor="middle">▶ Play</text>
+                    <rect x="155" y="92" width="25" height="20" fill="#FF5722" rx="2"/>
+                    <text x="167" y="106" font-size="12" fill="white" text-anchor="middle">🔨</text>
+                    <text x="720" y="107" font-size="10" fill="#FF9800" text-anchor="end">② Toolbar</text>
+                    
+                    <!-- Viewport (center, largest) -->
+                    <rect x="20" y="125" width="480" height="280" fill="#1e3a5f" stroke="#4CAF50" stroke-width="3" rx="5"/>
+                    <text x="260" y="155" font-size="14" font-weight="bold" fill="#4CAF50" text-anchor="middle">③ VIEWPORT</text>
+                    <text x="260" y="175" font-size="11" fill="#aaa" text-anchor="middle">Your 3D World View</text>
+                    <!-- Simple 3D scene representation -->
+                    <polygon points="260,350 200,380 320,380" fill="#607d8b" stroke="#455a64" stroke-width="1"/>
+                    <rect x="230" y="280" width="60" height="70" fill="#78909c" stroke="#546e7a" stroke-width="1"/>
+                    <circle cx="340" cy="250" r="25" fill="#ffeb3b" opacity="0.6"/>
+                    <line x1="340" y1="250" x2="380" y2="220" stroke="#ffeb3b" stroke-width="2" opacity="0.4"/>
+                    <line x1="340" y1="250" x2="370" y2="280" stroke="#ffeb3b" stroke-width="2" opacity="0.4"/>
+                    <!-- Grid lines -->
+                    <line x1="50" y1="390" x2="470" y2="390" stroke="#444" stroke-width="1" opacity="0.5"/>
+                    <line x1="100" y1="360" x2="100" y2="400" stroke="#444" stroke-width="1" opacity="0.5"/>
+                    <line x1="200" y1="360" x2="200" y2="400" stroke="#444" stroke-width="1" opacity="0.5"/>
+                    <line x1="300" y1="360" x2="300" y2="400" stroke="#444" stroke-width="1" opacity="0.5"/>
+                    <line x1="400" y1="360" x2="400" y2="400" stroke="#444" stroke-width="1" opacity="0.5"/>
+                    
+                    <!-- World Outliner (top right) -->
+                    <rect x="510" y="125" width="270" height="140" fill="#383838" stroke="#ef4444" stroke-width="2" rx="5"/>
+                    <rect x="510" y="125" width="270" height="22" fill="#4a4a4a" rx="5"/>
+                    <text x="520" y="141" font-size="11" font-weight="bold" fill="#ef4444">④ World Outliner</text>
+                    <text x="520" y="165" font-size="10" fill="#888">🔍 Search...</text>
+                    <text x="525" y="185" font-size="10" fill="#ccc">📁 Lighting</text>
+                    <text x="540" y="200" font-size="10" fill="#aaa">  💡 DirectionalLight</text>
+                    <text x="540" y="215" font-size="10" fill="#aaa">  💡 SkyLight</text>
+                    <text x="525" y="232" font-size="10" fill="#ccc">📁 Geometry</text>
+                    <text x="540" y="247" font-size="10" fill="#7cb3f5">  ▣ SM_Cube (selected)</text>
+                    
+                    <!-- Details Panel (bottom right) -->
+                    <rect x="510" y="270" width="270" height="135" fill="#383838" stroke="#8b5cf6" stroke-width="2" rx="5"/>
+                    <rect x="510" y="270" width="270" height="22" fill="#4a4a4a" rx="5"/>
+                    <text x="520" y="286" font-size="11" font-weight="bold" fill="#8b5cf6">⑤ Details Panel</text>
+                    <text x="520" y="310" font-size="10" fill="#888">SM_Cube</text>
+                    <text x="520" y="328" font-size="9" fill="#aaa">▼ Transform</text>
+                    <text x="530" y="345" font-size="9" fill="#666">Location</text>
+                    <text x="600" y="345" font-size="9" fill="#ef5350">X 0</text>
+                    <text x="650" y="345" font-size="9" fill="#4CAF50">Y 0</text>
+                    <text x="700" y="345" font-size="9" fill="#2196F3">Z 100</text>
+                    <text x="530" y="362" font-size="9" fill="#666">Rotation</text>
+                    <text x="600" y="362" font-size="9" fill="#999">0° 0° 0°</text>
+                    <text x="530" y="379" font-size="9" fill="#666">Scale</text>
+                    <text x="600" y="379" font-size="9" fill="#999">1.0 1.0 1.0</text>
+                    <text x="520" y="396" font-size="9" fill="#aaa">▼ Static Mesh</text>
+                    
+                    <!-- Content Browser (bottom) -->
+                    <rect x="20" y="410" width="760" height="80" fill="#383838" stroke="#fbbf24" stroke-width="2" rx="5"/>
+                    <rect x="20" y="410" width="760" height="22" fill="#4a4a4a" rx="5"/>
+                    <text x="30" y="426" font-size="11" font-weight="bold" fill="#fbbf24">⑥ Content Browser</text>
+                    <text x="150" y="426" font-size="10" fill="#888">Content / StarterContent / Props</text>
+                    <!-- Folder tree -->
+                    <rect x="25" y="435" width="100" height="50" fill="#2d2d2d" rx="3"/>
+                    <text x="35" y="452" font-size="9" fill="#ccc">📁 Content</text>
+                    <text x="45" y="467" font-size="9" fill="#aaa">📁 Blueprints</text>
+                    <text x="45" y="480" font-size="9" fill="#aaa">📁 Materials</text>
+                    <!-- Asset thumbnails -->
+                    <rect x="135" y="438" width="45" height="45" fill="#555" rx="3"/>
+                    <rect x="185" y="438" width="45" height="45" fill="#555" rx="3"/>
+                    <rect x="235" y="438" width="45" height="45" fill="#555" rx="3"/>
+                    <rect x="285" y="438" width="45" height="45" fill="#555" rx="3"/>
+                    <rect x="335" y="438" width="45" height="45" fill="#555" rx="3"/>
+                    <text x="157" y="465" font-size="18" fill="#888" text-anchor="middle">🪑</text>
+                    <text x="207" y="465" font-size="18" fill="#888" text-anchor="middle">🚪</text>
+                    <text x="257" y="465" font-size="18" fill="#888" text-anchor="middle">📦</text>
+                    <text x="307" y="465" font-size="18" fill="#888" text-anchor="middle">🖼️</text>
+                    <text x="357" y="465" font-size="18" fill="#888" text-anchor="middle">💎</text>
+                    
+                    <!-- Legend -->
+                    <rect x="550" y="440" width="220" height="45" fill="#2d2d2d" rx="5" opacity="0.8"/>
+                    <circle cx="565" cy="455" r="6" fill="#4CAF50"/>
+                    <text x="580" y="459" font-size="9" fill="#ccc">Viewport (90% of work)</text>
+                    <circle cx="565" cy="472" r="6" fill="#fbbf24"/>
+                    <text x="580" y="476" font-size="9" fill="#ccc">Content Browser (assets)</text>
+                    <circle cx="680" cy="455" r="6" fill="#ef4444"/>
+                    <text x="695" y="459" font-size="9" fill="#ccc">Outliner</text>
+                    <circle cx="680" cy="472" r="6" fill="#8b5cf6"/>
+                    <text x="695" y="476" font-size="9" fill="#ccc">Details</text>
+                </svg>
+                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The default Unreal Editor layout showing all five core interface areas.</em></p>
+                
                 <h3>Interface Modes</h3>
                 
                 <p>The editor has different operational modes that change how the interface behaves:</p>
@@ -277,6 +388,118 @@
                     <p>Practice this sequence until it becomes muscle memory!</p>
                 </div>
                 
+                <!-- Canvas: Viewport Navigation Controls -->
+                <canvas id="viewport-nav-canvas" width="750" height="300" style="max-width: 100%; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;"></canvas>
+                <script>
+                (function() {
+                    const canvas = document.getElementById('viewport-nav-canvas');
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    const w = canvas.width, h = canvas.height;
+                    
+                    // Background gradient
+                    const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+                    bgGrad.addColorStop(0, '#1a1a2e');
+                    bgGrad.addColorStop(1, '#16213e');
+                    ctx.fillStyle = bgGrad;
+                    ctx.fillRect(0, 0, w, h);
+                    
+                    // Title
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Viewport Navigation Controls', w/2, 25);
+                    
+                    // Three panels for different navigation modes
+                    const panels = [
+                        { x: 25, title: 'FLY (RMB + WASD)', color: '#4CAF50', keys: ['W', 'A', 'S', 'D'], desc: 'Hold Right Mouse + Move' },
+                        { x: 265, title: 'ORBIT (Alt + LMB)', color: '#2196F3', keys: ['Alt', '+', 'LMB'], desc: 'Rotate around focus' },
+                        { x: 505, title: 'FOCUS (F)', color: '#FF9800', keys: ['F'], desc: 'Frame selected object' }
+                    ];
+                    
+                    panels.forEach((p, i) => {
+                        // Panel background
+                        ctx.fillStyle = '#2d2d2d';
+                        ctx.strokeStyle = p.color;
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.roundRect(p.x, 45, 220, 240, 8);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Panel title
+                        ctx.fillStyle = p.color;
+                        ctx.font = 'bold 13px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(p.title, p.x + 110, 70);
+                        
+                        // Draw keys
+                        ctx.font = 'bold 18px Arial';
+                        const keyY = 140;
+                        if (p.keys.length === 4) {
+                            // WASD layout
+                            const keySize = 40;
+                            const centerX = p.x + 110;
+                            // W
+                            ctx.fillStyle = '#444';
+                            ctx.fillRect(centerX - keySize/2, keyY - 50, keySize, keySize);
+                            ctx.fillStyle = 'white';
+                            ctx.fillText('W', centerX, keyY - 25);
+                            // A S D
+                            ['A', 'S', 'D'].forEach((k, j) => {
+                                ctx.fillStyle = '#444';
+                                ctx.fillRect(centerX - 65 + j*45, keyY + 5, keySize, keySize);
+                                ctx.fillStyle = 'white';
+                                ctx.fillText(k, centerX - 45 + j*45, keyY + 32);
+                            });
+                        } else if (p.keys.length === 3) {
+                            // Alt + LMB
+                            ctx.fillStyle = '#444';
+                            ctx.fillRect(p.x + 25, keyY - 15, 50, 35);
+                            ctx.fillStyle = 'white';
+                            ctx.font = 'bold 14px Arial';
+                            ctx.fillText('Alt', p.x + 50, keyY + 8);
+                            ctx.fillStyle = '#888';
+                            ctx.font = 'bold 20px Arial';
+                            ctx.fillText('+', p.x + 100, keyY + 10);
+                            // Mouse icon
+                            ctx.fillStyle = '#555';
+                            ctx.beginPath();
+                            ctx.ellipse(p.x + 160, keyY, 25, 35, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.strokeStyle = '#888';
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                            ctx.fillStyle = p.color;
+                            ctx.beginPath();
+                            ctx.ellipse(p.x + 152, keyY - 15, 10, 12, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                        } else {
+                            // Single F key
+                            ctx.fillStyle = p.color;
+                            ctx.beginPath();
+                            ctx.roundRect(p.x + 75, keyY - 30, 70, 70, 8);
+                            ctx.fill();
+                            ctx.fillStyle = 'white';
+                            ctx.font = 'bold 36px Arial';
+                            ctx.fillText('F', p.x + 110, keyY + 15);
+                        }
+                        
+                        // Description
+                        ctx.fillStyle = '#aaa';
+                        ctx.font = '12px Arial';
+                        ctx.fillText(p.desc, p.x + 110, 260);
+                    });
+                    
+                    // Bottom legend
+                    ctx.fillStyle = '#666';
+                    ctx.font = '11px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Tip: Hold Shift for 4x speed | Hold Ctrl for 0.25x speed | Scroll to adjust fly speed', w/2, h - 10);
+                })();
+                </script>
+                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The three primary viewport navigation modes with their keyboard/mouse controls.</em></p>
+                
                 <h3>Viewport Visualization Modes</h3>
                 
                 <p>The viewport can display your scene in many different ways. Each mode reveals different information:</p>
@@ -343,6 +566,108 @@
                     </ol>
                     <p>Get comfortable switching—you'll use these constantly!</p>
                 </div>
+                
+                <!-- SVG: View Modes Comparison -->
+                <svg viewBox="0 0 800 280" style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                    <defs>
+                        <linearGradient id="viewModesBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1a1a2e"/>
+                            <stop offset="100%" style="stop-color:#16213e"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Background -->
+                    <rect width="800" height="280" fill="url(#viewModesBg)"/>
+                    
+                    <!-- Title -->
+                    <text x="400" y="25" font-size="16" font-weight="bold" fill="white" text-anchor="middle">Viewport View Modes at a Glance</text>
+                    
+                    <!-- LIT Mode -->
+                    <g transform="translate(30, 45)">
+                        <rect width="170" height="210" fill="#2d2d2d" stroke="#4CAF50" stroke-width="3" rx="8"/>
+                        <rect width="170" height="30" fill="#4CAF50" rx="8"/>
+                        <rect y="200" width="170" height="10" fill="#4CAF50" rx="0" opacity="0.3"/>
+                        <text x="85" y="22" font-size="14" font-weight="bold" fill="white" text-anchor="middle">LIT (Alt+4)</text>
+                        <!-- Scene preview -->
+                        <rect x="15" y="45" width="140" height="100" fill="#1e3a5f" rx="4"/>
+                        <!-- Cube with lighting -->
+                        <polygon points="85,70 55,85 85,100 115,85" fill="#5d7a9c"/>
+                        <polygon points="55,85 55,115 85,130 85,100" fill="#3d5a7c"/>
+                        <polygon points="85,100 85,130 115,115 115,85" fill="#4a6a8c"/>
+                        <!-- Sun/light -->
+                        <circle cx="130" cy="60" r="10" fill="#ffeb3b" opacity="0.8"/>
+                        <!-- Shadow -->
+                        <ellipse cx="85" cy="135" rx="25" ry="5" fill="#000" opacity="0.3"/>
+                        <text x="85" y="165" font-size="10" fill="#4CAF50" text-anchor="middle">Full lighting</text>
+                        <text x="85" y="178" font-size="10" fill="#aaa" text-anchor="middle">Shadows + Materials</text>
+                        <text x="85" y="193" font-size="9" fill="#666" text-anchor="middle">⭐ DEFAULT</text>
+                    </g>
+                    
+                    <!-- UNLIT Mode -->
+                    <g transform="translate(220, 45)">
+                        <rect width="170" height="210" fill="#2d2d2d" stroke="#2196F3" stroke-width="2" rx="8"/>
+                        <rect width="170" height="30" fill="#2196F3" rx="8"/>
+                        <text x="85" y="22" font-size="14" font-weight="bold" fill="white" text-anchor="middle">UNLIT (Alt+3)</text>
+                        <!-- Scene preview -->
+                        <rect x="15" y="45" width="140" height="100" fill="#4a4a5a" rx="4"/>
+                        <!-- Cube without lighting (flat colors) -->
+                        <polygon points="85,70 55,85 85,100 115,85" fill="#7a8a9c"/>
+                        <polygon points="55,85 55,115 85,130 85,100" fill="#7a8a9c"/>
+                        <polygon points="85,100 85,130 115,115 115,85" fill="#7a8a9c"/>
+                        <!-- No shadow -->
+                        <text x="85" y="165" font-size="10" fill="#2196F3" text-anchor="middle">No lighting</text>
+                        <text x="85" y="178" font-size="10" fill="#aaa" text-anchor="middle">Base colors only</text>
+                        <text x="85" y="193" font-size="9" fill="#666" text-anchor="middle">Dark area work</text>
+                    </g>
+                    
+                    <!-- WIREFRAME Mode -->
+                    <g transform="translate(410, 45)">
+                        <rect width="170" height="210" fill="#2d2d2d" stroke="#FF9800" stroke-width="2" rx="8"/>
+                        <rect width="170" height="30" fill="#FF9800" rx="8"/>
+                        <text x="85" y="22" font-size="14" font-weight="bold" fill="white" text-anchor="middle">WIREFRAME (Alt+2)</text>
+                        <!-- Scene preview -->
+                        <rect x="15" y="45" width="140" height="100" fill="#1a1a2e" rx="4"/>
+                        <!-- Cube wireframe -->
+                        <polygon points="85,70 55,85 85,100 115,85" fill="none" stroke="#FF9800" stroke-width="1.5"/>
+                        <polygon points="55,85 55,115 85,130 85,100" fill="none" stroke="#FF9800" stroke-width="1.5"/>
+                        <polygon points="85,100 85,130 115,115 115,85" fill="none" stroke="#FF9800" stroke-width="1.5"/>
+                        <line x1="85" y1="70" x2="85" y2="100" stroke="#FF9800" stroke-width="1"/>
+                        <line x1="55" y1="85" x2="55" y2="115" stroke="#FF9800" stroke-width="1"/>
+                        <line x1="115" y1="85" x2="115" y2="115" stroke="#FF9800" stroke-width="1"/>
+                        <text x="85" y="165" font-size="10" fill="#FF9800" text-anchor="middle">Mesh edges only</text>
+                        <text x="85" y="178" font-size="10" fill="#aaa" text-anchor="middle">See-through</text>
+                        <text x="85" y="193" font-size="9" fill="#666" text-anchor="middle">Hidden objects</text>
+                    </g>
+                    
+                    <!-- SHADER COMPLEXITY Mode -->
+                    <g transform="translate(600, 45)">
+                        <rect width="170" height="210" fill="#2d2d2d" stroke="#9C27B0" stroke-width="2" rx="8"/>
+                        <rect width="170" height="30" fill="#9C27B0" rx="8"/>
+                        <text x="85" y="22" font-size="12" font-weight="bold" fill="white" text-anchor="middle">SHADER COMPLEXITY</text>
+                        <!-- Scene preview with heatmap -->
+                        <rect x="15" y="45" width="140" height="100" fill="#1a1a2e" rx="4"/>
+                        <!-- Performance heatmap cube -->
+                        <polygon points="85,70 55,85 85,100 115,85" fill="#4CAF50"/>
+                        <polygon points="55,85 55,115 85,130 85,100" fill="#ffeb3b"/>
+                        <polygon points="85,100 85,130 115,115 115,85" fill="#f44336"/>
+                        <!-- Legend bar -->
+                        <rect x="25" y="125" width="120" height="10" rx="2"/>
+                        <defs>
+                            <linearGradient id="perfGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#4CAF50"/>
+                                <stop offset="50%" style="stop-color:#ffeb3b"/>
+                                <stop offset="100%" style="stop-color:#f44336"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="25" y="125" width="120" height="10" fill="url(#perfGrad)" rx="2"/>
+                        <text x="30" y="145" font-size="8" fill="#4CAF50">Fast</text>
+                        <text x="140" y="145" font-size="8" fill="#f44336" text-anchor="end">Slow</text>
+                        <text x="85" y="170" font-size="10" fill="#9C27B0" text-anchor="middle">Performance view</text>
+                        <text x="85" y="183" font-size="10" fill="#aaa" text-anchor="middle">Color = render cost</text>
+                        <text x="85" y="198" font-size="9" fill="#666" text-anchor="middle">Optimization</text>
+                    </g>
+                </svg>
+                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The four most commonly used viewport view modes and what each reveals.</em></p>
                 
                 <h3>Show Flags: Controlling Visibility</h3>
                 
@@ -489,6 +814,115 @@
                         style C fill:#10b981,stroke:#059669,color:#fff
                         style D fill:#fbbf24,stroke:#d97706,color:#000
                 </div>
+                
+                <!-- SVG: Content Browser Panel Mockup -->
+                <svg viewBox="0 0 800 340" style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                    <defs>
+                        <linearGradient id="cbBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1a1a2e"/>
+                            <stop offset="100%" style="stop-color:#16213e"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Background -->
+                    <rect width="800" height="340" fill="url(#cbBg)"/>
+                    
+                    <!-- Title -->
+                    <text x="400" y="25" font-size="16" font-weight="bold" fill="white" text-anchor="middle">Content Browser Anatomy</text>
+                    
+                    <!-- Content Browser Panel -->
+                    <rect x="30" y="40" width="740" height="280" fill="#383838" stroke="#fbbf24" stroke-width="2" rx="8"/>
+                    
+                    <!-- Header Bar with Search -->
+                    <rect x="30" y="40" width="740" height="40" fill="#4a4a4a" rx="8"/>
+                    <text x="45" y="65" font-size="12" font-weight="bold" fill="#fbbf24">Content Browser</text>
+                    
+                    <!-- Search Bar -->
+                    <rect x="180" y="50" width="300" height="24" fill="#2d2d2d" stroke="#555" stroke-width="1" rx="4"/>
+                    <text x="195" y="67" font-size="11" fill="#888">🔍 Search assets...</text>
+                    <text x="480" y="52" font-size="9" fill="#fbbf24">③ Search Bar</text>
+                    
+                    <!-- Filters Button -->
+                    <rect x="490" y="50" width="70" height="24" fill="#667eea" rx="4"/>
+                    <text x="525" y="67" font-size="10" fill="white" text-anchor="middle">Filters</text>
+                    <text x="560" y="52" font-size="9" fill="#9C27B0">④ Filters</text>
+                    
+                    <!-- Add New -->
+                    <rect x="570" y="50" width="80" height="24" fill="#4CAF50" rx="4"/>
+                    <text x="610" y="67" font-size="10" fill="white" text-anchor="middle">+ Add New</text>
+                    
+                    <!-- Import -->
+                    <rect x="660" y="50" width="60" height="24" fill="#2196F3" rx="4"/>
+                    <text x="690" y="67" font-size="10" fill="white" text-anchor="middle">Import</text>
+                    
+                    <!-- Folder Tree (Left Panel) -->
+                    <rect x="35" y="85" width="160" height="230" fill="#2d2d2d" rx="4"/>
+                    <text x="45" y="105" font-size="10" fill="#fbbf24">① Folder Tree</text>
+                    <text x="50" y="125" font-size="10" fill="#fff">📁 Content</text>
+                    <text x="60" y="145" font-size="10" fill="#aaa">📂 Blueprints</text>
+                    <text x="60" y="162" font-size="10" fill="#7cb3f5">📂 Materials</text>
+                    <text x="60" y="179" font-size="10" fill="#aaa">📂 Meshes</text>
+                    <text x="60" y="196" font-size="10" fill="#aaa">📂 Textures</text>
+                    <text x="60" y="213" font-size="10" fill="#aaa">📂 Audio</text>
+                    <text x="50" y="235" font-size="10" fill="#fff">📁 StarterContent</text>
+                    <text x="60" y="255" font-size="10" fill="#aaa">📂 Props</text>
+                    <text x="60" y="272" font-size="10" fill="#aaa">📂 Architecture</text>
+                    
+                    <!-- Path Bar -->
+                    <rect x="200" y="85" width="565" height="25" fill="#2a2a2a" rx="4"/>
+                    <text x="210" y="102" font-size="10" fill="#888">Content</text>
+                    <text x="260" y="102" font-size="10" fill="#555">/</text>
+                    <text x="275" y="102" font-size="10" fill="#888">Materials</text>
+                    <text x="500" y="102" font-size="9" fill="#FF9800">⑤ Path Bar</text>
+                    
+                    <!-- Asset View (Main Area) -->
+                    <rect x="200" y="115" width="565" height="200" fill="#252525" rx="4"/>
+                    <text x="215" y="135" font-size="10" fill="#4CAF50">② Asset View</text>
+                    
+                    <!-- Asset Thumbnails -->
+                    <g transform="translate(215, 145)">
+                        <!-- Row 1 -->
+                        <rect x="0" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
+                        <text x="35" y="45" font-size="24" fill="#888" text-anchor="middle">🟧</text>
+                        <text x="35" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Metal</text>
+                        
+                        <rect x="85" y="0" width="70" height="70" fill="#3d3d3d" stroke="#667eea" stroke-width="2" rx="4"/>
+                        <text x="120" y="45" font-size="24" fill="#4CAF50" text-anchor="middle">🟩</text>
+                        <text x="120" y="82" font-size="8" fill="#7cb3f5" text-anchor="middle">M_Grass</text>
+                        
+                        <rect x="170" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
+                        <text x="205" y="45" font-size="24" fill="#795548" text-anchor="middle">🟥</text>
+                        <text x="205" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Wood</text>
+                        
+                        <rect x="255" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
+                        <text x="290" y="45" font-size="24" fill="#607d8b" text-anchor="middle">⬜</text>
+                        <text x="290" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Concrete</text>
+                        
+                        <rect x="340" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
+                        <text x="375" y="45" font-size="24" fill="#2196F3" text-anchor="middle">📊</text>
+                        <text x="375" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Glass</text>
+                        
+                        <rect x="425" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
+                        <text x="460" y="45" font-size="24" fill="#ffc107" text-anchor="middle">✨</text>
+                        <text x="460" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Gold</text>
+                    </g>
+                    
+                    <!-- Bottom bar -->
+                    <rect x="200" y="290" width="565" height="25" fill="#2a2a2a" rx="4"/>
+                    <text x="210" y="306" font-size="9" fill="#888">23 items | Tile View</text>
+                    <rect x="700" y="294" width="55" height="16" fill="#444" rx="3"/>
+                    <text x="727" y="305" font-size="8" fill="#aaa" text-anchor="middle">🔍 Size</text>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(580, 240)">
+                        <rect width="170" height="70" fill="#1a1a2e" rx="4" opacity="0.9"/>
+                        <text x="10" y="18" font-size="9" fill="#fbbf24">① Folder Tree - Navigate</text>
+                        <text x="10" y="32" font-size="9" fill="#4CAF50">② Asset View - Browse</text>
+                        <text x="10" y="46" font-size="9" fill="#2196F3">③ Search - Find quickly</text>
+                        <text x="10" y="60" font-size="9" fill="#9C27B0">④ Filters - By type</text>
+                    </g>
+                </svg>
+                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The Content Browser interface showing folder tree, asset view, search, and filters.</em></p>
                 
                 <h3>Navigation and Organization</h3>
                 

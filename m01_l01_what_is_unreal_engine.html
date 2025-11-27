@@ -97,6 +97,62 @@
                 <h2>Introduction</h2>
                 
                 <p>Imagine you want to build a house. You could gather raw materials—lumber, nails, concrete—and figure out how to construct everything from scratch. Or you could use pre-fabricated components, power tools, and established blueprints that handle the complex engineering for you. A <strong>game engine</strong> is like that second approach: it's a comprehensive toolkit that handles the heavy lifting of creating interactive 3D experiences, letting you focus on bringing your creative vision to life.</p>
+
+                <!-- SVG: Game Engine Concept -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">Building a Game: From Scratch vs. Using an Engine</text>
+                    
+                    <!-- From Scratch Side -->
+                    <g transform="translate(50, 60)">
+                        <rect x="0" y="0" width="300" height="180" rx="10" fill="#ffebee" stroke="#f44336" stroke-width="2"/>
+                        <text x="150" y="25" text-anchor="middle" fill="#c62828" font-size="14" font-weight="bold">❌ Building From Scratch</text>
+                        
+                        <!-- Raw components -->
+                        <rect x="20" y="45" width="60" height="35" rx="3" fill="#ef9a9a"/>
+                        <text x="50" y="67" text-anchor="middle" fill="#333" font-size="8">Graphics</text>
+                        <text x="50" y="77" text-anchor="middle" fill="#333" font-size="6">Code</text>
+                        
+                        <rect x="90" y="45" width="60" height="35" rx="3" fill="#ef9a9a"/>
+                        <text x="120" y="67" text-anchor="middle" fill="#333" font-size="8">Physics</text>
+                        <text x="120" y="77" text-anchor="middle" fill="#333" font-size="6">Math</text>
+                        
+                        <rect x="160" y="45" width="60" height="35" rx="3" fill="#ef9a9a"/>
+                        <text x="190" y="67" text-anchor="middle" fill="#333" font-size="8">Audio</text>
+                        <text x="190" y="77" text-anchor="middle" fill="#333" font-size="6">System</text>
+                        
+                        <rect x="230" y="45" width="55" height="35" rx="3" fill="#ef9a9a"/>
+                        <text x="257" y="67" text-anchor="middle" fill="#333" font-size="8">Input</text>
+                        <text x="257" y="77" text-anchor="middle" fill="#333" font-size="6">Handling</text>
+                        
+                        <!-- Result -->
+                        <text x="150" y="105" text-anchor="middle" fill="#666" font-size="10">Months/Years of work...</text>
+                        <rect x="100" y="120" width="100" height="45" rx="5" fill="#e57373" stroke="#c62828"/>
+                        <text x="150" y="145" text-anchor="middle" fill="#fff" font-size="10">Basic Game</text>
+                        <text x="150" y="158" text-anchor="middle" fill="#ffcdd2" font-size="8">⏱️ 2+ years</text>
+                    </g>
+                    
+                    <!-- VS -->
+                    <text x="400" y="155" text-anchor="middle" fill="#667eea" font-size="20" font-weight="bold">VS</text>
+                    
+                    <!-- With Engine Side -->
+                    <g transform="translate(450, 60)">
+                        <rect x="0" y="0" width="300" height="180" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="150" y="25" text-anchor="middle" fill="#2e7d32" font-size="14" font-weight="bold">✅ Using a Game Engine</text>
+                        
+                        <!-- Engine box -->
+                        <rect x="50" y="40" width="200" height="60" rx="8" fill="#667eea"/>
+                        <text x="150" y="62" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🎮 Unreal Engine</text>
+                        <text x="150" y="78" text-anchor="middle" fill="#c5cae9" font-size="8">Graphics • Physics • Audio • Input • Networking</text>
+                        <text x="150" y="92" text-anchor="middle" fill="#c5cae9" font-size="8">All built-in and ready to use!</text>
+                        
+                        <!-- Result -->
+                        <text x="150" y="120" text-anchor="middle" fill="#666" font-size="10">Focus on YOUR creation...</text>
+                        <rect x="75" y="130" width="150" height="45" rx="5" fill="#66bb6a" stroke="#2e7d32"/>
+                        <text x="150" y="155" text-anchor="middle" fill="#fff" font-size="10">Amazing Game</text>
+                        <text x="150" y="168" text-anchor="middle" fill="#c8e6c9" font-size="8">⏱️ Weeks/Months</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: A game engine provides all the core systems, so you can focus on creating your unique experience.</em></p>
                 
                 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <h4>📖 Definition</h4>
@@ -112,6 +168,52 @@
                     <li><strong>Accessibility:</strong> Its visual scripting system called "Blueprints" allows creators to build complex functionality without writing traditional code</li>
                     <li><strong>Free to Use:</strong> Unreal Engine is completely free until your project earns over $1 million in revenue</li>
                 </ul>
+
+                <!-- SVG: UE5 Key Features -->
+                <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1a1a2e;">
+                    <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">What Makes Unreal Engine 5 Special</text>
+                    
+                    <!-- Nanite -->
+                    <g transform="translate(50, 55)">
+                        <rect x="0" y="0" width="160" height="120" rx="10" fill="#667eea"/>
+                        <text x="80" y="30" text-anchor="middle" fill="#fff" font-size="24">🔷</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Nanite</text>
+                        <text x="80" y="75" text-anchor="middle" fill="#c5cae9" font-size="8">Virtualized Geometry</text>
+                        <text x="80" y="90" text-anchor="middle" fill="#c5cae9" font-size="7">Millions of polygons</text>
+                        <text x="80" y="102" text-anchor="middle" fill="#c5cae9" font-size="7">auto-optimized in real-time</text>
+                    </g>
+                    
+                    <!-- Lumen -->
+                    <g transform="translate(240, 55)">
+                        <rect x="0" y="0" width="160" height="120" rx="10" fill="#FF9800"/>
+                        <text x="80" y="30" text-anchor="middle" fill="#fff" font-size="24">☀️</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Lumen</text>
+                        <text x="80" y="75" text-anchor="middle" fill="#fff3e0" font-size="8">Global Illumination</text>
+                        <text x="80" y="90" text-anchor="middle" fill="#fff3e0" font-size="7">Real-time bounced light</text>
+                        <text x="80" y="102" text-anchor="middle" fill="#fff3e0" font-size="7">Dynamic reflections</text>
+                    </g>
+                    
+                    <!-- Blueprints -->
+                    <g transform="translate(430, 55)">
+                        <rect x="0" y="0" width="160" height="120" rx="10" fill="#4CAF50"/>
+                        <text x="80" y="30" text-anchor="middle" fill="#fff" font-size="24">📊</text>
+                        <text x="80" y="55" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Blueprints</text>
+                        <text x="80" y="75" text-anchor="middle" fill="#c8e6c9" font-size="8">Visual Scripting</text>
+                        <text x="80" y="90" text-anchor="middle" fill="#c8e6c9" font-size="7">No coding required</text>
+                        <text x="80" y="102" text-anchor="middle" fill="#c8e6c9" font-size="7">Full game logic support</text>
+                    </g>
+                    
+                    <!-- Free -->
+                    <g transform="translate(620, 55)">
+                        <rect x="0" y="0" width="130" height="120" rx="10" fill="#9C27B0"/>
+                        <text x="65" y="30" text-anchor="middle" fill="#fff" font-size="24">💰</text>
+                        <text x="65" y="55" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Free</text>
+                        <text x="65" y="75" text-anchor="middle" fill="#e1bee7" font-size="8">Until $1M Revenue</text>
+                        <text x="65" y="90" text-anchor="middle" fill="#e1bee7" font-size="7">Then 5% royalty</text>
+                        <text x="65" y="102" text-anchor="middle" fill="#e1bee7" font-size="7">Full features free</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Unreal Engine 5's standout features that set it apart from other engines.</em></p>
                 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Why This Matters</h4>
@@ -236,6 +338,99 @@
                 <h3>The Challenge and the Breakthrough</h3>
                 
                 <p>Historically, there was a massive quality gap between pre-rendered and real-time graphics. Movies looked gorgeous; games looked... like games. But that gap has been shrinking rapidly, and Unreal Engine 5 represents a major leap forward.</p>
+
+                <!-- Canvas: Frame Rate Visualization -->
+                <canvas id="frame-rate-comparison" width="750" height="320" style="max-width: 100%; border: 2px solid #667eea; border-radius: 8px; display: block; margin: 2rem auto; background: #1a1a2e;"></canvas>
+                <p class="caption"><em>Figure: Real-time rendering must generate frames in milliseconds, while pre-rendering can take hours per frame.</em></p>
+
+                <script>
+                (function() {
+                    const canvas = document.getElementById('frame-rate-comparison');
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Title
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Frame Generation: Pre-Rendered vs Real-Time', 375, 25);
+                    
+                    // Pre-rendered side
+                    ctx.fillStyle = '#ff9800';
+                    ctx.fillRect(30, 50, 330, 240);
+                    ctx.fillStyle = '#e65100';
+                    ctx.fillRect(30, 50, 330, 30);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Pre-Rendered (Film/Animation)', 195, 70);
+                    
+                    // Single frame with clock
+                    ctx.fillStyle = '#fff3e0';
+                    ctx.fillRect(80, 100, 230, 130);
+                    ctx.strokeStyle = '#e65100';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(80, 100, 230, 130);
+                    
+                    // Frame content representation
+                    ctx.fillStyle = '#ffcc80';
+                    ctx.fillRect(100, 120, 190, 90);
+                    ctx.fillStyle = '#e65100';
+                    ctx.font = '12px Arial';
+                    ctx.fillText('Single Frame', 195, 170);
+                    
+                    // Time indicator
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.fillText('⏱ Render Time:', 195, 250);
+                    ctx.fillStyle = '#ffeb3b';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.fillText('2-12 HOURS', 195, 275);
+                    
+                    // Real-time side
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillRect(390, 50, 330, 240);
+                    ctx.fillStyle = '#1b5e20';
+                    ctx.fillRect(390, 50, 330, 30);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.fillText('Real-Time (Games/Interactive)', 555, 70);
+                    
+                    // Multiple frames
+                    const frameColors = ['#c8e6c9', '#a5d6a7', '#81c784', '#66bb6a', '#4caf50', '#43a047'];
+                    for (let i = 0; i < 6; i++) {
+                        ctx.fillStyle = frameColors[i];
+                        ctx.fillRect(410 + (i * 50), 100 + (i * 5), 80, 60);
+                        ctx.strokeStyle = '#1b5e20';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(410 + (i * 50), 100 + (i * 5), 80, 60);
+                        ctx.fillStyle = '#1b5e20';
+                        ctx.font = '9px Arial';
+                        ctx.fillText('F' + (i + 1), 450 + (i * 50), 135 + (i * 5));
+                    }
+                    
+                    // Frames per second label
+                    ctx.fillStyle = '#e8f5e9';
+                    ctx.fillRect(420, 180, 250, 50);
+                    ctx.fillStyle = '#1b5e20';
+                    ctx.font = '11px Arial';
+                    ctx.fillText('60 frames generated every second!', 545, 200);
+                    ctx.fillText('That\'s a new image every 16.6ms', 545, 218);
+                    
+                    // Time indicator
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.fillText('⏱ Render Time:', 555, 250);
+                    ctx.fillStyle = '#ffeb3b';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.fillText('16 MILLISECONDS', 555, 275);
+                    
+                    // Comparison arrow
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 20px Arial';
+                    ctx.fillText('↔', 375, 175);
+                })();
+                </script>
                 
                 <div class="mermaid">
                     graph LR
@@ -260,6 +455,198 @@
                     <li><strong>Nanite:</strong> A virtualized geometry system that allows you to import film-quality assets with millions of polygons directly into your scene, and the engine automatically optimizes them for real-time display</li>
                     <li><strong>Lumen:</strong> A global illumination system that simulates how light bounces around a scene in real-time, creating realistic lighting without the hours-long render times traditionally required</li>
                 </ul>
+
+                <!-- Canvas: Nanite and Lumen Visualization -->
+                <canvas id="nanite-lumen-demo" width="750" height="300" style="max-width: 100%; border: 2px solid #667eea; border-radius: 8px; display: block; margin: 2rem auto; background: #1a1a2e;"></canvas>
+                <p class="caption"><em>Figure: Nanite handles geometry complexity, while Lumen handles realistic lighting—both in real-time.</em></p>
+
+                <script>
+                (function() {
+                    const canvas = document.getElementById('nanite-lumen-demo');
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Title
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('UE5 Revolutionary Technologies', 375, 25);
+                    
+                    // Nanite Section
+                    ctx.fillStyle = '#667eea';
+                    ctx.fillRect(20, 50, 350, 220);
+                    
+                    // Nanite header
+                    ctx.fillStyle = '#5c6bc0';
+                    ctx.fillRect(20, 50, 350, 35);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.fillText('🔷 NANITE', 195, 73);
+                    ctx.font = '10px Arial';
+                    ctx.fillText('Virtualized Geometry', 195, 88);
+                    
+                    // Draw polygon mesh representation
+                    ctx.strokeStyle = '#c5cae9';
+                    ctx.lineWidth = 1;
+                    
+                    // High poly mesh (left)
+                    ctx.fillStyle = '#3949ab';
+                    ctx.fillRect(40, 100, 100, 80);
+                    ctx.fillStyle = '#c5cae9';
+                    ctx.font = '9px Arial';
+                    ctx.fillText('Film Asset', 90, 115);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.fillText('33 Million', 90, 145);
+                    ctx.font = '9px Arial';
+                    ctx.fillText('Polygons', 90, 160);
+                    
+                    // Draw detailed triangles
+                    for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 6; j++) {
+                            ctx.strokeStyle = 'rgba(197, 202, 233, 0.5)';
+                            ctx.beginPath();
+                            ctx.moveTo(50 + i*10, 170 + j*4);
+                            ctx.lineTo(55 + i*10, 178 + j*4);
+                            ctx.lineTo(60 + i*10, 170 + j*4);
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    // Arrow
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.beginPath();
+                    ctx.moveTo(155, 140);
+                    ctx.lineTo(185, 140);
+                    ctx.lineTo(180, 130);
+                    ctx.moveTo(185, 140);
+                    ctx.lineTo(180, 150);
+                    ctx.stroke();
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.font = 'bold 8px Arial';
+                    ctx.fillText('AUTO', 170, 125);
+                    ctx.fillText('OPTIMIZE', 170, 160);
+                    
+                    // Optimized mesh (right)
+                    ctx.fillStyle = '#3949ab';
+                    ctx.fillRect(200, 100, 100, 80);
+                    ctx.fillStyle = '#c5cae9';
+                    ctx.font = '9px Arial';
+                    ctx.fillText('Real-time', 250, 115);
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.fillText('Optimal', 250, 145);
+                    ctx.font = '9px Arial';
+                    ctx.fillText('Detail Level', 250, 160);
+                    
+                    // Fewer triangles
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 2; j++) {
+                            ctx.strokeStyle = 'rgba(76, 175, 80, 0.7)';
+                            ctx.beginPath();
+                            ctx.moveTo(215 + i*25, 170 + j*12);
+                            ctx.lineTo(227 + i*25, 186 + j*12);
+                            ctx.lineTo(239 + i*25, 170 + j*12);
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    // Nanite benefit
+                    ctx.fillStyle = '#c5cae9';
+                    ctx.fillRect(40, 210, 310, 50);
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Import movie-quality assets directly!', 195, 230);
+                    ctx.fillText('No manual LOD creation needed', 195, 248);
+                    
+                    // Lumen Section
+                    ctx.fillStyle = '#FF9800';
+                    ctx.fillRect(380, 50, 350, 220);
+                    
+                    // Lumen header
+                    ctx.fillStyle = '#f57c00';
+                    ctx.fillRect(380, 50, 350, 35);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.fillText('☀️ LUMEN', 555, 73);
+                    ctx.font = '10px Arial';
+                    ctx.fillText('Global Illumination', 555, 88);
+                    
+                    // Light source
+                    ctx.fillStyle = '#ffeb3b';
+                    ctx.beginPath();
+                    ctx.arc(420, 130, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '12px Arial';
+                    ctx.fillText('☀️', 415, 135);
+                    
+                    // Light rays
+                    ctx.strokeStyle = '#ffeb3b';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 3]);
+                    
+                    // Direct light
+                    ctx.beginPath();
+                    ctx.moveTo(440, 130);
+                    ctx.lineTo(500, 160);
+                    ctx.stroke();
+                    
+                    // Wall
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = '#5d4037';
+                    ctx.fillRect(500, 110, 20, 100);
+                    
+                    // Bounced light
+                    ctx.strokeStyle = '#ffcc80';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([3, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(500, 160);
+                    ctx.lineTo(560, 140);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(500, 160);
+                    ctx.lineTo(540, 190);
+                    ctx.stroke();
+                    
+                    // Objects receiving bounced light
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = '#8d6e63';
+                    ctx.fillRect(550, 125, 40, 40);
+                    ctx.fillRect(530, 180, 50, 30);
+                    
+                    // Glow effect
+                    const gradient = ctx.createRadialGradient(570, 145, 5, 570, 145, 30);
+                    gradient.addColorStop(0, 'rgba(255, 204, 128, 0.4)');
+                    gradient.addColorStop(1, 'rgba(255, 204, 128, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(570, 145, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Labels
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '8px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('Direct Light', 445, 145);
+                    ctx.fillStyle = '#ffcc80';
+                    ctx.fillText('Bounced Light', 545, 170);
+                    
+                    // Lumen benefit
+                    ctx.fillStyle = '#fff3e0';
+                    ctx.fillRect(400, 210, 310, 50);
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Real-time light bouncing and reflections!', 555, 230);
+                    ctx.fillText('No baking required - fully dynamic', 555, 248);
+                })();
+                </script>
                 
                 <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
                     <h4>⚠️ Keep in Mind</h4>
@@ -271,6 +658,84 @@
                 <h2>Industries and Use Cases</h2>
                 
                 <p>While Unreal Engine was born in the gaming world, its capabilities have attracted professionals from a surprisingly diverse range of industries. Let's explore where Unreal Engine is making an impact today.</p>
+
+                <!-- SVG: Industry Overview Cards -->
+                <svg width="100%" height="340" viewBox="0 0 800 340" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">Industries Powered by Unreal Engine</text>
+                    
+                    <!-- Row 1 -->
+                    <!-- Games -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="145" height="120" rx="10" fill="#667eea" stroke="#5c6bc0" stroke-width="2"/>
+                        <text x="72" y="35" text-anchor="middle" fill="#fff" font-size="28">🎮</text>
+                        <text x="72" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Video Games</text>
+                        <text x="72" y="78" text-anchor="middle" fill="#c5cae9" font-size="8">AAA to Indie</text>
+                        <text x="72" y="92" text-anchor="middle" fill="#c5cae9" font-size="8">All platforms</text>
+                        <text x="72" y="106" text-anchor="middle" fill="#c5cae9" font-size="8">VR/AR games</text>
+                    </g>
+                    
+                    <!-- Film/TV -->
+                    <g transform="translate(190, 50)">
+                        <rect x="0" y="0" width="145" height="120" rx="10" fill="#f44336" stroke="#d32f2f" stroke-width="2"/>
+                        <text x="72" y="35" text-anchor="middle" fill="#fff" font-size="28">🎬</text>
+                        <text x="72" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Film & TV</text>
+                        <text x="72" y="78" text-anchor="middle" fill="#ffcdd2" font-size="8">Virtual Production</text>
+                        <text x="72" y="92" text-anchor="middle" fill="#ffcdd2" font-size="8">LED Volumes</text>
+                        <text x="72" y="106" text-anchor="middle" fill="#ffcdd2" font-size="8">Previz & Animation</text>
+                    </g>
+                    
+                    <!-- Architecture -->
+                    <g transform="translate(350, 50)">
+                        <rect x="0" y="0" width="145" height="120" rx="10" fill="#4CAF50" stroke="#388e3c" stroke-width="2"/>
+                        <text x="72" y="35" text-anchor="middle" fill="#fff" font-size="28">🏗️</text>
+                        <text x="72" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Architecture</text>
+                        <text x="72" y="78" text-anchor="middle" fill="#c8e6c9" font-size="8">VR Walkthroughs</text>
+                        <text x="72" y="92" text-anchor="middle" fill="#c8e6c9" font-size="8">Real-time Lighting</text>
+                        <text x="72" y="106" text-anchor="middle" fill="#c8e6c9" font-size="8">Client Presentations</text>
+                    </g>
+                    
+                    <!-- Automotive -->
+                    <g transform="translate(510, 50)">
+                        <rect x="0" y="0" width="145" height="120" rx="10" fill="#FF9800" stroke="#f57c00" stroke-width="2"/>
+                        <text x="72" y="35" text-anchor="middle" fill="#fff" font-size="28">🚗</text>
+                        <text x="72" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Automotive</text>
+                        <text x="72" y="78" text-anchor="middle" fill="#fff3e0" font-size="8">Configurators</text>
+                        <text x="72" y="92" text-anchor="middle" fill="#fff3e0" font-size="8">Design Review</text>
+                        <text x="72" y="106" text-anchor="middle" fill="#fff3e0" font-size="8">Driving Simulation</text>
+                    </g>
+                    
+                    <!-- Row 2 -->
+                    <!-- Medical -->
+                    <g transform="translate(110, 190)">
+                        <rect x="0" y="0" width="145" height="120" rx="10" fill="#00bcd4" stroke="#0097a7" stroke-width="2"/>
+                        <text x="72" y="35" text-anchor="middle" fill="#fff" font-size="28">🏥</text>
+                        <text x="72" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Medical</text>
+                        <text x="72" y="78" text-anchor="middle" fill="#b2ebf2" font-size="8">Surgical Training</text>
+                        <text x="72" y="92" text-anchor="middle" fill="#b2ebf2" font-size="8">3D Visualization</text>
+                        <text x="72" y="106" text-anchor="middle" fill="#b2ebf2" font-size="8">Patient Education</text>
+                    </g>
+                    
+                    <!-- Education -->
+                    <g transform="translate(270, 190)">
+                        <rect x="0" y="0" width="145" height="120" rx="10" fill="#9C27B0" stroke="#7b1fa2" stroke-width="2"/>
+                        <text x="72" y="35" text-anchor="middle" fill="#fff" font-size="28">🎓</text>
+                        <text x="72" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Education</text>
+                        <text x="72" y="78" text-anchor="middle" fill="#e1bee7" font-size="8">Interactive Learning</text>
+                        <text x="72" y="92" text-anchor="middle" fill="#e1bee7" font-size="8">Virtual Labs</text>
+                        <text x="72" y="106" text-anchor="middle" fill="#e1bee7" font-size="8">Historical Recreation</text>
+                    </g>
+                    
+                    <!-- Simulation -->
+                    <g transform="translate(430, 190)">
+                        <rect x="0" y="0" width="145" height="120" rx="10" fill="#607d8b" stroke="#455a64" stroke-width="2"/>
+                        <text x="72" y="35" text-anchor="middle" fill="#fff" font-size="28">✈️</text>
+                        <text x="72" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Simulation</text>
+                        <text x="72" y="78" text-anchor="middle" fill="#cfd8dc" font-size="8">Flight Training</text>
+                        <text x="72" y="92" text-anchor="middle" fill="#cfd8dc" font-size="8">Military Training</text>
+                        <text x="72" y="106" text-anchor="middle" fill="#cfd8dc" font-size="8">Emergency Response</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Unreal Engine's versatility extends far beyond gaming into multiple professional industries.</em></p>
                 
                 <h3>🎮 Video Games</h3>
                 
@@ -376,6 +841,90 @@
                 <h3>The Big Three</h3>
                 
                 <p>Three game engines dominate the industry: <strong>Unreal Engine</strong>, <strong>Unity</strong>, and <strong>Godot</strong>. Each has its own philosophy, strengths, and ideal use cases.</p>
+
+                <!-- SVG: Engine Comparison Visual -->
+                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">Game Engine Comparison at a Glance</text>
+                    
+                    <!-- Unreal Engine -->
+                    <g transform="translate(30, 55)">
+                        <rect x="0" y="0" width="230" height="200" rx="12" fill="#1a1a2e" stroke="#667eea" stroke-width="3"/>
+                        <rect x="0" y="0" width="230" height="40" rx="12" fill="#667eea"/>
+                        <rect x="0" y="28" width="230" height="12" fill="#667eea"/>
+                        <text x="115" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Unreal Engine 5</text>
+                        
+                        <text x="115" y="65" text-anchor="middle" fill="#c5cae9" font-size="9">BEST FOR</text>
+                        <text x="115" y="82" text-anchor="middle" fill="#fff" font-size="10">AAA Games • Photorealism</text>
+                        <text x="115" y="96" text-anchor="middle" fill="#fff" font-size="10">Film • Arch-Viz</text>
+                        
+                        <line x1="20" y1="110" x2="210" y2="110" stroke="#667eea" stroke-width="1"/>
+                        
+                        <text x="20" y="130" fill="#c5cae9" font-size="9">💻 Language:</text>
+                        <text x="130" y="130" fill="#fff" font-size="9">C++ / Blueprints</text>
+                        
+                        <text x="20" y="150" fill="#c5cae9" font-size="9">💰 Price:</text>
+                        <text x="130" y="150" fill="#4CAF50" font-size="9">Free until $1M</text>
+                        
+                        <text x="20" y="170" fill="#c5cae9" font-size="9">🎯 Learning:</text>
+                        <text x="130" y="170" fill="#FF9800" font-size="9">Moderate-Steep</text>
+                        
+                        <text x="20" y="190" fill="#c5cae9" font-size="9">📊 Graphics:</text>
+                        <text x="130" y="190" fill="#4CAF50" font-size="9">Industry Leading</text>
+                    </g>
+                    
+                    <!-- Unity -->
+                    <g transform="translate(285, 55)">
+                        <rect x="0" y="0" width="230" height="200" rx="12" fill="#1a1a2e" stroke="#444" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="40" rx="12" fill="#444"/>
+                        <rect x="0" y="28" width="230" height="12" fill="#444"/>
+                        <text x="115" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Unity</text>
+                        
+                        <text x="115" y="65" text-anchor="middle" fill="#aaa" font-size="9">BEST FOR</text>
+                        <text x="115" y="82" text-anchor="middle" fill="#fff" font-size="10">Mobile Games • Indie</text>
+                        <text x="115" y="96" text-anchor="middle" fill="#fff" font-size="10">AR/VR • Prototyping</text>
+                        
+                        <line x1="20" y1="110" x2="210" y2="110" stroke="#444" stroke-width="1"/>
+                        
+                        <text x="20" y="130" fill="#aaa" font-size="9">💻 Language:</text>
+                        <text x="130" y="130" fill="#fff" font-size="9">C#</text>
+                        
+                        <text x="20" y="150" fill="#aaa" font-size="9">💰 Price:</text>
+                        <text x="130" y="150" fill="#FF9800" font-size="9">Free tier + Plans</text>
+                        
+                        <text x="20" y="170" fill="#aaa" font-size="9">🎯 Learning:</text>
+                        <text x="130" y="170" fill="#4CAF50" font-size="9">Beginner Friendly</text>
+                        
+                        <text x="20" y="190" fill="#aaa" font-size="9">📊 Graphics:</text>
+                        <text x="130" y="190" fill="#FF9800" font-size="9">Good (HDRP)</text>
+                    </g>
+                    
+                    <!-- Godot -->
+                    <g transform="translate(540, 55)">
+                        <rect x="0" y="0" width="230" height="200" rx="12" fill="#1a1a2e" stroke="#478cbf" stroke-width="2"/>
+                        <rect x="0" y="0" width="230" height="40" rx="12" fill="#478cbf"/>
+                        <rect x="0" y="28" width="230" height="12" fill="#478cbf"/>
+                        <text x="115" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Godot</text>
+                        
+                        <text x="115" y="65" text-anchor="middle" fill="#a0d8ef" font-size="9">BEST FOR</text>
+                        <text x="115" y="82" text-anchor="middle" fill="#fff" font-size="10">2D Games • Learning</text>
+                        <text x="115" y="96" text-anchor="middle" fill="#fff" font-size="10">Indie • Open Source</text>
+                        
+                        <line x1="20" y1="110" x2="210" y2="110" stroke="#478cbf" stroke-width="1"/>
+                        
+                        <text x="20" y="130" fill="#a0d8ef" font-size="9">💻 Language:</text>
+                        <text x="130" y="130" fill="#fff" font-size="9">GDScript / C#</text>
+                        
+                        <text x="20" y="150" fill="#a0d8ef" font-size="9">💰 Price:</text>
+                        <text x="130" y="150" fill="#4CAF50" font-size="9">100% Free (MIT)</text>
+                        
+                        <text x="20" y="170" fill="#a0d8ef" font-size="9">🎯 Learning:</text>
+                        <text x="130" y="170" fill="#4CAF50" font-size="9">Easiest</text>
+                        
+                        <text x="20" y="190" fill="#a0d8ef" font-size="9">📊 Graphics:</text>
+                        <text x="130" y="190" fill="#FF9800" font-size="9">Decent (Stylized)</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Quick comparison of the three most popular game engines.</em></p>
                 
                 <table>
                     <thead>
@@ -458,6 +1007,58 @@
                 <h2>The Unreal Ecosystem</h2>
                 
                 <p>Unreal Engine isn't just software you download—it's an entire ecosystem of resources, tools, and community support designed to help you succeed. Understanding what's available will accelerate your learning and save you countless hours.</p>
+
+                <!-- SVG: Ecosystem Overview -->
+                <svg width="100%" height="380" viewBox="0 0 800 380" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: radial-gradient(ellipse at center, #e8eaf6 0%, #c5cae9 100%);">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="16" font-weight="bold">The Unreal Ecosystem</text>
+                    
+                    <!-- Center: Unreal Engine -->
+                    <circle cx="400" cy="190" r="70" fill="#667eea" stroke="#5c6bc0" stroke-width="4"/>
+                    <text x="400" y="180" text-anchor="middle" fill="#fff" font-size="24">🎮</text>
+                    <text x="400" y="200" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Unreal</text>
+                    <text x="400" y="214" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Engine 5</text>
+                    
+                    <!-- Marketplace -->
+                    <line x1="330" y1="160" x2="200" y2="100" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    <circle cx="150" cy="80" r="50" fill="#4CAF50" stroke="#388e3c" stroke-width="2"/>
+                    <text x="150" y="72" text-anchor="middle" fill="#fff" font-size="18">🛒</text>
+                    <text x="150" y="92" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Marketplace</text>
+                    <text x="150" y="105" text-anchor="middle" fill="#c8e6c9" font-size="7">Assets &amp; Plugins</text>
+                    
+                    <!-- Documentation -->
+                    <line x1="400" y1="120" x2="400" y2="60" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    <circle cx="400" cy="45" r="40" fill="#2196F3" stroke="#1976d2" stroke-width="2"/>
+                    <text x="400" y="40" text-anchor="middle" fill="#fff" font-size="16">📖</text>
+                    <text x="400" y="58" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Documentation</text>
+                    
+                    <!-- Learning -->
+                    <line x1="470" y1="160" x2="600" y2="100" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    <circle cx="650" cy="80" r="50" fill="#FF9800" stroke="#f57c00" stroke-width="2"/>
+                    <text x="650" y="72" text-anchor="middle" fill="#fff" font-size="18">🎓</text>
+                    <text x="650" y="92" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Learning</text>
+                    <text x="650" y="105" text-anchor="middle" fill="#fff3e0" font-size="7">Tutorials &amp; Courses</text>
+                    
+                    <!-- Megascans -->
+                    <line x1="330" y1="220" x2="200" y2="280" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    <circle cx="150" cy="300" r="50" fill="#9C27B0" stroke="#7b1fa2" stroke-width="2"/>
+                    <text x="150" y="292" text-anchor="middle" fill="#fff" font-size="18">🏞️</text>
+                    <text x="150" y="312" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Megascans</text>
+                    <text x="150" y="325" text-anchor="middle" fill="#e1bee7" font-size="7">Free 3D Assets</text>
+                    
+                    <!-- MetaHuman -->
+                    <line x1="400" y1="260" x2="400" y2="320" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    <circle cx="400" cy="335" r="40" fill="#f44336" stroke="#d32f2f" stroke-width="2"/>
+                    <text x="400" y="330" text-anchor="middle" fill="#fff" font-size="16">👤</text>
+                    <text x="400" y="348" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">MetaHuman</text>
+                    
+                    <!-- Community -->
+                    <line x1="470" y1="220" x2="600" y2="280" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                    <circle cx="650" cy="300" r="50" fill="#00bcd4" stroke="#0097a7" stroke-width="2"/>
+                    <text x="650" y="292" text-anchor="middle" fill="#fff" font-size="18">👥</text>
+                    <text x="650" y="312" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Community</text>
+                    <text x="650" y="325" text-anchor="middle" fill="#b2ebf2" font-size="7">Forums &amp; Discord</text>
+                </svg>
+                <p class="caption"><em>Figure: Unreal Engine is surrounded by a rich ecosystem of resources and tools.</em></p>
                 
                 <h3>📦 The Unreal Marketplace</h3>
                 

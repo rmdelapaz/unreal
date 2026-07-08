@@ -209,7 +209,7 @@ flowchart LR
 
                 <p><strong>From the Content Browser:</strong> Right-click your parent material → <strong>Create Material Instance</strong>. This creates an instance with the parent already assigned.</p>
 
-                <p><strong>From scratch:</strong> Right-click in Content Browser → <strong>Materials & Textures → Material Instance</strong>. Then in the Details panel, assign the Parent property to your desired parent material.</p>
+                <p><strong>From scratch:</strong> Right-click in Content Browser and choose <strong>Material Instance</strong> from the creation menu. Then in the Details panel, assign the Parent property to your desired parent material.</p>
 
                 <p><strong>Duplicate an existing instance:</strong> Right-click an instance → <strong>Duplicate</strong>. The new instance shares the same parent but starts with the duplicated instance's parameter values.</p>
 
@@ -226,84 +226,8 @@ flowchart LR
 
                 <p>You'll see a list of all parameters exposed by the parent material, organized into groups. Each parameter has a <strong>checkbox</strong> to enable/disable the override. When unchecked, the instance uses the parent's default value. When checked, you can specify a custom value.</p>
 
-                <!-- SVG: Material Instance Editor -->
-                <svg width="100%" height="340" viewBox="0 0 700 340" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <!-- Title bar -->
-                    <rect x="0" y="0" width="700" height="30" fill="#1a1a1a"/>
-                    <text x="15" y="20" fill="#fff" font-size="11">Material Instance Editor - MI_Example</text>
-                    <circle cx="670" cy="15" r="6" fill="#e74c3c"/>
-                    <circle cx="650" cy="15" r="6" fill="#f39c12"/>
-                    <circle cx="630" cy="15" r="6" fill="#2ecc71"/>
-                    
-                    <!-- Left Panel: Details -->
-                    <rect x="0" y="30" width="350" height="310" fill="#252525"/>
-                    <rect x="0" y="30" width="350" height="25" fill="#1f1f1f"/>
-                    <text x="15" y="48" fill="#aaa" font-size="11" font-weight="bold">Details</text>
-                    
-                    <!-- Parent Material -->
-                    <text x="15" y="80" fill="#888" font-size="10">Parent</text>
-                    <rect x="15" y="88" width="320" height="22" rx="3" fill="#333"/>
-                    <text x="25" y="103" fill="#667eea" font-size="10">M_Master_Surface</text>
-                    
-                    <!-- Parameter Groups -->
-                    <text x="15" y="135" fill="#667eea" font-size="11" font-weight="bold">▼ Surface Properties</text>
-                    
-                    <!-- Base Color Parameter -->
-                    <rect x="25" y="148" width="16" height="16" rx="2" fill="#4CAF50" stroke="#fff" stroke-width="1"/>
-                    <text x="28" y="160" fill="#fff" font-size="10">✓</text>
-                    <text x="50" y="161" fill="#aaa" font-size="10">Base Color Tint</text>
-                    <rect x="200" y="148" width="60" height="18" fill="#c0392b" stroke="#555" stroke-width="1"/>
-                    
-                    <!-- Roughness Parameter -->
-                    <rect x="25" y="175" width="16" height="16" rx="2" fill="#4CAF50" stroke="#fff" stroke-width="1"/>
-                    <text x="28" y="187" fill="#fff" font-size="10">✓</text>
-                    <text x="50" y="188" fill="#aaa" font-size="10">Roughness</text>
-                    <rect x="200" y="175" width="100" height="18" rx="2" fill="#333" stroke="#555"/>
-                    <rect x="200" y="175" width="60" height="18" rx="2" fill="#667eea"/>
-                    <text x="310" y="188" fill="#aaa" font-size="9">0.6</text>
-                    
-                    <!-- Metallic Parameter (unchecked) -->
-                    <rect x="25" y="202" width="16" height="16" rx="2" fill="#333" stroke="#555" stroke-width="1"/>
-                    <text x="50" y="215" fill="#666" font-size="10">Metallic</text>
-                    <text x="200" y="215" fill="#555" font-size="9">(using parent default)</text>
-                    
-                    <!-- Tiling Parameter -->
-                    <rect x="25" y="229" width="16" height="16" rx="2" fill="#4CAF50" stroke="#fff" stroke-width="1"/>
-                    <text x="28" y="241" fill="#fff" font-size="10">✓</text>
-                    <text x="50" y="242" fill="#aaa" font-size="10">Tiling</text>
-                    <rect x="200" y="229" width="80" height="18" rx="2" fill="#333" stroke="#555"/>
-                    <text x="210" y="242" fill="#fff" font-size="10">4.0</text>
-                    
-                    <!-- Textures Group -->
-                    <text x="15" y="275" fill="#667eea" font-size="11" font-weight="bold">▼ Textures</text>
-                    
-                    <!-- Texture Parameter -->
-                    <rect x="25" y="288" width="16" height="16" rx="2" fill="#4CAF50" stroke="#fff" stroke-width="1"/>
-                    <text x="28" y="300" fill="#fff" font-size="10">✓</text>
-                    <text x="50" y="301" fill="#aaa" font-size="10">Base Color Texture</text>
-                    <rect x="200" y="285" width="50" height="25" fill="#8B4513" stroke="#555" stroke-width="1"/>
-                    <text x="260" y="301" fill="#888" font-size="9">T_Brick_D</text>
-                    
-                    <!-- Right Panel: Preview -->
-                    <rect x="350" y="30" width="350" height="310" fill="#1e1e1e"/>
-                    <rect x="350" y="30" width="350" height="25" fill="#1f1f1f"/>
-                    <text x="365" y="48" fill="#aaa" font-size="11" font-weight="bold">Preview</text>
-                    
-                    <!-- Preview sphere -->
-                    <circle cx="525" cy="185" r="100" fill="url(#instancePreview)"/>
-                    <defs>
-                        <radialGradient id="instancePreview" cx="35%" cy="35%">
-                            <stop offset="0%" style="stop-color:#e8a090"/>
-                            <stop offset="50%" style="stop-color:#a0522d"/>
-                            <stop offset="100%" style="stop-color:#5d3a1a"/>
-                        </radialGradient>
-                    </defs>
-                    
-                    <!-- Callouts -->
-                    <rect x="400" y="295" width="240" height="35" rx="5" fill="rgba(76,175,80,0.2)" stroke="#4CAF50"/>
-                    <text x="520" y="315" text-anchor="middle" fill="#4CAF50" font-size="10">✓ = Override enabled (custom value)</text>
-                </svg>
-                <p class="caption"><em>Figure: The Material Instance Editor provides a clean interface for adjusting exposed parameters.</em></p>
+                <img src="images/m03_l04/m03_l04_fig01_material_instance_editor.png" alt="The Material Instance Editor Details panel for MI_ShinyPlastic_Red in UE 5.8, showing parameter groups 01 - Surface (Base_Color_Tint and Roughness_Amount with override checkboxes enabled, Metallic_Amount left at the parent default), 02 - Textures, and 03 - UV, with the Parent set to M_ConfigurableSurface." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real Material Instance Editor in UE 5.8 &#183; each parameter has an override checkbox (checked = custom value, unchecked = inherited from the parent) &#183; groups keep the interface organized.</em></p>
 
                 <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
                     <h4>⚠️ Watch Out</h4>
@@ -363,6 +287,8 @@ flowchart LR
                     </g>
                 </svg>
                 <p class="caption"><em>Figure: Scalar Parameter properties control how the parameter appears and behaves in instances.</em></p>
+                <img src="images/m03_l04/m03_l04_fig02_scalar_parameter_details.png" alt="The Details panel for a Scalar Parameter node named Roughness_Amount in the UE 5.8 Material Editor, showing Parameter Name, Default Value 0.5, Group 01 - Surface, Sort Priority 1, Control Type Numeric, Slider Min 0.0, and Slider Max 1.0." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The same properties in the real Material Editor &#183; selecting the Roughness_Amount node shows its Name, Default Value, Group, Sort Priority, and Slider Min/Max.</em></p>
 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Pro Tip: Slider Ranges</h4>
@@ -980,7 +906,7 @@ flowchart LR
 
                 <p>For global parameters that affect many materials simultaneously (time of day, weather intensity, global tint), use <strong>Material Parameter Collections</strong> instead of DMIs.</p>
 
-                <p>Create one in Content Browser: Right-click → <strong>Materials & Textures → Material Parameter Collection</strong>. Add scalar or vector parameters to the collection. In your materials, use <strong>Collection Parameter</strong> nodes to read these values.</p>
+                <p>Create one in Content Browser: right-click and choose <strong>Material Parameter Collection</strong> from the creation menu. Add scalar or vector parameters to the collection. In your materials, use <strong>Collection Parameter</strong> nodes to read these values.</p>
 
                 <p>At runtime, a single Blueprint node (<strong>Set Scalar Parameter Value</strong> or <strong>Set Vector Parameter Value</strong> on the collection) updates the parameter across ALL materials using that collection—far more efficient than updating thousands of individual DMIs.</p>
 
@@ -1212,6 +1138,8 @@ flowchart LR
                     </div>
                 </details>
 
+                <img src="images/m03_l04/m03_l04_fig03_instance_spheres.jpg" alt="Three spheres rendered from three Material Instances of the same parent material M_ConfigurableSurface: Shiny Red Plastic at roughness 0.2 with a sharp specular highlight, Brushed Gold Metal at roughness 0.4 and fully metallic with soft warm reflections, and Matte Blue Paint at roughness 0.85 with a flat diffuse surface." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: Three instances of one parent material &#183; only the Base Color, Roughness, and Metallic values differ &#183; the shader code is identical.</em></p>
                 <h3>Part 3: Dynamic Material at Runtime (Bonus)</h3>
 
                 <p><strong>Step 12:</strong> Create a new Blueprint Actor: Right-click in Content Browser → <strong>Blueprint Class → Actor</strong>. Name it <code>BP_ColorChangingCube</code>.</p>

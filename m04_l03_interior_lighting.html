@@ -87,7 +87,7 @@
                         <li><a href="#rect-lights" class="toc-link">Rect Lights for Area Lighting</a></li>
                         <li><a href="#ies-profiles" class="toc-link">IES Profiles</a></li>
                         <li><a href="#light-functions" class="toc-link">Light Functions</a></li>
-                        <li><a href="#hands-on" class="toc-link">Hands-On: Light an Interior Room</a></li>
+                        <li><a href="#hands-on-exercise" class="toc-link">Hands-On: Light an Interior Room</a></li>
                         <li><a href="#summary" class="toc-link">Summary</a></li>
                     </ol>
                 </nav>
@@ -685,6 +685,176 @@ flowchart TD
                 </pre>
                 <p class="caption"><em>Figure: Choose light type based on the real-world source you're simulating.</em></p>
             </section>
+
+            <!-- Section 5: IES Profiles -->
+            <section id="ies-profiles" class="lesson-section">
+                <h2>IES Profiles</h2>
+
+                <p><strong>IES profiles</strong> bring real-world photometric accuracy to your lights. An IES file (named for the Illuminating Engineering Society) is a small text file, published by lighting manufacturers, that records exactly how one physical fixture throws light into space: its hotspot, its falloff, and the secondary lobes that a plain mathematical cone or sphere can never reproduce.</p>
+
+                <p>When you apply an IES profile to a Point or Spot Light, Unreal shapes the light using that measured distribution. The difference is dramatic: a generic pool of light becomes one that reads as a real recessed can, a wall sconce, or a street lamp.</p>
+
+                <h3>What an IES Profile Describes</h3>
+
+                <p>A photometric file encodes the intensity of a fixture measured at many angles around it, forming a 3D pattern often called the <strong>photometric web</strong>. Common distribution shapes include:</p>
+
+                <p><strong>Spot / narrow beam:</strong> A tight, concentrated pool. Typical of track heads and focused downlights.</p>
+
+                <p><strong>Flood:</strong> A wide, even spread for general-purpose fixtures and work lights.</p>
+
+                <p><strong>Wall wash:</strong> An asymmetric throw that pushes light forward and down to graze a vertical surface evenly.</p>
+
+                <p><strong>Batwing:</strong> Twin lobes that spread light sideways to cover a room with fewer fixtures, common in office troffers.</p>
+
+                <!-- SVG: IES distribution shapes -->
+                <svg width="100%" height="250" viewBox="0 0 800 250" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Common IES Distribution Shapes</text>
+
+                    <!-- Spot / narrow -->
+                    <g transform="translate(100,50)">
+                        <circle cx="0" cy="0" r="6" fill="#f1c40f"/>
+                        <path d="M0,0 L-22,150 Q0,175 22,150 Z" fill="#f1c40f" opacity="0.35"/>
+                        <text x="0" y="205" text-anchor="middle" fill="#f1c40f" font-size="12" font-weight="bold">Spot</text>
+                        <text x="0" y="222" text-anchor="middle" fill="#aaa" font-size="9">Narrow beam</text>
+                    </g>
+
+                    <!-- Flood -->
+                    <g transform="translate(300,50)">
+                        <circle cx="0" cy="0" r="6" fill="#f1c40f"/>
+                        <path d="M0,0 L-75,150 Q0,185 75,150 Z" fill="#f1c40f" opacity="0.35"/>
+                        <text x="0" y="205" text-anchor="middle" fill="#f1c40f" font-size="12" font-weight="bold">Flood</text>
+                        <text x="0" y="222" text-anchor="middle" fill="#aaa" font-size="9">Wide, even spread</text>
+                    </g>
+
+                    <!-- Wall wash (asymmetric) -->
+                    <g transform="translate(500,50)">
+                        <circle cx="0" cy="0" r="6" fill="#f1c40f"/>
+                        <path d="M0,0 L-10,150 Q40,180 90,140 Q60,60 0,0 Z" fill="#f1c40f" opacity="0.35"/>
+                        <text x="0" y="205" text-anchor="middle" fill="#f1c40f" font-size="12" font-weight="bold">Wall Wash</text>
+                        <text x="0" y="222" text-anchor="middle" fill="#aaa" font-size="9">Asymmetric throw</text>
+                    </g>
+
+                    <!-- Batwing (two lobes) -->
+                    <g transform="translate(700,50)">
+                        <circle cx="0" cy="0" r="6" fill="#f1c40f"/>
+                        <path d="M0,0 Q-90,70 -60,150 Q-25,120 0,60 Q25,120 60,150 Q90,70 0,0 Z" fill="#f1c40f" opacity="0.35"/>
+                        <text x="0" y="205" text-anchor="middle" fill="#f1c40f" font-size="12" font-weight="bold">Batwing</text>
+                        <text x="0" y="222" text-anchor="middle" fill="#aaa" font-size="9">Twin side lobes</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Four common IES distribution shapes, each measured from a real fixture.</em></p>
+
+                <h3>Importing an IES File</h3>
+
+                <p>IES files are widely available for free from manufacturer websites and photometric libraries. To bring one into your project:</p>
+
+                <ol>
+                    <li>Obtain a <code>.ies</code> file from a manufacturer or a photometric library</li>
+                    <li>Drag it into the Content Browser, or use <strong>Import</strong> and choose the file</li>
+                    <li>Unreal creates a <strong>Texture Light Profile</strong> asset that stores the distribution</li>
+                </ol>
+
+                <h3>Applying an IES Profile to a Light</h3>
+
+                <p>Select a Point or Spot Light and open its Details panel. Under the <strong>Light Profiles</strong> category you will find three settings:</p>
+
+                <ol>
+                    <li>Set the <strong>IES Texture</strong> slot to your imported profile</li>
+                    <li>Enable <strong>Use IES Intensity</strong> to drive brightness from the file's real photometric values, or leave it off to keep your manual Intensity and borrow only the profile's shape</li>
+                    <li>Adjust <strong>IES Intensity Scale</strong> to boost or trim the profile's contribution</li>
+                </ol>
+
+                <img src="images/m04_l03/m04_l03_fig01_ies_texture_slot.png" alt="The Light Profiles category in a Spot Light's Details panel, showing the IES Texture asset slot, the Use IES Intensity checkbox, and the IES Intensity Scale field." style="max-width:100%; display:block; margin:2rem auto; border:1px solid #444; border-radius:8px;">
+                <p class="caption"><em>Figure: The <strong>Light Profiles</strong> category on a Point or Spot Light &#183; assign a <code>.ies</code> asset to <strong>IES Texture</strong>, then tune with <strong>Use IES Intensity</strong> and <strong>IES Intensity Scale</strong>.</em></p>
+
+                <p>The light in the viewport immediately takes on the fixture's real distribution, including any hotspot and falloff baked into the measurement.</p>
+
+                <h3>When to Use IES Profiles</h3>
+
+                <p><strong>Architectural visualization:</strong> The single biggest win. Real product IES files make rendered interiors match the actual fixtures a client will install.</p>
+
+                <p><strong>Recessed and track lighting:</strong> Adds the subtle scallops and hotspots that sell a ceiling full of downlights.</p>
+
+                <p><strong>Street and area lighting:</strong> Roadway and parking fixtures have very specific, wide throws that IES captures faithfully.</p>
+
+                <p><strong>Any hero fixture:</strong> Wherever a light is on camera and its shape matters, an IES profile earns its place for almost no runtime cost.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Shape First, Brightness Second</h4>
+                    <p>Leave <strong>Use IES Intensity</strong> off while you block out a scene. You keep full artistic control of brightness through the light's own Intensity value and still get the realistic shape of the profile. Switch it on later only when you specifically want the fixture's real-world lumen output to drive exposure.</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Light Functions -->
+            <section id="light-functions" class="lesson-section">
+                <h2>Light Functions</h2>
+
+                <p><strong>Light Functions</strong> let you project a material onto a light, modulating its output as it leaves the source. Instead of a flat, uniform beam, the light is masked or tinted by a material you author. This opens the door to flickering fires, rippling water caustics, projected gobo patterns (window blinds, foliage, stained glass), and animated color shifts.</p>
+
+                <p>A Light Function is simply a <strong>Material</strong> whose <strong>Material Domain</strong> is set to <strong>Light Function</strong>. Unreal reads that material's Emissive output as a mask that scales the light's brightness across its projection: white passes full light, black blocks it, and grays dim it.</p>
+
+                <h3>Creating a Light Function Material</h3>
+
+                <ol>
+                    <li>In the Content Browser, create a new <strong>Material</strong></li>
+                    <li>Open it and, in the Details panel, set <strong>Material Domain</strong> to <strong>Light Function</strong></li>
+                    <li>Build your effect and connect it to the <strong>Emissive Color</strong> output, the only output a Light Function reads</li>
+                    <li>A value of 1 passes full light, 0 blocks it, and values in between dim it</li>
+                </ol>
+
+                <h3>A Simple Flicker</h3>
+
+                <p>The fireplace in this lesson's exercise uses a classic flicker graph. The idea is to sample animated noise over time and remap it into a gentle brightness range so the light pulses without ever fully going dark:</p>
+
+                <!-- Mermaid: flicker node flow -->
+                <pre class="mermaid">
+flowchart LR
+    T["Time"] --> N["Noise / Panner"]
+    N --> L["Lerp<br/>0.5 to 1.0"]
+    L --> E["Emissive Color"]
+    style T fill:#455A64,color:#fff
+    style N fill:#1976D2,color:#fff
+    style L fill:#7B1FA2,color:#fff
+    style E fill:#E65100,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: A minimal flicker Light Function &#183; animated noise driven by Time, remapped so brightness oscillates between roughly 0.5 and 1.0.</em></p>
+
+                <h3>Applying a Light Function to a Light</h3>
+
+                <p>Select the target light, which must be set to <strong>Movable</strong> mobility since the effect changes every frame. In its Details panel, open the <strong>Light Function</strong> category:</p>
+
+                <ol>
+                    <li>Assign your material to the <strong>Light Function Material</strong> slot</li>
+                    <li>Use <strong>Light Function Scale</strong> to size the projected pattern in the world</li>
+                    <li>Set <strong>Fade Distance</strong> and <strong>Disabled Brightness</strong> to control how the effect falls back at a distance or when the function is disabled</li>
+                </ol>
+
+                <img src="images/m04_l03/m04_l03_fig02_light_function_slot.png" alt="The Light Function category in a light's Details panel, showing the Light Function Material asset slot, Light Function Scale, Fade Distance, and Disabled Brightness fields." style="max-width:100%; display:block; margin:2rem auto; border:1px solid #444; border-radius:8px;">
+                <p class="caption"><em>Figure: The <strong>Light Function</strong> category on a light &#183; drop a Light Function material into <strong>Light Function Material</strong> and size it with <strong>Light Function Scale</strong>.</em></p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out: Movable Only, and Not Free</h4>
+                    <p>Light Functions work only on <strong>Movable</strong> lights, because Static and Stationary lights bake their illumination and cannot change at runtime. They also add real shader cost: the function is evaluated across the light's projection every frame. Keep the material cheap, and reserve Light Functions for the handful of lights where the effect truly reads.</p>
+                </div>
+
+                <h3>Light Function Use Cases</h3>
+
+                <p><strong>Flickering fire and candles:</strong> Noise-driven brightness gives warm light a living, unsteady quality.</p>
+
+                <p><strong>Projected patterns (gobos):</strong> A texture mask throws the shadow of window blinds, leaves, or stained glass across a room.</p>
+
+                <p><strong>Caustics:</strong> A panning ripple texture simulates light bouncing off moving water onto nearby walls.</p>
+
+                <p><strong>Failing fluorescents:</strong> A sharp, irregular flicker sells a broken or buzzing tube for horror and industrial scenes.</p>
+
+                <p><strong>Television glow:</strong> Shifting colors and brightness mimic the changing light a screen casts into a dark room.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip: Animate with Time, Not Tick</h4>
+                    <p>Drive animation inside the Light Function material itself using the <strong>Time</strong> node rather than pushing values from Blueprint every frame. The material updates on the GPU for free, keeps your Blueprint graphs clean, and stays smooth regardless of frame rate.</p>
+                </div>
+            </section>
+
             <!-- Section 7: Hands-On Exercise -->
             <section id="hands-on-exercise" class="lesson-section">
                 <h2>Hands-On: Lighting a Complete Interior Room</h2>

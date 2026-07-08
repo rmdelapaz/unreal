@@ -168,6 +168,9 @@
                 </svg>
                 <p class="caption"><em>Figure: Post-processing modifies the rendered scene before final display.</em></p>
 
+                <img src="images/m04_l05/m04_l05_fig01_post_process_before_after.jpg" alt="Side-by-side viewport comparison of the same interior in Unreal Engine 5.8: on the left with no post-processing (flat, bright, warm), on the right with a cinematic grade applied (cooler teal shadows, a warm glow at the doorway, a vignette darkening the corners, and higher contrast)." style="max-width: 900px; width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The same scene, captured live in UE 5.8, with no post-processing (left) and a complete cinematic post-process look (right) &#183; color grading, bloom, vignette, ambient occlusion, and a lowered exposure, all applied through a single unbound Post Process Volume.</em></p>
+
                 <h3>Placing a Post Process Volume</h3>
 
                 <p>To add post-process effects to your level:</p>
@@ -358,6 +361,9 @@ flowchart TB
 
                 <p><strong>Exposure Compensation:</strong> An offset added to the auto-calculated exposure. Use to make the overall image brighter or darker while keeping auto-adaptation active.</p>
 
+                <img src="images/m04_l05/m04_l05_fig02_exposure_settings.png" alt="The Exposure category of a Post Process Volume's Details panel in UE 5.8, filtered by the search box to 'Exposure'. Metering Mode is set to Auto Exposure Histogram, Exposure Compensation to -0.6, Min EV100 to 6.0, Max EV100 to 13.0, and Speed Up and Speed Down both to 2.0, each with its override checkbox ticked." style="max-width: 560px; width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real Lens &#183; Exposure settings in a Post Process Volume (UE 5.8) &#183; Metering Mode, Exposure Compensation, Min/Max EV100, and the Speed Up/Down adaptation controls. Only the ticked rows are overridden; unchecked rows stay greyed and inherit their defaults.</em></p>
+
                 <!-- SVG: Auto-Exposure Flow -->
                 <svg width="100%" height="200" viewBox="0 0 800 200" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
                     <text x="400" y="25" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Auto-Exposure Workflow</text>
@@ -471,6 +477,9 @@ flowchart TB
                 <p><strong>Gamma:</strong> Adjusts midtones without affecting pure black or white. Higher gamma brightens midtones; lower darkens them. Useful for overall brightness fine-tuning.</p>
 
                 <p><strong>Gain:</strong> Multiplies the entire image. Like exposure but applied after other color work. Useful for final brightness matching.</p>
+
+                <img src="images/m04_l05/m04_l05_fig03_color_grading_settings.png" alt="The Color Grading category of a Post Process Volume's Details panel in UE 5.8, selected via the Color Grading filter chip. The Global subsection is expanded, showing Saturation and Contrast overridden (checkboxes ticked) alongside Gamma, Gain, and Offset, with the Temperature, Shadows, Midtones, Highlights, and Misc subsections listed below." style="max-width: 560px; width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real Color Grading category in a Post Process Volume (UE 5.8). The Global subsection is expanded with Saturation and Contrast overridden &#183; each brightness range (Shadows, Midtones, Highlights) and White Balance (Temperature) has its own group below.</em></p>
 
                 <!-- SVG: Color Adjustment Effects -->
                 <svg width="100%" height="220" viewBox="0 0 800 220" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">

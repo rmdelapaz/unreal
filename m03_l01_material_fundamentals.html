@@ -641,177 +641,18 @@ flowchart LR
 
                 <p><strong>From a mesh:</strong> Select a mesh in your level, find its material in the Details panel, and click the material name to open it.</p>
 
-                <!-- SVG: Material Editor Interface -->
-                <svg width="100%" height="500" viewBox="0 0 900 500" style="max-width: 900px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <!-- Title bar -->
-                    <rect x="0" y="0" width="900" height="35" fill="#1a1a1a"/>
-                    <text x="20" y="23" fill="#fff" font-size="13">Material Editor - M_BasicMaterial</text>
-                    <circle cx="860" cy="17" r="8" fill="#e74c3c"/>
-                    <circle cx="835" cy="17" r="8" fill="#f39c12"/>
-                    <circle cx="810" cy="17" r="8" fill="#2ecc71"/>
-                    
-                    <!-- Toolbar -->
-                    <rect x="0" y="35" width="900" height="40" fill="#3d3d3d"/>
-                    <rect x="10" y="45" width="60" height="22" rx="3" fill="#4a4a4a" stroke="#555" stroke-width="1"/>
-                    <text x="40" y="60" text-anchor="middle" fill="#ccc" font-size="10">Save</text>
-                    <rect x="80" y="45" width="60" height="22" rx="3" fill="#4a4a4a" stroke="#555" stroke-width="1"/>
-                    <text x="110" y="60" text-anchor="middle" fill="#ccc" font-size="10">Apply</text>
-                    <rect x="150" y="45" width="80" height="22" rx="3" fill="#667eea" stroke="#555" stroke-width="1"/>
-                    <text x="190" y="60" text-anchor="middle" fill="#fff" font-size="10">▶ Preview</text>
-                    
-                    <!-- Left Panel: Palette -->
-                    <rect x="0" y="75" width="180" height="425" fill="#252525"/>
-                    <rect x="0" y="75" width="180" height="30" fill="#1f1f1f"/>
-                    <text x="15" y="95" fill="#aaa" font-size="12" font-weight="bold">Palette</text>
-                    
-                    <!-- Search box -->
-                    <rect x="10" y="115" width="160" height="25" rx="3" fill="#333" stroke="#444"/>
-                    <text x="20" y="132" fill="#888" font-size="11">🔍 Search nodes...</text>
-                    
-                    <!-- Category list -->
-                    <text x="15" y="165" fill="#667eea" font-size="11">▼ Constants</text>
-                    <text x="25" y="185" fill="#aaa" font-size="10">Constant</text>
-                    <text x="25" y="200" fill="#aaa" font-size="10">Constant2Vector</text>
-                    <text x="25" y="215" fill="#aaa" font-size="10">Constant3Vector</text>
-                    <text x="15" y="240" fill="#667eea" font-size="11">▼ Math</text>
-                    <text x="25" y="260" fill="#aaa" font-size="10">Add</text>
-                    <text x="25" y="275" fill="#aaa" font-size="10">Multiply</text>
-                    <text x="25" y="290" fill="#aaa" font-size="10">Lerp</text>
-                    <text x="15" y="315" fill="#667eea" font-size="11">▼ Texture</text>
-                    <text x="25" y="335" fill="#aaa" font-size="10">TextureSample</text>
-                    <text x="25" y="350" fill="#aaa" font-size="10">TextureCoordinate</text>
-                    
-                    <!-- Main Graph Area -->
-                    <rect x="180" y="75" width="520" height="425" fill="#1e1e1e"/>
-                    
-                    <!-- Grid pattern -->
-                    <defs>
-                        <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
-                        </pattern>
-                    </defs>
-                    <rect x="180" y="75" width="520" height="425" fill="url(#gridPattern)"/>
-                    
-                    <!-- Constant3Vector Node (Color) -->
-                    <g transform="translate(220, 150)">
-                        <rect x="0" y="0" width="140" height="70" rx="5" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
-                        <rect x="0" y="0" width="140" height="20" rx="5" fill="#667eea"/>
-                        <rect x="0" y="15" width="140" height="5" fill="#667eea"/>
-                        <text x="70" y="14" text-anchor="middle" fill="#fff" font-size="10">Constant3Vector</text>
-                        <rect x="10" y="30" width="30" height="30" fill="#c0392b" stroke="#fff" stroke-width="1"/>
-                        <text x="50" y="50" fill="#aaa" font-size="9">(0.75, 0.2, 0.15)</text>
-                        <!-- Output pin -->
-                        <circle cx="140" cy="45" r="6" fill="#f1c40f" stroke="#333" stroke-width="2"/>
-                    </g>
-                    
-                    <!-- Constant Node (Metallic) -->
-                    <g transform="translate(220, 250)">
-                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#3d3d3d" stroke="#888" stroke-width="1"/>
-                        <rect x="0" y="0" width="100" height="18" rx="5" fill="#555"/>
-                        <rect x="0" y="13" width="100" height="5" fill="#555"/>
-                        <text x="50" y="13" text-anchor="middle" fill="#fff" font-size="9">Constant</text>
-                        <text x="50" y="38" text-anchor="middle" fill="#aaa" font-size="11">0.0</text>
-                        <circle cx="100" cy="35" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Constant Node (Roughness) -->
-                    <g transform="translate(220, 320)">
-                        <rect x="0" y="0" width="100" height="50" rx="5" fill="#3d3d3d" stroke="#888" stroke-width="1"/>
-                        <rect x="0" y="0" width="100" height="18" rx="5" fill="#555"/>
-                        <rect x="0" y="13" width="100" height="5" fill="#555"/>
-                        <text x="50" y="13" text-anchor="middle" fill="#fff" font-size="9">Constant</text>
-                        <text x="50" y="38" text-anchor="middle" fill="#aaa" font-size="11">0.6</text>
-                        <circle cx="100" cy="35" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Main Material Node -->
-                    <g transform="translate(470, 130)">
-                        <rect x="0" y="0" width="200" height="280" rx="5" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
-                        <rect x="0" y="0" width="200" height="25" rx="5" fill="#4CAF50"/>
-                        <rect x="0" y="20" width="200" height="5" fill="#4CAF50"/>
-                        <text x="100" y="17" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">M_BasicMaterial</text>
-                        
-                        <!-- Input pins with labels -->
-                        <circle cx="0" cy="55" r="6" fill="#f1c40f" stroke="#333" stroke-width="2"/>
-                        <text x="15" y="58" fill="#f1c40f" font-size="10">Base Color</text>
-                        
-                        <circle cx="0" cy="85" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                        <text x="15" y="88" fill="#aaa" font-size="10">Metallic</text>
-                        
-                        <circle cx="0" cy="115" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                        <text x="15" y="118" fill="#aaa" font-size="10">Specular</text>
-                        
-                        <circle cx="0" cy="145" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                        <text x="15" y="148" fill="#aaa" font-size="10">Roughness</text>
-                        
-                        <circle cx="0" cy="175" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                        <text x="15" y="178" fill="#aaa" font-size="10">Emissive Color</text>
-                        
-                        <circle cx="0" cy="205" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                        <text x="15" y="208" fill="#aaa" font-size="10">Opacity</text>
-                        
-                        <circle cx="0" cy="235" r="5" fill="#9b59b6" stroke="#333" stroke-width="1"/>
-                        <text x="15" y="238" fill="#9b59b6" font-size="10">Normal</text>
-                        
-                        <circle cx="0" cy="265" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                        <text x="15" y="268" fill="#aaa" font-size="10">World Position Offset</text>
-                    </g>
-                    
-                    <!-- Connection wires -->
-                    <path d="M 360 195 C 400 195 430 185 470 185" stroke="#f1c40f" stroke-width="2" fill="none"/>
-                    <path d="M 320 285 C 380 285 430 215 470 215" stroke="#888" stroke-width="2" fill="none"/>
-                    <path d="M 320 355 C 400 355 430 275 470 275" stroke="#888" stroke-width="2" fill="none"/>
-                    
-                    <!-- Right Panel: Details/Preview -->
-                    <rect x="700" y="75" width="200" height="425" fill="#252525"/>
-                    
-                    <!-- Preview section -->
-                    <rect x="700" y="75" width="200" height="30" fill="#1f1f1f"/>
-                    <text x="715" y="95" fill="#aaa" font-size="12" font-weight="bold">Preview</text>
-                    
-                    <!-- Preview sphere -->
-                    <circle cx="800" cy="180" r="70" fill="url(#previewSphere)"/>
-                    <defs>
-                        <radialGradient id="previewSphere" cx="30%" cy="30%">
-                            <stop offset="0%" style="stop-color:#e8a090"/>
-                            <stop offset="50%" style="stop-color:#c0392b"/>
-                            <stop offset="100%" style="stop-color:#6d1f1f"/>
-                        </radialGradient>
-                    </defs>
-                    
-                    <!-- Details section -->
-                    <rect x="700" y="270" width="200" height="30" fill="#1f1f1f"/>
-                    <text x="715" y="290" fill="#aaa" font-size="12" font-weight="bold">Details</text>
-                    
-                    <text x="715" y="320" fill="#888" font-size="10">Shading Model</text>
-                    <rect x="715" y="325" width="170" height="20" rx="3" fill="#333"/>
-                    <text x="725" y="340" fill="#fff" font-size="10">Default Lit</text>
-                    
-                    <text x="715" y="370" fill="#888" font-size="10">Blend Mode</text>
-                    <rect x="715" y="375" width="170" height="20" rx="3" fill="#333"/>
-                    <text x="725" y="390" fill="#fff" font-size="10">Opaque</text>
-                    
-                    <!-- Callout labels -->
-                    <rect x="195" y="85" width="70" height="18" rx="3" fill="#667eea"/>
-                    <text x="230" y="97" text-anchor="middle" fill="#fff" font-size="9">① Palette</text>
-                    
-                    <rect x="400" y="440" width="100" height="18" rx="3" fill="#667eea"/>
-                    <text x="450" y="452" text-anchor="middle" fill="#fff" font-size="9">② Graph Canvas</text>
-                    
-                    <rect x="760" y="85" width="80" height="18" rx="3" fill="#667eea"/>
-                    <text x="800" y="97" text-anchor="middle" fill="#fff" font-size="9">③ Preview</text>
-                </svg>
-                <p class="caption"><em>Figure: The Material Editor interface with key areas labeled. The graph canvas (center) is where you build your node network.</em></p>
+                <img src="images/m03_l01/m03_l01_fig01_material_editor.png" alt="The Unreal Engine 5.8 Material Editor showing the M_BasicColor material: a live Preview sphere at top-left, the Details panel below it, the node graph in the center with Base Color, Metallic, and Roughness parameter nodes wired into the main material node, and the searchable Palette docked at the right." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real Material Editor in UE 5.8, showing the M_BasicColor material. The parameter nodes (left) feed Base Color, Metallic, and Roughness into the main material node; the live Preview (top-left), Details panel (lower-left), and searchable Palette (right) surround the graph.</em></p>
 
                 <h3>Key Interface Elements</h3>
 
-                <p><strong>① Palette Panel (Left):</strong> This searchable list contains every node type you can add to your material. Nodes are organized into categories like Constants, Math, Texture, Coordinates, and more. You can drag nodes from here onto the canvas, or right-click on the canvas to search and add nodes directly.</p>
+                <p><strong>Graph Canvas (Center):</strong> The main workspace where you build your material by placing and connecting nodes. Pan by holding the right mouse button and dragging. Zoom with the scroll wheel. This is where the creative work happens.</p>
 
-                <p><strong>② Graph Canvas (Center):</strong> The main workspace where you build your material by placing and connecting nodes. Pan by holding the right mouse button and dragging. Zoom with the scroll wheel. This is where the creative work happens.</p>
+                <p><strong>Preview Panel (Top-Left):</strong> Shows a real-time preview of your material applied to a shape (sphere by default, but you can change it to a cube, plane, cylinder, or custom mesh). Changes update instantly as you modify the graph.</p>
 
-                <p><strong>③ Preview Panel (Right):</strong> Shows a real-time preview of your material applied to a shape (sphere by default, but you can change it to a cube, plane, cylinder, or custom mesh). Changes update instantly as you modify the graph.</p>
+                <p><strong>Details Panel (Lower-Left):</strong> When you select a node or the main material output, this panel shows its properties. The main material node has settings for Shading Model, Blend Mode, and many other options.</p>
 
-                <p><strong>④ Details Panel (Right, below Preview):</strong> When you select a node or the main material output, this panel shows its properties. The main material node has settings for Shading Model, Blend Mode, and many other options.</p>
+                <p><strong>Palette Panel (Right):</strong> This searchable list contains every node type you can add to your material. Nodes are organized into categories like Constants, Math, Texture, Coordinates, and more. You can drag nodes from here onto the canvas, or right-click on the canvas to search and add nodes directly. These panels are dockable, so your own layout may differ&#183;the arrangement shown above is the default.</p>
 
                 <h3>Understanding Nodes and Connections</h3>
 
@@ -983,9 +824,12 @@ flowchart TD
 
                 <p><strong>Method 1:</strong> Right-click your parent material in the Content Browser and select <em>Create Material Instance</em>.</p>
 
-                <p><strong>Method 2:</strong> Right-click in the Content Browser, go to <em>Materials & Textures → Material Instance</em>, then assign the parent material in the Details panel.</p>
+                <p><strong>Method 2:</strong> Right-click in the Content Browser and choose <em>Material Instance</em> from the creation menu, then assign the parent material in the Details panel.</p>
 
                 <p>When you open a Material Instance, you'll see a simple interface listing all available parameters with checkboxes. Check a parameter to override it, then adjust the value. The preview updates in real-time.</p>
+
+                <img src="images/m03_l01/m03_l01_fig02_material_instance_editor.png" alt="The Material Instance editor Details panel for MI_BasicColor_RedPlastic. Under an Appearance group, three parameters (Base_Color, Metallic_Amount, Roughness_Amount) each show a checked override checkbox and an editable value; below, the General section lists the parent material, M_BasicColor." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Material Instance editor for MI_BasicColor_RedPlastic. Each parameter has an override checkbox&#183;all three are checked here, with Base_Color set to red and Roughness_Amount to 0.3&#183;while the General section shows the parent, M_BasicColor.</em></p>
 
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h4>💡 Naming Convention</h4>
@@ -1017,7 +861,7 @@ flowchart TD
 
                 <details class="card">
                     <summary><strong>🔍 Hint: Can't find the Material option?</strong></summary>
-                    <p>Make sure you're right-clicking in an empty area of the Content Browser, not on an existing asset. The context menu should show a "Material" option near the top, or you can find it under <em>Materials & Textures → Material</em>.</p>
+                    <p>Make sure you're right-clicking in an empty area of the Content Browser, not on an existing asset. The context menu should list <em>Material</em> among the asset types you can create, or use the green <em>+Add</em> button.</p>
                 </details>
 
                 <h3>Step 2: Create a Color Parameter</h3>
@@ -1159,6 +1003,9 @@ flowchart TD
                 <p>Add some primitive shapes to your level (Place Actors panel → Basic → Cube or Sphere). Drag your material instances from the Content Browser directly onto the shapes in the viewport.</p>
 
                 <p>You should see one object with shiny red plastic and another with matte blue rubber—both created from the same parent material!</p>
+
+                <img src="images/m03_l01/m03_l01_fig03_material_spheres.jpg" alt="Two spheres rendered side by side in Unreal Engine 5.8. Left: a shiny red plastic sphere (Roughness 0.3) with a sharp specular highlight. Right: a matte blue rubber sphere (Roughness 0.9) with soft, diffuse shading and no visible highlight. Both are instances of the same parent material." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The two instances rendered live in UE 5.8&#183;shiny red plastic (Roughness 0.3, sharp highlight) versus matte blue rubber (Roughness 0.9, fully diffuse). One parent material, two very different surfaces.</em></p>
 
                 <details class="card">
                     <summary><strong>✅ Success Check: How do you know it worked?</strong></summary>

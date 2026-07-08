@@ -370,6 +370,9 @@ flowchart TD
 
                 <p>Once a texture is imported, you can fine-tune how Unreal handles it. Double-click any texture in the Content Browser to open the Texture Editor, where you'll find a wealth of settings. Let's focus on the three most important ones that affect quality and performance.</p>
 
+                <img src="images/m03_l02/m03_l02_fig01_texture_editor_settings.png" alt="The Unreal Engine 5.8 Texture Editor Details panel for a color texture. The info header lists Format DXT1, Number of Mips 11, and Method Streamed. The Level Of Detail group shows Mip Gen Settings, LOD Bias 0, and Texture Group set to World. The Compression group shows Compression Settings set to Default (BC1 or BC3 with A). The Texture group shows the sRGB checkbox enabled." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Texture Editor Details panel in UE 5.8. Compression Settings, sRGB, and Mip Gen Settings &#183; the three settings covered below &#183; all live in this panel. sRGB is enabled here because this is a color (albedo) texture; the info header also reports Number of Mips 11, the full mip chain.</em></p>
+
                 <h3>Compression Settings</h3>
 
                 <p>Unreal doesn't store textures in their original format—that would consume enormous amounts of memory. Instead, textures are compressed using GPU-friendly formats that can be decoded quickly during rendering.</p>
@@ -780,64 +783,8 @@ flowchart LR
 
                 <p>To add one, right-click in the Material Editor and search for "TextureCoordinate" (or press <strong>U</strong> and click). Connect its output to the <strong>UVs</strong> input of a Texture Sample node.</p>
 
-                <!-- SVG: TexCoord Node Connection -->
-                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
-                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Texture Coordinate → Texture Sample Connection</text>
-                    
-                    <!-- Grid background -->
-                    <defs>
-                        <pattern id="tcGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
-                        </pattern>
-                    </defs>
-                    <rect x="10" y="40" width="680" height="150" fill="url(#tcGrid)"/>
-                    
-                    <!-- TexCoord Node -->
-                    <g transform="translate(80, 70)">
-                        <rect x="0" y="0" width="150" height="70" rx="5" fill="#3d3d3d" stroke="#888" stroke-width="2"/>
-                        <rect x="0" y="0" width="150" height="22" rx="5" fill="#555"/>
-                        <rect x="0" y="17" width="150" height="5" fill="#555"/>
-                        <text x="75" y="16" text-anchor="middle" fill="#fff" font-size="10">TextureCoordinate</text>
-                        <text x="20" y="42" fill="#aaa" font-size="9">UTiling: 1.0</text>
-                        <text x="20" y="56" fill="#aaa" font-size="9">VTiling: 1.0</text>
-                        <circle cx="150" cy="45" r="5" fill="#f1c40f" stroke="#333" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Connection wire -->
-                    <path d="M 230 115 C 300 115 320 100 390 100" stroke="#f1c40f" stroke-width="2" fill="none"/>
-                    
-                    <!-- Texture Sample Node -->
-                    <g transform="translate(390, 55)">
-                        <rect x="0" y="0" width="180" height="100" rx="5" fill="#3d3d3d" stroke="#667eea" stroke-width="2"/>
-                        <rect x="0" y="0" width="180" height="22" rx="5" fill="#667eea"/>
-                        <rect x="0" y="17" width="180" height="5" fill="#667eea"/>
-                        <text x="90" y="16" text-anchor="middle" fill="#fff" font-size="10">Texture Sample</text>
-                        
-                        <!-- Texture preview -->
-                        <rect x="10" y="30" width="50" height="50" fill="url(#brickPreview)"/>
-                        <defs>
-                            <pattern id="brickPreview" width="25" height="12" patternUnits="userSpaceOnUse">
-                                <rect width="25" height="12" fill="#8B4513"/>
-                                <rect x="0" y="0" width="12" height="5" fill="#a0522d" stroke="#5d3a1a" stroke-width="0.5"/>
-                                <rect x="13" y="0" width="12" height="5" fill="#a0522d" stroke="#5d3a1a" stroke-width="0.5"/>
-                                <rect x="6" y="6" width="12" height="5" fill="#a0522d" stroke="#5d3a1a" stroke-width="0.5"/>
-                            </pattern>
-                        </defs>
-                        
-                        <!-- Input pin for UVs -->
-                        <circle cx="0" cy="45" r="5" fill="#f1c40f" stroke="#333" stroke-width="2"/>
-                        <text x="10" y="48" fill="#f1c40f" font-size="9">UVs</text>
-                        
-                        <!-- Output pins -->
-                        <circle cx="180" cy="40" r="5" fill="#f1c40f" stroke="#333" stroke-width="1"/>
-                        <text x="165" y="43" text-anchor="end" fill="#aaa" font-size="8">RGB</text>
-                        <circle cx="180" cy="58" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                        <text x="165" y="61" text-anchor="end" fill="#aaa" font-size="8">R</text>
-                        <circle cx="180" cy="76" r="5" fill="#888" stroke="#333" stroke-width="1"/>
-                        <text x="165" y="79" text-anchor="end" fill="#aaa" font-size="8">A</text>
-                    </g>
-                </svg>
-                <p class="caption"><em>Figure: Connect a Texture Coordinate node to the UVs input to control texture mapping.</em></p>
+                <img src="images/m03_l02/m03_l02_fig02_texture_coordinate_node.png" alt="A real UE 5.8 Material Editor graph. A TextureCoordinate node and a scalar parameter named Tiling set to 4.0 both feed a Multiply node; the Multiply output connects to the UVs input of a Texture Sample node, whose RGB output drives the material Base Color." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Texture Coordinate node in a real UE 5.8 material graph. Its output feeds the Texture Sample UVs input &#183; here through a Multiply node that scales the coordinates by a Tiling parameter (4.0) &#183; so the texture repeats across the surface.</em></p>
 
                 <h3>Tiling: Repeating Textures</h3>
 
@@ -1183,6 +1130,9 @@ flowchart LR
                 <p>In your level, add a primitive shape (cube or plane works well). Drag your <code>M_TexturedSurface</code> material onto it.</p>
 
                 <p>Now create a Material Instance: right-click the material → <strong>Create Material Instance</strong> → name it <code>MI_TexturedSurface_Tiled</code>. Open the instance and adjust the <strong>Tiling</strong> parameter. Watch how the texture repetition changes in real-time!</p>
+
+                <img src="images/m03_l02/m03_l02_fig03_textured_sphere.jpg" alt="The Material Editor preview sphere in UE 5.8 rendered with the finished textured material: a red and cyan grid texture tiled several times across the surface, with a grainy roughness variation breaking up the highlights and normal-map surface relief, reflecting the surrounding scene." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The finished material on the preview sphere in UE 5.8. The texture tiles across the surface (Tiling 4), the roughness map breaks up the specular highlights, and the normal map adds surface relief &#183; Base Color, Normal, and Roughness all driven by one shared, tiled set of UVs.</em></p>
 
                 <details class="card">
                     <summary><strong>✅ Success Check: How do you know it worked?</strong></summary>

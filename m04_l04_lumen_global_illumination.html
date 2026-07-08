@@ -68,6 +68,7 @@
                         <li>Configure Lumen settings for different quality/performance targets</li>
                         <li>Identify when Lumen is appropriate vs. alternative solutions</li>
                         <li>Set up and optimize a Lumen-lit scene from scratch</li>
+                        <li>Understand MegaLights (Experimental in UE 5.8) for affordable many-light shadows</li>
                     </ul>
                     <p><strong>Estimated Time:</strong> 55-65 minutes</p>
                     <p><strong>Prerequisites:</strong> Lesson 4.1-4.3 (Lighting Fundamentals, Outdoor and Interior Lighting)</p>
@@ -87,6 +88,7 @@
                         <li><a href="#software-vs-hardware" class="toc-link">Software vs. Hardware Ray Tracing</a></li>
                         <li><a href="#lumen-settings" class="toc-link">Lumen Settings and Optimization</a></li>
                         <li><a href="#when-to-use-lumen" class="toc-link">When to Use Lumen</a></li>
+                        <li><a href="#megalights" class="toc-link">MegaLights (Experimental in UE 5.8)</a></li>
                         <li><a href="#hands-on" class="toc-link">Hands-On: Enable and Configure Lumen</a></li>
                         <li><a href="#summary" class="toc-link">Summary</a></li>
                     </ol>
@@ -191,6 +193,10 @@
                     <h4>💡 Default in UE5</h4>
                     <p>Lumen is enabled by default in new Unreal Engine 5 projects. If you create a project from the Blank or Third Person template, you're already using Lumen. This is a significant shift from UE4, where baked lighting was the default workflow.</p>
                 </div>
+
+                <!-- Real capture: Lumen on vs off comparison -->
+                <img src="images/m04_l04/m04_l04_fig01_lumen_on_off.jpg" alt="Side by side comparison of the same interior room with Lumen global illumination enabled versus disabled" style="max-width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The same interior, lit largely by sunlight bounced in through the doorway, with Lumen Global Illumination on (left) and off (right). With Lumen on, indirect light fills the room with warm color bleed and soft contact shadows in the corners. With it off, only direct sun and a flat ambient remain &#183; the corners lose their occlusion and the room looks flat and cold. Both frames use the identical camera.</em></p>
             </section>
 
             <!-- Section 2: How Lumen Works -->
@@ -655,66 +661,9 @@ flowchart LR
 
                 <p>Using a Post Process Volume, you can fine-tune Lumen for specific areas or globally override project settings:</p>
 
-                <!-- SVG: Post Process Lumen Settings -->
-                <svg width="100%" height="280" viewBox="0 0 700 280" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Post Process Volume: Lumen Settings</text>
-                    
-                    <!-- Panel background -->
-                    <rect x="50" y="45" width="600" height="220" rx="5" fill="#3d3d3d" stroke="#555"/>
-                    
-                    <!-- Header -->
-                    <rect x="50" y="45" width="600" height="30" rx="5" fill="#4a4a4a"/>
-                    <text x="70" y="65" fill="#fff" font-size="11" font-weight="bold">▼ Lumen Global Illumination</text>
-                    
-                    <!-- Settings rows -->
-                    <g transform="translate(60, 90)">
-                        <!-- Row 1 -->
-                        <rect x="0" y="0" width="20" height="14" rx="2" fill="#667eea"/>
-                        <text x="30" y="11" fill="#aaa" font-size="10">Lumen Scene Detail</text>
-                        <rect x="350" y="0" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
-                        <text x="400" y="11" text-anchor="middle" fill="#fff" font-size="10">1.0</text>
-                        
-                        <!-- Row 2 -->
-                        <rect x="0" y="25" width="20" height="14" rx="2" fill="#667eea"/>
-                        <text x="30" y="36" fill="#aaa" font-size="10">Lumen Scene Lighting Update Speed</text>
-                        <rect x="350" y="25" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
-                        <text x="400" y="36" text-anchor="middle" fill="#fff" font-size="10">1.0</text>
-                        
-                        <!-- Row 3 -->
-                        <rect x="0" y="50" width="20" height="14" rx="2" fill="#667eea"/>
-                        <text x="30" y="61" fill="#aaa" font-size="10">Final Gather Quality</text>
-                        <rect x="350" y="50" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
-                        <text x="400" y="61" text-anchor="middle" fill="#fff" font-size="10">1.0</text>
-                        
-                        <!-- Row 4 -->
-                        <rect x="0" y="75" width="20" height="14" rx="2" fill="#667eea"/>
-                        <text x="30" y="86" fill="#aaa" font-size="10">Max Trace Distance</text>
-                        <rect x="350" y="75" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
-                        <text x="400" y="86" text-anchor="middle" fill="#fff" font-size="10">20000.0</text>
-                    </g>
-                    
-                    <!-- Reflections header -->
-                    <rect x="50" y="185" width="600" height="25" rx="0" fill="#4a4a4a"/>
-                    <text x="70" y="202" fill="#fff" font-size="11" font-weight="bold">▼ Lumen Reflections</text>
-                    
-                    <g transform="translate(60, 220)">
-                        <!-- Row 1 -->
-                        <rect x="0" y="0" width="20" height="14" rx="2" fill="#667eea"/>
-                        <text x="30" y="11" fill="#aaa" font-size="10">Reflection Quality</text>
-                        <rect x="350" y="0" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
-                        <text x="400" y="11" text-anchor="middle" fill="#fff" font-size="10">1.0</text>
-                        
-                        <!-- Row 2 -->
-                        <rect x="0" y="25" width="20" height="14" rx="2" fill="#667eea"/>
-                        <text x="30" y="36" fill="#aaa" font-size="10">Ray Lighting Mode</text>
-                        <rect x="350" y="25" width="100" height="14" rx="2" fill="#4a4a4a" stroke="#666"/>
-                        <text x="400" y="36" text-anchor="middle" fill="#fff" font-size="10">Surface Cache</text>
-                    </g>
-                    
-                    <!-- Checkbox indicator -->
-                    <text x="550" y="270" text-anchor="end" fill="#888" font-size="8">☑ = Override enabled</text>
-                </svg>
-                <p class="caption"><em>Figure: Lumen settings in a Post Process Volume. Check the box to override each setting.</em></p>
+                <!-- Real capture: Post Process Volume Lumen settings -->
+                <img src="images/m04_l04/m04_l04_fig03_ppv_lumen_settings.png" alt="Details panel of a Post Process Volume filtered to Lumen, showing the Lumen Global Illumination settings: Ray Lighting Mode, Lumen Scene Lighting Quality, Lumen Scene Detail, Final Gather Quality, Screen Traces, and Max Trace Distance" style="max-width: 460px; width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Lumen Global Illumination settings on a Post Process Volume, with its Details panel filtered to &quot;Lumen&quot;. Check the box beside a setting to override the project default for this volume.</em></p>
 
                 <h3>Optimization Strategies</h3>
 
@@ -927,7 +876,125 @@ flowchart TD
                     <p>These are rough guidelines. Actual performance depends heavily on scene complexity, material shaders, number of lights, and many other factors. Always profile your specific content using Unreal's profiling tools (Stat GPU, Unreal Insights) to identify real bottlenecks.</p>
                 </div>
             </section>
-            <!-- Section 7: Hands-On Exercise -->
+
+            <!-- Section 7: MegaLights (Experimental) -->
+            <section id="megalights" class="lesson-section">
+                <h2>MegaLights (Experimental in UE 5.8)</h2>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Experimental Feature</h4>
+                    <p><strong>MegaLights</strong> is marked <strong>Experimental in UE 5.8</strong>. It is promising enough to appear in Epic's showcase demos, but its settings, quality, and API can still change between releases. Enable it to explore and prototype, but validate carefully before relying on it for a shipping project.</p>
+                </div>
+
+                <p>Where Lumen solves indirect lighting and reflections, <strong>MegaLights</strong> tackles a different long-standing problem: the cost of many <em>direct</em>, shadow-casting lights. Introduced in UE 5.5 and still evolving through 5.8, MegaLights makes it practical to light a scene with hundreds of dynamic, shadow-casting lights at a roughly fixed cost.</p>
+
+                <h3>The Problem: Shadowed Lights Are Expensive</h3>
+
+                <p>Traditionally, every dynamic light that casts shadows adds a shadow-rendering pass. A handful of shadowed lights is fine, but the cost grows with each one added. Artists learned to ration shadow-casting lights: most lights in a scene were set to not cast shadows, or their shadows were faked, to keep the frame rate playable. Rich, believable lighting with dozens of real shadowed lights was simply too expensive in real time.</p>
+
+                <h3>How MegaLights Works</h3>
+
+                <p>MegaLights changes the economics with <strong>stochastic sampling</strong>. Instead of fully evaluating every light for every pixel, it samples a small, random subset of the most relevant lights per pixel each frame, traces ray-traced shadows for just those samples, and then reconstructs the full result with a temporal and spatial <strong>denoiser</strong>. Because each pixel only ever pays for a few samples, the cost becomes largely independent of how many lights are in the scene.</p>
+
+                <p>The practical result: you can place many soft, area-shadowed lights &#183; point, spot, and rect lights all casting ray-traced shadows &#183; and the frame cost stays roughly flat as the light count climbs.</p>
+
+                <!-- SVG: MegaLights stochastic sampling concept -->
+                <svg width="100%" height="240" viewBox="0 0 800 240" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">MegaLights: Stochastic Many-Light Sampling</text>
+
+                    <!-- Stage 1: Many lights -->
+                    <g transform="translate(40, 50)">
+                        <text x="90" y="0" text-anchor="middle" fill="#aaa" font-size="11">Hundreds of shadowed lights</text>
+                        <rect x="0" y="15" width="180" height="150" rx="6" fill="#2a2a2a" stroke="#555"/>
+                        <g fill="#f1c40f">
+                            <circle cx="30" cy="45" r="7"/><circle cx="70" cy="45" r="7"/><circle cx="110" cy="45" r="7"/><circle cx="150" cy="45" r="7"/>
+                            <circle cx="30" cy="90" r="7"/><circle cx="70" cy="90" r="7"/><circle cx="110" cy="90" r="7"/><circle cx="150" cy="90" r="7"/>
+                            <circle cx="30" cy="135" r="7"/><circle cx="70" cy="135" r="7"/><circle cx="110" cy="135" r="7"/><circle cx="150" cy="135" r="7"/>
+                        </g>
+                        <text x="90" y="182" text-anchor="middle" fill="#888" font-size="9">Traditionally: cost grows per light</text>
+                    </g>
+
+                    <path d="M 230 130 L 285 130" stroke="#667eea" stroke-width="2" marker-end="url(#mlArrow)"/>
+
+                    <!-- Stage 2: Sample subset -->
+                    <g transform="translate(300, 50)">
+                        <text x="90" y="0" text-anchor="middle" fill="#aaa" font-size="11">Sample a few per pixel</text>
+                        <rect x="0" y="15" width="180" height="150" rx="6" fill="#2a2a2a" stroke="#555"/>
+                        <g fill="#555">
+                            <circle cx="30" cy="45" r="7"/><circle cx="70" cy="45" r="7"/><circle cx="110" cy="45" r="7"/><circle cx="150" cy="45" r="7"/>
+                            <circle cx="30" cy="90" r="7"/><circle cx="70" cy="90" r="7"/><circle cx="110" cy="90" r="7"/><circle cx="150" cy="90" r="7"/>
+                            <circle cx="30" cy="135" r="7"/><circle cx="70" cy="135" r="7"/><circle cx="110" cy="135" r="7"/><circle cx="150" cy="135" r="7"/>
+                        </g>
+                        <g fill="#f1c40f">
+                            <circle cx="70" cy="45" r="8"/><circle cx="150" cy="90" r="8"/><circle cx="30" cy="135" r="8"/>
+                        </g>
+                        <circle cx="95" cy="90" r="4" fill="#4CAF50"/>
+                        <line x1="95" y1="90" x2="70" y2="45" stroke="#4CAF50" stroke-width="1"/>
+                        <line x1="95" y1="90" x2="150" y2="90" stroke="#4CAF50" stroke-width="1"/>
+                        <line x1="95" y1="90" x2="30" y2="135" stroke="#4CAF50" stroke-width="1"/>
+                        <text x="90" y="182" text-anchor="middle" fill="#888" font-size="9">Ray-traced shadows for samples only</text>
+                    </g>
+
+                    <path d="M 490 130 L 545 130" stroke="#667eea" stroke-width="2" marker-end="url(#mlArrow)"/>
+
+                    <!-- Stage 3: Denoise -->
+                    <g transform="translate(560, 50)">
+                        <text x="90" y="0" text-anchor="middle" fill="#4CAF50" font-size="11">Denoise to full result</text>
+                        <rect x="0" y="15" width="180" height="150" rx="6" fill="url(#mlGlow)" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="90" y="95" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Many lights,</text>
+                        <text x="90" y="113" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">roughly fixed cost</text>
+                        <text x="90" y="182" text-anchor="middle" fill="#888" font-size="9">Temporal + spatial denoiser</text>
+                    </g>
+
+                    <defs>
+                        <marker id="mlArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#667eea"/>
+                        </marker>
+                        <radialGradient id="mlGlow" cx="50%" cy="50%" r="70%">
+                            <stop offset="0%" style="stop-color:#3a4a3a"/>
+                            <stop offset="100%" style="stop-color:#2a2a2a"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: MegaLights samples a small subset of lights per pixel, traces ray-traced shadows for those samples, then denoises to reconstruct the full many-light result at roughly fixed cost. Experimental in UE 5.8.</em></p>
+
+                <h3>MegaLights and Lumen Work Together</h3>
+
+                <p>MegaLights and Lumen are complementary, not competing. Lumen handles the indirect bounce lighting and reflections covered earlier in this lesson; MegaLights handles the direct lighting and shadows from your many light sources. In a typical UE 5.8 project you enable both: Lumen for global illumination, MegaLights for affordable many-light direct shadows.</p>
+
+                <h3>Requirements</h3>
+
+                <ul>
+                    <li>A GPU and project configured for <strong>Hardware Ray Tracing</strong> (MegaLights relies on ray-traced shadows)</li>
+                    <li><strong>DirectX 12</strong> with Shader Model 6</li>
+                    <li>Works best alongside Lumen with Hardware Ray Tracing enabled</li>
+                </ul>
+
+                <h3>Enabling MegaLights</h3>
+
+                <ol>
+                    <li>Ensure Hardware Ray Tracing is enabled (see the Software vs. Hardware Ray Tracing section above)</li>
+                    <li>Open <strong>Project Settings → Engine → Rendering</strong> and search for <strong>MegaLights</strong></li>
+                    <li>Enable the <strong>MegaLights</strong> option project-wide, or toggle it per area using a <strong>Post Process Volume</strong></li>
+                    <li>Restart the editor if prompted</li>
+                    <li>Place several shadow-casting lights and observe that the frame cost stays stable as you add more</li>
+                </ol>
+
+                <h3>When to Use MegaLights</h3>
+
+                <ul>
+                    <li>Interiors and archviz with many practical fixtures (lamps, ceiling lights, signage)</li>
+                    <li>Night cityscapes and sci-fi corridors dense with local light sources</li>
+                    <li>Any scene where you previously had to disable shadows on most lights for performance</li>
+                </ul>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Because It Is Experimental</h4>
+                    <p>Low-sample regions can show temporal noise or ghosting during fast motion until the denoiser settles &#183; very small or thin light sources may sample less reliably &#183; and behavior and settings may shift in future releases. Profile with <code>stat gpu</code> and compare against traditional shadowed lights before committing to MegaLights in a shipping project.</p>
+                </div>
+            </section>
+
+            <!-- Section 8: Hands-On Exercise -->
             <section id="hands-on" class="lesson-section">
                 <h2>Hands-On: Enable and Configure Lumen</h2>
 
@@ -950,40 +1017,9 @@ flowchart TD
                     <li>Under <strong>Reflections</strong>, verify <strong>Reflection Method</strong> is set to <strong>Lumen</strong></li>
                 </ol>
 
-                <!-- SVG: Project Settings Location -->
-                <svg width="100%" height="200" viewBox="0 0 700 200" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Project Settings: Lumen Configuration</text>
-                    
-                    <!-- Settings panel mockup -->
-                    <rect x="50" y="45" width="600" height="140" rx="5" fill="#3d3d3d" stroke="#555"/>
-                    
-                    <!-- Search bar -->
-                    <rect x="60" y="55" width="200" height="20" rx="3" fill="#4a4a4a"/>
-                    <text x="70" y="69" fill="#888" font-size="9">🔍 Search...</text>
-                    
-                    <!-- Category tree -->
-                    <text x="70" y="95" fill="#aaa" font-size="10">▼ Engine</text>
-                    <text x="85" y="112" fill="#667eea" font-size="10">▶ Rendering</text>
-                    <text x="100" y="129" fill="#fff" font-size="9">Global Illumination</text>
-                    <text x="100" y="146" fill="#aaa" font-size="9">Reflections</text>
-                    <text x="100" y="163" fill="#aaa" font-size="9">Lumen</text>
-                    
-                    <!-- Right panel -->
-                    <rect x="280" y="55" width="360" height="120" rx="3" fill="#4a4a4a"/>
-                    
-                    <text x="295" y="75" fill="#fff" font-size="10" font-weight="bold">Global Illumination</text>
-                    
-                    <text x="295" y="100" fill="#aaa" font-size="9">Dynamic Global Illumination Method</text>
-                    <rect x="480" y="88" width="140" height="18" rx="2" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
-                    <text x="550" y="101" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Lumen ▼</text>
-                    
-                    <text x="295" y="130" fill="#fff" font-size="10" font-weight="bold">Reflections</text>
-                    
-                    <text x="295" y="155" fill="#aaa" font-size="9">Reflection Method</text>
-                    <rect x="480" y="143" width="140" height="18" rx="2" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
-                    <text x="550" y="156" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Lumen ▼</text>
-                </svg>
-                <p class="caption"><em>Figure: Verify Lumen is set as both the GI and Reflection method in Project Settings.</em></p>
+                <!-- Real capture: Project Settings Global Illumination method -->
+                <img src="images/m04_l04/m04_l04_fig02_project_settings_gi.png" alt="Project Settings, Engine Rendering section, Global Illumination category, with Dynamic Global Illumination Method set to Lumen" style="max-width: 700px; width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: In Project Settings &#183; Engine &#183; Rendering, the Dynamic Global Illumination Method is set to Lumen. Set the Reflection Method to Lumen the same way, in the Reflections section just below.</em></p>
 
                 <h3>Step 2: Create a Test Environment</h3>
 
@@ -1176,7 +1212,7 @@ flowchart TD
                 </div>
             </section>
 
-            <!-- Section 8: Summary -->
+            <!-- Section 9: Summary -->
             <section id="summary" class="lesson-section">
                 <h2>Summary</h2>
 

@@ -469,6 +469,12 @@
                 </svg>
                 <p class="caption"><em>Figure: Lerp uses the Alpha input to blend between A and B. A mask texture creates smooth transitions.</em></p>
 
+                <p>Here is that same idea as real nodes in the Material Editor. Two color parameters feed the Lerp A and B inputs, and a grayscale value drives the Alpha, whose result connects to Base Color.</p>
+
+                <!-- Figure: real Lerp node graph capture (UE 5.8) -->
+                <img src="images/m03_l03/m03_l03_fig02_lerp_blend_graph.png" alt="A real UE 5.8 Material Editor graph. A GrassColor vector parameter shown in green connects to the A input of a Lerp node, and a DirtColor vector parameter shown in brown connects to the B input. A TextureCoordinate node feeds a component Mask that outputs the red channel into the Lerp Alpha input. The Lerp output connects to the material Base Color." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Lerp node wired up in UE 5.8 &#183; GrassColor drives A, DirtColor drives B, and a grayscale mask drives Alpha, blending between the two into Base Color.</em></p>
+
                 <h3>Practical Lerp Examples</h3>
 
                 <p>Here are common scenarios where Lerp shines:</p>
@@ -573,7 +579,7 @@ flowchart LR
 
                 <p>Let's create a simple but useful function: adjustable UV tiling with offset controls.</p>
 
-                <p><strong>Step 1:</strong> In the Content Browser, right-click and select <strong>Materials & Textures → Material Function</strong>. Name it <code>MF_TilingControls</code>.</p>
+                <p><strong>Step 1:</strong> In the Content Browser, right-click (or click <strong>+Add</strong>) and choose <strong>Material Function</strong> from the creation menu. Name it <code>MF_TilingControls</code>.</p>
 
                 <p><strong>Step 2:</strong> Double-click to open the Material Function Editor. It looks similar to the Material Editor but without the main material output node.</p>
 
@@ -595,98 +601,9 @@ flowchart LR
 
                 <p><strong>Step 5:</strong> Create the output. Right-click and add a <strong>FunctionOutput</strong> node. Name it "UVs" and connect the Add result to it.</p>
 
-                <!-- SVG: Material Function Graph -->
-                <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
-                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">MF_TilingControls - Material Function Graph</text>
-                    
-                    <!-- Grid -->
-                    <defs>
-                        <pattern id="mfGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
-                        </pattern>
-                    </defs>
-                    <rect x="10" y="40" width="780" height="230" fill="url(#mfGrid)"/>
-                    
-                    <!-- Function Inputs -->
-                    <g transform="translate(30, 60)">
-                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#e91e63" opacity="0.3" stroke="#e91e63" stroke-width="2"/>
-                        <text x="50" y="16" text-anchor="middle" fill="#fff" font-size="9">FunctionInput</text>
-                        <text x="50" y="30" text-anchor="middle" fill="#e91e63" font-size="10" font-weight="bold">Tiling</text>
-                        <circle cx="100" cy="20" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
-                    </g>
-                    
-                    <g transform="translate(30, 115)">
-                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#e91e63" opacity="0.3" stroke="#e91e63" stroke-width="2"/>
-                        <text x="50" y="16" text-anchor="middle" fill="#fff" font-size="9">FunctionInput</text>
-                        <text x="50" y="30" text-anchor="middle" fill="#e91e63" font-size="10" font-weight="bold">OffsetU</text>
-                        <circle cx="100" cy="20" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
-                    </g>
-                    
-                    <g transform="translate(30, 170)">
-                        <rect x="0" y="0" width="100" height="40" rx="4" fill="#e91e63" opacity="0.3" stroke="#e91e63" stroke-width="2"/>
-                        <text x="50" y="16" text-anchor="middle" fill="#fff" font-size="9">FunctionInput</text>
-                        <text x="50" y="30" text-anchor="middle" fill="#e91e63" font-size="10" font-weight="bold">OffsetV</text>
-                        <circle cx="100" cy="20" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- TexCoord -->
-                    <g transform="translate(170, 55)">
-                        <rect x="0" y="0" width="80" height="35" rx="4" fill="#3d3d3d" stroke="#888" stroke-width="1"/>
-                        <text x="40" y="22" text-anchor="middle" fill="#aaa" font-size="9">TexCoord</text>
-                        <circle cx="80" cy="17" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Multiply -->
-                    <g transform="translate(290, 55)">
-                        <rect x="0" y="0" width="70" height="50" rx="4" fill="#3d3d3d" stroke="#FF9800" stroke-width="2"/>
-                        <text x="35" y="15" text-anchor="middle" fill="#fff" font-size="9">Multiply</text>
-                        <circle cx="0" cy="20" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
-                        <circle cx="0" cy="38" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
-                        <circle cx="70" cy="25" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Append -->
-                    <g transform="translate(170, 135)">
-                        <rect x="0" y="0" width="70" height="50" rx="4" fill="#3d3d3d" stroke="#9C27B0" stroke-width="2"/>
-                        <text x="35" y="15" text-anchor="middle" fill="#fff" font-size="9">Append</text>
-                        <circle cx="0" cy="20" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
-                        <circle cx="0" cy="38" r="4" fill="#888" stroke="#fff" stroke-width="1"/>
-                        <circle cx="70" cy="25" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Add -->
-                    <g transform="translate(420, 90)">
-                        <rect x="0" y="0" width="70" height="50" rx="4" fill="#3d3d3d" stroke="#4CAF50" stroke-width="2"/>
-                        <text x="35" y="15" text-anchor="middle" fill="#fff" font-size="9">Add</text>
-                        <circle cx="0" cy="20" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
-                        <circle cx="0" cy="38" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
-                        <circle cx="70" cy="25" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Function Output -->
-                    <g transform="translate(560, 85)">
-                        <rect x="0" y="0" width="110" height="50" rx="4" fill="#4CAF50" opacity="0.3" stroke="#4CAF50" stroke-width="2"/>
-                        <text x="55" y="18" text-anchor="middle" fill="#fff" font-size="9">FunctionOutput</text>
-                        <text x="55" y="35" text-anchor="middle" fill="#4CAF50" font-size="11" font-weight="bold">UVs</text>
-                        <circle cx="0" cy="25" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Wires -->
-                    <path d="M 250 72 L 290 75" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
-                    <path d="M 130 80 L 290 93" stroke="#888" stroke-width="1.5" fill="none"/>
-                    <path d="M 130 135 L 170 155" stroke="#888" stroke-width="1.5" fill="none"/>
-                    <path d="M 130 190 L 170 173" stroke="#888" stroke-width="1.5" fill="none"/>
-                    <path d="M 360 80 L 420 110" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
-                    <path d="M 240 160 L 420 128" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
-                    <path d="M 490 115 L 560 110" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
-                    
-                    <!-- Labels -->
-                    <rect x="580" y="200" width="190" height="55" rx="5" fill="rgba(76,175,80,0.1)" stroke="#4CAF50"/>
-                    <text x="675" y="220" text-anchor="middle" fill="#4CAF50" font-size="10" font-weight="bold">Usage in Materials:</text>
-                    <text x="675" y="238" text-anchor="middle" fill="#aaa" font-size="9">Drag MF_TilingControls</text>
-                    <text x="675" y="252" text-anchor="middle" fill="#aaa" font-size="9">into any material graph</text>
-                </svg>
-                <p class="caption"><em>Figure: A complete Material Function with inputs, processing nodes, and output.</em></p>
+                <!-- Figure: real Material Function graph capture (UE 5.8) -->
+                <img src="images/m03_l03/m03_l03_fig01_material_function_graph.png" alt="The MF_TilingControls Material Function open in the UE 5.8 Material Function Editor. Three scalar FunctionInput nodes named Tiling, OffsetU, and OffsetV sit on the left. A TextureCoordinate node feeds a Multiply node together with the Tiling input, while OffsetU and OffsetV feed an Append node. The Multiply and Append outputs feed an Add node, whose result connects to the Output UVs node on the right." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real MF_TilingControls Material Function graph in UE 5.8 &#183; the TextureCoordinate is scaled by the Tiling input and shifted by an Append of the OffsetU and OffsetV values, then returned through the Output UVs node.</em></p>
 
                 <h3>Using Material Functions</h3>
 
@@ -1363,6 +1280,10 @@ flowchart LR
                     <li>Adjust <strong>Blend_Contrast</strong> to sharpen or soften transitions</li>
                     <li>Try different blend mask textures in the instance</li>
                 </ul>
+
+                <!-- Figure: real terrain blend result render (UE 5.8) -->
+                <img src="images/m03_l03/m03_l03_fig03_terrain_blend_result.jpg" alt="The Material Editor preview sphere in UE 5.8 showing the finished terrain blend material: a matte surface where green grass patches and brown dirt patches mix in an organic, noise-driven pattern across the sphere." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The terrain blend rendered on the Material Editor preview sphere &#183; grass green and dirt brown are combined with a Lerp driven by a noise mask, giving natural, patchy transitions.</em></p>
 
                 <details class="card">
                     <summary><strong>✅ Success Check: How do you know it worked?</strong></summary>

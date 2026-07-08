@@ -67,6 +67,8 @@
                         <li>Build emissive materials that appear to glow and emit light</li>
                         <li>Use decals to add detail like dirt, damage, and signage without extra geometry</li>
                         <li>Understand the basics of landscape materials for terrain texturing</li>
+                        <li>Explore Substrate, Unreal's next-generation layered material system (Experimental in UE 5.8)</li>
+                        <li>Produce stylized and toon (non-photorealistic) looks with post-process materials</li>
                         <li>Choose the right material type for different visual requirements</li>
                     </ul>
                     <p><strong>Estimated Time:</strong> 50-60 minutes</p>
@@ -87,6 +89,8 @@
                         <li><a href="#emissive" class="toc-link">Emissive Materials (Glow Effects)</a></li>
                         <li><a href="#decals" class="toc-link">Decals</a></li>
                         <li><a href="#landscape" class="toc-link">Landscape Materials Introduction</a></li>
+                        <li><a href="#substrate" class="toc-link">Substrate: Next-Generation Materials (Experimental)</a></li>
+                        <li><a href="#toon" class="toc-link">Stylized &amp; Toon Materials (NPR)</a></li>
                         <li><a href="#hands-on" class="toc-link">Hands-On: Create a Glowing Emissive Material</a></li>
                         <li><a href="#summary" class="toc-link">Summary</a></li>
                     </ol>
@@ -751,6 +755,9 @@ flowchart LR
                     <p>Bloom must be enabled in your Post Process Volume for the glow halo effect to appear. If your emissive materials look flat, check <strong>Post Process Volume → Lens → Bloom → Intensity</strong>. A value around 0.5-1.0 gives natural-looking bloom.</p>
                 </div>
 
+                <img src="images/m03_l05/m03_l05_fig01_emissive_glow.jpg" alt="Unreal Engine 5.8 Material Editor preview sphere showing a bright cyan emissive material that glows and casts a soft colored light onto the ground plane, illustrating an HDR emissive surface." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: An HDR emissive material on the preview sphere &#183; the surface emits its own cyan light and reads as self-lit rather than shaded.</em></p>
+
                 <h3>Emissive Textures</h3>
 
                 <p>Instead of a solid color, you can use textures to control which parts of a surface glow. This is perfect for:</p>
@@ -1304,7 +1311,229 @@ flowchart TD
 
                 <p>We'll cover landscape material creation in full detail in the Landscape module, including practical exercises building multi-layer terrain materials with proper blending, tiling, and performance optimization.</p>
             </section>
-            <!-- Section 7: Hands-On Exercise -->
+                        <!-- Section 7: Substrate -->
+            <section id="substrate" class="lesson-section">
+                <h2>Substrate: Next-Generation Materials</h2>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#129514; Experimental in UE 5.8</h4>
+                    <p>Substrate is an opt-in feature. Enable it in <strong>Project Settings &#183; Rendering &#183; Substrate materials (Experimental)</strong>, then restart the editor. It changes how every material is authored project-wide, so treat it as a deliberate project decision rather than a per-material toggle.</p>
+                </div>
+
+                <p>Everything so far in this lesson has used Unreal's classic material model: you pick one <strong>Shading Model</strong> (Default Lit, Subsurface, Clear Coat, and so on) and one <strong>Blend Mode</strong>, then wire values into a fixed set of pins (Base Color, Metallic, Roughness, Opacity). It works well, but it is rigid. A surface that is metal, under a clear coat, under a layer of dust does not fit neatly into any single shading model.</p>
+
+                <p><strong>Substrate</strong> (introduced experimentally as "Strata" and later renamed) replaces that fixed system with a modular, layered one. Instead of choosing a shading model, you describe a surface by combining <strong>Substrate Slab</strong> building blocks with layering operators. One consistent framework covers what used to require many separate shading models.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Substrate Slab:</strong> A single physically based building block (a BSDF) describing one layer of a surface: its diffuse albedo, specular F0, roughness, and normal, plus optional properties like subsurface scattering, anisotropy, fuzz, or a coat. Slabs are combined with operators to build the finished material.</p>
+                </div>
+
+                <h3>The Substrate Root Node</h3>
+
+                <p>When Substrate is enabled, the main material output node changes. The classic Base Color / Metallic / Specular / Roughness pins are replaced by a single <strong>Front Material</strong> input that accepts a Substrate topology (one slab, or a stack of slabs joined by operators), alongside familiar inputs like Opacity, Emissive Color, and World Position Offset.</p>
+
+                <img src="images/m03_l05/m03_l05_fig02_substrate_graph.png" alt="Unreal Engine 5.8 Material Editor graph with Substrate enabled: a Substrate Vertical Layer operator node with Top, Bottom, and Top Thickness inputs feeds its BSDF output into the material root node's Front Material input. The root node shows Substrate inputs such as Opacity Override, World Position Offset, Ambient Occlusion, and Front Material rather than the classic Base Color and Roughness pins." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A real Substrate material &#183; a Vertical Layering operator (fed by two Slab BSDFs) drives the material's single Front Material input.</em></p>
+
+                <h3>Layering Operators</h3>
+
+                <p>Slabs are assembled with a small set of operators:</p>
+
+                <ul>
+                    <li><strong>Substrate Horizontal Layering:</strong> blends two slabs side by side across the surface, like mixing two materials through a mask.</li>
+                    <li><strong>Substrate Vertical Layering:</strong> stacks one slab on top of another (a clear coat over a base, for example), with the top layer partially covering the one beneath.</li>
+                    <li><strong>Substrate Add / Weight:</strong> combine or scale slab contributions.</li>
+                    <li><strong>Substrate Coverage:</strong> controls how much of the surface a layer occupies.</li>
+                </ul>
+
+                <p>With these, a car-paint material (a metallic flake base, a tinted layer, and a clear coat) becomes a single readable graph instead of a shading-model compromise.</p>
+
+                <!-- SVG: Classic model vs Substrate -->
+                <svg width="100%" height="360" viewBox="0 0 850 360" style="max-width: 850px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);">
+                    <text x="425" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Classic Shading Models vs Substrate</text>
+
+                    <!-- Classic side -->
+                    <text x="210" y="62" text-anchor="middle" fill="#8BC34A" font-size="13" font-weight="bold">Classic Model (fixed)</text>
+                    <g transform="translate(60, 80)">
+                        <rect x="0" y="0" width="150" height="150" rx="6" fill="#3d3d3d" stroke="#8BC34A" stroke-width="1.5"/>
+                        <text x="14" y="30" fill="#ccc" font-size="11">Base Color</text>
+                        <text x="14" y="58" fill="#ccc" font-size="11">Metallic</text>
+                        <text x="14" y="86" fill="#ccc" font-size="11">Roughness</text>
+                        <text x="14" y="114" fill="#ccc" font-size="11">Opacity</text>
+                        <circle cx="150" cy="26" r="4" fill="#f1c40f"/>
+                        <circle cx="150" cy="54" r="4" fill="#888"/>
+                        <circle cx="150" cy="82" r="4" fill="#888"/>
+                        <circle cx="150" cy="110" r="4" fill="#667eea"/>
+                    </g>
+                    <g transform="translate(250, 120)">
+                        <rect x="0" y="0" width="130" height="70" rx="6" fill="#2d2d2d" stroke="#8BC34A" stroke-width="2"/>
+                        <text x="65" y="30" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Shading Model</text>
+                        <text x="65" y="50" text-anchor="middle" fill="#aaa" font-size="10">pick ONE</text>
+                    </g>
+                    <path d="M 210 106 L 250 145" stroke="#8BC34A" stroke-width="1.5" fill="none"/>
+                    <path d="M 210 190 L 250 165" stroke="#8BC34A" stroke-width="1.5" fill="none"/>
+
+                    <!-- Divider -->
+                    <line x1="425" y1="70" x2="425" y2="330" stroke="#555" stroke-width="1" stroke-dasharray="4 4"/>
+
+                    <!-- Substrate side -->
+                    <text x="640" y="62" text-anchor="middle" fill="#667eea" font-size="13" font-weight="bold">Substrate (layered)</text>
+                    <g transform="translate(470, 82)">
+                        <rect x="0" y="0" width="120" height="44" rx="6" fill="#3d3d3d" stroke="#667eea" stroke-width="1.5"/>
+                        <text x="60" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Slab BSDF</text>
+                        <text x="60" y="35" text-anchor="middle" fill="#aaa" font-size="9">clear coat</text>
+                        <circle cx="120" cy="22" r="4" fill="#667eea"/>
+                    </g>
+                    <g transform="translate(470, 150)">
+                        <rect x="0" y="0" width="120" height="44" rx="6" fill="#3d3d3d" stroke="#667eea" stroke-width="1.5"/>
+                        <text x="60" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Slab BSDF</text>
+                        <text x="60" y="35" text-anchor="middle" fill="#aaa" font-size="9">metal base</text>
+                        <circle cx="120" cy="22" r="4" fill="#667eea"/>
+                    </g>
+                    <g transform="translate(630, 110)">
+                        <rect x="0" y="0" width="90" height="56" rx="6" fill="#2d2d2d" stroke="#667eea" stroke-width="2"/>
+                        <text x="45" y="24" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Vertical</text>
+                        <text x="45" y="40" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Layer</text>
+                        <circle cx="90" cy="28" r="4" fill="#f1c40f"/>
+                    </g>
+                    <path d="M 590 104 L 630 130" stroke="#667eea" stroke-width="1.5" fill="none"/>
+                    <path d="M 590 172 L 630 146" stroke="#667eea" stroke-width="1.5" fill="none"/>
+                    <g transform="translate(750, 116)">
+                        <rect x="0" y="0" width="70" height="44" rx="6" fill="#2d2d2d" stroke="#f1c40f" stroke-width="2"/>
+                        <text x="35" y="20" text-anchor="middle" fill="#f1c40f" font-size="9" font-weight="bold">Front</text>
+                        <text x="35" y="34" text-anchor="middle" fill="#f1c40f" font-size="9" font-weight="bold">Material</text>
+                    </g>
+                    <path d="M 720 138 L 750 138" stroke="#f1c40f" stroke-width="1.5" fill="none"/>
+
+                    <rect x="60" y="290" width="730" height="52" rx="6" fill="rgba(102,126,234,0.15)" stroke="#667eea"/>
+                    <text x="425" y="312" text-anchor="middle" fill="#fff" font-size="11">The classic model forces one shading model per material. Substrate composes many layered slabs into a single Front Material,</text>
+                    <text x="425" y="330" text-anchor="middle" fill="#fff" font-size="11">so coated, scattering, and mixed surfaces all share one consistent framework.</text>
+                </svg>
+                <p class="caption"><em>Figure: Substrate swaps the fixed shading-model pins for layered Slab BSDFs joined by operators.</em></p>
+
+                <h3>Why It Matters</h3>
+
+                <p>Substrate unifies the material model: one framework for opaque, translucent, coated, and scattering surfaces, with more physically consistent results and genuine multi-layer authoring. It is the foundation Epic is building future material work on, so it is worth understanding now, even while it is Experimental.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Watch Out: Experimental Trade-offs</h4>
+                    <p>Because Substrate is Experimental in UE 5.8, expect rough edges. Enabling it is a project-wide switch that requires a restart, existing materials are converted automatically but may need review, and not every engine feature or platform supports it equally yet. Use it to learn and prototype, but keep the classic model for anything shipping today unless you have tested Substrate thoroughly on your target hardware.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#128161; Pro-Tip</h4>
+                    <p>You do not have to convert existing materials to explore Substrate. Enable it in a scratch project or a copy, build one Slab material, then add a Vertical Layering operator for a coat. Seeing the Front Material input and a Slab node in the graph is the fastest way to understand the model.</p>
+                </div>
+            </section>
+
+            <!-- Section 8: Stylized and Toon Materials -->
+            <section id="toon" class="lesson-section">
+                <h2>Stylized &amp; Toon Materials (NPR)</h2>
+
+                <p>Not every project aims for photorealism. Cel-shaded, comic-book, and painterly looks fall under <strong>non-photorealistic rendering (NPR)</strong>. UE 5.8 gives you two routes to a stylized look: the new <strong>Substrate Toon BSDF</strong> shades the surface itself with hard cel bands (Experimental, and it requires Substrate), while a <strong>Post-Process Material</strong> restyles the whole rendered image and works in any project. Many toon looks combine both.</p>
+
+                <h3>The Substrate Toon BSDF (Experimental in UE 5.8)</h3>
+
+                <p>When Substrate is enabled, a dedicated <strong>Substrate Toon BSDF</strong> node becomes available. Plug it into the material's <strong>Front Material</strong> input and its lighting response is quantized into flat cel bands with a hard terminator, instead of the smooth diffuse falloff of an ordinary surface. Feed it a Base Color (and optionally a <strong>Toon Profile</strong> asset that controls how many bands there are and where they fall), and the surface reads as cel-shaded directly, with no post-process pass required.</p>
+
+                <img src="images/m03_l05/m03_l05_fig03_toon_bsdf.png" alt="Unreal Engine 5.8 Material Editor with Substrate enabled: the preview sphere shows a cel-shaded material with a hard, stepped shadow terminator and flat bands, and the graph shows a node labeled Substrate Toon BSDF - EXPERIMENTAL wired into the material's Front Material input." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Substrate Toon BSDF (Experimental in UE 5.8) &#183; a dedicated cel-shading node wired into Front Material gives the preview sphere hard-stepped toon shading.</em></p>
+
+                <p>Because it shades per surface, the Toon BSDF is well suited to characters and props you want stylized while the rest of the scene stays realistic. It is Experimental in UE 5.8 and, like every Substrate feature, is a project-wide opt-in.</p>
+
+                <h3>The Post-Process Route</h3>
+
+                <p>The post-process approach is older and universal: it needs no Substrate and restyles everything the camera sees at once. It is the classic way to add outlines and flat banding across a whole scene, and it is what most existing Unreal toon setups use.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Post-Process Material:</strong> A material with <strong>Material Domain</strong> set to <strong>Post Process</strong>. Instead of shading one surface, it runs as a full-screen pass over the rendered image, reading buffers like SceneColor, SceneDepth, and world normals, and can rewrite the final pixels. You apply it through a Post Process Volume or a camera's post-process settings.</p>
+                </div>
+
+                <h3>The Two Ingredients of a Toon Look</h3>
+
+                <p>Most toon styles combine two post-process effects:</p>
+
+                <p><strong>1. Banding (posterization).</strong> Smooth lighting gradients are quantized into a few flat steps. Reading the scene color and snapping it to, say, three or four brightness levels produces the characteristic flat, cel-shaded look, with hard transitions instead of soft falloff.</p>
+
+                <p><strong>2. Outlines (edge detection).</strong> A Sobel-style filter compares neighboring pixels in the SceneDepth and world-normal buffers. Where they differ sharply (a silhouette or a crease) the filter draws a dark line, giving the inked outline that reads as "drawn."</p>
+
+                <!-- SVG: Toon technique -->
+                <svg width="100%" height="300" viewBox="0 0 820 300" style="max-width: 820px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
+                    <defs>
+                        <radialGradient id="smoothSphere" cx="38%" cy="32%" r="75%">
+                            <stop offset="0%" stop-color="#eaf0ff"/>
+                            <stop offset="55%" stop-color="#6f86d6"/>
+                            <stop offset="100%" stop-color="#1a2440"/>
+                        </radialGradient>
+                    </defs>
+                    <text x="410" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Building a Toon Look from the Rendered Image</text>
+
+                    <!-- Photoreal sphere -->
+                    <circle cx="150" cy="150" r="85" fill="url(#smoothSphere)"/>
+                    <text x="150" y="262" text-anchor="middle" fill="#aaa" font-size="12">Photoreal (smooth lighting)</text>
+
+                    <!-- Arrow -->
+                    <path d="M 265 150 L 345 150" stroke="#667eea" stroke-width="3" fill="none" marker-end="url(#arrowToon)"/>
+                    <defs>
+                        <marker id="arrowToon" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L8,3 L0,6 z" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                    <text x="305" y="135" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">post-process</text>
+
+                    <!-- Toon sphere: banded + outline -->
+                    <g transform="translate(500, 65)">
+                        <circle cx="150" cy="85" r="88" fill="#0a0a0a"/>
+                        <clipPath id="toonClip"><circle cx="150" cy="85" r="82"/></clipPath>
+                        <g clip-path="url(#toonClip)">
+                            <rect x="60" y="0" width="180" height="180" fill="#233158"/>
+                            <path d="M 60 0 h 180 v 60 h -180 z" fill="#3a52a0"/>
+                            <path d="M 60 0 h 180 v 34 h -180 z" fill="#6f86d6"/>
+                            <ellipse cx="118" cy="52" rx="34" ry="26" fill="#eaf0ff"/>
+                        </g>
+                        <circle cx="150" cy="85" r="82" fill="none" stroke="#000" stroke-width="6"/>
+                        <text x="150" y="197" text-anchor="middle" fill="#aaa" font-size="12">Toon (banding + outline)</text>
+                    </g>
+
+                    <!-- Labels -->
+                    <text x="410" y="205" text-anchor="middle" fill="#4CAF50" font-size="11">1. Posterize the color into flat bands</text>
+                    <text x="410" y="224" text-anchor="middle" fill="#4CAF50" font-size="11">2. Add dark outlines from edge detection</text>
+                </svg>
+                <p class="caption"><em>Figure: A toon look is the rendered image posterized into flat bands, plus edge-detected outlines.</em></p>
+
+                <h3>Building It</h3>
+
+                <p>The typical setup:</p>
+
+                <ul>
+                    <li>Create a material and set <strong>Material Domain = Post Process</strong>.</li>
+                    <li>For banding: sample <strong>SceneTexture: PostProcessInput0</strong> (the current color), then quantize it (for example, multiply by the step count, Floor, and divide back).</li>
+                    <li>For outlines: sample <strong>SceneTexture: SceneDepth</strong> and <strong>WorldNormal</strong> at neighboring UV offsets, difference them, and Lerp toward black where the edge is strong.</li>
+                    <li>Add the material to a <strong>Post Process Volume</strong> under <strong>Post Process Materials</strong>, or to a camera. Set the volume to Unbound to affect the whole level.</li>
+                </ul>
+
+                <h3>Other Stylization Tools</h3>
+
+                <ul>
+                    <li><strong>Unlit materials</strong> (Shading Model = Unlit) ignore scene lighting entirely, giving flat, illustrative surfaces you light by hand through Emissive Color.</li>
+                    <li><strong>Custom Depth / Custom Stencil</strong> let you outline only selected meshes (an interactable, an enemy) rather than the whole scene.</li>
+                    <li><strong>Ramp textures</strong> remap lighting or Fresnel through a gradient for hand-tuned shading bands.</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#128161; Pro-Tip</h4>
+                    <p>Build the outline pass and the banding pass as two separate post-process materials while you tune them, then combine once each looks right. It is far easier to debug a wrong-looking edge when it is not tangled up with the color-banding math.</p>
+                </div>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Watch Out: Post-Process Cost and Buffers</h4>
+                    <p>Edge detection samples the scene several times per pixel, so a heavy outline pass is not free, especially at high resolution. Effects that read world normals or custom depth also need those buffers enabled in your project's rendering settings, or the material will read blank.</p>
+                </div>
+            </section>
+
+            <!-- Section 9: Hands-On Exercise -->
             <section id="hands-on" class="lesson-section">
                 <h2>Hands-On: Create a Glowing Emissive Material</h2>
 
@@ -1659,7 +1888,7 @@ flowchart TD
                 <p>Want to take this further? Create or import a texture that defines which parts of a surface should glow (white areas glow, black areas don't). Multiply this mask into your emissive chain before the Emissive Color input. Now you can create control panels where only specific buttons and screens glow while the frame stays dark!</p>
             </section>
 
-            <!-- Section 8: Summary -->
+            <!-- Section 10: Summary -->
             <section id="summary" class="lesson-section">
                 <h2>Summary</h2>
 
@@ -1679,6 +1908,8 @@ flowchart TD
                     <p><strong>Decals</strong> project materials onto scene geometry without modifying meshes. They're ideal for environmental detail, gameplay feedback, and signage. Use appropriate Decal Blend Modes for different effects.</p>
 
                     <p><strong>Landscape materials</strong> use layer-based blending for terrain texturing. The Landscape Layer Blend node combines multiple texture sets based on painted weights. Performance is critical due to landscape scale.</p>
+
+                    <p><strong>Substrate</strong> (Experimental in UE 5.8) is Unreal's next-generation material model: you build surfaces from layered Slab BSDFs joined by operators instead of picking one fixed shading model. <strong>Stylized and toon looks</strong> are a post-process technique (color banding plus edge-detection outlines), not a built-in shading model.</p>
                 </div>
 
                 <h3>Choosing the Right Material Type</h3>

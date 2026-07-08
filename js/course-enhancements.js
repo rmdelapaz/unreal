@@ -274,29 +274,6 @@ if (typeof module !== 'undefined' && module.exports) {
 
 /* Custom navigation and reading time calculator */
 document.addEventListener('DOMContentLoaded', function() {
-	// Calculate reading time
-	const content = document.querySelector('body').innerText;
-	const wordsPerMinute = 200;
-	const words = content.trim().split(/\s+/).length;
-	const readingTime = Math.ceil(words / wordsPerMinute);
-	
-	// Insert reading time if container exists
-	const readingTimeElement = document.querySelector('.reading-time');
-	if (readingTimeElement) {
-		readingTimeElement.textContent = `${readingTime} min read`;
-	}
-	
-	// Progress indicator
-	const progressBar = document.querySelector('.progress-bar');
-	if (progressBar) {
-		window.addEventListener('scroll', function() {
-			const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-			const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-			const scrolled = (winScroll / height) * 100;
-			progressBar.style.width = scrolled + '%';
-		});
-	}
-	
 	// Apply syntax highlighting to all code blocks
 	document.querySelectorAll('pre code').forEach((block) => {
 		// Add Python class if not present

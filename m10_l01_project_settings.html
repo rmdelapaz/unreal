@@ -13,11 +13,6 @@
     <!-- Skip to main content for accessibility -->
     <a href="#main-content" class="skip-to-main">Skip to main content</a>
 
-    <!-- Progress indicator -->
-    <div class="progress-container">
-        <div class="progress-bar"></div>
-    </div>
-
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
@@ -1254,13 +1249,6 @@
 
     <!-- Scripts -->
     <script>
-        // Progress indicator
-        window.addEventListener('scroll', () => {
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrolled = (window.scrollY / docHeight) * 100;
-            document.querySelector('.progress-bar').style.width = scrolled + '%';
-        });
-
         // Mobile menu toggle
         const menuToggle = document.getElementById('mobile-menu-toggle');
         const navLinks = document.getElementById('nav-links');

@@ -5,7 +5,7 @@
 **Course Title:** Introduction to Unreal Engine 5  
 **Target Audience:** Beginners with basic computer skills; no prior game development experience required  
 **Estimated Duration:** 40-50 hours (self-paced)  
-**Software Required:** Unreal Engine 5.4+ (free via Epic Games Launcher)  
+**Software Required:** UE 5.8 (free via Epic Games Launcher)  
 **Hardware Requirements:** Windows 10/11 64-bit, 8GB RAM minimum (16GB recommended), DirectX 12 compatible GPU with 4GB VRAM minimum
 
 ---
@@ -456,7 +456,7 @@ Students will create a small, playable experience that demonstrates:
 ## Course Maintenance Notes
 
 **Version:** 1.0  
-**Engine Version Target:** Unreal Engine 5.4+  
+**Engine Version Target:** UE 5.8  
 **Last Updated:** November 2025  
 **Author:** [Instructor Name]
 

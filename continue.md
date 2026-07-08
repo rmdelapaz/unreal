@@ -53,15 +53,15 @@ Before doing ANY work, Claude must read this file and output:
 
 ## Current Status
 
-**Last Updated:** November 25, 2025
+**Last Updated:** July 7, 2026
 
-**Current Phase:** Module 2 Complete - All 5 lessons created (parts not yet combined by user)
+> ⚠️ **This file's older status claims were STALE and have been corrected.** The course is content-complete (all 10 modules, 38 lessons, built and linked in index.html). The `parts/` folder reflects an OLD numbering (Module 3 was once Blueprints; it is now Materials, with Blueprints at Module 5). Trust `index.html` + combined root files as source of truth.
 
-**Progress:** 
-- Module 1: Getting Started (4 lessons) - ✅ COMPLETE
-- Module 2: Working with Levels and Actors (5 lessons) - ✅ COMPLETE (parts created)
+**Current Phase:** 5.4 → 5.8 update + visual-enhancement initiative. See `unreal_58_update_progress.md` (primary tracker) and `image_style_guide.md`.
 
-**Next Task:** Begin Module 3: Blueprint Visual Scripting, Lesson 3.1: Introduction to Blueprints (see intro_to_unreal_curriculum.md for lesson details)
+**Progress:** All 10 modules content-complete. Now updating engine target 5.4→5.8, adding real UE screenshots, and building a new AI-Assisted Workflows (Unreal MCP) module.
+
+**Next Task:** Resolve 3 open decisions in `unreal_58_update_progress.md`, then begin the version sweep (M4 Lighting first — highest drift).
 
 ---
 

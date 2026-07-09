@@ -627,41 +627,9 @@ sequenceDiagram
 
                 <p><strong>Game State Class:</strong> Stores replicated game-wide information (match timer, team scores). Important for multiplayer.</p>
 
-                <!-- SVG: Game Mode Classes Panel -->
-                <svg width="100%" height="220" viewBox="0 0 700 220" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Game Mode: Classes Settings</text>
-                    
-                    <!-- Panel -->
-                    <rect x="50" y="45" width="600" height="160" rx="5" fill="#3d3d3d" stroke="#555"/>
-                    
-                    <!-- Header -->
-                    <rect x="50" y="45" width="600" height="25" rx="5" fill="#4a4a4a"/>
-                    <text x="70" y="62" fill="#fff" font-size="10" font-weight="bold">▼ Classes</text>
-                    
-                    <!-- Rows -->
-                    <g transform="translate(60, 80)">
-                        <text x="0" y="12" fill="#aaa" font-size="9">Default Pawn Class</text>
-                        <rect x="280" y="0" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#4CAF50"/>
-                        <text x="290" y="12" fill="#4CAF50" font-size="9">BP_ThirdPersonCharacter</text>
-                        
-                        <text x="0" y="35" fill="#aaa" font-size="9">Player Controller Class</text>
-                        <rect x="280" y="23" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#667eea"/>
-                        <text x="290" y="35" fill="#667eea" font-size="9">PlayerController</text>
-                        
-                        <text x="0" y="58" fill="#aaa" font-size="9">HUD Class</text>
-                        <rect x="280" y="46" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#888"/>
-                        <text x="290" y="58" fill="#888" font-size="9">None</text>
-                        
-                        <text x="0" y="81" fill="#aaa" font-size="9">Player State Class</text>
-                        <rect x="280" y="69" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#FF9800"/>
-                        <text x="290" y="81" fill="#FF9800" font-size="9">PlayerState</text>
-                        
-                        <text x="0" y="104" fill="#aaa" font-size="9">Game State Class</text>
-                        <rect x="280" y="92" width="280" height="18" rx="2" fill="#4a4a4a" stroke="#00BCD4"/>
-                        <text x="290" y="104" fill="#00BCD4" font-size="9">GameStateBase</text>
-                    </g>
-                </svg>
-                <p class="caption"><em>Figure: Game Mode Blueprint specifies which classes to use for players and game state.</em></p>
+                <!-- Figure: real Game Mode Class Defaults captured from UE 5.8 -->
+                <img src="images/m06_l01/m06_l01_fig01_gamemode_classes.png" alt="The Classes category of a Game Mode Blueprint's Class Defaults in Unreal Engine 5.8, listing Game State Class, Player Controller Class, Player State Class, HUD Class, and Default Pawn Class set to a character Blueprint, plus Spectator and Server Stat Replicator classes." style="max-width: 100%; display: block; margin: 2rem auto; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The <strong>Classes</strong> category in a Game Mode Blueprint's Class Defaults (UE 5.8). <strong>Default Pawn Class</strong> points to the Character Blueprint the player will control &#183; the remaining rows set which Player Controller, HUD, Player State, and Game State classes the mode spawns.</em></p>
 
                 <h3>Where to Set the Game Mode</h3>
 
@@ -879,6 +847,10 @@ flowchart TD
                 </ol>
 
                 <p>This is a <strong>Character</strong> (not just a Pawn), so it inherits all the movement functionality we discussed earlier.</p>
+
+                <!-- Figure: real Character Components panel captured from UE 5.8 -->
+                <img src="images/m06_l01/m06_l01_fig02_character_components.png" alt="The Components panel of a Character Blueprint in Unreal Engine 5.8, showing the Capsule Component as the root with an Arrow Component, a CameraBoom spring arm parenting a FollowCamera, a skeletal Mesh, and the inherited Character Movement component." style="max-width: 420px; width: 100%; display: block; margin: 2rem auto; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A Character Blueprint's <strong>Components</strong> panel (UE 5.8). The <strong>Capsule Component</strong> is the collision root &#183; the <strong>CameraBoom</strong> (spring arm) holds the <strong>FollowCamera</strong> &#183; the <strong>Mesh</strong> is the skeletal model &#183; <strong>Character Movement</strong> drives walking and jumping.</em></p>
 
                 <h3>Step 5: Find Input Handling</h3>
 

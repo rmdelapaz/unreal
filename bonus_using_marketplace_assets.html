@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Learn how to find, purchase, and use marketplace assets in Unreal Engine 5. Master asset migration, organization, and integration into your projects.">
+    <meta name="description" content="Learn how to find, acquire, and use Fab marketplace assets in Unreal Engine 5.8. Master asset migration, organization, and integration into your projects.">
     <meta name="author" content="Practical Ace">
-    <title>Using Marketplace Assets - Introduction to Unreal Engine 5</title>
+    <title>Using Fab Marketplace Assets - Introduction to Unreal Engine 5</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="icon" type="image/png" href="/favicon.png">
 </head>
@@ -33,7 +33,7 @@
         <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="index.html#modules">Bonus Content</a></li>
-            <li aria-current="page">Using Marketplace Assets</li>
+            <li aria-current="page">Using Fab Marketplace Assets</li>
         </ul>
     </nav>
 
@@ -42,19 +42,19 @@
         <div class="container">
             <!-- Lesson Header -->
             <header>
-                <h1>🛒 Using Marketplace Assets</h1>
-                <p class="lead">One of Unreal Engine's greatest strengths is its vast ecosystem of pre-made assets. From character models and environments to sound effects and complete game systems, marketplace assets can dramatically accelerate your development. This bonus lesson covers finding, purchasing, and effectively integrating third-party assets into your projects.</p>
+                <h1>🛒 Using Fab Marketplace Assets</h1>
+                <p class="lead">One of Unreal Engine's greatest strengths is its vast ecosystem of pre-made assets. From character models and environments to sound effects and complete game systems, marketplace assets can dramatically accelerate your development. As of October 2024, Epic's <strong>Fab</strong> is the single storefront for that ecosystem, replacing the old Unreal Engine Marketplace. This bonus lesson covers finding, acquiring, and effectively integrating third-party assets into your projects through Fab.</p>
                 
                 <!-- Learning objectives -->
                 <div class="card">
                     <h2>🎯 Learning Objectives</h2>
                     <p>By the end of this lesson, you will be able to:</p>
                     <ul>
-                        <li>Navigate the Unreal Marketplace and find quality assets</li>
+                        <li>Navigate Fab and find quality assets</li>
                         <li>Add purchased assets to your projects</li>
                         <li>Migrate assets between projects</li>
                         <li>Organize and manage large asset packs</li>
-                        <li>Integrate marketplace content into your levels</li>
+                        <li>Integrate Fab content into your levels</li>
                         <li>Troubleshoot common asset issues</li>
                     </ul>
                     <p><strong>Estimated Time:</strong> 45-60 minutes</p>
@@ -87,15 +87,17 @@
 
                 <p>Before you can use marketplace assets, you need to know where to find them. There are several sources for Unreal Engine assets, each with its own strengths.</p>
 
-                <h3>The Unreal Marketplace</h3>
+                <h3>Fab: Epic's Unified Marketplace</h3>
 
-                <p>The official <strong>Unreal Marketplace</strong> (also called Fab, formerly the Epic Games Marketplace) is your primary source for high-quality, verified assets. Access it through:</p>
+                <p><strong>Fab</strong> (<a href="https://www.fab.com" target="_blank" rel="noopener">fab.com</a>) is Epic's content marketplace, launched in October 2024. It <strong>replaced</strong> the old Unreal Engine Marketplace and consolidated several stores into one library: the former Epic Games / Unreal Engine Marketplace, <strong>Quixel Megascans</strong>, the Sketchfab store, and the ArtStation Marketplace. It is your primary source for high-quality, verified assets. Access it through:</p>
 
                 <ul>
-                    <li><strong>Epic Games Launcher:</strong> Click the "Marketplace" tab</li>
-                    <li><strong>Web Browser:</strong> Visit <a href="https://www.fab.com" target="_blank" rel="noopener">fab.com</a></li>
-                    <li><strong>Inside Unreal:</strong> Window → Marketplace (opens launcher)</li>
+                    <li><strong>Web browser:</strong> Visit <a href="https://www.fab.com" target="_blank" rel="noopener">fab.com</a>, sign in with your Epic Games account, then browse or search</li>
+                    <li><strong>Inside Unreal:</strong> The <strong>Fab</strong> plugin ships enabled in UE 5.8, adding an in-editor Fab browser you open from the Content Browser to add assets straight into the open project</li>
                 </ul>
+
+                <img src="images/bonus/bonus_fig01_fab_plugin.png" alt="The Fab plugin listed in Edit &gt; Plugins in Unreal Engine 5.8: enabled (checkbox ticked), published by Epic Games, Inc., Version 0.0.13, with no Experimental badge." style="max-width:100%; display:block; margin:1.5rem auto; border:1px solid #ccc; border-radius:6px;">
+                <p class="caption"><em>Figure: The Fab plugin ships enabled in UE 5.8 (Edit &#183; Plugins), giving you in-editor access to Fab. Unlike some newer tools, Fab is a standard shipping plugin, not Experimental.</em></p>
 
                 <h3>Asset Categories</h3>
 
@@ -152,9 +154,9 @@
 
                 <ul>
                     <li><strong>Free Monthly Content:</strong> Epic releases free assets each month—claim them to keep forever</li>
-                    <li><strong>Permanently Free Collection:</strong> Search "Free" in the marketplace</li>
+                    <li><strong>Permanently Free Collection:</strong> Filter by price "Free" on Fab</li>
                     <li><strong>Sample Projects:</strong> Lyra, Valley of the Ancient, City Sample contain reusable assets</li>
-                    <li><strong>Megascans:</strong> Thousands of free photogrammetry assets via Quixel Bridge</li>
+                    <li><strong>Megascans:</strong> Thousands of free photogrammetry assets (3D scans, surfaces, vegetation), now hosted on Fab</li>
                 </ul>
 
                 <!-- SVG: Asset Sources -->
@@ -176,7 +178,7 @@
                         <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Quixel Megascans</text>
                         <text x="80" y="45" text-anchor="middle" fill="#c8e6c9" font-size="8">Free for UE users</text>
                         <text x="80" y="60" text-anchor="middle" fill="#c8e6c9" font-size="8">Photogrammetry</text>
-                        <text x="80" y="75" text-anchor="middle" fill="#c8e6c9" font-size="8">Via Quixel Bridge</text>
+                        <text x="80" y="75" text-anchor="middle" fill="#c8e6c9" font-size="8">Now on Fab</text>
                     </g>
                     
                     <!-- Sample Projects -->
@@ -192,7 +194,7 @@
                     <g transform="translate(590, 50)">
                         <rect x="0" y="0" width="160" height="80" rx="8" fill="#9C27B0"/>
                         <text x="80" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Third-Party Sites</text>
-                        <text x="80" y="45" text-anchor="middle" fill="#e1bee7" font-size="8">Sketchfab, Turbosquid</text>
+                        <text x="80" y="45" text-anchor="middle" fill="#e1bee7" font-size="8">TurboSquid, CGTrader</text>
                         <text x="80" y="60" text-anchor="middle" fill="#e1bee7" font-size="8">More variety</text>
                         <text x="80" y="75" text-anchor="middle" fill="#e1bee7" font-size="8">Check licenses!</text>
                     </g>
@@ -227,7 +229,7 @@
                     <h4>⚠️ License Considerations</h4>
                     <p>Always check the license terms:</p>
                     <ul>
-                        <li><strong>Marketplace assets:</strong> Generally licensed for use in any UE project</li>
+                        <li><strong>Fab assets:</strong> Each listing states its license; Fab offers a Standard license and, for some items, Personal vs Professional tiers, so check which applies before you buy</li>
                         <li><strong>Third-party sites:</strong> Licenses vary—some restrict commercial use</li>
                         <li><strong>Sample projects:</strong> Usually for learning; check redistribution terms</li>
                         <li><strong>Megascans:</strong> Free for Unreal Engine projects only</li>
@@ -241,27 +243,29 @@
 
                 <p>Once you've purchased or claimed assets, you need to add them to your project. The method depends on the asset source.</p>
 
-                <h3>From the Unreal Marketplace (Epic Games Launcher)</h3>
+                <h3>From Fab (in-editor plugin)</h3>
+
+                <p>With the Fab plugin enabled, the fastest path is to add assets straight into the open project:</p>
 
                 <ol>
-                    <li>Open the <strong>Epic Games Launcher</strong></li>
-                    <li>Go to <strong>Library</strong> → <strong>Vault</strong></li>
-                    <li>Find your purchased asset</li>
-                    <li>Click <strong>Add to Project</strong></li>
-                    <li>Select your project from the dropdown</li>
-                    <li>Click <strong>Add to Project</strong> again</li>
-                    <li>Wait for download and installation</li>
-                    <li>Open your project—assets appear in Content Browser</li>
+                    <li>In the Content Browser, open the <strong>Fab</strong> browser and sign in with your Epic Games account</li>
+                    <li>Find an asset you own (or a free one) in your <strong>My Library</strong>, or buy/claim a new one</li>
+                    <li>Choose the engine version, then click <strong>Add to Project</strong></li>
+                    <li>Confirm the target project (the open one by default)</li>
+                    <li>Wait for the download and install</li>
+                    <li>The assets appear in the Content Browser, ready to use</li>
                 </ol>
+
+                <p>You can also acquire assets on <a href="https://www.fab.com" target="_blank" rel="noopener">fab.com</a> in a browser; they land in your <strong>My Library</strong> and are then available to add from the in-editor Fab plugin.</p>
 
                 <!-- SVG: Add to Project Flow -->
                 <svg width="100%" height="140" viewBox="0 0 800 140" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Adding Marketplace Assets</text>
+                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Adding Fab Assets</text>
                     
                     <g transform="translate(40, 50)">
                         <rect x="0" y="0" width="130" height="60" rx="5" fill="#667eea"/>
-                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Epic Launcher</text>
-                        <text x="65" y="42" text-anchor="middle" fill="#c5cae9" font-size="7">Library → Vault</text>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Fab (in editor)</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#c5cae9" font-size="7">My Library</text>
                     </g>
                     
                     <path d="M 175 80 L 210 80" stroke="#fff" stroke-width="2" marker-end="url(#addArrow)"/>
@@ -269,7 +273,7 @@
                     <g transform="translate(215, 50)">
                         <rect x="0" y="0" width="130" height="60" rx="5" fill="#FF9800"/>
                         <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Find Asset</text>
-                        <text x="65" y="42" text-anchor="middle" fill="#fff3e0" font-size="7">In your vault</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#fff3e0" font-size="7">Own or free</text>
                     </g>
                     
                     <path d="M 350 80 L 385 80" stroke="#fff" stroke-width="2" marker-end="url(#addArrow)"/>
@@ -277,15 +281,15 @@
                     <g transform="translate(390, 50)">
                         <rect x="0" y="0" width="130" height="60" rx="5" fill="#9C27B0"/>
                         <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Add to Project</text>
-                        <text x="65" y="42" text-anchor="middle" fill="#e1bee7" font-size="7">Select project</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#e1bee7" font-size="7">Choose version</text>
                     </g>
                     
                     <path d="M 525 80 L 560 80" stroke="#fff" stroke-width="2" marker-end="url(#addArrow)"/>
                     
                     <g transform="translate(565, 50)">
                         <rect x="0" y="0" width="130" height="60" rx="5" fill="#4CAF50"/>
-                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Open Project</text>
-                        <text x="65" y="42" text-anchor="middle" fill="#c8e6c9" font-size="7">Assets in Content</text>
+                        <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Content Browser</text>
+                        <text x="65" y="42" text-anchor="middle" fill="#c8e6c9" font-size="7">Ready to use</text>
                     </g>
                     
                     <defs>
@@ -294,29 +298,27 @@
                         </marker>
                     </defs>
                 </svg>
-                <p class="caption"><em>Figure: The workflow for adding marketplace assets to your project.</em></p>
+                <p class="caption"><em>Figure: The workflow for adding Fab assets to your project.</em></p>
 
-                <h3>Creating a New Project with Assets</h3>
+                <h3>Complete Projects and Templates</h3>
 
-                <p>Alternatively, you can create a new project directly from an asset:</p>
+                <p>Some Fab listings are entire sample projects or templates rather than single asset packs. For those, download the item from Fab and open it as its own project (from the Epic Games Launcher's Library, or the <code>.uproject</code> on disk) rather than adding it to an existing project.</p>
 
-                <ol>
-                    <li>In the Vault, click <strong>Create Project</strong> on the asset</li>
-                    <li>Choose project location and name</li>
-                    <li>This creates a project with the asset pre-installed</li>
-                </ol>
+                <h3>Megascans through Fab</h3>
 
-                <h3>Using Quixel Bridge for Megascans</h3>
+                <p>Quixel Megascans (photogrammetry scans, surfaces, and vegetation) now lives on Fab. Add Megascans the same way as any other Fab asset:</p>
 
                 <ol>
-                    <li>Download and install <strong>Quixel Bridge</strong></li>
-                    <li>Sign in with your Epic Games account</li>
-                    <li>Browse the Megascans library</li>
-                    <li>Click <strong>Download</strong> on assets you want</li>
-                    <li>Select quality level (affects file size)</li>
-                    <li>Click <strong>Export</strong> → Select your UE project</li>
-                    <li>Assets appear in Content Browser under Megascans folder</li>
+                    <li>Open the <strong>Fab</strong> browser and search for the Megascans surface, prop, or 3D plant you want</li>
+                    <li>Choose the quality/resolution (affects file size)</li>
+                    <li>Click <strong>Add to Project</strong></li>
+                    <li>The assets import into your Content Browser, ready to use</li>
                 </ol>
+
+                <div class="card" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                    <h4>⚠️ Legacy: Quixel Bridge</h4>
+                    <p>The standalone <strong>Quixel Bridge</strong> plugin still ships with UE 5.8 (Bridge v2025.0.1) and can still import Megascans you already own, but it is now legacy. Fab is the current, supported path for browsing and acquiring Megascans, so prefer it for new work.</p>
+                </div>
 
                 <h3>Importing Third-Party Assets</h3>
 
@@ -330,8 +332,8 @@
                 </ol>
 
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
-                    <h4>💡 Pro Tip: Create to Vault First</h4>
-                    <p>For large asset packs, consider creating a "vault project"—a dedicated project just for storing marketplace assets. Then migrate only what you need to your actual projects. This keeps your working projects lean and organized.</p>
+                    <h4>💡 Pro Tip: Keep a Library Project</h4>
+                    <p>For large asset packs, consider a dedicated "library project" where you add big Fab packs, then migrate only what you need into your actual projects. This keeps your working projects lean and organized.</p>
                 </div>
             </section>
 
@@ -780,11 +782,10 @@ Content/
                 <h3>Part 1: Claim a Free Asset</h3>
 
                 <ol>
-                    <li>Open the <strong>Epic Games Launcher</strong></li>
-                    <li>Go to <strong>Marketplace</strong> tab</li>
-                    <li>Search for <strong>"Free"</strong> or browse <strong>Free → For This Month</strong></li>
+                    <li>Open <strong>Fab</strong> (in a browser at <a href="https://www.fab.com" target="_blank" rel="noopener">fab.com</a>, or from the Content Browser's Fab plugin)</li>
+                    <li>Filter by price <strong>"Free"</strong>, or browse the free monthly picks</li>
                     <li>Find an environment or prop pack you like</li>
-                    <li>Click <strong>Free</strong> to claim it (adds to your vault)</li>
+                    <li>Click to <strong>acquire</strong> it for free (adds it to your My Library)</li>
                 </ol>
 
                 <p><em>Suggestion: Look for packs like "Souls-like Interior," "Modular Building Set," or any current free monthly content.</em></p>
@@ -792,12 +793,11 @@ Content/
                 <h3>Part 2: Add to Your Project</h3>
 
                 <ol>
-                    <li>In the Launcher, go to <strong>Library → Vault</strong></li>
-                    <li>Find the pack you just claimed</li>
-                    <li>Click <strong>Add to Project</strong></li>
-                    <li>Select your existing project (or create a new one)</li>
-                    <li>Click <strong>Add to Project</strong></li>
-                    <li>Wait for the download and installation</li>
+                    <li>In the in-editor <strong>Fab</strong> browser, open <strong>My Library</strong></li>
+                    <li>Find the pack you just acquired</li>
+                    <li>Choose your engine version and click <strong>Add to Project</strong></li>
+                    <li>Confirm your project (the open one, or pick another)</li>
+                    <li>Wait for the download and install</li>
                 </ol>
 
                 <h3>Part 3: Explore the Asset Pack</h3>
@@ -870,7 +870,7 @@ Content/
                 <h3>Bonus Challenges</h3>
 
                 <ul>
-                    <li><strong>Quixel Bridge:</strong> Install Bridge and import some Megascans assets</li>
+                    <li><strong>Megascans:</strong> Add a few Megascans surfaces or 3D plants from Fab and build a small natural scene</li>
                     <li><strong>Mix Packs:</strong> Combine assets from two different packs in one scene</li>
                     <li><strong>Create Variants:</strong> Make 3+ material instance variants of one material</li>
                     <li><strong>Build a Room:</strong> Use modular pieces to construct a complete interior</li>
@@ -885,9 +885,9 @@ Content/
 
                 <h3>Key Concepts</h3>
 
-                <p><strong>Finding Assets:</strong> The Fab Marketplace (formerly Epic Games Marketplace) is your primary source for verified UE assets. Quixel Megascans provides free photogrammetry content. Always check reviews, compatibility, and licenses before purchasing.</p>
+                <p><strong>Finding Assets:</strong> <strong>Fab</strong> (fab.com), launched in October 2024, is your primary source for verified UE assets; it replaced the Unreal Engine Marketplace and folded in Quixel Megascans, the Sketchfab store, and ArtStation. Always check reviews, compatibility, and licenses before buying.</p>
 
-                <p><strong>Adding to Projects:</strong> Use the Epic Games Launcher's Vault to add purchased assets to your projects. Assets appear in your Content Browser after installation. Quixel Bridge provides a streamlined workflow for Megascans.</p>
+                <p><strong>Adding to Projects:</strong> Use the in-editor <strong>Fab</strong> plugin (enabled by default in UE 5.8) to add assets from your <strong>My Library</strong> straight into the open project; they appear in the Content Browser after install. Megascans come through Fab too.</p>
 
                 <p><strong>Migration:</strong> Use the Migrate feature to copy specific assets between projects. Migration automatically includes all dependencies. Always target the destination project's Content folder.</p>
 
@@ -907,11 +907,11 @@ Content/
                     <tbody>
                         <tr style="background: #f5f5f5;">
                             <td style="padding: 10px;">Find assets</td>
-                            <td style="padding: 10px;">Fab Marketplace, Quixel Bridge, sample projects</td>
+                            <td style="padding: 10px;">Fab (fab.com), sample projects</td>
                         </tr>
                         <tr>
                             <td style="padding: 10px;">Add to project</td>
-                            <td style="padding: 10px;">Launcher → Library → Vault → Add to Project</td>
+                            <td style="padding: 10px;">In-editor Fab plugin → My Library → Add to Project</td>
                         </tr>
                         <tr style="background: #f5f5f5;">
                             <td style="padding: 10px;">Migrate assets</td>
@@ -961,7 +961,7 @@ Content/
                     <g transform="translate(210, 50)">
                         <rect x="0" y="0" width="120" height="70" rx="8" fill="#4CAF50"/>
                         <text x="60" y="25" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">2. Add</text>
-                        <text x="60" y="45" text-anchor="middle" fill="#c8e6c9" font-size="7">Vault → Project</text>
+                        <text x="60" y="45" text-anchor="middle" fill="#c8e6c9" font-size="7">Fab → Project</text>
                         <text x="60" y="58" text-anchor="middle" fill="#c8e6c9" font-size="7">Or migrate</text>
                     </g>
                     
@@ -1010,12 +1010,12 @@ Content/
                         <p>Where do you find purchased marketplace assets after claiming them?</p>
                         <div class="quiz-options">
                             <label><input type="radio" name="q1" value="a"> In your project's Content folder automatically</label>
-                            <label><input type="radio" name="q1" value="b"> Epic Games Launcher → Library → Vault</label>
-                            <label><input type="radio" name="q1" value="c"> Unreal Editor → Window → Marketplace</label>
+                            <label><input type="radio" name="q1" value="b"> In your Fab My Library (fab.com or the in-editor Fab plugin)</label>
+                            <label><input type="radio" name="q1" value="c"> In the Epic Games Launcher's engine Library</label>
                             <label><input type="radio" name="q1" value="d"> Downloads folder on your computer</label>
                         </div>
                         <div class="quiz-answer" data-correct="b">
-                            <p><strong>Correct answer: B</strong> — Purchased and claimed assets appear in the Vault section of the Epic Games Launcher's Library. From there, you can add them to specific projects.</p>
+                            <p><strong>Correct answer: B</strong> — Assets you buy or claim on Fab appear in your My Library. From there, add them to a project with the in-editor Fab plugin, or download them from fab.com.</p>
                         </div>
                     </div>
 
@@ -1067,11 +1067,11 @@ Content/
                         <div class="quiz-options">
                             <label><input type="radio" name="q5" value="a"> Sketchfab</label>
                             <label><input type="radio" name="q5" value="b"> Turbosquid</label>
-                            <label><input type="radio" name="q5" value="c"> Quixel Megascans via Bridge</label>
+                            <label><input type="radio" name="q5" value="c"> Quixel Megascans (now on Fab)</label>
                             <label><input type="radio" name="q5" value="d"> Unity Asset Store</label>
                         </div>
                         <div class="quiz-answer" data-correct="c">
-                            <p><strong>Correct answer: C</strong> — Quixel Megascans, accessed through Quixel Bridge, provides thousands of free photogrammetry assets (3D scans, surfaces, vegetation) for Unreal Engine users.</p>
+                            <p><strong>Correct answer: C</strong> — Quixel Megascans provides thousands of free photogrammetry assets (3D scans, surfaces, vegetation). Since 2024 it lives on Fab, where you add it like any other asset.</p>
                         </div>
                     </div>
 

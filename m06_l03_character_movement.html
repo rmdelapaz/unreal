@@ -197,6 +197,9 @@
                     <li><strong>Character Movement (General Settings)</strong> — Gravity, rotation, etc.</li>
                 </ul>
 
+                <img src="images/m06_l03/m06_l03_fig01_cmc_details.png" alt="The Character Movement Component Details panel in Unreal Engine 5.8, with the Walking category showing Ground Friction 8.0 and Max Walk Speed 600 cm/s, and the Jumping / Falling category showing Jump Z Velocity 420 cm/s and Air Control 0.05." style="max-width: 400px; width: 100%; display: block; margin: 2rem auto; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real Character Movement Component Details panel (UE 5.8) &#183; the <strong>Walking</strong> category sets Ground Friction (8.0) and Max Walk Speed (600 cm/s), while <strong>Jumping / Falling</strong> sets Jump Z Velocity (420 cm/s) and Air Control (0.05). These are the defaults for a brand-new Character.</em></p>
+
                 <h3>How Movement Input Works</h3>
 
                 <p>The CMC doesn't directly receive input. Instead, your Blueprint calls <code>Add Movement Input</code> with a direction vector. The CMC then:</p>
@@ -400,8 +403,8 @@
 
                 <p><strong>Typical values:</strong></p>
                 <ul>
-                    <li><strong>300-400:</strong> Small hop (realistic, grounded games)</li>
-                    <li><strong>500-700:</strong> Standard jump (default is 600)</li>
+                    <li><strong>300-450:</strong> Small hop (realistic, grounded games; the Character default is 420)</li>
+                    <li><strong>500-700:</strong> Standard jump (the Third Person template raises this to 700)</li>
                     <li><strong>900-1200:</strong> High jump (platformers)</li>
                     <li><strong>1500+:</strong> Super jump (superhero, sci-fi)</li>
                 </ul>
@@ -606,6 +609,9 @@ stateDiagram-v2
                 <p><strong>Custom:</strong> User-defined movement. Implement your own physics for unique movement types.</p>
 
                 <p><strong>None:</strong> No movement processing. Character is stationary.</p>
+
+                <img src="images/m06_l03/m06_l03_fig02_movement_mode_dropdown.png" alt="The movement mode dropdown in Unreal Engine 5.8, opened on the CharacterMovement Default Land Movement Mode setting, listing None, Walking, Navmesh Walking, Falling, Swimming, Flying, and Custom." style="max-width: 560px; width: 100%; display: block; margin: 2rem auto; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Movement Mode enum in UE 5.8 &#183; every mode the CMC supports (None, Walking, Navmesh Walking, Falling, Swimming, Flying, Custom) appears in this dropdown. The <strong>Set Movement Mode</strong> node in Blueprints offers the same list.</em></p>
 
                 <!-- SVG: Movement Modes -->
                 <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
@@ -897,7 +903,7 @@ flowchart LR
                         </tr>
                         <tr>
                             <td style="padding: 10px;">Air Control</td>
-                            <td style="padding: 10px;">0.35</td>
+                            <td style="padding: 10px;">0.05</td>
                             <td style="padding: 10px;">Falling</td>
                         </tr>
                         <tr style="background: #f5f5f5;">

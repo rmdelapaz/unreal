@@ -299,6 +299,9 @@ flowchart LR
                 </svg>
                 <p class="caption"><em>Figure: Choose the Value Type that matches what your action needs to output.</em></p>
 
+                <img src="images/m06_l02/m06_l02_fig02_input_action_details.png" alt="The Input Action editor Details panel for IA_Move in Unreal Engine 5.8, with Value Type set to Axis2D (Vector2D), empty Triggers and Modifiers arrays, and the Input Consumption group showing Consume Lower Priority Enhanced Input Mappings enabled." style="max-width: 780px; width: 100%; display: block; margin: 2rem auto; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real Input Action editor (UE 5.8) &#183; <strong>Value Type</strong> is set here (Axis2D for IA_Move). The Action group also carries per-action <strong>Triggers</strong> and <strong>Modifiers</strong>, and Input Consumption controls whether the action blocks lower-priority mappings.</em></p>
+
                 <h3>Common Input Actions</h3>
 
                 <p>Here are typical Input Actions for a third-person game:</p>
@@ -383,7 +386,7 @@ flowchart LR
                 <p>Inside the Mapping Context editor:</p>
 
                 <ol>
-                    <li>Click <strong>+ Add</strong> next to "Mappings"</li>
+                    <li>Expand <strong>Default Key Mappings</strong>, then click the <strong>+</strong> next to its <strong>Mappings</strong> array</li>
                     <li>Select an Input Action from the dropdown</li>
                     <li>Expand the action to see its mappings</li>
                     <li>Click <strong>+</strong> to add a key/button mapping</li>
@@ -391,59 +394,8 @@ flowchart LR
                     <li>Add Modifiers and Triggers as needed</li>
                 </ol>
 
-                <!-- SVG: Mapping Context Structure -->
-                <svg width="100%" height="300" viewBox="0 0 700 300" style="max-width: 700px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Input Mapping Context Structure</text>
-                    
-                    <!-- Context header -->
-                    <rect x="50" y="45" width="600" height="240" rx="5" fill="#3d3d3d" stroke="#667eea"/>
-                    <rect x="50" y="45" width="600" height="30" rx="5" fill="#667eea"/>
-                    <text x="70" y="65" fill="#fff" font-size="11" font-weight="bold">IMC_Default</text>
-                    
-                    <!-- IA_Move mapping -->
-                    <g transform="translate(60, 85)">
-                        <rect x="0" y="0" width="570" height="60" rx="3" fill="#4a4a4a"/>
-                        <text x="15" y="20" fill="#4CAF50" font-size="10" font-weight="bold">▼ IA_Move</text>
-                        <text x="450" y="20" fill="#888" font-size="8">Axis2D</text>
-                        
-                        <!-- Key mappings -->
-                        <rect x="25" y="30" width="250" height="22" rx="2" fill="#3d3d3d"/>
-                        <text x="35" y="45" fill="#aaa" font-size="9">🎮 W, A, S, D</text>
-                        <text x="200" y="45" fill="#FF9800" font-size="8">+ Swizzle, Negate</text>
-                        
-                        <rect x="290" y="30" width="250" height="22" rx="2" fill="#3d3d3d"/>
-                        <text x="300" y="45" fill="#aaa" font-size="9">🕹️ Gamepad Left Stick</text>
-                        <text x="470" y="45" fill="#9C27B0" font-size="8">+ Dead Zone</text>
-                    </g>
-                    
-                    <!-- IA_Look mapping -->
-                    <g transform="translate(60, 155)">
-                        <rect x="0" y="0" width="570" height="60" rx="3" fill="#4a4a4a"/>
-                        <text x="15" y="20" fill="#2196F3" font-size="10" font-weight="bold">▼ IA_Look</text>
-                        <text x="450" y="20" fill="#888" font-size="8">Axis2D</text>
-                        
-                        <rect x="25" y="30" width="250" height="22" rx="2" fill="#3d3d3d"/>
-                        <text x="35" y="45" fill="#aaa" font-size="9">🖱️ Mouse XY</text>
-                        
-                        <rect x="290" y="30" width="250" height="22" rx="2" fill="#3d3d3d"/>
-                        <text x="300" y="45" fill="#aaa" font-size="9">🕹️ Gamepad Right Stick</text>
-                        <text x="470" y="45" fill="#9C27B0" font-size="8">+ Dead Zone</text>
-                    </g>
-                    
-                    <!-- IA_Jump mapping -->
-                    <g transform="translate(60, 225)">
-                        <rect x="0" y="0" width="570" height="45" rx="3" fill="#4a4a4a"/>
-                        <text x="15" y="20" fill="#e74c3c" font-size="10" font-weight="bold">▼ IA_Jump</text>
-                        <text x="450" y="20" fill="#888" font-size="8">Digital</text>
-                        
-                        <rect x="25" y="28" width="120" height="14" rx="2" fill="#3d3d3d"/>
-                        <text x="35" y="39" fill="#aaa" font-size="8">⌨️ Space</text>
-                        
-                        <rect x="155" y="28" width="140" height="14" rx="2" fill="#3d3d3d"/>
-                        <text x="165" y="39" fill="#aaa" font-size="8">🎮 Gamepad Face Bottom</text>
-                    </g>
-                </svg>
-                <p class="caption"><em>Figure: A Mapping Context maps Input Actions to specific keys with optional modifiers.</em></p>
+                <img src="images/m06_l02/m06_l02_fig01_imc_editor.png" alt="The Input Mapping Context editor Details panel in Unreal Engine 5.8, showing the Default Key Mappings array with IA_Move, IA_Look, and IA_Jump input actions each expanded to list their keyboard and gamepad key bindings." style="max-width: 680px; width: 100%; display: block; margin: 2rem auto; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real Input Mapping Context editor in UE 5.8 &#183; each Input Action groups its key bindings. IA_Move maps W, A, S, D and the Gamepad Left Thumbstick; IA_Look maps Mouse XY and the Right Thumbstick; IA_Jump maps Space Bar and the Gamepad Face Button. Expand any key row to attach Modifiers and Triggers.</em></p>
 
                 <h3>Multiple Key Bindings</h3>
 

@@ -46,7 +46,8 @@ Do NOT replace a synthetic diagram that teaches an abstraction just because a ca
 ## Figure conventions
 
 - **Folder:** `images/mXX_lYY/` (create per lesson as needed).
-- **Naming:** `mXX_lYY_figNN_short_description.png` (e.g. `m04_l04_fig02_lumen_on_off.png`).
+- **Naming:** `mXX_lYY_figNN_short_description.<ext>` (e.g. `m04_l04_fig02_lumen_on_off.png`).
+- **Format:** UI / panel captures (Slate screenshots, node graphs, Details panels, dialogs) → **PNG** (crisp text and edges). Photographic captures (viewport renders, lit material spheres, before/after grades) → **JPEG q88** (PNG runs ~16x larger for no visible gain). This supersedes the earlier PNG-only naming rule; both extensions are expected.
 - **Dimensions:** capture at 2× where possible; target display width ≤ 100% of content column. Slate panels: crop to the panel, no OS chrome.
 - **Every figure gets a caption:** `<p class="caption"><em>Figure: …</em></p>`.
 - **Alt text mandatory** (accessibility parity with existing lessons).

@@ -72,7 +72,7 @@
                         <li>Organize assets using folders, naming conventions, and metadata</li>
                     </ul>
                     <p><strong>Estimated Time:</strong> 60-75 minutes</p>
-                    <p><strong>Prerequisites:</strong> Lesson 2.3 - BSP Geometry</p>
+                    <p><strong>Prerequisites:</strong> Lesson 2.3 - Blockout Geometry</p>
                 </div>
             </header>
 
@@ -340,14 +340,14 @@
                     <li><strong>Performance:</strong> Because they don't deform, GPUs can render them very efficiently. Modern engines like Unreal can draw thousands of Static Meshes per frame.</li>
                     <li><strong>Instancing:</strong> You can place the same Static Mesh 1,000 times in a level, but it only loads into memory once. This is called "instancing" and saves massive amounts of memory.</li>
                     <li><strong>Optimization:</strong> Static Meshes support LODs (Level of Detail), where distant objects use simpler versions to save performance.</li>
-                    <li><strong>Nanite (UE5):</strong> Unreal Engine 5's revolutionary Nanite system lets Static Meshes have millions of polygons with almost no performance cost—but only Static Meshes support it.</li>
+                    <li><strong>Nanite (UE5):</strong> Unreal Engine 5's virtualized-geometry system lets meshes have millions of polygons at almost no performance cost. It began as a Static-Mesh feature and, in UE 5.8, also extends to Skeletal Meshes and foliage.</li>
                     <li><strong>Collision:</strong> Static Meshes can have simplified collision shapes, making physics calculations fast and efficient.</li>
                     <li><strong>Reusability:</strong> Create once, use everywhere. A Static Mesh is an asset you can drag into any level, any project.</li>
                 </ol>
                 
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h4>💡 Nanite in Unreal Engine 5</h4>
-                    <p>One of UE5's biggest innovations is <strong>Nanite</strong>—a virtualized geometry system that allows Static Meshes to have film-quality detail (millions or even billions of polygons) without the traditional performance cost. A single statue can have more polygons than an entire PS4 game, and Nanite makes it render in real-time. This is <em>only</em> available for Static Meshes, which is another reason they're so important in modern Unreal projects.</p>
+                    <p>One of UE5's biggest innovations is <strong>Nanite</strong>, a virtualized geometry system that gives meshes film-quality detail (millions or even billions of polygons) without the traditional performance cost. A single statue can have more polygons than an entire PS4 game, and Nanite renders it in real time. Nanite started as a Static-Mesh-only feature, and by UE 5.8 it also supports Skeletal Meshes, masked materials, World Position Offset, and foliage. Static Meshes are still where you'll reach for it most.</p>
                 </div>
                 
                 <h3>Static Meshes vs. Other Geometry Types</h3>
@@ -374,9 +374,9 @@
                             <td>Characters, creatures, anything that needs to animate/deform</td>
                         </tr>
                         <tr>
-                            <td><strong>BSP Geometry</strong></td>
-                            <td>Editor-created brushes (additive/subtractive)</td>
-                            <td>Prototyping/greyboxing only—convert to Static Mesh for production</td>
+                            <td><strong>BSP Geometry (legacy)</strong></td>
+                            <td>Editor-created additive/subtractive brushes</td>
+                            <td>Legacy blockout; modern blockout uses Modeling Mode, which outputs Static Meshes directly</td>
                         </tr>
                         <tr>
                             <td><strong>Procedural Mesh</strong></td>
@@ -690,7 +690,7 @@
                             <td><strong>glTF</strong></td>
                             <td>.gltf, .glb</td>
                             <td>Web-based 3D, lightweight assets</td>
-                            <td>Growing support—good for web exports</td>
+                            <td>Well-supported via Interchange; good for web exports</td>
                         </tr>
                         <tr>
                             <td><strong>Datasmith</strong></td>
@@ -701,7 +701,12 @@
                     </tbody>
                 </table>
                 
-                <p><strong>For this lesson, we'll focus on FBX</strong>—it's the most versatile and widely-supported format.</p>
+                <p><strong>For this lesson, we'll focus on FBX</strong>, the most versatile and widely-supported format.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 The Interchange Import Framework (UE 5.8)</h4>
+                    <p>Modern Unreal routes imports through <strong>Interchange</strong>, a unified import pipeline that is gradually replacing the older format-specific importers. It is the default for glTF and is the direction Epic is moving all formats. FBX still opens the familiar <strong>FBX Import Options</strong> dialog shown below (you can also opt FBX into Interchange in Editor Preferences), so the settings you learn here carry over either way.</p>
+                </div>
                 
                 <h3>Preparing Models for Export (External Software)</h3>
                 
@@ -1233,7 +1238,7 @@
                 
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h4>💡 Nanite Changes Everything</h4>
-                    <p>Traditional game development required careful poly count management—you'd never put a 1 million polygon statue in your level. With Unreal Engine 5's Nanite system, those rules are upended. Nanite meshes can have insane detail (millions of polys) and render as fast as low-poly meshes. This is revolutionary for realism, but only works with Static Meshes, not Skeletal Meshes or translucent materials.</p>
+                    <p>Traditional game development required careful poly-count management; you'd never put a one-million-polygon statue in your level. Unreal Engine 5's Nanite system upends those rules: Nanite meshes can carry enormous detail (millions of polys) and render as fast as low-poly meshes. In UE 5.8 Nanite covers Static and Skeletal Meshes, masked materials, World Position Offset, and foliage. The main things it still can't do are translucent materials and morph-target deformation.</p>
                 </div>
 
                 
@@ -1302,129 +1307,8 @@
                 
                 <h3>Static Mesh Editor Interface</h3>
                 
-                <svg width="100%" height="500" viewBox="0 0 800 500" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
-                    <!-- Static Mesh Editor mockup -->
-                    <rect x="0" y="0" width="800" height="500" fill="#2d2d2d"/>
-                    
-                    <!-- Title Bar -->
-                    <rect x="0" y="0" width="800" height="35" fill="#1e1e1e"/>
-                    <text x="15" y="23" fill="#ffffff" font-size="13" font-weight="bold">Static Mesh Editor - SM_Chair_Modern</text>
-                    
-                    <!-- Toolbar -->
-                    <rect x="0" y="35" width="800" height="40" fill="#252525"/>
-                    
-                    <!-- Toolbar buttons -->
-                    <g transform="translate(15, 47)">
-                        <rect x="0" y="0" width="30" height="26" fill="#3c3c3c" rx="3"/>
-                        <text x="15" y="18" text-anchor="middle" fill="#e0e0e0" font-size="16">💾</text>
-                        
-                        <rect x="40" y="0" width="30" height="26" fill="#3c3c3c" rx="3"/>
-                        <text x="55" y="18" text-anchor="middle" fill="#e0e0e0" font-size="16">🔄</text>
-                        
-                        <rect x="80" y="0" width="50" height="26" fill="#3c3c3c" rx="3"/>
-                        <text x="105" y="18" text-anchor="middle" fill="#aaa" font-size="10">Wireframe</text>
-                        
-                        <rect x="140" y="0" width="50" height="26" fill="#3c3c3c" rx="3"/>
-                        <text x="165" y="18" text-anchor="middle" fill="#aaa" font-size="10">Collision</text>
-                        
-                        <rect x="200" y="0" width="50" height="26" fill="#3c3c3c" rx="3"/>
-                        <text x="225" y="18" text-anchor="middle" fill="#aaa" font-size="10">Sockets</text>
-                    </g>
-                    
-                    <!-- Main Viewport (center) -->
-                    <rect x="200" y="75" width="450" height="425" fill="#1e1e1e"/>
-                    
-                    <!-- Viewport content - 3D chair preview -->
-                    <g transform="translate(425, 280)">
-                        <!-- Simple chair representation -->
-                        <!-- Seat -->
-                        <rect x="-60" y="-20" width="120" height="10" fill="#8B4513" opacity="0.8"/>
-                        <!-- Back -->
-                        <rect x="-60" y="-80" width="10" height="60" fill="#654321" opacity="0.8"/>
-                        <!-- Legs -->
-                        <rect x="-55" y="-10" width="8" height="40" fill="#654321" opacity="0.8"/>
-                        <rect x="-20" y="-10" width="8" height="40" fill="#654321" opacity="0.8"/>
-                        <rect x="12" y="-10" width="8" height="40" fill="#654321" opacity="0.8"/>
-                        <rect x="47" y="-10" width="8" height="40" fill="#654321" opacity="0.8"/>
-                        
-                        <!-- Lighting effect -->
-                        <rect x="-60" y="-20" width="120" height="5" fill="#a0702a" opacity="0.5"/>
-                    </g>
-                    
-                    <!-- Grid floor -->
-                    <g transform="translate(200, 75)">
-                        <line x1="0" y1="350" x2="450" y2="350" stroke="#333" stroke-width="1"/>
-                        <line x1="0" y1="375" x2="450" y2="375" stroke="#2a2a2a" stroke-width="1"/>
-                        <line x1="0" y1="400" x2="450" y2="400" stroke="#2a2a2a" stroke-width="1"/>
-                    </g>
-                    
-                    <!-- Viewport stats overlay -->
-                    <rect x="210" y="85" width="150" height="60" fill="#000" opacity="0.7" rx="4"/>
-                    <text x="220" y="105" fill="#4CAF50" font-size="10">Triangles: 2,847</text>
-                    <text x="220" y="120" fill="#4CAF50" font-size="10">Vertices: 1,542</text>
-                    <text x="220" y="135" fill="#4CAF50" font-size="10">UV Channels: 2</text>
-                    
-                    <!-- Left Panel: Details -->
-                    <rect x="0" y="75" width="200" height="425" fill="#252525"/>
-                    <text x="10" y="95" fill="#aaa" font-size="11" font-weight="bold">DETAILS</text>
-                    
-                    <!-- Details sections -->
-                    <g transform="translate(10, 105)">
-                        <text x="0" y="15" fill="#4CAF50" font-size="11" font-weight="bold">▾ LOD Settings</text>
-                        <text x="10" y="32" fill="#aaa" font-size="10">Number of LODs: 3</text>
-                        <text x="10" y="47" fill="#aaa" font-size="10">Auto Compute LOD: Yes</text>
-                        
-                        <text x="0" y="75" fill="#4CAF50" font-size="11" font-weight="bold">▾ Materials</text>
-                        <rect x="10" y="82" width="170" height="20" fill="#3c3c3c" rx="2"/>
-                        <text x="15" y="96" fill="#e0e0e0" font-size="10">0: M_Chair_Wood</text>
-                        
-                        <text x="0" y="120" fill="#4CAF50" font-size="11" font-weight="bold">▾ Collision</text>
-                        <text x="10" y="137" fill="#aaa" font-size="10">Complexity: Simple</text>
-                        <text x="10" y="152" fill="#aaa" font-size="10">Collision Presets: BlockAll</text>
-                        
-                        <text x="0" y="180" fill="#4CAF50" font-size="11" font-weight="bold">▾ Static Mesh Settings</text>
-                        <text x="10" y="197" fill="#aaa" font-size="10">Distance Field: Enabled</text>
-                        <text x="10" y="212" fill="#aaa" font-size="10">Nanite: Disabled</text>
-                        
-                        <text x="0" y="240" fill="#4CAF50" font-size="11" font-weight="bold">▾ Import Settings</text>
-                        <text x="10" y="257" fill="#aaa" font-size="10">Source File: chair_modern.fbx</text>
-                        <text x="10" y="272" fill="#aaa" font-size="10">Import Date: 2025-11-25</text>
-                    </g>
-                    
-                    <!-- Right Panel: Mesh Details -->
-                    <rect x="650" y="75" width="150" height="425" fill="#252525"/>
-                    <text x="660" y="95" fill="#aaa" font-size="11" font-weight="bold">MESH DETAILS</text>
-                    
-                    <g transform="translate(660, 105)">
-                        <text x="0" y="15" fill="#ff9800" font-size="11" font-weight="bold">Geometry</text>
-                        <text x="0" y="32" fill="#aaa" font-size="10">Triangles: 2,847</text>
-                        <text x="0" y="47" fill="#aaa" font-size="10">Vertices: 1,542</text>
-                        <text x="0" y="62" fill="#aaa" font-size="10">UV Channels: 2</text>
-                        
-                        <text x="0" y="90" fill="#ff9800" font-size="11" font-weight="bold">Bounds</text>
-                        <text x="0" y="107" fill="#aaa" font-size="10">X: 45.2 cm</text>
-                        <text x="0" y="122" fill="#aaa" font-size="10">Y: 48.6 cm</text>
-                        <text x="0" y="137" fill="#aaa" font-size="10">Z: 92.1 cm</text>
-                        
-                        <text x="0" y="165" fill="#ff9800" font-size="11" font-weight="bold">Approx Size</text>
-                        <text x="0" y="182" fill="#aaa" font-size="10">Memory: 124 KB</text>
-                        <text x="0" y="197" fill="#aaa" font-size="10">Disk: 96 KB</text>
-                    </g>
-                    
-                    <!-- Annotations -->
-                    <line x1="425" y1="85" x2="425" y2="65" stroke="#4CAF50" stroke-width="2"/>
-                    <circle cx="425" cy="65" r="3" fill="#4CAF50"/>
-                    <text x="435" y="68" fill="#4CAF50" font-size="11">← Main viewport (rotate with RMB)</text>
-                    
-                    <line x1="100" y1="85" x2="100" y2="60" stroke="#4CAF50" stroke-width="2"/>
-                    <circle cx="100" cy="60" r="3" fill="#4CAF50"/>
-                    <text x="110" y="63" fill="#4CAF50" font-size="11">← Configure LODs, materials, collision</text>
-                    
-                    <line x1="725" y1="85" x2="725" y2="60" stroke="#4CAF50" stroke-width="2"/>
-                    <circle cx="725" cy="60" r="3" fill="#4CAF50"/>
-                    <text x="620" y="63" fill="#4CAF50" font-size="11">Geometry stats →</text>
-                </svg>
-                <p class="caption"><em>Figure: The Static Mesh Editor interface showing viewport, details panel, and mesh statistics.</em></p>
+                <img src="images/m02_l04/m02_l04_fig03_static_mesh_editor.jpg" alt="The Static Mesh Editor in the Unreal Editor 5.8 showing a sphere in the viewport, a mesh-statistics overlay (LOD 0, Triangles 960, Vertices 559, UV Channels 2, approximate size 100x100x100), and the Details panel on the right with Material Slots, Nanite Settings (an Enable Nanite Support checkbox), and the LOD Picker. The toolbar has Reimport, Collision, and UV menus." style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p class="caption"><em>Figure: The Static Mesh Editor &#183; the viewport with its mesh-stats overlay (left) and the Details panel with Material Slots, Nanite Settings, and the LOD Picker (right).</em></p>
                 
                 <h3>Key Features of the Static Mesh Editor</h3>
                 
@@ -1505,7 +1389,7 @@
                 
                 <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
                     <h4>⚠️ Nanite Limitations</h4>
-                    <p>Nanite doesn't work with: Skeletal Meshes, meshes with World Position Offset materials, meshes with translucent/masked materials, or meshes that need to deform. It's best for static environment geometry—rocks, buildings, statues, etc.</p>
+                    <p>Nanite has grown a lot since UE5 launched. In UE 5.8 it supports Static and Skeletal Meshes, masked materials, World Position Offset (with clamping), foliage, and runtime tessellation. What it still doesn't support is translucent materials and morph-target deformation. It remains ideal for detailed static environment geometry such as rocks, buildings, and statues, which is where you'll use it most.</p>
                 </div>
                 
                 <h4>Generating LODs</h4>
@@ -2147,7 +2031,7 @@
                             <li>FBX (.fbx) format—supports geometry, materials, UVs, animations, and bones.</li>
                             <li>Vertices (points in 3D space), Edges (connections between vertices), and Polygons/Faces (surfaces defined by vertices and edges).</li>
                             <li>UV mapping unwraps the 3D mesh into 2D space so textures (images) can be correctly applied to the surface without stretching or distortion.</li>
-                            <li>Nanite is UE5's virtualized geometry system allowing millions of polygons with minimal performance cost. Limitations: only works with Static Meshes, not with translucent materials, World Position Offset, or deforming geometry.</li>
+                            <li>Nanite is UE5's virtualized geometry system allowing millions of polygons with minimal performance cost. In UE 5.8 it supports Static and Skeletal Meshes, masked materials, World Position Offset, and foliage; the main exclusions are translucent materials and morph-target deformation.</li>
                             <li>LODs (Level of Detail) are simplified versions of a mesh used at different distances. They improve performance by reducing polygon count for distant objects that don't need full detail.</li>
                             <li>SM_ (e.g., SM_Chair_Modern, SM_Rock_Large)</li>
                         </ol>
@@ -2165,7 +2049,7 @@
                 <span class="arrow">←</span>
                 <span class="label">
                     <span class="direction">Previous Lesson</span>
-                    <span class="title">BSP Geometry</span>
+                    <span class="title">Blockout Geometry</span>
                 </span>
             </a>
             <a href="index.html" class="nav-button home">

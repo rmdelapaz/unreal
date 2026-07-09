@@ -92,7 +92,7 @@
                         <li><a href="#material-instances" class="toc-link">Material Instances</a></li>
                         <li><a href="#lighting-types" class="toc-link">Light Types and Properties</a></li>
                         <li><a href="#light-mobility" class="toc-link">Light Mobility</a></li>
-                        <li><a href="#building-lighting" class="toc-link">Building and Baking Lighting</a></li>
+                        <li><a href="#building-lighting" class="toc-link">Lighting: Lumen &amp; Baking</a></li>
                         <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
                         <li><a href="#summary" class="toc-link">Summary</a></li>
                     </ol>
@@ -307,6 +307,11 @@
                     <p style="color: white;"><strong>Physically Based Rendering (PBR):</strong> A rendering approach that simulates how light interacts with surfaces based on real-world physics. Instead of artistic "faking," PBR materials use physically accurate properties like energy conservation, Fresnel effects, and microfacet theory. This creates realistic, consistent results under different lighting conditions.</p>
                 </div>
                 
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ PBR and Substrate in UE 5.8</h4>
+                    <p>The Base Color / Metallic / Roughness inputs you'll learn here are the heart of PBR, and they remain how most materials are authored. UE 5.8 also ships <strong>Substrate</strong>, a newer layered material system that builds on these same physical principles to represent more complex surfaces (coated metals, translucency, multi-layer materials). You don't need Substrate for the fundamentals in this lesson; it is covered in Module 3. Note that when Substrate is enabled in a project, a material's root node shows a single <strong>Front Material</strong> input instead of the separate Base Color / Metallic / Roughness pins.</p>
+                </div>
+
                 <h3>Why PBR?</h3>
                 
                 <p>Before PBR, game artists manually "faked" how materials looked under different lighting. A shiny metal sword might look great in one scene but terrible in another because the shading wasn't based on physics. PBR solves this:</p>
@@ -1049,7 +1054,7 @@
                     <h4>💡 Free PBR Textures</h4>
                     <p>Great sources for free, high-quality PBR texture sets:</p>
                     <ul style="margin-bottom: 0;">
-                        <li><strong>Quixel Megascans:</strong> Free with Unreal Engine (Bridge app)</li>
+                        <li><strong>Megascans:</strong> Free on Fab (fab.com), Epic's content marketplace</li>
                         <li><strong>Poly Haven:</strong> polyhaven.com - CC0 public domain</li>
                         <li><strong>AmbientCG:</strong> ambientcg.com - Free textures</li>
                         <li><strong>Texture Haven:</strong> texturehaven.com - High quality</li>
@@ -1551,32 +1556,42 @@
                 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Recommended Approach</h4>
-                    <p><strong>Typical scene setup:</strong></p>
+                    <p><strong>With Lumen on (the UE 5.8 default),</strong> Movable and Stationary lights get full dynamic global illumination without baking, so a common modern setup is:</p>
                     <ul style="margin-bottom: 0;">
-                        <li><strong>Directional Light (sun/moon):</strong> Stationary</li>
-                        <li><strong>Sky Light:</strong> Static or Stationary</li>
-                        <li><strong>Indoor fill lights:</strong> Static (for baked GI)</li>
-                        <li><strong>Interactive lights:</strong> Movable (flashlight, car lights, flickering torches)</li>
-                        <li><strong>Hero lights:</strong> Movable with Lumen (UE5's dynamic GI) or screen-space shadows</li>
+                        <li><strong>Directional Light (sun/moon):</strong> Movable or Stationary</li>
+                        <li><strong>Sky Light:</strong> Movable or Stationary</li>
+                        <li><strong>Interactive / accent lights:</strong> Movable (flashlights, car lights, flickering torches)</li>
                     </ul>
-                    <p style="margin-top: 0.5rem;">Start with Static/Stationary for most lights, use Movable only where you need interactivity.</p>
+                    <p style="margin-top: 0.5rem;"><strong>Static</strong> lights (fully baked, zero runtime cost) are mainly for performance-critical or mobile projects that turn Lumen off. If you are not baking, you rarely need Static.</p>
                 </div>
             </section>
 
             <!-- Section 9: Building and Baking Lighting -->
             <section id="building-lighting" class="lesson-section">
-                <h2>Building and Baking Lighting</h2>
+                <h2>Global Illumination: Lumen and Baked Lighting</h2>
                 
-                <p>When you use Static or Stationary lights, Unreal needs to <strong>build lighting</strong>—a process that pre-calculates light bounces, shadows, and global illumination. This creates the beautiful, realistic lighting you see in finished games.</p>
+                <p>Global illumination (GI) is how light bounces around a scene, filling shadows with soft, indirect color. Unreal gives you two ways to compute it, and in modern Unreal the default is real-time.</p>
                 
-                <h3>Why Build Lighting?</h3>
+                <h3>Lumen: Real-Time GI (the UE 5.8 default)</h3>
                 
-                <p>Calculating how light bounces around a scene with full global illumination is incredibly computationally expensive. Doing it in real-time at 60 FPS is impossible (without Lumen in UE5). So Unreal:</p>
+                <p><strong>Lumen</strong> is Unreal Engine 5's fully dynamic global illumination and reflections system, and it is <strong>enabled by default</strong> in new UE5 projects. With Lumen there is no build or bake step:</p>
                 
                 <ol>
-                    <li>Traces millions of light rays offline (during development)</li>
-                    <li>Bakes the results into lightmap textures</li>
-                    <li>At runtime, meshes display these pre-calculated lightmaps—zero cost!</li>
+                    <li>Indirect lighting, bounces, and reflections are computed in real time, every frame</li>
+                    <li>Move a light, change its color, or edit geometry and the lighting updates instantly</li>
+                    <li>Movable lights receive full indirect GI (the old "Movable means no bounce lighting" limitation is gone)</li>
+                </ol>
+                
+                <p>Because there is nothing to bake, most UE 5.8 projects never build lighting at all. Lumen's cost is on the GPU at runtime, so very low-end or mobile targets may still turn it off and bake instead (below). Lumen, reflections, and MegaLights are covered in depth in Module 4.</p>
+                
+                <h3>Baked Lighting with Lightmass (the legacy / performance path)</h3>
+                
+                <p>Before Lumen, and still useful when you need zero runtime lighting cost (mobile, VR, low-end hardware), Unreal <strong>bakes</strong> lighting: it pre-calculates light bounces offline and stores them in lightmap textures. This is the <strong>Lightmass</strong> system, and it applies to <strong>Static</strong> and <strong>Stationary</strong> lights. The steps below are the baked path; with Lumen on you can skip it entirely.</p>
+                
+                <ol>
+                    <li>Unreal traces millions of light rays offline (during development)</li>
+                    <li>It bakes the results into lightmap textures</li>
+                    <li>At runtime, meshes display these pre-calculated lightmaps at zero cost</li>
                 </ol>
                 
                 <h3>How to Build Lighting</h3>
@@ -1632,16 +1647,9 @@
                 <p><strong>Symptom:</strong> Build takes hours.<br>
                 <strong>Solution:</strong> Reduce Lightmass quality settings, use lower lightmap resolution, build on Preview/Medium quality for iteration.</p>
                 
-                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
-                    <h4>💡 Lumen (UE5) - Dynamic Global Illumination</h4>
-                    <p>Unreal Engine 5 introduces <strong>Lumen</strong>—a fully dynamic global illumination system. With Lumen:</p>
-                    <ul style="margin-bottom: 0;">
-                        <li>No more building lighting—everything is real-time</li>
-                        <li>Move lights, change colors, modify geometry—lighting updates instantly</li>
-                        <li>Full indirect lighting and global illumination without baking</li>
-                        <li>Works with Movable lights seamlessly</li>
-                    </ul>
-                    <p style="margin-top: 0.5rem;">Lumen is a game-changer for iteration speed, though it has performance cost on lower-end hardware. It's enabled by default in UE5 projects.</p>
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Do You Even Need to Build Lighting?</h4>
+                    <p>In a default UE 5.8 project, <strong>no</strong>. Lumen (above) handles global illumination in real time, so the entire bake workflow in this section is optional. Reach for baked lighting only when you deliberately turn Lumen off for a performance-critical or mobile target. Module 4 covers Lumen and its settings in depth.</p>
                 </div>
             </section>
 
@@ -1679,7 +1687,7 @@
                     <h3>Part 3: Build a Simple Scene</h3>
                     
                     <ol>
-                        <li>Place a large floor plane (or use BSP box) in your level</li>
+                        <li>Place a large floor plane (or a Modeling Mode box) in your level</li>
                         <li>Apply <code>MI_Ground_Dark</code> to it</li>
                         <li>Place 3-5 Static Mesh props (cubes, spheres, or imported meshes)</li>
                         <li>Apply your material instances to different props</li>
@@ -1691,21 +1699,20 @@
                     <ol>
                         <li>From Place Actors → Lights, drag a <strong>Directional Light</strong> into the scene</li>
                         <li>Position it above and rotate to angle downward (like sun at noon)</li>
-                        <li>In Details, set Mobility to <strong>Stationary</strong></li>
+                        <li>In Details, set Mobility to <strong>Movable</strong> (so Lumen lights it in real time and you can move it freely)</li>
                         <li>Set Intensity to 5-10 lux</li>
                         <li>Set Light Color to warm white or slight yellow</li>
                         <li>Drag a <strong>Sky Light</strong> into the scene</li>
-                        <li>Set its Mobility to <strong>Static</strong></li>
+                        <li>Set its Mobility to <strong>Movable</strong></li>
                         <li>Leave default settings</li>
                     </ol>
                     
-                    <h3>Part 5: Build Lighting</h3>
+                    <h3>Part 5: See the Lighting (Lumen, No Build Needed)</h3>
                     
                     <ol>
-                        <li>Click <strong>Build</strong> button in toolbar</li>
-                        <li>Choose <strong>Preview</strong> quality (fastest)</li>
-                        <li>Wait for completion</li>
-                        <li>Observe the improved lighting with soft shadows</li>
+                        <li>With Lumen on (the default), your scene is already lit in real time, with soft indirect bounce and shadows, no build step required</li>
+                        <li>Try moving the Directional Light or changing its color and watch the lighting update instantly</li>
+                        <li>Only if you set your lights to <strong>Static</strong> would you click <strong>Build</strong> (choose <strong>Preview</strong> quality) to bake the lightmaps</li>
                     </ol>
                     
                     <h3>Part 6: Add Accent Lighting</h3>
@@ -1764,13 +1771,13 @@
                     <li>📋 <strong>Material Instances</strong> are lightweight variants that change exposed parameters without shader recompilation</li>
                     <li>💡 <strong>Light types:</strong> Directional (sun), Point (bulb), Spot (flashlight), Rect (area), Sky (ambient)</li>
                     <li>⚡ <strong>Light mobility:</strong> Static (baked, zero cost), Stationary (hybrid), Movable (dynamic, expensive)</li>
-                    <li>🏗️ <strong>Building lighting</strong> pre-calculates global illumination for Static/Stationary lights into lightmaps</li>
-                    <li>✨ <strong>Lumen (UE5)</strong> provides real-time dynamic GI, eliminating the need for light builds in many workflows</li>
+                    <li>🏗️ <strong>Baked lighting</strong> (Lightmass) pre-calculates GI into lightmaps for Static/Stationary lights, mainly for performance or mobile targets that turn Lumen off</li>
+                    <li>✨ <strong>Lumen (the UE 5.8 default)</strong> provides real-time dynamic GI, so most projects skip light builds entirely</li>
                 </ul>
                 
                 <h3>What's Next?</h3>
                 
-                <p>You've now completed Module 2! You understand levels, actors, geometry creation (BSP), Static Meshes, materials, and lighting—the core building blocks of 3D environments. The next module will introduce <strong>Module 3: Blueprint Visual Scripting</strong>, where you'll learn to make your worlds interactive through Unreal's powerful visual programming system.</p>
+                <p>You've now completed Module 2! You understand levels, actors, geometry creation (Modeling Mode and BSP), Static Meshes, materials, and lighting, the core building blocks of 3D environments. The next module, <strong>Module 3: Materials and Textures</strong>, goes deeper into the material system you just met, including textures, material functions, and more advanced shading.</p>
                 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Self-Check Quiz</h4>
@@ -1792,7 +1799,7 @@
                             <li>Material Instances don't require shader recompilation—they just override parameter values. This makes them fast to create, edit, and render. You can have hundreds of instances from one parent material with minimal overhead.</li>
                             <li>Static: Pre-baked lighting, zero runtime cost, cannot change. Stationary: Hybrid—baked indirect lighting, dynamic shadows for moving objects. Movable: Fully dynamic, can move/change freely, most expensive.</li>
                             <li>Directional Light—it simulates infinitely distant light sources with parallel rays, perfect for sun or moon.</li>
-                            <li>Building lighting pre-calculates light bounces, global illumination, and shadows, baking them into lightmap textures. This allows realistic, complex lighting with zero runtime performance cost.</li>
+                            <li>Static lights store their lighting in baked lightmap textures, so Unreal must pre-calculate the bounces and shadows offline (a build) for zero runtime cost. With Lumen on (the UE 5.8 default) you get real-time GI and typically do not build lighting at all.</li>
                             <li>Roughness controls the microsurface smoothness. Low roughness (0-0.3) creates sharp, mirror-like reflections. High roughness (0.7-1.0) creates diffuse, matte surfaces that scatter light.</li>
                         </ol>
                     </details>

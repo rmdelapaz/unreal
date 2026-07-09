@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Learn how to use BSP (Binary Space Partitioning) geometry and brush modeling to create architectural spaces and level geometry in Unreal Engine.">
+    <meta name="description" content="Learn to block out level geometry in Unreal Engine 5 with Modeling Mode, the modern in-editor tool, and understand legacy BSP (Binary Space Partitioning) brushes.">
     <meta name="author" content="Practical Ace">
-    <title>BSP Geometry (Brush Modeling) - Introduction to Unreal Engine 5</title>
+    <title>Blockout Geometry: Modeling Mode &amp; BSP - Introduction to Unreal Engine 5</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="icon" type="image/png" href="/favicon.png">
     <script type="module">
@@ -45,7 +45,7 @@
         <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="index.html#modules">Module 2: Working with Levels and Actors</a></li>
-            <li aria-current="page">Lesson 2.3: BSP Geometry (Brush Modeling)</li>
+            <li aria-current="page">Lesson 2.3: Blockout Geometry (Modeling Mode &amp; BSP)</li>
         </ul>
     </nav>
 
@@ -54,20 +54,20 @@
         <div class="container">
             <!-- Lesson Header -->
             <header>
-                <h1>🏗️ BSP Geometry (Brush Modeling)</h1>
-                <p class="lead">Before diving into 3D modeling software, Unreal Engine provides a built-in way to create architectural spaces and level geometry directly in the editor. BSP (Binary Space Partitioning) geometry lets you rapidly prototype rooms, corridors, and basic structures using simple shapes called "brushes."</p>
+                <h1>🏗️ Blockout Geometry: Modeling Mode &amp; BSP</h1>
+                <p class="lead">Before you reach for external 3D software, Unreal Engine lets you build level geometry directly in the editor. In modern Unreal (UE5), the primary tool for this is <strong>Modeling Mode</strong>, which shapes real Static Meshes right in the viewport. Its predecessor, <strong>BSP (Binary Space Partitioning)</strong> geometry, built levels from additive and subtractive "brushes" and is still around for quick tests. This lesson teaches the modern Modeling Mode blockout workflow and shows where the older BSP approach fits.</p>
                 
                 <!-- Learning objectives -->
                 <div class="card">
                     <h2>🎯 Learning Objectives</h2>
                     <p>By the end of this lesson, you will be able to:</p>
                     <ul>
-                        <li>Explain what BSP geometry is and when to use it in your projects</li>
-                        <li>Differentiate between additive and subtractive brushes</li>
-                        <li>Create rooms, corridors, and basic architectural structures using BSP</li>
-                        <li>Understand BSP limitations and performance considerations</li>
-                        <li>Convert BSP geometry to Static Meshes for final production use</li>
-                        <li>Apply best practices for using BSP in modern Unreal projects</li>
+                        <li>Explain what "blocking out" (greyboxing) is and why it comes first in level design</li>
+                        <li>Use Modeling Mode to create blockout geometry as real Static Meshes</li>
+                        <li>Understand additive and subtractive (Boolean) operations and how they shape space</li>
+                        <li>Recognize BSP / Geometry Brushes as the legacy predecessor and where they still help</li>
+                        <li>Shape and combine geometry with Modeling Mode tools</li>
+                        <li>Take blockout geometry through to production-ready Static Meshes</li>
                     </ul>
                     <p><strong>Estimated Time:</strong> 45-60 minutes</p>
                     <p><strong>Prerequisites:</strong> Lesson 2.2 - Actors and Components</p>
@@ -81,12 +81,12 @@
                 </summary>
                 <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
                     <ol>
-                        <li><a href="#what-is-bsp" class="toc-link">What is BSP?</a></li>
-                        <li><a href="#additive-subtractive" class="toc-link">Additive vs. Subtractive Brushes</a></li>
-                        <li><a href="#creating-architecture" class="toc-link">Creating Basic Architecture</a></li>
-                        <li><a href="#bsp-operations" class="toc-link">BSP Operations and Tools</a></li>
-                        <li><a href="#limitations" class="toc-link">BSP Limitations and Performance</a></li>
-                        <li><a href="#converting-to-static-mesh" class="toc-link">Converting BSP to Static Mesh</a></li>
+                        <li><a href="#what-is-bsp" class="toc-link">Blocking Out Levels in UE5</a></li>
+                        <li><a href="#additive-subtractive" class="toc-link">Additive vs. Subtractive</a></li>
+                        <li><a href="#creating-architecture" class="toc-link">Blockout with Modeling Mode</a></li>
+                        <li><a href="#bsp-operations" class="toc-link">Shaping &amp; Combining Geometry</a></li>
+                        <li><a href="#limitations" class="toc-link">Why BSP Became Legacy</a></li>
+                        <li><a href="#converting-to-static-mesh" class="toc-link">From Blockout to Production</a></li>
                         <li><a href="#hands-on" class="toc-link">Hands-On Exercise</a></li>
                         <li><a href="#summary" class="toc-link">Summary</a></li>
                     </ol>
@@ -95,30 +95,31 @@
 
             <!-- Section 1: What is BSP? -->
             <section id="what-is-bsp" class="lesson-section">
-                <h2>What is BSP Geometry?</h2>
+                <h2>Blocking Out Levels in Unreal</h2>
                 
-                <p>Imagine you're a level designer in the early days of game development. You have an idea for a complex multi-room dungeon, but you don't have time to model every wall, floor, and ceiling in a 3D modeling program like Blender or Maya. You need to prototype quickly, test your layout, and iterate on the design. This is where <strong>BSP geometry</strong> comes in.</p>
-                
+                <p>Every level starts as a rough draft. Before artists build detailed environments, designers <strong>block out</strong> the space with simple placeholder geometry to test layout, flow, and pacing. This grey, untextured first pass is also called <strong>greyboxing</strong>, and it is one of the most important stages of level design.</p>
+
+                <p>Unreal lets you block out geometry directly in the editor, with no external software. In modern Unreal (UE5) the tool for this is <strong>Modeling Mode</strong>, a full set of in-editor modeling tools that produce real <strong>Static Meshes</strong>. Before Modeling Mode existed, the same job was done with <strong>BSP (Binary Space Partitioning)</strong> geometry, built from additive and subtractive "brushes." BSP is still in the engine, but it is now a legacy tool.</p>
+
                 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <h4>📖 Definition</h4>
-                    <p style="color: white;"><strong>BSP (Binary Space Partitioning):</strong> A technique for constructing 3D geometry directly within the Unreal Editor using simple geometric shapes called "brushes." BSP allows you to add or subtract volumes of space to carve out rooms, corridors, and architectural features without needing external 3D modeling software.</p>
+                    <h4>📖 Two Ways to Build In-Editor</h4>
+                    <p style="color: white;"><strong>Modeling Mode (modern):</strong> UE5's in-editor modeling toolset. You create and shape primitives (boxes, cylinders, stairs, and more) right in the viewport, and the result is saved as a Static Mesh asset. This is the recommended way to block out, and it can even produce simple final geometry.</p>
+                    <p style="color: white;"><strong>BSP (legacy):</strong> The original level-building system, where geometry is carved from space using additive and subtractive brushes. Still available for a quick throwaway test, but no longer the recommended workflow.</p>
                 </div>
-                
-                <p>BSP has been part of Unreal Engine since the very beginning—it was the primary way to build levels in Unreal Engine 1 and 2. While modern workflows have largely replaced BSP with Static Meshes and modular level design, BSP remains a powerful tool for rapid prototyping and blocking out level layouts.</p>
-                
-                <h3>The Core Concept: Building with Volumes</h3>
-                
-                <p>Think of BSP like working with clay or foam blocks. You start with empty space (or a solid mass), and you either:</p>
-                
+
+                <h3>Adding and Subtracting Space</h3>
+
+                <p>Think of it like working with clay or foam blocks. You either:</p>
+
                 <ul>
                     <li><strong>Add material</strong> to create solid shapes (walls, floors, pillars)</li>
                     <li><strong>Remove material</strong> to carve out hollow spaces (rooms, doorways, alcoves)</li>
                 </ul>
-                
-                <p>This additive and subtractive approach is fundamentally different from traditional 3D modeling, where you work with surfaces and polygons. With BSP, you're sculpting space itself.</p>
+
+                <p>Modeling Mode does this with mesh <strong>Booleans</strong>; BSP did it with additive and subtractive brushes. Either way, you are sculpting space itself.</p>
                 
                 <canvas id="bsp-concept-canvas" width="700" height="350" style="max-width: 100%; border: 2px solid #667eea; display: block; margin: 2rem auto; background: #f9f9f9;"></canvas>
-                <p class="caption"><em>Figure: BSP concept - Additive brushes create solid geometry (left), subtractive brushes carve out hollow spaces (right).</em></p>
+                <p class="caption"><em>Figure: The core idea shared by both tools &#183; additive volumes create solid geometry (left), subtractive volumes carve out hollow spaces (right).</em></p>
                 
                 <script>
                     (function() {
@@ -237,40 +238,31 @@
                     })();
                 </script>
                 
-                <h3>Why BSP Still Matters</h3>
-                
-                <p>You might wonder: if BSP is an "old" technique, why learn it? Here are the compelling reasons:</p>
-                
+                <h3>Why Blockout Comes First</h3>
+
+                <p>Whichever tool you use, blocking out early pays off:</p>
+
                 <ol>
-                    <li><strong>Rapid Prototyping:</strong> BSP is incredibly fast for blocking out level layouts. You can test the flow and pacing of your level before committing to detailed art assets.</li>
-                    <li><strong>No External Tools Required:</strong> Everything happens inside Unreal. No need to switch to Blender, export files, re-import, and iterate—just build and test immediately.</li>
-                    <li><strong>Perfect for Greyboxing:</strong> "Greyboxing" (or "blockout") is the industry-standard practice of building levels with simple geometry to test gameplay before creating final art. BSP is ideal for this.</li>
-                    <li><strong>Learning Tool:</strong> Understanding BSP helps you grasp spatial reasoning and level construction principles that apply to all 3D development.</li>
-                    <li><strong>Quick Edits:</strong> Need to adjust a room size or add a wall? BSP changes happen in seconds, while reimporting a Static Mesh takes longer.</li>
+                    <li><strong>Rapid iteration:</strong> Simple geometry lets you test the flow and pacing of a level before committing to detailed art.</li>
+                    <li><strong>No external tools:</strong> Everything happens inside Unreal, so there is no export and re-import round trip.</li>
+                    <li><strong>Greyboxing:</strong> Building with plain grey shapes to prove out gameplay is standard practice at every studio.</li>
+                    <li><strong>Quick edits:</strong> Resizing a room or moving a wall takes seconds.</li>
                 </ol>
-                
-                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
-                    <h4>💡 Real-World Workflow</h4>
-                    <p>Professional game studios often use this workflow: Start with BSP to prototype the level layout and test gameplay. Once the design is solid, convert the BSP to Static Meshes or replace it with modular art assets. This way, designers can iterate quickly without waiting for artists, and artists can create assets that perfectly fit the proven level design.</p>
-                </div>
-                
-                <h3>BSP in Modern Unreal Engine</h3>
-                
-                <p>It's important to set proper expectations: <strong>BSP is primarily a prototyping tool in modern Unreal workflows</strong>. For final shipped games, you'll typically use Static Meshes created in external 3D software or Unreal's built-in modeling tools. BSP has some limitations:</p>
-                
+
+                <h3>Where BSP Stands in Modern Unreal</h3>
+
+                <p>It is worth being clear about BSP's status. Epic's own documentation says the role of Geometry Brushes "has been passed on to Static Meshes," and that <strong>Geometry Brushes are not recommended as a final method of level design</strong>. They remain handy for a quick throwaway test, but Modeling Mode has replaced them as the primary blockout tool because it:</p>
+
                 <ul>
-                    <li>Less efficient rendering compared to optimized Static Meshes</li>
-                    <li>Can create visual artifacts (cracks, Z-fighting) if not carefully managed</li>
-                    <li>Limited support for advanced features like Nanite (UE5's virtualized geometry)</li>
-                    <li>Harder to create complex organic shapes</li>
+                    <li>Produces real Static Meshes that render efficiently and support <strong>Nanite</strong> (UE5's virtualized geometry)</li>
+                    <li>Avoids the cracks, Z-fighting, and lightmap problems BSP is prone to</li>
+                    <li>Keeps you in one workflow from rough blockout to polished mesh</li>
                 </ul>
-                
-                <p>That said, BSP remains an invaluable tool for the early stages of level design and for creating simple architectural spaces quickly.</p>
-                
+
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
-                    <h4>✅ When to Use BSP</h4>
-                    <p><strong>Good for:</strong> Prototyping level layouts, blocking out gameplay spaces, creating simple rooms for testing, greyboxing levels, teaching yourself level design</p>
-                    <p><strong>Not ideal for:</strong> Final production geometry, complex organic shapes, areas that need to scale to massive sizes, performance-critical sections</p>
+                    <h4>✅ Which Tool, When</h4>
+                    <p><strong>Modeling Mode (recommended):</strong> Blocking out levels, building simple final geometry, greyboxing, or learning level design. Use it anytime you want a real, reusable mesh.</p>
+                    <p><strong>BSP (legacy):</strong> A fast throwaway volume to sanity-check a shape, or maintaining older projects that already use brushes. Not for shipped production geometry.</p>
                 </div>
             </section>
 
@@ -278,7 +270,7 @@
             <section id="additive-subtractive" class="lesson-section">
                 <h2>Additive vs. Subtractive Brushes</h2>
                 
-                <p>The foundation of BSP geometry is understanding the two types of brushes: <strong>Additive</strong> and <strong>Subtractive</strong>. Every piece of BSP geometry you create falls into one of these categories.</p>
+                <p>Additive and subtractive operations are the foundation of both blockout tools. In Modeling Mode they appear as <strong>Boolean</strong> operations (Union to add, Subtract to carve); in legacy BSP they are the two brush types, <strong>Additive</strong> and <strong>Subtractive</strong>. The terms below use BSP's brush language, but the same add-and-subtract thinking drives Modeling Mode's Booleans.</p>
                 
                 <h3>Additive Brushes</h3>
                 
@@ -452,167 +444,63 @@
 
             <!-- Section 3: Creating Basic Architecture -->
             <section id="creating-architecture" class="lesson-section">
-                <h2>Creating Basic Architecture with BSP</h2>
-                
-                <p>Now that you understand the theory, let's look at the practical steps for creating BSP geometry in Unreal Engine. We'll build up from simple shapes to a complete room.</p>
-                
-                <h3>Accessing BSP Brushes</h3>
-                
-                <p>BSP brushes are found in the <strong>Place Actors</strong> panel under the <strong>Geometry</strong> category:</p>
-                
+                <h2>Creating Blockout Geometry with Modeling Mode</h2>
+
+                <p>Now let's build something. In modern Unreal the fastest way to block out geometry is Modeling Mode: enter the mode, create a box, and shape it into a room. (The legacy BSP route is covered at the end of this section for reference.)</p>
+
+                <h3>Entering Modeling Mode</h3>
+
+                <p>Modeling Mode is one of the editor's modes, alongside Selection, Landscape, and Foliage:</p>
+
                 <ol>
-                    <li>Open the Place Actors panel (left side, or press <kbd>Shift+1</kbd>)</li>
-                    <li>Click on the <strong>Geometry</strong> category</li>
-                    <li>You'll see several brush shapes: Box, Cone, Cylinder, Sphere, and more</li>
-                    <li>Drag any brush into your viewport to place it</li>
+                    <li>Click the <strong>Selection Mode</strong> dropdown at the top-left of the main toolbar and choose <strong>Modeling</strong> (or, with the viewport focused, press <kbd>Shift+5</kbd>)</li>
+                    <li>A column of tool categories appears on the left: <strong>Create, Select, XForm, Deform, Model, Mesh</strong>, and more</li>
+                    <li>Click the <strong>Create</strong> category to reveal the primitive shapes: Box, Sphere, Cylinder, Cone, Torus, Stairs, and others</li>
+                    <li>When you're finished modeling, switch back to <strong>Select</strong> mode (<kbd>Shift+1</kbd>) to return to normal editing</li>
                 </ol>
-                
-                <svg width="100%" height="500" viewBox="0 0 380 500" style="max-width: 380px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
-                    <!-- Place Actors Panel -->
-                    <rect x="0" y="0" width="380" height="500" fill="#2d2d2d"/>
-                    
-                    <!-- Title Bar -->
-                    <rect x="0" y="0" width="380" height="35" fill="#1e1e1e"/>
-                    <text x="15" y="23" fill="#ffffff" font-size="15" font-weight="bold">Place Actors</text>
-                    
-                    <!-- Search Bar -->
-                    <rect x="15" y="45" width="350" height="28" fill="#3c3c3c" rx="3"/>
-                    <text x="20" y="64" fill="#888" font-size="12">Search Classes</text>
-                    
-                    <!-- Categories -->
-                    <g transform="translate(0, 85)">
-                        <!-- Recently Placed (collapsed) -->
-                        <rect x="15" y="0" width="350" height="30" fill="#383838"/>
-                        <text x="25" y="20" fill="#aaa" font-size="13">▸ Recently Placed</text>
-                    </g>
-                    
-                    <g transform="translate(0, 120)">
-                        <!-- Basic (collapsed) -->
-                        <rect x="15" y="0" width="350" height="30" fill="#383838"/>
-                        <text x="25" y="20" fill="#aaa" font-size="13">▸ Basic</text>
-                    </g>
-                    
-                    <g transform="translate(0, 155)">
-                        <!-- Geometry (expanded) -->
-                        <rect x="15" y="0" width="350" height="30" fill="#4a4a4a"/>
-                        <text x="25" y="20" fill="#fff" font-size="13" font-weight="bold">▾ Geometry</text>
-                    </g>
-                    
-                    <!-- Geometry Items -->
-                    <!-- Box -->
-                    <g transform="translate(35, 200)">
-                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
-                        <rect x="10" y="10" width="30" height="30" fill="#667eea"/>
-                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Box</text>
-                        <text x="50" y="38" fill="#888" font-size="10">Rectangular brush</text>
-                    </g>
-                    
-                    <!-- Cylinder -->
-                    <g transform="translate(35, 260)">
-                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
-                        <circle cx="25" cy="25" r="15" fill="#667eea"/>
-                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Cylinder</text>
-                        <text x="50" y="38" fill="#888" font-size="10">Cylindrical brush</text>
-                    </g>
-                    
-                    <!-- Cone -->
-                    <g transform="translate(35, 320)">
-                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
-                        <polygon points="25,10 10,40 40,40" fill="#667eea"/>
-                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Cone</text>
-                        <text x="50" y="38" fill="#888" font-size="10">Conical brush</text>
-                    </g>
-                    
-                    <!-- Sphere -->
-                    <g transform="translate(35, 380)">
-                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
-                        <circle cx="25" cy="25" r="15" fill="#667eea"/>
-                        <ellipse cx="25" cy="25" rx="15" ry="8" fill="#4a5a9a"/>
-                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Sphere</text>
-                        <text x="50" y="38" fill="#888" font-size="10">Spherical brush</text>
-                    </g>
-                    
-                    <!-- Linear Stair -->
-                    <g transform="translate(35, 440)">
-                        <rect x="0" y="0" width="310" height="50" fill="#3a3a3a" rx="4"/>
-                        <!-- Simple stair icon -->
-                        <rect x="10" y="30" width="8" height="10" fill="#667eea"/>
-                        <rect x="18" y="23" width="8" height="17" fill="#667eea"/>
-                        <rect x="26" y="16" width="8" height="24" fill="#667eea"/>
-                        <text x="50" y="25" fill="#e0e0e0" font-size="13">Linear Stair</text>
-                        <text x="50" y="38" fill="#888" font-size="10">Staircase brush</text>
-                    </g>
-                    
-                    <!-- Note at bottom -->
-                    <rect x="15" y="500" width="350" height="0" fill="transparent"/>
-                </svg>
-                <p class="caption"><em>Figure: The Place Actors panel showing the Geometry category with common BSP brush types.</em></p>
+
+                <img src="images/m02_l03/m02_l03_fig01_modeling_mode_toolbar.png" alt="The Modeling Mode toolbar in the Unreal Editor 5.8. On the left is a column of tool categories (Faves, Create, Select, XForm, Deform, Model, Mesh, More) with Create selected, and next to it a palette of primitive-shape tools shown as icons: Box, Sphere, Cylinder, Capsule, Cone, Torus, Arrow, Rectangle, Disc, and Stairs, plus extrude and revolve tools. A Modeling settings panel sits at the bottom." style="max-width: 300px; width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p class="caption"><em>Figure: Modeling Mode's Create category &#183; the modern in-editor blockout palette (Box, Sphere, Cylinder, Cone, Torus, Stairs, and more). Each shape you create becomes a real Static Mesh.</em></p>
                 
                 <h3>Building Your First Room</h3>
-                
-                <p>Let's walk through creating a simple room step by step. This is the foundational technique you'll use for all BSP work.</p>
-                
-                <h4>Step 1: Create the Outer Walls</h4>
-                
+
+                <p>Let's block out a simple room. The workflow is: create a solid box, then carve the interior and a doorway with Boolean subtractions.</p>
+
+                <h4>Step 1: Create the Shell</h4>
+
                 <ol>
-                    <li>From Place Actors → Geometry, drag a <strong>Box</strong> brush into your level</li>
-                    <li>This creates an additive box (you'll see it as a blue/purple solid cube)</li>
-                    <li>Select the box and look at the Details panel</li>
-                    <li>Find the <strong>Brush Settings</strong> section</li>
-                    <li>Set the dimensions:
-                        <ul>
-                            <li>X (length): 400 cm (4 meters)</li>
-                            <li>Y (width): 600 cm (6 meters)</li>
-                            <li>Z (height): 300 cm (3 meters)</li>
-                        </ul>
-                    </li>
-                    <li>This creates a solid block that will become your room's outer shell</li>
+                    <li>In <strong>Create</strong>, click <strong>Box</strong>. Click once in the viewport to drop it, then move the mouse and click again to set its footprint and height (or just click <strong>Complete</strong> for a default box)</li>
+                    <li>In the <strong>Modeling panel</strong> on the left, set exact dimensions: <strong>Dimensions X 400, Y 600, Z 300</strong> (centimeters)</li>
+                    <li>Click <strong>Complete</strong> (or press <kbd>Enter</kbd>). Unreal saves a new Static Mesh asset and drops an instance in your level</li>
                 </ol>
-                
+
+                <img src="images/m02_l03/m02_l03_fig03_modeling_box.jpg" alt="A grey blockout box created with Modeling Mode's Box tool, sitting in the Unreal Editor 5.8 viewport. The box is a real Static Mesh with a selection outline, standing on the checkered floor of the level." style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p class="caption"><em>Figure: A box created with Modeling Mode's Box tool &#183; unlike a BSP brush, this is a genuine Static Mesh asset the moment you complete it.</em></p>
+
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h4>💡 Understanding Units</h4>
-                    <p>Remember: Unreal uses centimeters. A typical room height is 250-300cm (8-10 feet). A door is usually 200cm tall and 90cm wide. An adult character is roughly 180cm tall. Keep these proportions in mind when building levels—it helps create spaces that feel natural and appropriately scaled.</p>
+                    <p>Unreal uses centimeters. A typical room height is 250-300cm (8-10 feet), a door is about 200cm tall and 90cm wide, and an adult character is roughly 180cm tall. Keeping these proportions in mind helps your spaces feel naturally scaled.</p>
                 </div>
-                
-                <h4>Step 2: Carve Out the Interior</h4>
-                
+
+                <h4>Step 2: Carve the Interior</h4>
+
                 <ol>
-                    <li>Place another <strong>Box</strong> brush inside the first one</li>
-                    <li>Position it in the center (you can use the move gizmo)</li>
-                    <li>With this new box selected, look at the Details panel</li>
-                    <li>Find <strong>Brush Type</strong> and change it from "Additive" to <strong>"Subtractive"</strong></li>
-                    <li>The box should change color (usually to pink/red)</li>
-                    <li>Set its dimensions slightly smaller than the outer box:
-                        <ul>
-                            <li>X: 340 cm (leaves 30cm thick walls on front/back)</li>
-                            <li>Y: 540 cm (leaves 30cm thick walls on sides)</li>
-                            <li>Z: 240 cm (leaves 30cm floor, 30cm ceiling)</li>
-                        </ul>
-                    </li>
-                    <li>Position it so there's equal spacing all around (30cm walls, floor, ceiling)</li>
+                    <li>Create a second, smaller <strong>Box</strong> inside the first (for example X 340, Y 540, Z 240, which leaves 30cm walls, floor, and ceiling), centered in the shell</li>
+                    <li>Select <strong>both</strong> boxes, then in the <strong>Model</strong> category choose <strong>Boolean</strong> and set the operation to <strong>Subtract</strong> (the inner box removes its volume from the shell)</li>
+                    <li>Click <strong>Complete</strong>. You now have a hollow room with walls, a floor, and a ceiling</li>
                 </ol>
-                
-                <p>Congratulations! You've created your first BSP room—a hollow box with walls, floor, and ceiling.</p>
-                
+
                 <h4>Step 3: Add a Doorway</h4>
-                
+
                 <ol>
-                    <li>Place another <strong>Box</strong> brush</li>
-                    <li>Set it to <strong>Subtractive</strong></li>
-                    <li>Size it like a doorway:
-                        <ul>
-                            <li>X: 100 cm (depth—extends through the wall)</li>
-                            <li>Y: 90 cm (standard door width)</li>
-                            <li>Z: 200 cm (standard door height)</li>
-                        </ul>
-                    </li>
-                    <li>Position it at one of the walls, at floor level</li>
-                    <li>It should cut through the wall, creating an opening</li>
+                    <li>Create a small <strong>Box</strong> sized like a doorway (about X 100, Y 90, Z 200) positioned so it passes through one wall at floor level</li>
+                    <li>Select the room and the doorway box, run <strong>Model &#8594; Boolean &#8594; Subtract</strong> again, and <strong>Complete</strong></li>
+                    <li>The opening is cut clean through the wall</li>
                 </ol>
-                
+
                 <p>You now have a complete room with an entrance!</p>
                 
-                <h3>Common BSP Shapes and Their Uses</h3>
+                <h3>Common Modeling Mode Shapes</h3>
                 
                 <table>
                     <thead>
@@ -644,33 +532,47 @@
                             <td>Combine with subtractive to create hollow domes</td>
                         </tr>
                         <tr>
-                            <td><strong>Curved Stair</strong></td>
-                            <td>Staircases (straight or curved)</td>
-                            <td>Specialized—saves time vs building steps manually</td>
+                            <td><strong>Stairs</strong></td>
+                            <td>Straight, curved, floating, or spiral staircases</td>
+                            <td>The Stairs tool has presets, so you avoid building steps by hand</td>
                         </tr>
                         <tr>
-                            <td><strong>Spiral Stair</strong></td>
-                            <td>Circular staircases, helical passages</td>
-                            <td>Great for towers and vertical spaces</td>
+                            <td><strong>Torus / Extrude</strong></td>
+                            <td>Rings, arches, and pushing faces in or out to shape a mesh</td>
+                            <td>Extrude (in PolyModel) is the workhorse for turning a box into a room</td>
                         </tr>
                     </tbody>
                 </table>
                 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Pro Tip</h4>
-                    <p>You can adjust BSP brush properties even after placing them. Select any brush and look at the Details panel—there's a "Brush Settings" section where you can change dimensions, number of sides (for cylinders/cones), hollow status, and more. This makes iteration fast: place, test, adjust, repeat.</p>
+                    <p>Every Modeling Mode shape stays editable. Re-select the mesh, re-enter Modeling Mode, and use tools in <strong>Select</strong> and <strong>PolyModel</strong> to move faces, extrude, or bevel. Place, test, adjust, repeat.</p>
                 </div>
+
+                <h3>Legacy Route: BSP Brushes</h3>
+
+                <p>For completeness, here is the older BSP workflow. The concepts (additive and subtractive volumes) are identical; only the tool differs. BSP brushes live in the <strong>Place Actors</strong> panel under the <strong>Geometry</strong> category:</p>
+
+                <ol>
+                    <li>Open <strong>Window &#8594; Place Actors</strong></li>
+                    <li>Expand the <strong>Geometry</strong> category to find Box, Cone, Cylinder, Sphere, and Stair brushes</li>
+                    <li>Drag a brush into the viewport; a brush defaults to <strong>Additive</strong>, and you switch it to <strong>Subtractive</strong> in the Details panel to carve</li>
+                    <li>Because BSP is legacy, prefer Modeling Mode for anything you intend to keep</li>
+                </ol>
+
+                <img src="images/m02_l03/m02_l03_fig02_place_actors_geometry.png" alt="The Place Actors panel in the Unreal Editor 5.8 with the Geometry category expanded, listing the legacy BSP brush types: Box, Cone, Cylinder, Sphere, and stair brushes, each with a small icon." style="max-width: 360px; width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p class="caption"><em>Figure: The legacy BSP brushes still live under Place Actors &#8594; Geometry in 5.8 &#183; useful to recognize, but Modeling Mode is the modern choice.</em></p>
             </section>
 
             <!-- Section 4: BSP Operations and Tools -->
             <section id="bsp-operations" class="lesson-section">
-                <h2>BSP Operations and Tools</h2>
+                <h2>Shaping and Combining Geometry</h2>
                 
-                <p>Beyond simply placing additive and subtractive brushes, Unreal provides several tools for manipulating and refining your BSP geometry. These operations give you greater control over the final result.</p>
+                <p>Placing a box is just the start. Both Modeling Mode and legacy BSP give you ways to combine volumes and reshape them into rooms, arches, and details. The concepts below apply to both; Modeling Mode is where you'll use them in practice.</p>
                 
                 <h3>CSG Operations</h3>
                 
-                <p><strong>CSG (Constructive Solid Geometry)</strong> is the technical term for the Boolean operations that BSP uses. While Unreal handles most CSG automatically, understanding the underlying operations helps you troubleshoot issues and create complex shapes.</p>
+                <p><strong>CSG (Constructive Solid Geometry)</strong> is the technical term for Boolean operations on solid volumes. Legacy BSP applied them automatically through brush types; in Modeling Mode you invoke them directly with the <strong>Boolean</strong> tool (<strong>Model</strong> category), choosing Union, Subtract, or Intersect. Same three operations, either way.</p>
                 
                 <svg width="100%" height="400" viewBox="0 0 750 400" style="max-width: 750px; margin: 2rem auto; display: block; border: 2px solid #667eea; background: #f9f9f9;">
                     <text x="375" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">CSG Operations in BSP</text>
@@ -734,83 +636,47 @@
                     <text x="375" y="362" text-anchor="middle" font-size="12" fill="#333">• Subtractive brushes = Subtraction (carves from additive geometry)</text>
                     <text x="375" y="379" text-anchor="middle" font-size="12" fill="#333">• Intersection = Special tool (Select brushes → Brush Settings → Intersect)</text>
                 </svg>
-                <p class="caption"><em>Figure: The three main CSG operations. Unreal automatically applies Union and Subtraction based on brush type.</em></p>
+                <p class="caption"><em>Figure: The three main CSG / Boolean operations. In Modeling Mode you pick them explicitly (Model &#8594; Boolean); legacy BSP applied them by brush type.</em></p>
                 
-                <h3>Brush Editing Tools</h3>
-                
-                <p>Once you've placed BSP brushes, you can modify them in several ways:</p>
-                
-                <h4>1. Geometry Editing Mode</h4>
-                
-                <p>Geometry Editing Mode lets you manipulate individual vertices, edges, and faces of a BSP brush:</p>
-                
-                <ol>
-                    <li>Select a BSP brush</li>
-                    <li>Press <kbd>Shift+5</kbd> or click the "Geometry Editing" button in the toolbar</li>
-                    <li>You'll see the brush's vertices (corner points) appear as small boxes</li>
-                    <li>Click and drag vertices to reshape the brush</li>
-                    <li>Hold <kbd>Ctrl</kbd> to select multiple vertices</li>
-                    <li>Press <kbd>Shift+5</kbd> again to exit Geometry Editing Mode</li>
-                </ol>
-                
-                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
-                    <h4>⚠️ Geometry Editing Caution</h4>
-                    <p>While powerful, Geometry Editing can create irregular shapes that may cause BSP errors (cracks, Z-fighting, rendering issues). Use it sparingly and test your geometry frequently. For complex shapes, consider using Static Meshes from a 3D modeling program instead.</p>
-                </div>
-                
-                <h4>2. Brush Properties</h4>
-                
-                <p>Every BSP brush has properties you can adjust in the Details panel:</p>
-                
+                <h3>Modeling Mode Shaping Tools</h3>
+
+                <p>Once a shape exists, the <strong>PolyModel</strong> and <strong>Model</strong> categories let you turn a plain box into real architecture:</p>
+
                 <ul>
-                    <li><strong>Brush Type:</strong> Switch between Additive and Subtractive</li>
-                    <li><strong>X, Y, Z:</strong> Change dimensions</li>
-                    <li><strong>Hollow:</strong> Makes the brush hollow (walls with thickness)</li>
-                    <li><strong>Wall Thickness:</strong> When Hollow is enabled, controls wall thickness</li>
-                    <li><strong>Tessellation:</strong> For curves (cylinders, spheres), controls smoothness</li>
+                    <li><strong>Extrude:</strong> Push a selected face in or out. The workhorse for pulling a room out of a wall or raising a platform.</li>
+                    <li><strong>Inset:</strong> Shrink a face inward to create a frame, ledge, or recessed panel.</li>
+                    <li><strong>Bevel:</strong> Round or chamfer edges so corners read as trim rather than hard blocks.</li>
+                    <li><strong>Boolean:</strong> Union, Subtract, or Intersect two meshes (the CSG operations above).</li>
+                    <li><strong>PolyEd:</strong> Full control over individual vertices, edges, and faces when a shape needs hand-tuning.</li>
                 </ul>
-                
-                <h4>3. Build Geometry</h4>
-                
-                <p>After making changes to BSP, you need to <strong>rebuild geometry</strong> for the changes to take effect:</p>
-                
-                <ol>
-                    <li>Click <strong>Build</strong> in the toolbar (or press <kbd>Ctrl+Shift+;</kbd>)</li>
-                    <li>You can also go to <strong>Build → Build Geometry</strong> in the menu</li>
-                    <li>Unreal will process all BSP and update lighting/visibility</li>
-                    <li>Watch the bottom-right corner for the build progress</li>
-                </ol>
-                
-                <p>Think of "building" like compiling code—you're telling Unreal to process all the BSP brushes and generate the final geometry that will render in-game.</p>
-                
+
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
-                    <h4>💡 Quick Build</h4>
-                    <p>For faster iteration during prototyping, you can do a "Geometry Only" build which skips lighting calculations. Go to <strong>Build → Build Options → Geometry Only</strong>. This speeds up testing but won't show accurate lighting until you do a full build.</p>
+                    <h4>💡 No Build Step</h4>
+                    <p>Modeling Mode edits update the Static Mesh live, so there is nothing to "rebuild." Legacy BSP was different: after changing brushes you had to <strong>Build Geometry</strong> (<kbd>Ctrl+Shift+;</kbd>) for the changes to appear. If you work with old BSP levels, remember that step.</p>
                 </div>
-                
-                <h3>Aligning Brushes</h3>
-                
-                <p>Unreal provides tools to align brushes precisely:</p>
-                
+
+                <h3>Snapping and Alignment</h3>
+
+                <p>Precise placement keeps blockouts clean in either tool:</p>
+
                 <ul>
-                    <li><strong>Snap to Grid:</strong> Hold <kbd>Ctrl</kbd> while dragging to snap to grid increments</li>
-                    <li><strong>Grid Settings:</strong> Change grid size in the toolbar (common values: 10, 25, 50, 100)</li>
-                    <li><strong>Align to Actor:</strong> Right-click brush → Align → Align to Floor/Ceiling/Wall</li>
-                    <li><strong>Make Coplanar:</strong> Select two brushes, right-click → Make Coplanar to align their faces</li>
+                    <li><strong>Grid snapping:</strong> The grid button in the viewport toolbar sets the snap increment (common values: 10, 25, 50, 100). Hold <kbd>Ctrl</kbd> while dragging to snap.</li>
+                    <li><strong>Transform typing:</strong> Enter exact Location and Dimensions in the Details or Modeling panel for pixel-perfect walls.</li>
+                    <li><strong>Vertex snapping:</strong> Hold <kbd>V</kbd> while dragging to snap a mesh to another mesh's vertices, so walls meet cleanly with no gaps.</li>
                 </ul>
-                
-                <p>Proper alignment prevents gaps, cracks, and visual glitches in your BSP geometry.</p>
+
+                <p>Good alignment prevents the gaps and seams that plague sloppy blockouts.</p>
             </section>
 
             <!-- Section 5: BSP Limitations and Performance -->
             <section id="limitations" class="lesson-section">
-                <h2>BSP Limitations and Performance Considerations</h2>
+                <h2>Why BSP Became Legacy</h2>
                 
-                <p>While BSP is great for prototyping, it has several limitations you should understand—especially if you're tempted to use it for final production geometry.</p>
+                <p>Modeling Mode outputs Static Meshes, so it sidesteps the problems that made BSP a legacy tool. It is still worth understanding those limitations, both to know why the field moved on and in case you open an older BSP level.</p>
                 
-                <h3>Why BSP Has Fallen Out of Favor</h3>
+                <h3>What BSP Gave Up</h3>
                 
-                <p>In early Unreal Engine versions (UE1, UE2), BSP was the primary way to build levels. Modern game development has largely moved away from BSP for several reasons:</p>
+                <p>In early Unreal Engine versions (UE1, UE2), BSP was the primary way to build levels. Because Modeling Mode produces Static Meshes directly, it wins on every row of the table below, which is exactly why it replaced BSP as the default blockout tool:</p>
                 
                 <table>
                     <thead>
@@ -1018,9 +884,9 @@
                     })();
                 </script>
                 
-                <h3>Best Practices for BSP</h3>
+                <h3>Best Practices (If You Use Legacy BSP)</h3>
                 
-                <p>If you're using BSP (for prototyping or otherwise), follow these guidelines to minimize problems:</p>
+                <p>If you do work with legacy BSP brushes, these guidelines keep problems to a minimum (with Modeling Mode, most of them simply don't arise):</p>
                 
                 <ol>
                     <li><strong>Keep it simple:</strong> Avoid complex intersecting geometry—use clean, orthogonal shapes</li>
@@ -1035,9 +901,9 @@
 
             <!-- Section 6: Converting BSP to Static Mesh -->
             <section id="converting-to-static-mesh" class="lesson-section">
-                <h2>Converting BSP to Static Mesh</h2>
+                <h2>From Blockout to Production</h2>
                 
-                <p>Once you've prototyped your level with BSP and you're happy with the layout, it's time to convert it to Static Meshes for better performance and fewer visual issues. Unreal makes this process straightforward.</p>
+                <p>Blockout geometry eventually becomes finished art. How you get there depends on the tool you used. <strong>Modeling Mode is already a Static Mesh</strong>, so there is nothing to convert , so you refine it in place or hand it to an artist. <strong>Legacy BSP</strong> must first be converted to a Static Mesh, described below.</p>
                 
                 <h3>Why Convert?</h3>
                 
@@ -1054,7 +920,7 @@
                 
                 <h3>The Conversion Process</h3>
                 
-                <p>Here's how to convert BSP geometry to Static Meshes:</p>
+                <p>If your blockout is legacy BSP, here is how to convert it to a Static Mesh (Modeling Mode output is already a mesh, so you can skip this):</p>
                 
                 <ol>
                     <li><strong>Select the BSP brushes</strong> you want to convert (you can select multiple)</li>
@@ -1143,7 +1009,7 @@
                     <text x="375" y="309" text-anchor="middle" font-size="12" fill="#333">3. Artists replace with modular art assets or detailed meshes</text>
                     <text x="375" y="326" text-anchor="middle" font-size="12" fill="#333">4. Lighting artists optimize and add final polish</text>
                 </svg>
-                <p class="caption"><em>Figure: The professional workflow from BSP prototype to final production assets.</em></p>
+                <p class="caption"><em>Figure: Blockout to production &#183; Modeling Mode meshes skip straight to refinement; legacy BSP adds a convert-to-Static-Mesh step first.</em></p>
                 
                 <h3>Post-Conversion Steps</h3>
                 
@@ -1180,112 +1046,76 @@
             <!-- Section 7: Hands-On Exercise -->
             <section id="hands-on" class="lesson-section">
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
-                    <h2>🏋️ Hands-On Exercise: Build a Multi-Room Dungeon</h2>
-                    
-                    <p>Put your BSP skills to the test by building a small dungeon with multiple rooms, corridors, and doorways. This exercise covers everything you've learned about additive/subtractive brushes, BSP operations, and conversion to Static Meshes.</p>
-                    
-                    <h3>Part 1: Create the Main Structure</h3>
-                    
+                    <h2>🏋️ Hands-On Exercise: Block Out a Two-Room Dungeon</h2>
+
+                    <p>Build a small dungeon with two rooms and a connecting corridor using <strong>Modeling Mode</strong>. You'll create boxes, carve them with Booleans, and end up with real Static Meshes, no conversion required.</p>
+
+                    <h3>Part 1: Enter Modeling Mode and Make the Shell</h3>
+
                     <ol>
-                        <li>Create a new level or open your existing test level</li>
-                        <li>From Place Actors → Geometry, drag a <strong>Box</strong> brush into the level</li>
-                        <li>Scale it to: X=1000cm, Y=800cm, Z=300cm (this will contain your whole dungeon)</li>
-                        <li>This is your solid "mountain" you'll carve rooms from</li>
+                        <li>Open or create a level, then switch to <strong>Modeling Mode</strong> (Selection Mode dropdown &#8594; Modeling, or <kbd>Shift+5</kbd> with the viewport focused)</li>
+                        <li>In <strong>Create</strong>, click <strong>Box</strong>, drop it in the viewport, and in the Modeling panel set Dimensions to X 1000, Y 800, Z 300</li>
+                        <li>Click <strong>Complete</strong>. This solid block is the "mountain" you'll carve rooms from</li>
                     </ol>
-                    
+
                     <h3>Part 2: Carve the First Room</h3>
-                    
+
                     <ol>
-                        <li>Place another Box brush inside the first</li>
-                        <li>Set its Brush Type to <strong>Subtractive</strong> (it should turn pink/red)</li>
-                        <li>Size: X=400cm, Y=400cm, Z=250cm</li>
-                        <li>Position it in one corner of the large block (use Move gizmo)</li>
-                        <li>You've carved out your first room!</li>
+                        <li>Create another <strong>Box</strong> (X 400, Y 400, Z 250) positioned in one corner, overlapping the shell</li>
+                        <li>Select both meshes, then run <strong>Model &#8594; Boolean &#8594; Subtract</strong> and <strong>Complete</strong></li>
+                        <li>The inner box's volume is removed, leaving a hollow room</li>
                     </ol>
-                    
-                    <h3>Part 3: Add a Corridor</h3>
-                    
+
+                    <h3>Part 3: Add a Corridor and Second Room</h3>
+
                     <ol>
-                        <li>Add another Subtractive Box</li>
-                        <li>Size: X=300cm, Y=150cm, Z=250cm (a narrow hallway)</li>
-                        <li>Position it extending from the first room toward the center</li>
-                        <li>Make sure it overlaps with the first room so they connect</li>
+                        <li>Create a narrow <strong>Box</strong> (X 300, Y 150, Z 250) extending from the first room toward the center, then Subtract it</li>
+                        <li>Create a second room box (X 350, Y 350, Z 250) at the far end of the corridor, overlapping it, and Subtract it</li>
+                        <li>Both rooms are now joined by the corridor</li>
                     </ol>
-                    
-                    <h3>Part 4: Carve a Second Room</h3>
-                    
-                    <ol>
-                        <li>Add another Subtractive Box at the end of the corridor</li>
-                        <li>Size: X=350cm, Y=350cm, Z=250cm</li>
-                        <li>Position it so the corridor connects both rooms</li>
-                        <li>Press <kbd>Ctrl+Shift+;</kbd> to rebuild geometry and see the result</li>
-                    </ol>
-                    
-                    <h3>Part 5: Add Doorways</h3>
-                    
-                    <ol>
-                        <li>Place small Subtractive Box brushes to create door openings</li>
-                        <li>Typical door size: X=100cm, Y=90cm, Z=200cm</li>
-                        <li>Position them where you want doorways between rooms and corridor</li>
-                        <li>They'll cut through the remaining wall sections</li>
-                    </ol>
-                    
+
                     <details>
-                        <summary>💡 <strong>Hint:</strong> Doors not appearing?</summary>
-                        <p>Make sure your doorway brushes are set to <strong>Subtractive</strong> and that they actually intersect with the walls you want to cut through. Also, rebuild geometry (<kbd>Ctrl+Shift+;</kbd>) to see changes take effect.</p>
+                        <summary>💡 <strong>Hint:</strong> Rooms not connecting?</summary>
+                        <p>Make sure each subtractive box <strong>overlaps</strong> the space it should open into before you run the Boolean. If a wall is left between two rooms, add a small doorway box across it and Subtract again.</p>
                     </details>
-                    
-                    <h3>Part 6: Add Details</h3>
-                    
+
+                    <h3>Part 4: Doorways and a Detail</h3>
+
                     <ol>
-                        <li>Try adding an <strong>Additive Cylinder</strong> in one room as a pillar (Size: Radius=40cm, Height=250cm)</li>
-                        <li>Create a small alcove: place a Subtractive Box in a wall (X=120cm, Y=80cm, Z=120cm)</li>
-                        <li>Experiment with other shapes: Cone for a ceiling detail, Sphere for decorative elements</li>
+                        <li>Create small boxes (about X 100, Y 90, Z 200) across the remaining walls and <strong>Subtract</strong> them to cut doorways</li>
+                        <li>For a pillar, create an <strong>Additive</strong>-style Cylinder (radius 40, height 250) inside a room; leave it as its own mesh (no Boolean) so it stands as a column</li>
+                        <li>Try an <strong>Extrude</strong> (PolyModel) on a ceiling face to raise a vaulted section</li>
                     </ol>
-                    
-                    <h3>Part 7: Test Your Dungeon</h3>
-                    
+
+                    <h3>Part 5: Test Your Dungeon</h3>
+
                     <ol>
-                        <li>Place a <strong>Player Start</strong> Actor in one of your rooms (from Place Actors → Basic)</li>
-                        <li>Press <kbd>Alt+P</kbd> to Play in Editor (PIE)</li>
-                        <li>Walk through your dungeon using WASD and mouse</li>
-                        <li>Check for any visual issues (cracks, holes, z-fighting)</li>
-                        <li>Press <kbd>Esc</kbd> to stop playtest</li>
+                        <li>Switch back to <strong>Select</strong> mode (<kbd>Shift+1</kbd>) and place a <strong>Player Start</strong> inside one room (from the toolbar <strong>+ Add</strong> button, or Place Actors &#8594; Basic)</li>
+                        <li>Press <kbd>Alt+P</kbd> to Play in Editor and walk through with WASD and the mouse</li>
+                        <li>Check for gaps or overlaps, then press <kbd>Esc</kbd> to stop</li>
                     </ol>
-                    
-                    <h3>Part 8: Convert to Static Mesh</h3>
-                    
-                    <ol>
-                        <li>Select all your BSP brushes (hold <kbd>Ctrl</kbd> and click each one, or box-select)</li>
-                        <li>Right-click and choose <strong>Create Static Mesh</strong></li>
-                        <li>Save to Content → Geometry → <code>SM_DungeonPrototype</code></li>
-                        <li>A new Static Mesh is created—compare it to the original BSP</li>
-                        <li>You can now delete the BSP brushes if you want</li>
-                    </ol>
-                    
+
                     <details>
                         <summary>✅ <strong>Solution Checkpoint:</strong> What should you have?</summary>
                         <p>Your level should contain:
                             <ul>
-                                <li>A solid block with carved-out interior spaces (2 rooms + 1 corridor)</li>
-                                <li>Doorways connecting the spaces</li>
-                                <li>At least one detail element (pillar, alcove, or decoration)</li>
-                                <li>A Static Mesh version saved in your Content Browser</li>
+                                <li>A solid block with two carved rooms joined by a corridor</li>
+                                <li>Doorways cut through the walls, plus at least one detail (pillar or vault)</li>
+                                <li>Real Static Mesh assets in the Content Browser (Modeling Mode saves them automatically, by default under a <code>_GENERATED</code> folder)</li>
                             </ul>
-                            The dungeon should be walkable when you press Alt+P to play. If you can't walk through, check that your Player Start is inside a carved-out room, not in solid geometry.
+                            The dungeon should be walkable when you press Alt+P. If you can't move, make sure your Player Start sits inside a carved room, not in solid geometry.
                         </p>
                     </details>
-                    
-                    <h3>Challenge: Expand Your Dungeon</h3>
-                    
-                    <p>Try these advanced techniques:</p>
-                    
+
+                    <h3>Challenge: Go Further</h3>
+
                     <ul>
-                        <li><strong>Multi-level design:</strong> Create a second floor by carving rooms at a higher Z location, then add a Linear Stair brush to connect them</li>
-                        <li><strong>Curved corridors:</strong> Use Cylinder brushes (Subtractive) to create rounded passages</li>
-                        <li><strong>Vaulted ceilings:</strong> Use a Subtractive Cone (point down) to carve a peaked ceiling</li>
-                        <li><strong>Secret room:</strong> Create a hidden alcove accessible only by squeezing through a narrow gap</li>
+                        <li><strong>Second floor:</strong> Carve rooms at a higher Z and use the <strong>Stairs</strong> shape to connect them</li>
+                        <li><strong>Rounded passages:</strong> Subtract a Cylinder to carve a tunnel</li>
+                        <li><strong>Refine a mesh:</strong> Use <strong>Bevel</strong> on a doorway's edges so the opening reads as a real frame</li>
                     </ul>
+
+                    <p>Because everything is already a Static Mesh, you can drop these blockouts straight into a lit level, enable Nanite, and keep iterating.</p>
                 </div>
             </section>
 
@@ -1293,31 +1123,30 @@
             <section id="summary" class="lesson-section">
                 <h2>Summary</h2>
                 
-                <p>BSP geometry is a powerful prototyping tool that has been part of Unreal Engine since the beginning. While modern workflows favor Static Meshes for final production, BSP remains essential for rapid level design iteration. Let's recap what you've learned:</p>
+                <p>Blocking out geometry in-editor is the first step of level design, and in modern Unreal that means Modeling Mode. Legacy BSP taught the field the additive/subtractive way of thinking, which still underlies today's tools. Let's recap:</p>
                 
                 <h3>Key Takeaways</h3>
                 
                 <ul>
-                    <li>🏗️ <strong>BSP (Binary Space Partitioning)</strong> lets you create 3D geometry directly in Unreal using additive and subtractive volumes called "brushes"</li>
-                    <li>➕ <strong>Additive brushes</strong> create solid geometry (walls, floors, ceilings)</li>
-                    <li>➖ <strong>Subtractive brushes</strong> carve out hollow spaces (rooms, doorways, windows)</li>
-                    <li>🎯 <strong>Best use case:</strong> Greyboxing and prototyping level layouts before creating final art assets</li>
-                    <li>🛠️ <strong>CSG operations:</strong> Union (add), Subtraction (carve), and Intersection combine brushes to create complex shapes</li>
-                    <li>⚠️ <strong>Limitations:</strong> BSP has performance issues, visual artifacts, and lacks Nanite support—not ideal for final production</li>
-                    <li>🔄 <strong>Conversion workflow:</strong> Prototype with BSP → Convert to Static Mesh → Polish with materials and lighting</li>
-                    <li>✅ <strong>Best practices:</strong> Align to grid, keep geometry simple, rebuild frequently, and plan to convert or replace BSP before shipping</li>
+                    <li>🏗️ <strong>Blockout (greyboxing)</strong> is the first pass of level design: simple placeholder geometry to test layout and gameplay</li>
+                    <li>🔧 <strong>Modeling Mode</strong> is UE5's modern in-editor blockout tool; every shape you create is a real Static Mesh</li>
+                    <li>➕➖ <strong>Additive and subtractive</strong> (Union / Subtract Booleans) is the shared idea behind both Modeling Mode and legacy BSP</li>
+                    <li>🧱 <strong>Shaping tools</strong> like Extrude, Inset, and Bevel turn a plain box into real architecture</li>
+                    <li>⚠️ <strong>BSP is legacy:</strong> performance issues, visual artifacts, and no Nanite support , and Epic recommends against it for final geometry</li>
+                    <li>🔄 <strong>Straight to production:</strong> Modeling Mode meshes need no conversion; legacy BSP must be converted to a Static Mesh first</li>
+                    <li>✅ <strong>Best practice:</strong> Block out with Modeling Mode, keep shapes simple and grid-aligned, then refine into finished meshes</li>
                 </ul>
                 
                 <h3>What's Next?</h3>
                 
-                <p>Now that you can create basic architectural geometry with BSP, the next lesson will introduce <strong>Lesson 2.4: Static Meshes and Assets</strong>. You'll learn how to import 3D models from external software, work with Unreal's built-in modeling tools, and build levels using modular mesh sets—the modern approach to level construction.</p>
+                <p>Now that you can block out geometry with Modeling Mode, the next lesson introduces <strong>Lesson 2.4: Static Meshes and Assets</strong>. You'll learn how to import 3D models from external software and build levels from modular mesh sets, the backbone of modern level construction.</p>
                 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Self-Check Quiz</h4>
                     <p>Before moving on, make sure you can answer these questions:</p>
                     <ol>
                         <li>What's the difference between an additive and subtractive brush?</li>
-                        <li>Why is BSP considered a prototyping tool rather than a final production tool?</li>
+                        <li>Why has Modeling Mode replaced BSP as the primary blockout tool in UE5?</li>
                         <li>What are the three main CSG operations, and how does Unreal apply them?</li>
                         <li>Name three common visual problems with BSP and how to fix them.</li>
                         <li>What are the benefits of converting BSP to Static Mesh?</li>
@@ -1327,7 +1156,7 @@
                         <summary>📝 <strong>Show Answers</strong></summary>
                         <ol>
                             <li>Additive brushes create solid geometry; subtractive brushes carve out hollow spaces by removing geometry from additive brushes.</li>
-                            <li>BSP has performance limitations, visual artifacts (cracks, Z-fighting), no Nanite support, complex collision, and is harder to reuse across projects compared to Static Meshes.</li>
+                            <li>Modeling Mode produces real Static Meshes that render efficiently, support Nanite, and avoid BSP's cracks, Z-fighting, and lightmap problems, all without a separate conversion step.</li>
                             <li>Union (combines overlapping geometry), Subtraction (removes volume), and Intersection (keeps only overlapping area). Unreal automatically applies Union for additive brushes and Subtraction for subtractive brushes.</li>
                             <li>BSP Cracks (rebuild geometry, align to grid), Z-Fighting (offset overlapping surfaces), Lighting Artifacts (increase lightmap resolution or convert to Static Mesh with proper UVs).</li>
                             <li>Better rendering performance, cleaner visuals, Nanite support, proper lightmap UVs, simplified collision, and reusability as library assets.</li>

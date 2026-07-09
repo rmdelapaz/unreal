@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Learn what Levels are in Unreal Engine, how they organize your game worlds, and the difference between persistent and streaming levels.">
+    <meta name="description" content="Learn what Levels are in Unreal Engine 5.8, how World Partition streams large worlds automatically, and how persistent and streaming levels still fit in.">
     <meta name="author" content="Practical Ace">
     <title>Understanding Levels - Introduction to Unreal Engine 5</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="icon" type="image/png" href="/favicon.png">
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-        mermaid.initialize({ 
+        mermaid.initialize({
             startOnLoad: true,
             theme: 'default',
             themeVariables: {
@@ -55,19 +55,19 @@
             <!-- Lesson Header -->
             <header>
                 <h1>🗺️ Understanding Levels</h1>
-                <p class="lead">Think of Levels as the containers that hold your game worlds. They're like the stages in a theater production—each one is a complete environment where your interactive experience takes place. Let's explore how Unreal Engine organizes and manages these virtual spaces.</p>
-                
+                <p class="lead">Think of Levels as the containers that hold your game worlds. They're like the stages in a theater production&#183; each one is a complete environment where your interactive experience takes place. In this lesson we'll explore how Unreal Engine 5.8 organizes these virtual spaces, and how <strong>World Partition</strong> now streams huge worlds for you automatically.</p>
+
                 <!-- Learning objectives -->
                 <div class="card">
                     <h2>🎯 Learning Objectives</h2>
                     <p>By the end of this lesson, you will be able to:</p>
                     <ul>
                         <li>Define what a Level is in Unreal Engine and its purpose</li>
-                        <li>Differentiate between persistent levels and streaming levels</li>
-                        <li>Explain strategies for organizing complex game worlds using multiple levels</li>
+                        <li>Explain how World Partition streams large open worlds automatically in UE 5.8</li>
+                        <li>Describe persistent levels and streaming levels, and where each still fits</li>
+                        <li>Choose an organization strategy for complex game worlds, including Data Layers</li>
                         <li>Navigate and use the World Settings panel</li>
-                        <li>Create and save new levels in your project</li>
-                        <li>Apply best practices for level organization in real projects</li>
+                        <li>Create and save new levels using the UE 5.8 level templates</li>
                     </ul>
                     <p><strong>Estimated Time:</strong> 30-40 minutes</p>
                     <p><strong>Prerequisites:</strong> Lesson 1.4 - The Unreal Editor Interface</p>
@@ -82,7 +82,7 @@
                 <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
                     <ol>
                         <li><a href="#what-is-level" class="toc-link">What is a Level?</a></li>
-                        <li><a href="#persistent-vs-streaming" class="toc-link">Persistent Levels vs. Streaming Levels</a></li>
+                        <li><a href="#persistent-vs-streaming" class="toc-link">World Partition &amp; Level Streaming</a></li>
                         <li><a href="#level-organization" class="toc-link">Level Organization Strategies</a></li>
                         <li><a href="#world-settings" class="toc-link">The World Settings Panel</a></li>
                         <li><a href="#creating-levels" class="toc-link">Creating and Saving New Levels</a></li>
@@ -95,52 +95,52 @@
             <!-- Section 1: What is a Level? -->
             <section id="what-is-level" class="lesson-section">
                 <h2>What is a Level?</h2>
-                
-                <p>Imagine you're building a museum. Each room contains different exhibits—ancient artifacts in one room, modern art in another, dinosaur fossils in a third. The building itself is your project, but each room is a distinct space with its own contents, lighting, and purpose. In Unreal Engine, a <strong>Level</strong> serves a similar role: it's a self-contained space that holds all the objects, lighting, and environmental elements for a particular scene or area.</p>
-                
+
+                <p>Imagine you're building a museum. Each room contains different exhibits&#183; ancient artifacts in one room, modern art in another, dinosaur fossils in a third. The building itself is your project, but each room is a distinct space with its own contents, lighting, and purpose. In Unreal Engine, a <strong>Level</strong> serves a similar role: it's a self-contained space that holds all the objects, lighting, and environmental elements for a particular scene or area.</p>
+
                 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <h4>📖 Definition</h4>
                     <p style="color: white;"><strong>Level:</strong> A Level (also called a "map") is a collection of all the objects, actors, lighting, and gameplay elements that make up a specific area or scene in your project. Think of it as a complete 3D environment file that can be loaded, modified, and saved independently.</p>
                 </div>
-                
+
                 <p>When you create a new Unreal project, you always start with at least one level. This is your blank canvas where you'll place 3D objects, set up lighting, add interactive elements, and build your experience. Everything visible in your game at any given moment exists within a level.</p>
-                
+
                 <h3>What's Inside a Level?</h3>
-                
+
                 <p>A level contains several types of content, all working together to create your interactive environment:</p>
-                
+
                 <ul>
-                    <li><strong>Actors:</strong> Any object placed in the world—3D models, lights, cameras, sound sources, triggers, and more</li>
+                    <li><strong>Actors:</strong> Any object placed in the world&#183; 3D models, lights, cameras, sound sources, triggers, and more</li>
                     <li><strong>Environment Settings:</strong> Lighting configuration, sky atmosphere, fog, and post-process effects that define the scene's mood</li>
                     <li><strong>Gameplay Elements:</strong> Player start locations, spawn points, navigation meshes, and collision volumes</li>
                     <li><strong>World Settings:</strong> Level-specific configuration like physics settings, gravity, and game mode rules</li>
                 </ul>
-                
+
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h4>💡 Real-World Analogy</h4>
                     <p>Think of a Level like a movie set. When filming a scene, everything you need for that particular location is assembled on one set: props, lighting rigs, actors, cameras, and sound equipment. When you move to a different scene, you might switch to a completely different set with different elements. Similarly, when your game transitions between areas, it loads a new level with all its unique content.</p>
                 </div>
-                
+
                 <h3>File Structure</h3>
-                
+
                 <p>Levels are saved as files with the <code>.umap</code> extension (short for "Unreal Map"). You'll find them in your project's <code>Content</code> folder, typically organized in a <code>Maps</code> or <code>Levels</code> subfolder. When you open a project, Unreal loads one of these .umap files into the editor, displaying all the actors and settings it contains.</p>
-                
+
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Pro Tip</h4>
                     <p>Always organize your levels into a dedicated folder like <code>Content/Maps/</code>. This makes your project easier to navigate, especially as it grows larger with more levels. Professional studios often use naming conventions like <code>ENV_ForestLevel</code> or <code>MAP_City_Downtown</code> to make levels easy to identify at a glance.</p>
                 </div>
-                
+
                 <h3>Why Multiple Levels Matter</h3>
-                
+
                 <p>While you <em>could</em> build an entire game in a single level, there are compelling reasons to split your project into multiple levels:</p>
-                
+
                 <ol>
-                    <li><strong>Performance:</strong> Loading and rendering everything at once is inefficient. Splitting your world into separate levels means the engine only loads what's currently needed, improving performance and reducing memory usage.</li>
-                    <li><strong>Organization:</strong> Smaller, focused levels are easier to manage, especially when working with a team. One person can work on the forest level while another builds the cave system.</li>
+                    <li><strong>Performance:</strong> Loading and rendering everything at once is inefficient. Splitting your world into separate areas means the engine only loads what's currently needed, improving performance and reducing memory usage. (As you'll see next, World Partition can do this splitting for you inside a single level.)</li>
+                    <li><strong>Organization:</strong> Smaller, focused levels are easier to manage, especially when working with a team. One person can work on the forest area while another builds the cave system.</li>
                     <li><strong>Testing:</strong> You can quickly jump to specific areas to test gameplay without navigating through the entire world each time.</li>
-                    <li><strong>Variety:</strong> Different levels can have completely different aesthetics, lighting, and gameplay styles—think of transitioning from a sunny village to a dark dungeon.</li>
+                    <li><strong>Variety:</strong> Different levels can have completely different aesthetics, lighting, and gameplay styles&#183; think of transitioning from a sunny village to a dark dungeon.</li>
                 </ol>
-                
+
                 <div class="mermaid">
                     graph LR
                         A[Game Project] --> B[Main Menu Level]
@@ -158,70 +158,55 @@
                 <p class="caption"><em>Figure: A typical game project organized into multiple distinct levels</em></p>
             </section>
 
-            <!-- Section 2: Persistent vs. Streaming Levels -->
+            <!-- Section 2: World Partition & Level Streaming -->
             <section id="persistent-vs-streaming" class="lesson-section">
-                <h2>Persistent Levels vs. Streaming Levels</h2>
-                
-                <p>Unreal Engine offers two fundamental approaches to managing levels: <strong>persistent levels</strong> and <strong>streaming levels</strong>. Understanding the difference is crucial for building efficient, well-organized projects.</p>
-                
-                <h3>Persistent Levels</h3>
-                
-                <p>A <strong>persistent level</strong> is the "main" level that remains loaded throughout your game session. Think of it as the foundation or the base layer that's always present. When you create a new Unreal project and open a level, that's a persistent level—it's loaded when the game starts and stays in memory.</p>
-                
+                <h2>World Partition &amp; Level Streaming</h2>
+
+                <p>How does Unreal load a massive, seamless world without running out of memory? The answer has changed. In Unreal Engine 4 and the earliest UE5 releases, developers built large maps by hand: you sliced the world into <strong>sublevels</strong> and used the <strong>Level Streaming</strong> system to load and unload each one as the player moved. This worked, but it was manual, error-prone, and awkward for teams. Unreal Engine 5 introduced <strong>World Partition</strong> to automate the whole process, and in UE 5.8 it is the standard way to build large worlds.</p>
+
                 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <h4>📖 Definition</h4>
-                    <p style="color: white;"><strong>Persistent Level:</strong> The primary level that is always loaded and serves as the foundation for your scene. Any streaming levels are loaded <em>in addition to</em> the persistent level, not instead of it.</p>
+                    <p style="color: white;"><strong>World Partition:</strong> An automatic world-streaming system that stores your entire world in a single persistent level divided into a grid of cells. As the player moves, Unreal loads the cells near them and unloads the ones far away&#183; no hand-authored sublevels required.</p>
                 </div>
-                
-                <p>Persistent levels typically contain:</p>
-                
+
+                <p>In Epic's own words, "Building large maps used to require developers to manually divide maps into sublevels, then use the Level streaming system to load and unload them as the player traversed the landscape." World Partition removes that manual step entirely: you build in one continuous level, and the engine handles the streaming grid for you.</p>
+
+                <h3>How World Partition Works</h3>
+
+                <p>When World Partition is enabled, a few systems work together behind the scenes:</p>
+
                 <ul>
-                    <li><strong>Global Elements:</strong> Lighting sources that affect the entire world, like a directional light representing the sun</li>
-                    <li><strong>Game Logic:</strong> Blueprints that manage game state, player progression, or UI elements</li>
-                    <li><strong>Shared Assets:</strong> Objects or settings that need to exist regardless of which area the player is in</li>
+                    <li><strong>Grid-based streaming:</strong> The world is divided into square cells. Only cells within a loading range of the player (or camera) are kept in memory, so a 10&#8202;km world costs about the same to run as a small one.</li>
+                    <li><strong>One File Per Actor (OFPA):</strong> Each actor is saved as its own small file instead of everything living in one giant .umap. This is what makes World Partition great for teams&#183; two people can edit different parts of the same world at once without locking each other out of the file.</li>
+                    <li><strong>HLOD (Hierarchical Level of Detail):</strong> Distant cells that aren't loaded are still represented by lightweight, auto-generated proxy meshes, so faraway mountains and skylines remain visible without their full geometry in memory.</li>
+                    <li><strong>The World Partition editor:</strong> A minimap grid inside the editor lets you load, unload, and focus on regions of the world while you work, so you never have to open the entire map at once.</li>
                 </ul>
-                
-                <p>In a simple project with just one level, that level is persistent by default. But when you start working with multiple levels, you'll designate one as persistent and load others dynamically around it.</p>
-                
-                <h3>Streaming Levels</h3>
-                
-                <p>A <strong>streaming level</strong> (also called a "sub-level") is a level that can be loaded or unloaded dynamically during gameplay. This is where Unreal's level system becomes powerful for creating large, complex worlds.</p>
-                
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Where you'll see it</h4>
+                    <p>When you create a new level from the <strong>Open World</strong> or <strong>Empty Open World</strong> template (covered later in this lesson), World Partition is already set up for you. You can also confirm it on any level: it lives in the <strong>World Partition Setup</strong> category at the top of the World Settings panel, with an <strong>Enable Streaming</strong> checkbox and a runtime hash class that defines the streaming grid.</p>
+                </div>
+
+                <h3>Persistent Levels and Streaming Levels</h3>
+
+                <p>World Partition doesn't throw away the older ideas&#183; it builds on them. It's worth knowing the two terms it automates, because they still appear throughout the editor and in many existing projects.</p>
+
+                <p>A <strong>persistent level</strong> is the "main" level that stays loaded for the whole session. It's the foundation. With World Partition, your single world <em>is</em> a persistent level, and the streaming grid loads content into it. In a small project with just one level, that level is simply persistent by default.</p>
+
                 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <h4>📖 Definition</h4>
-                    <p style="color: white;"><strong>Streaming Level:</strong> A level that can be loaded into or removed from memory at runtime, appearing or disappearing in the world as needed. This enables seamless transitions between areas without loading screens and optimizes memory usage by only keeping relevant areas in memory.</p>
+                    <p style="color: white;"><strong>Persistent Level:</strong> The primary level that is always loaded and serves as the foundation for your scene. Any streamed content (World Partition cells, or manually added streaming levels) is loaded <em>in addition to</em> the persistent level, not instead of it.</p>
                 </div>
-                
-                <p>Imagine you're building an open-world game with a city, forest, mountain, and underground dungeon. Loading all four areas simultaneously would consume enormous amounts of memory and slow performance. Instead, you'd use streaming levels:</p>
-                
-                <ul>
-                    <li>The <strong>persistent level</strong> contains the sky, sun, and overall world settings</li>
-                    <li><strong>Streaming level 1:</strong> The city—loads when the player is nearby</li>
-                    <li><strong>Streaming level 2:</strong> The forest—loads as the player approaches, unloads when they leave</li>
-                    <li><strong>Streaming level 3:</strong> The mountain—loads and unloads based on proximity</li>
-                    <li><strong>Streaming level 4:</strong> The dungeon—loads only when the player enters</li>
-                </ul>
-                
-                <div class="mermaid">
-                    graph TD
-                        A[Persistent Level<br/>Sky, Sun, Global Logic] --> B[Player in City]
-                        A --> C[Player in Forest]
-                        A --> D[Player in Mountains]
-                        A --> E[Player in Dungeon]
-                        B --> F[City Level<br/>Loaded]
-                        B --> G[Forest Level<br/>Unloaded]
-                        C --> H[Forest Level<br/>Loaded]
-                        C --> I[City Level<br/>Unloading]
-                        style A fill:#667eea,color:#fff
-                        style F fill:#4CAF50,color:#fff
-                        style G fill:#999,color:#fff
-                        style H fill:#4CAF50,color:#fff
-                        style I fill:#999,color:#fff
+
+                <p>A <strong>streaming level</strong> (also called a "sublevel") is a level that loads or unloads dynamically at runtime. Before World Partition, you added these by hand in the <strong>Levels</strong> panel and controlled them yourself. That manual workflow still exists in UE 5.8&#183; it's the right tool for a few specific jobs, but it is no longer how you build a big open world.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Legacy vs. modern</h4>
+                    <p><strong>World Composition</strong>, the UE4-era system for tiling large worlds, is now a <em>legacy</em> feature. Epic's documentation states plainly: "It is recommended to use World Partition for level streaming in projects using Unreal Engine 5.0 or later." If you follow an older tutorial that tells you to enable World Composition or hand-build streaming tiles, reach for World Partition instead.</p>
                 </div>
-                <p class="caption"><em>Figure: Streaming levels load and unload dynamically based on player location while the persistent level remains constant</em></p>
 
                 <h3>When to Use Each Approach</h3>
-                
+
                 <table>
                     <thead>
                         <tr>
@@ -232,56 +217,64 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Small game or prototype</td>
-                            <td>Single persistent level</td>
-                            <td>Simplicity—no need for complexity when the entire world fits in memory</td>
+                            <td>Small game, prototype, or single scene</td>
+                            <td>Single level (Basic or Empty)</td>
+                            <td>Simplicity&#183; the whole world fits in memory, so no streaming is needed</td>
                         </tr>
                         <tr>
                             <td>Large open world</td>
-                            <td>Persistent + streaming levels</td>
-                            <td>Performance—only load nearby areas to manage memory efficiently</td>
+                            <td>World Partition (Open World template)</td>
+                            <td>Performance&#183; the grid loads only nearby cells, automatically</td>
                         </tr>
                         <tr>
-                            <td>Separate distinct areas (menu, levels)</td>
+                            <td>Distinct, separate spaces (menu, discrete levels)</td>
                             <td>Multiple persistent levels</td>
-                            <td>Organization—completely different spaces that don't need to coexist</td>
+                            <td>Organization&#183; wholly different spaces that never need to coexist</td>
                         </tr>
                         <tr>
-                            <td>Team collaboration</td>
-                            <td>Streaming levels for each zone</td>
-                            <td>Workflow—team members can work on different levels simultaneously</td>
+                            <td>Manually triggered sub-area (a specific interior)</td>
+                            <td>Level Streaming via the Levels panel</td>
+                            <td>Control&#183; you decide exactly when a discrete sublevel loads</td>
                         </tr>
                     </tbody>
                 </table>
-                
+
+                <p>The mermaid diagram below shows the streaming idea in the abstract: a persistent level stays put while nearby areas load and far ones unload. With World Partition this happens automatically per grid cell&#183; with manual Level Streaming you wire it up yourself.</p>
+
+                <div class="mermaid">
+                    graph TD
+                        A[Persistent Level<br/>Sky, Sun, Global Logic] --> B[Player in City]
+                        A --> C[Player in Forest]
+                        A --> D[Player in Mountains]
+                        A --> E[Player in Dungeon]
+                        B --> F[City Cells<br/>Loaded]
+                        B --> G[Forest Cells<br/>Unloaded]
+                        C --> H[Forest Cells<br/>Loaded]
+                        C --> I[City Cells<br/>Unloading]
+                        style A fill:#667eea,color:#fff
+                        style F fill:#4CAF50,color:#fff
+                        style G fill:#999,color:#fff
+                        style H fill:#4CAF50,color:#fff
+                        style I fill:#999,color:#fff
+                </div>
+                <p class="caption"><em>Figure: Content near the player loads while distant content unloads, all around a constant persistent level</em></p>
+
                 <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
                     <h4>⚠️ Watch Out</h4>
-                    <p>Don't confuse level streaming with scene transitions. Level streaming happens <em>seamlessly</em> in the background while the player moves around—there are no loading screens or pauses. Traditional level transitions (loading a completely different persistent level) typically show a loading screen. Modern games often use streaming to create the illusion of one continuous world.</p>
+                    <p>Don't confuse streaming with scene transitions. Streaming happens <em>seamlessly</em> in the background as the player moves&#183; there are no loading screens or pauses. Traditional level transitions (loading a completely different persistent level) typically show a loading screen. Modern open worlds use streaming to create the illusion of one continuous world.</p>
                 </div>
-                
-                <h3>How Streaming Levels Work</h3>
-                
-                <p>When you set up streaming levels, you can control when they load based on several factors:</p>
-                
-                <ul>
-                    <li><strong>Distance-based:</strong> Levels load when the player gets within a certain radius and unload when they move away</li>
-                    <li><strong>Blueprint-triggered:</strong> Your game logic explicitly loads or unloads levels in response to events (opening a door, completing a quest, etc.)</li>
-                    <li><strong>Always loaded:</strong> Some streaming levels can be set to load immediately with the persistent level and stay loaded—useful for shared geometry or lighting</li>
-                </ul>
-                
-                <p>Unreal handles the technical complexity of seamlessly blending actors from multiple levels into a single cohesive world. From the player's perspective, it all looks like one continuous environment.</p>
             </section>
 
             <!-- Section 3: Level Organization Strategies -->
             <section id="level-organization" class="lesson-section">
                 <h2>Level Organization Strategies</h2>
-                
-                <p>As your projects grow in complexity, having a clear organizational strategy for your levels becomes essential. Let's explore common patterns used in professional game development.</p>
-                
+
+                <p>As your projects grow in complexity, having a clear organizational strategy becomes essential. Some of these patterns are about the <em>flow</em> between distinct levels; others are about how you structure a <em>single</em> World Partition world. Let's look at the common ones.</p>
+
                 <h3>Strategy 1: Linear Level Progression</h3>
-                
-                <p>This is the simplest approach and works well for games with distinct, sequential stages—think of classic platformers or action games where you progress from Level 1 to Level 2 to Level 3.</p>
-                
+
+                <p>This is the simplest approach and works well for games with distinct, sequential stages&#183; think of classic platformers or action games where you progress from Level 1 to Level 2 to Level 3.</p>
+
                 <p><strong>Structure:</strong></p>
                 <ul>
                     <li><code>MainMenu.umap</code> - The starting point</li>
@@ -290,10 +283,10 @@
                     <li><code>Level_03_Cave.umap</code> - Third level</li>
                     <li><code>Level_04_Boss.umap</code> - Climactic encounter</li>
                 </ul>
-                
+
                 <p><strong>Pros:</strong> Simple to manage, easy to test individual levels, clear progression flow</p>
                 <p><strong>Cons:</strong> Each transition requires loading a new level, less suitable for open-world designs</p>
-                
+
                 <div class="mermaid">
                     graph LR
                         A[Main Menu] --> B[Level 1<br/>Tutorial]
@@ -307,23 +300,23 @@
                         style E fill:#4CAF50,color:#fff
                 </div>
                 <p class="caption"><em>Figure: Linear level progression with distinct stages</em></p>
-                
+
                 <h3>Strategy 2: Hub-and-Spoke</h3>
-                
+
                 <p>This pattern uses a central "hub" area that connects to multiple separate zones. Think of games like <em>Dark Souls</em> (Firelink Shrine) or <em>Splatoon</em> (Inkopolis Square), where you return to a central location between missions or areas.</p>
-                
+
                 <p><strong>Structure:</strong></p>
                 <ul>
-                    <li><code>Hub_CentralTown.umap</code> - The main persistent level</li>
+                    <li><code>Hub_CentralTown.umap</code> - The main hub level</li>
                     <li><code>Mission_Forest.umap</code> - Accessed from the hub</li>
                     <li><code>Mission_Desert.umap</code> - Accessed from the hub</li>
                     <li><code>Mission_Ruins.umap</code> - Accessed from the hub</li>
                     <li><code>Mission_FinalBoss.umap</code> - Unlocked after completing other missions</li>
                 </ul>
-                
+
                 <p><strong>Pros:</strong> Provides a sense of centralization, easy to add new content, players have a "home base"</p>
                 <p><strong>Cons:</strong> Requires transitions between hub and missions, can feel repetitive if overused</p>
-                
+
                 <div class="mermaid">
                     graph TD
                         A[Central Hub] --> B[Forest Mission]
@@ -340,240 +333,268 @@
                         style E fill:#f0f0f0,color:#333
                 </div>
                 <p class="caption"><em>Figure: Hub-and-spoke pattern with a central location connecting to multiple zones</em></p>
-                
-                <h3>Strategy 3: Open World with Streaming</h3>
-                
-                <p>Modern open-world games use this approach to create vast, seamless environments. A single persistent level contains the overall world settings, and numerous streaming levels represent different regions that load based on player proximity.</p>
-                
-                <p><strong>Structure:</strong></p>
+
+                <h3>Strategy 3: Open World with World Partition</h3>
+
+                <p>Modern open-world games use this approach to create vast, seamless environments. In older Unreal versions you hand-authored a region sublevel for every zone (<code>Region_City_North.umap</code>, <code>Region_Forest_East.umap</code>, and so on) and wired up their streaming yourself. In UE 5.8 you don't do that anymore: you build the whole world in <strong>one</strong> World Partition level, and the streaming grid loads regions automatically based on player proximity.</p>
+
+                <p><strong>Structure (a single level):</strong></p>
                 <ul>
-                    <li><code>World_Persistent.umap</code> - Sky, lighting, global systems</li>
-                    <li><code>Region_City_North.umap</code> - Streaming level</li>
-                    <li><code>Region_City_South.umap</code> - Streaming level</li>
-                    <li><code>Region_Forest_East.umap</code> - Streaming level</li>
-                    <li><code>Region_Mountains_West.umap</code> - Streaming level</li>
-                    <li><code>Region_Ocean.umap</code> - Streaming level</li>
+                    <li><code>World_Open.umap</code> - One persistent World Partition level containing the entire landscape</li>
+                    <li>Sky, lighting, and global systems live directly in that level</li>
+                    <li>Cities, forests, and mountains are just regions of the same map, streamed by the grid</li>
+                    <li>Each actor is its own file (One File Per Actor), so a whole team can build the world in parallel</li>
                 </ul>
-                
-                <p><strong>Pros:</strong> Seamless exploration, no loading screens, feels like one continuous world</p>
-                <p><strong>Cons:</strong> More complex to set up, requires careful optimization, harder to test individual areas</p>
-                
-                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
-                    <h4>✅ Pro Tip</h4>
-                    <p>For open-world projects, consider using a grid-based naming system for streaming levels: <code>World_X0_Y0.umap</code>, <code>World_X1_Y0.umap</code>, <code>World_X0_Y1.umap</code>, etc. This makes it immediately obvious how levels connect spatially and helps when managing dozens or hundreds of streaming level tiles.</p>
+
+                <p><strong>Pros:</strong> Seamless exploration, no loading screens, feels like one continuous world, no manual streaming setup</p>
+                <p><strong>Cons:</strong> Requires thoughtful optimization (HLOD, cell sizes), and testing a specific spot means loading that region</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Under the hood</h4>
+                    <p>World Partition still expresses your world as a grid of cells with coordinates, so the old grid-naming intuition (<code>X0_Y0</code>, <code>X1_Y0</code>&#8230;) is baked right in&#183; you just don't create those tiles by hand anymore. The World Partition editor's minimap shows the grid and lets you load only the cells you're working on.</p>
                 </div>
-                
-                <h3>Strategy 4: Layered Levels</h3>
-                
-                <p>This advanced technique uses streaming levels not for different <em>locations</em>, but for different <em>layers</em> of the same space. For example:</p>
-                
+
+                <h3>Strategy 4: Data Layers (Layered Content)</h3>
+
+                <p>Sometimes you want to organize content not by <em>location</em> but by <em>purpose</em>: all the lighting together, all the gameplay actors together, a separate day and night dressing of the same space. In UE 5.8 the modern tool for this is <strong>Data Layers</strong>, a World Partition feature that tags actors into layers you can show, hide, or swap&#183; both in the editor and at runtime&#183; all within a single level.</p>
+
                 <ul>
-                    <li><code>Main_Persistent.umap</code> - Base level</li>
-                    <li><code>Layer_Geometry.umap</code> - Buildings and landscape (always loaded)</li>
-                    <li><code>Layer_Lighting.umap</code> - All light actors (can be swapped for day/night)</li>
-                    <li><code>Layer_Props.umap</code> - Decorative objects and details</li>
-                    <li><code>Layer_Audio.umap</code> - Ambient sound sources</li>
-                    <li><code>Layer_Gameplay.umap</code> - Enemies, pickups, triggers</li>
+                    <li><strong>Editor Data Layers:</strong> Toggle sets of actors on and off while you work (for example, hide all foliage to edit the terrain underneath)</li>
+                    <li><strong>Runtime Data Layers:</strong> Switch content in and out during gameplay (a "day" dressing vs. a "night" dressing, or a quest state that adds rubble to a town)</li>
                 </ul>
-                
-                <p><strong>Pros:</strong> Excellent for team collaboration (artists work on geometry, designers on gameplay), easy to swap variations (day/night lighting)</p>
-                <p><strong>Cons:</strong> Requires discipline to maintain separation, can be confusing for beginners</p>
-                
+
+                <p><strong>Pros:</strong> Excellent for team collaboration and variations, no separate sublevel files to juggle, integrates with World Partition streaming</p>
+                <p><strong>Cons:</strong> Requires discipline to assign actors to the right layers, and is a World Partition concept (so it lives inside a partitioned world)</p>
+
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h4>💡 Real-World Example</h4>
-                    <p>Large studios often use layered levels for cinematics. The base level contains the environment geometry, a lighting level provides the dramatic lighting setup, and a sequence level contains the animated characters and cameras. This allows the cinematics team to work independently from the environment artists without conflicts.</p>
+                    <p>Studios use Data Layers for cinematics and variations: a base layer holds the environment, a lighting layer provides a dramatic setup, and a "story beat" layer adds the actors and props for a particular moment. Because these are layers of one World Partition world rather than separate streaming sublevels, the environment and cinematics teams can work independently without file conflicts.</p>
                 </div>
-                
+
                 <h3>Choosing Your Approach</h3>
-                
+
                 <p>Which strategy should you use? Consider these factors:</p>
-                
+
                 <ul>
-                    <li><strong>Project scope:</strong> Small games can get away with simple linear progressions; large games need streaming</li>
-                    <li><strong>Team size:</strong> Solo developers might prefer simplicity; teams benefit from layered approaches</li>
-                    <li><strong>Performance targets:</strong> Mobile or VR projects need aggressive streaming to maintain frame rates</li>
-                    <li><strong>Genre conventions:</strong> Platformers often use linear levels; RPGs frequently use hub-and-spoke</li>
+                    <li><strong>Project scope:</strong> Small games can use a single level with linear or hub flow; large games use one World Partition world</li>
+                    <li><strong>Team size:</strong> Solo developers might prefer simplicity; teams benefit from World Partition's One File Per Actor and Data Layers</li>
+                    <li><strong>Performance targets:</strong> Mobile or VR projects need careful streaming and HLOD tuning to hold frame rate</li>
+                    <li><strong>Genre conventions:</strong> Platformers often use discrete linear levels; open-world RPGs use World Partition</li>
                 </ul>
-                
-                <p>Don't be afraid to start simple and evolve your structure as needed. Many projects begin with a single level and add streaming or multiple levels only when performance or organization demands it.</p>
+
+                <p>Don't be afraid to start simple and evolve your structure as needed. Many projects begin with a single Basic level and adopt World Partition or multiple levels only when performance or scope demands it.</p>
             </section>
 
             <!-- Section 4: World Settings Panel -->
             <section id="world-settings" class="lesson-section">
                 <h2>The World Settings Panel</h2>
-                
-                <p>Every level in Unreal Engine has a <strong>World Settings</strong> panel that controls level-specific configuration. Think of it as the "properties" for the entire level—settings that affect everything within that particular world.</p>
-                
+
+                <p>Every level in Unreal Engine has a <strong>World Settings</strong> panel that controls level-specific configuration. Think of it as the "properties" for the entire level&#183; settings that affect everything within that particular world.</p>
+
                 <h3>Accessing World Settings</h3>
-                
-                <p>To open the World Settings panel:</p>
-                
+
+                <p>To open the World Settings panel, use either route:</p>
+
                 <ol>
-                    <li>Open any level in the Unreal Editor</li>
-                    <li>In the main toolbar, click <strong>Settings</strong> (gear icon)</li>
-                    <li>Select <strong>World Settings</strong> from the dropdown</li>
+                    <li>From the menu bar, choose <strong>Window &#8594; World Settings</strong>, or</li>
+                    <li>From the main toolbar, click the <strong>Settings</strong> (gear) dropdown and select <strong>World Settings</strong></li>
                 </ol>
-                
-                <p>Alternatively, you can access it from the menu bar: <strong>Window → World Settings</strong></p>
-                
-                <p>The World Settings panel typically docks on the right side of the editor, where the Details panel usually appears. You'll see it has multiple collapsible categories with numerous options.</p>
-                
+
+                <p>The panel opens as a tab on the right side of the editor, alongside (or where) the Details panel appears. You'll see it has multiple collapsible categories with numerous options.</p>
+
+                <img src="images/m02_l01/m02_l01_fig01_world_settings.png" alt="The World Settings panel in Unreal Engine 5.8, showing categories from top to bottom: World Partition Setup with an Enable Streaming checkbox ticked and a Runtime Hash Class of WorldPartitionRuntimeHashSet; Runtime Settings with Runtime Partitions and a Default HLOD Layer; Game Mode with GameMode Override set to None; Physics with Override World Gravity and Global Gravity Z; Lightmass; World with a Kill Z value of -1048575; VR with World to Meters at 100; and Lightmass Volume Lighting." loading="lazy" style="display:block; margin:1.5rem auto; max-width:min(100%, 360px); border:1px solid var(--border-color,#ccc); border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                <p class="caption"><em>Figure: The World Settings panel in UE 5.8 &#183; note the <strong>World Partition Setup</strong> category right at the top, with <strong>Enable Streaming</strong> ticked, followed by Game Mode, Physics, World (Kill Z), and VR settings.</em></p>
+
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h4>💡 Don't Confuse Them</h4>
                     <p>The <strong>Project Settings</strong> affect your entire project across all levels. The <strong>World Settings</strong> only affect the currently open level. For example, you'd set your game's overall rendering quality in Project Settings, but you'd set this level's gravity or game mode in World Settings.</p>
                 </div>
-                
+
                 <h3>Important World Settings</h3>
-                
-                <p>Let's explore the most commonly used settings you'll encounter:</p>
-                
+
+                <p>Let's explore the most commonly used settings you'll encounter, working roughly top to bottom through the panel above:</p>
+
+                <h4>World Partition Setup</h4>
+
+                <p>At the very top of World Settings sits the <strong>World Partition Setup</strong> category&#183; this is where UE 5.8 exposes the automatic streaming system we covered earlier.</p>
+
+                <ul>
+                    <li><strong>Enable Streaming:</strong> Turns the World Partition grid on or off for this level. When it's on, the world streams cell by cell as the player moves.</li>
+                    <li><strong>Runtime Hash Class:</strong> Defines how the world is partitioned into a runtime grid (the default hash set works for most worlds).</li>
+                    <li><strong>Default HLOD Layer:</strong> Sets which Hierarchical LOD layer generates the proxy meshes shown for distant, unloaded cells.</li>
+                </ul>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ You won't find World Composition here</h4>
+                    <p>Older tutorials point to a "World Composition" checkbox in World Settings. In UE 5.8 that legacy system has been superseded by World Partition Setup shown above. If you ever need it for an old project, it's tucked away as a legacy option, but new work should stay with World Partition.</p>
+                </div>
+
                 <h4>Game Mode</h4>
-                
-                <p>The <strong>GameMode Override</strong> setting determines which set of rules and logic applies to this level. Different levels can use different game modes—for example, your main menu might use one game mode, while gameplay levels use another.</p>
-                
+
+                <p>The <strong>GameMode Override</strong> setting determines which set of rules and logic applies to this level. Different levels can use different game modes&#183; for example, your main menu might use one game mode, while gameplay levels use another.</p>
+
                 <ul>
                     <li><strong>What it does:</strong> Defines player classes, HUD, victory conditions, and gameplay rules</li>
                     <li><strong>Common use:</strong> Setting a custom game mode for this specific level</li>
                     <li><strong>Example:</strong> Using a "MainMenuGameMode" for your start screen, then a "FPSGameMode" for shooting levels</li>
                 </ul>
 
-                
-                <h4>World Composition</h4>
-                
-                <p>For large open-world projects, the <strong>World Composition</strong> settings help manage streaming levels and world origin rebasing (a technique to prevent floating-point precision errors in massive worlds).</p>
-                
-                <ul>
-                    <li><strong>What it does:</strong> Automatically manages level streaming based on distance and handles coordinate system adjustments</li>
-                    <li><strong>Common use:</strong> Large-scale open worlds that exceed several kilometers</li>
-                    <li><strong>Example:</strong> An MMO-sized world where players can travel vast distances</li>
-                </ul>
-                
                 <h4>Physics Settings</h4>
-                
+
                 <p>You can override global physics settings for this specific level:</p>
-                
+
                 <ul>
-                    <li><strong>Default Gravity Z:</strong> Controls how strong gravity is (default: -980 cm/s², which matches Earth's gravity)</li>
-                    <li><strong>Global Gravity Z:</strong> Applies gravity uniformly across the entire level</li>
-                    <li><strong>Example use:</strong> Creating a moon level with lower gravity (-162 cm/s²) or a zero-gravity space station</li>
+                    <li><strong>Override World Gravity:</strong> Enables a per-level gravity value instead of the project default</li>
+                    <li><strong>Global Gravity Z:</strong> The gravity strength for the level (the project default is -980 cm/s&#178;, which matches Earth's gravity)</li>
+                    <li><strong>Example use:</strong> Creating a moon level with lower gravity (-162 cm/s&#178;) or a zero-gravity space station</li>
                 </ul>
-                
+
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Pro Tip</h4>
-                    <p>Unreal uses centimeters as its base unit, so gravity is measured in cm/s². Earth's gravity (-980 cm/s²) is roughly equivalent to 9.8 m/s² or 32 ft/s² in real-world units. If you want your characters to feel heavier or lighter, adjusting gravity is often more effective than changing character movement settings.</p>
+                    <p>Unreal uses centimeters as its base unit, so gravity is measured in cm/s&#178;. Earth's gravity (-980 cm/s&#178;) is roughly equivalent to 9.8 m/s&#178; or 32 ft/s&#178; in real-world units. If you want your characters to feel heavier or lighter, adjusting gravity is often more effective than changing character movement settings.</p>
                 </div>
-                
+
                 <h4>Kill Z (Death Plane)</h4>
-                
-                <p>The <strong>Kill Z</strong> setting defines a height below which actors are automatically destroyed. This prevents players who fall off the world from falling forever.</p>
-                
+
+                <p>Under the <strong>World</strong> category, the <strong>Kill Z</strong> setting defines a height below which actors are automatically destroyed. This prevents players who fall off the world from falling forever.</p>
+
                 <ul>
                     <li><strong>What it does:</strong> Any actor that falls below this Z-coordinate is destroyed</li>
-                    <li><strong>Default value:</strong> Usually set very low (like -10,000 cm below the world)</li>
+                    <li><strong>Default value:</strong> Set very low (the level captured above reads -1048575, far below the playable space)</li>
                     <li><strong>Example use:</strong> In a platformer, ensuring players respawn after falling into a pit</li>
                 </ul>
-                
-                <h4>Default Reverberation Send</h4>
-                
-                <p>Audio settings that define how sound echoes in this particular level:</p>
-                
-                <ul>
-                    <li><strong>What it does:</strong> Controls the acoustic properties of the space (is it echoey like a cathedral, or dampened like a carpeted room?)</li>
-                    <li><strong>Common use:</strong> Different levels have different acoustic characteristics</li>
-                    <li><strong>Example:</strong> A cave level might have high reverb, while an outdoor forest has minimal reverb</li>
-                </ul>
-                
-                <h3>Why World Settings Matter</h3>
-                
-                <p>World Settings allow each level to have its own "personality" and behavior. Your tutorial level might have lower gravity to help players learn jumping mechanics. Your boss arena might use a specific game mode with unique rules. Your underwater level might have different physics altogether.</p>
-                
-                <p>As a beginner, you won't need to adjust most of these settings right away—the defaults work well for typical projects. But knowing they exist helps you understand how Unreal gives you fine-grained control over every aspect of your levels.</p>
+
+                <h4>World to Meters &amp; Other Categories</h4>
+
+                <p>Further down you'll find categories like <strong>VR</strong> (whose <strong>World to Meters</strong> value maps Unreal units to real-world scale for XR), <strong>Lightmass</strong> (baked-lighting quality), and audio-related settings that define how sound behaves in the level. As a beginner you won't need to touch most of these&#183; the defaults work well for typical projects&#183; but knowing they exist helps you understand how Unreal gives you fine-grained control over every level.</p>
             </section>
 
             <!-- Section 5: Creating and Saving New Levels -->
             <section id="creating-levels" class="lesson-section">
                 <h2>Creating and Saving New Levels</h2>
-                
-                <p>Now that you understand what levels are and how they're organized, let's walk through the practical steps of creating and managing levels in Unreal Engine.</p>
-                
+
+                <p>Now that you understand what levels are and how they're organized, let's walk through the practical steps of creating and managing levels in Unreal Engine 5.8.</p>
+
                 <h3>Creating a New Level</h3>
-                
-                <p>Unreal Engine provides several ways to create a new level. Here are the most common methods:</p>
-                
-                <h4>Method 1: File Menu (Most Common)</h4>
-                
-                <ol>
-                    <li>In the Unreal Editor, go to <strong>File → New Level</strong> in the menu bar</li>
-                    <li>A dialog box appears with template options:
-                        <ul>
-                            <li><strong>Default:</strong> Empty level with basic lighting (directional light, sky atmosphere, fog)</li>
-                            <li><strong>Empty Level:</strong> Completely blank—no lighting, no sky, nothing</li>
-                            <li><strong>VR-Basic:</strong> Optimized starting point for VR projects</li>
-                        </ul>
-                    </li>
-                    <li>Choose a template and click <strong>Create</strong></li>
-                </ol>
-                
+
+                <p>Go to <strong>File &#8594; New Level</strong> in the menu bar. The <strong>New Level</strong> dialog opens with the UE 5.8 template choices:</p>
+
+                <ul>
+                    <li><strong>Open World:</strong> A large, streamable world with sample content and <strong>World Partition already enabled</strong>&#183; the starting point for open-world projects</li>
+                    <li><strong>Empty Open World:</strong> A World Partition world with no content, ready for you to build a large map from scratch</li>
+                    <li><strong>Basic:</strong> A simple level with a floor plane, lighting, sky atmosphere, and exponential height fog&#183; ideal for smaller scenes and for learning</li>
+                    <li><strong>Empty Level:</strong> A completely blank level with no actors at all</li>
+                </ul>
+
+                <p>Pick a template and click <strong>Create</strong>.</p>
+
+                <figure style="margin:1.5rem 0;">
+                    <svg viewBox="0 0 720 430" role="img" aria-label="Mockup of the Unreal Engine 5.8 New Level dialog. A dark window titled New Level shows four template tiles: Open World (selected, highlighted), Empty Open World, Basic, and Empty Level. Each tile has a thumbnail preview and a caption. A Create button and a Cancel button sit at the bottom right." xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto; display:block; margin:0 auto; border-radius:6px;">
+                        <title>Unreal Engine 5.8 New Level dialog</title>
+                        <desc>A dark dialog titled "New Level" with four selectable template tiles: Open World (selected), Empty Open World, Basic, and Empty Level, plus Create and Cancel buttons.</desc>
+                        <!-- Window -->
+                        <rect x="0" y="0" width="720" height="430" rx="8" fill="#1e1e22"/>
+                        <rect x="0" y="0" width="720" height="42" rx="8" fill="#2a2a30"/>
+                        <rect x="0" y="30" width="720" height="12" fill="#2a2a30"/>
+                        <text x="20" y="27" fill="#e8e8ea" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="bold">New Level</text>
+                        <text x="694" y="27" fill="#9aa0a6" font-family="Segoe UI, Arial, sans-serif" font-size="16" text-anchor="middle">&#215;</text>
+                        <!-- Tile 1: Open World (selected) -->
+                        <rect x="24" y="66" width="150" height="150" rx="6" fill="#26313a" stroke="#26c6da" stroke-width="3"/>
+                        <rect x="36" y="78" width="126" height="96" rx="3" fill="#3a5a3f"/>
+                        <rect x="36" y="78" width="126" height="40" rx="3" fill="#4b7cc4"/>
+                        <circle cx="132" cy="98" r="10" fill="#ffe082"/>
+                        <polygon points="36,150 78,120 108,140 162,104 162,174 36,174" fill="#2f4a34"/>
+                        <text x="99" y="196" fill="#eaeaea" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Open World</text>
+                        <!-- Tile 2: Empty Open World -->
+                        <rect x="196" y="66" width="150" height="150" rx="6" fill="#26262c" stroke="#3a3a42" stroke-width="1.5"/>
+                        <rect x="208" y="78" width="126" height="96" rx="3" fill="#1c1c22"/>
+                        <line x1="208" y1="126" x2="334" y2="126" stroke="#3a3a42" stroke-width="1"/>
+                        <line x1="271" y1="78" x2="271" y2="174" stroke="#3a3a42" stroke-width="1"/>
+                        <text x="271" y="196" fill="#d0d0d3" font-family="Segoe UI, Arial, sans-serif" font-size="13" text-anchor="middle">Empty Open World</text>
+                        <!-- Tile 3: Basic -->
+                        <rect x="368" y="66" width="150" height="150" rx="6" fill="#26262c" stroke="#3a3a42" stroke-width="1.5"/>
+                        <rect x="380" y="78" width="126" height="96" rx="3" fill="#4b7cc4"/>
+                        <rect x="380" y="140" width="126" height="34" rx="3" fill="#8a8f96"/>
+                        <circle cx="476" cy="98" r="9" fill="#ffe082"/>
+                        <text x="443" y="196" fill="#d0d0d3" font-family="Segoe UI, Arial, sans-serif" font-size="13" text-anchor="middle">Basic</text>
+                        <!-- Tile 4: Empty Level -->
+                        <rect x="540" y="66" width="150" height="150" rx="6" fill="#26262c" stroke="#3a3a42" stroke-width="1.5"/>
+                        <rect x="552" y="78" width="126" height="96" rx="3" fill="#141418"/>
+                        <text x="615" y="196" fill="#d0d0d3" font-family="Segoe UI, Arial, sans-serif" font-size="13" text-anchor="middle">Empty Level</text>
+                        <!-- Selected caption -->
+                        <text x="24" y="258" fill="#9aa0a6" font-family="Segoe UI, Arial, sans-serif" font-size="13">Selected:</text>
+                        <text x="92" y="258" fill="#eaeaea" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold">Open World</text>
+                        <text x="24" y="282" fill="#8a8f96" font-family="Segoe UI, Arial, sans-serif" font-size="12">A large, streamable world with World Partition enabled.</text>
+                        <!-- Divider -->
+                        <line x1="0" y1="372" x2="720" y2="372" stroke="#3a3a42" stroke-width="1"/>
+                        <!-- Buttons -->
+                        <rect x="486" y="386" width="98" height="30" rx="5" fill="#33333b"/>
+                        <text x="535" y="406" fill="#d0d0d3" font-family="Segoe UI, Arial, sans-serif" font-size="13" text-anchor="middle">Cancel</text>
+                        <rect x="596" y="386" width="98" height="30" rx="5" fill="#26c6da"/>
+                        <text x="645" y="406" fill="#0c1416" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Create</text>
+                    </svg>
+                    <figcaption class="caption"><em>Figure: The UE 5.8 New Level dialog. Open World and Empty Open World create World Partition levels; Basic and Empty Level create simple single levels.</em></figcaption>
+                </figure>
+
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h4>💡 Which Template Should You Choose?</h4>
-                    <p><strong>Default</strong> is usually the best choice for beginners. It provides a basic outdoor lighting setup so you can immediately see what you're building. <strong>Empty Level</strong> is literally pitch black until you add lights, which can be confusing when you're just starting out. Save "Empty Level" for advanced scenarios where you want complete control from scratch.</p>
+                    <p><strong>Basic</strong> is usually the best choice while you're learning. It gives you a floor and a simple outdoor lighting setup so you can immediately see what you're building. Choose <strong>Open World</strong> when you're starting a large, streaming environment and want World Partition ready to go. <strong>Empty Level</strong> is literally pitch black until you add lights, so save it for advanced scenarios where you want complete control from scratch.</p>
                 </div>
-                
-                <h4>Method 2: Content Browser</h4>
-                
+
+                <h4>Creating a Level from the Content Browser</h4>
+
                 <ol>
                     <li>Open the <strong>Content Browser</strong></li>
-                    <li>Navigate to the folder where you want to create the level (typically <code>Content/Maps/</code>)</li>
-                    <li>Right-click in an empty space</li>
-                    <li>Select <strong>Level → Empty Level</strong> or <strong>Level → Default</strong></li>
-                    <li>The new level file appears—give it a meaningful name</li>
+                    <li>Navigate to the folder where you want the level (typically <code>Content/Maps/</code>)</li>
+                    <li>Click <strong>+ Add</strong> (or right-click in an empty space) and choose <strong>Level</strong></li>
+                    <li>The new level file appears&#183; give it a meaningful name</li>
                 </ol>
-                
-                <p>This method is useful because it creates the level file directly in your chosen folder, keeping your project organized from the start.</p>
-                
+
+                <p>This keeps the level file directly in your chosen folder, keeping your project organized from the start.</p>
+
                 <h3>Saving Your Level</h3>
-                
+
                 <p>After creating or modifying a level, you need to save it. Unreal uses two types of saves:</p>
-                
+
                 <h4>Save Current Level</h4>
-                
+
                 <ul>
                     <li><strong>Shortcut:</strong> <kbd>Ctrl + S</kbd></li>
-                    <li><strong>Menu:</strong> <strong>File → Save Current Level</strong></li>
+                    <li><strong>Menu:</strong> <strong>File &#8594; Save Current Level</strong></li>
                     <li><strong>What it does:</strong> Saves only the currently open level</li>
                 </ul>
-                
+
                 <p>If this is the first time saving a new level, a dialog appears asking where to save it and what to name it. Choose a descriptive name like <code>Tutorial_Level</code> or <code>Forest_Area_01</code>.</p>
-                
-                <h4>Save All Levels</h4>
-                
+
+                <h4>Save All</h4>
+
                 <ul>
                     <li><strong>Shortcut:</strong> <kbd>Ctrl + Shift + S</kbd></li>
-                    <li><strong>Menu:</strong> <strong>File → Save All Levels</strong></li>
-                    <li><strong>What it does:</strong> Saves all levels currently loaded (useful when working with streaming levels)</li>
+                    <li><strong>Menu:</strong> <strong>File &#8594; Save All</strong></li>
+                    <li><strong>What it does:</strong> Saves every modified level and asset currently loaded (useful with streaming levels or World Partition, where many actor files may be dirty)</li>
                 </ul>
-                
+
                 <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
                     <h4>⚠️ Save Early, Save Often</h4>
-                    <p>Game engines are complex software and crashes can happen. Get in the habit of pressing <kbd>Ctrl + S</kbd> frequently—especially after making significant changes. Unreal also has an auto-save feature (enabled by default every 10 minutes), but manual saves give you control over when snapshots are created.</p>
+                    <p>Game engines are complex software and crashes can happen. Get in the habit of pressing <kbd>Ctrl + S</kbd> frequently, especially after making significant changes. Unreal also has an auto-save feature (enabled by default), but manual saves give you control over when snapshots are created.</p>
                 </div>
-                
+
                 <h3>Opening Existing Levels</h3>
-                
+
                 <p>To open a level you've previously created or one that came with your project:</p>
-                
+
                 <ol>
-                    <li><strong>Method 1 (File Menu):</strong> Go to <strong>File → Open Level</strong>, then browse to the .umap file</li>
+                    <li><strong>Method 1 (File Menu):</strong> Go to <strong>File &#8594; Open Level</strong>, then browse to the .umap file</li>
                     <li><strong>Method 2 (Content Browser):</strong> Navigate to your Maps folder, double-click the level's thumbnail</li>
-                    <li><strong>Method 3 (Recent Levels):</strong> Go to <strong>File → Recent Levels</strong> to see a list of recently opened levels</li>
+                    <li><strong>Method 3 (Recent Levels):</strong> Go to <strong>File &#8594; Open Recent</strong> to see a list of recently opened levels</li>
                 </ol>
-                
-                <p>When you open a different level, Unreal closes the current one (unless you're working with streaming levels). Any unsaved changes prompt a save dialog.</p>
-                
+
+                <p>When you open a different level, Unreal closes the current one. Any unsaved changes prompt a save dialog first.</p>
+
                 <h3>Level Naming Best Practices</h3>
-                
+
                 <p>Professional projects use consistent naming conventions. Here are some common patterns:</p>
-                
+
                 <table>
                     <thead>
                         <tr>
@@ -601,11 +622,11 @@
                         <tr>
                             <td>Grid coordinates</td>
                             <td><code>World_X0_Y5</code></td>
-                            <td>Open-world streaming tiles</td>
+                            <td>Region references within a large world</td>
                         </tr>
                     </tbody>
                 </table>
-                
+
                 <p>Avoid generic names like <code>Level1</code>, <code>NewMap</code>, or <code>Untitled</code>. Future-you (and your teammates) will thank you for using clear, descriptive names.</p>
             </section>
 
@@ -613,64 +634,63 @@
             <section id="hands-on" class="lesson-section">
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h2>🏋️ Hands-On Exercise: Create Your First Custom Level</h2>
-                    
+
                     <p>Time to put your knowledge into practice! In this exercise, you'll create a new level from scratch, configure its settings, and save it properly.</p>
-                    
-                    <h3>Part 1: Create a New Empty Level</h3>
-                    
+
+                    <h3>Part 1: Create a New Basic Level</h3>
+
                     <ol>
                         <li>Open your Unreal project (the one you created in Lesson 1.3)</li>
-                        <li>Go to <strong>File → New Level</strong></li>
-                        <li>Select the <strong>Default</strong> template</li>
+                        <li>Go to <strong>File &#8594; New Level</strong></li>
+                        <li>In the New Level dialog, select the <strong>Basic</strong> template</li>
                         <li>Click <strong>Create</strong></li>
                     </ol>
-                    
-                    <p>You should now see a new level with a basic sky, sun (directional light), and fog. The viewport shows a simple blue gradient sky.</p>
-                    
+
+                    <p>You should now see a new level with a floor plane, a sky, a sun (directional light), and fog. The viewport shows a simple gradient sky over a flat ground plane.</p>
+
                     <details>
                         <summary>💡 <strong>Hint:</strong> Can't see anything in your viewport?</summary>
-                        <p>If your viewport is black or shows nothing, you might have accidentally chosen "Empty Level" instead of "Default." Press <kbd>Alt + P</kbd> to play in editor—if it's completely dark, that confirms it. Exit play mode and try creating a new Default level.</p>
+                        <p>If your viewport is black or shows nothing, you might have accidentally chosen "Empty Level" instead of "Basic." An Empty Level has no lighting at all. Exit and try creating a new Basic level.</p>
                     </details>
-                    
-                    <h3>Part 2: Explore the Default Level Contents</h3>
-                    
+
+                    <h3>Part 2: Explore the Basic Level Contents</h3>
+
                     <ol>
                         <li>Look at the <strong>Outliner</strong> panel (usually on the right side)</li>
                         <li>You should see several actors already placed:
                             <ul>
-                                <li><strong>Light Source (Directional Light):</strong> Represents the sun</li>
+                                <li><strong>Floor:</strong> A static mesh plane to stand on</li>
+                                <li><strong>Directional Light:</strong> Represents the sun</li>
                                 <li><strong>Sky Atmosphere:</strong> Creates the blue sky gradient</li>
-                                <li><strong>Volumetric Cloud:</strong> Adds realistic clouds</li>
                                 <li><strong>Sky Light:</strong> Provides ambient lighting from the sky</li>
                                 <li><strong>Exponential Height Fog:</strong> Atmospheric fog for depth</li>
-                                <li><strong>Post Process Volume:</strong> Color grading and effects</li>
+                                <li><strong>Player Start:</strong> Where the player spawns when you press Play</li>
                             </ul>
                         </li>
                         <li>Click on each actor in the Outliner to see its properties in the <strong>Details</strong> panel</li>
                     </ol>
-                    
-                    <p>These are the building blocks of a basic outdoor environment. You don't need to understand them all yet—we'll cover lighting in Module 4.</p>
-                    
+
+                    <p>These are the building blocks of a basic environment. You don't need to understand them all yet&#183; we'll cover lighting in Module 4.</p>
+
                     <details>
                         <summary>🤔 <strong>Question:</strong> What happens if I delete the Directional Light?</summary>
-                        <p>Try it! Select "Light Source" in the Outliner and press <kbd>Delete</kbd>. The scene becomes much darker because you've removed the sun. Press <kbd>Ctrl + Z</kbd> to undo and bring it back. This demonstrates how levels are composed of individual actors working together.</p>
+                        <p>Try it! Select the Directional Light in the Outliner and press <kbd>Delete</kbd>. The scene becomes much darker because you've removed the sun. Press <kbd>Ctrl + Z</kbd> to undo and bring it back. This demonstrates how levels are composed of individual actors working together.</p>
                     </details>
-                    
+
                     <h3>Part 3: Access World Settings</h3>
-                    
+
                     <ol>
-                        <li>In the main toolbar, click the <strong>Settings</strong> button (gear icon)</li>
-                        <li>Select <strong>World Settings</strong> from the dropdown</li>
-                        <li>The World Settings panel appears (usually docking where the Details panel was)</li>
+                        <li>From the menu bar, choose <strong>Window &#8594; World Settings</strong></li>
+                        <li>The World Settings panel appears (usually docking on the right, near the Details panel)</li>
+                        <li>At the top, note the <strong>World Partition Setup</strong> category and its <strong>Enable Streaming</strong> checkbox&#183; the same one you saw in the figure earlier</li>
                         <li>Expand the <strong>World</strong> category and find the <strong>Kill Z</strong> value</li>
-                        <li>Note the default value (probably something like -10000.000000)</li>
-                        <li>Try changing it to <code>-5000</code> and press <kbd>Enter</kbd></li>
+                        <li>Note the default value, then try changing it to <code>-5000</code> and press <kbd>Enter</kbd></li>
                     </ol>
-                    
+
                     <p>You've just adjusted the "death plane" for this level. Any actor that falls below Z = -5000 will be destroyed.</p>
-                    
+
                     <h3>Part 4: Save Your Level</h3>
-                    
+
                     <ol>
                         <li>Press <kbd>Ctrl + S</kbd> to save the level</li>
                         <li>A "Save Level As" dialog appears</li>
@@ -678,34 +698,39 @@
                         <li>Name your level: <code>MyFirstLevel</code></li>
                         <li>Click <strong>Save</strong></li>
                     </ol>
-                    
+
                     <p>Your level is now saved! You can see it in the Content Browser under the Maps folder.</p>
-                    
+
                     <h3>Part 5: Create a Second Level</h3>
-                    
+
                     <ol>
-                        <li>Go to <strong>File → New Level</strong> again</li>
+                        <li>Go to <strong>File &#8594; New Level</strong> again</li>
                         <li>This time, choose <strong>Empty Level</strong></li>
-                        <li>Notice how different it looks—completely black viewport</li>
+                        <li>Notice how different it looks&#183; a completely black viewport</li>
                         <li>Save this level as <code>MyEmptyLevel</code> in the same Maps folder</li>
                     </ol>
-                    
+
                     <h3>Part 6: Practice Switching Between Levels</h3>
-                    
+
                     <ol>
                         <li>In the Content Browser, navigate to <code>Content/Maps/</code></li>
-                        <li>Double-click <code>MyFirstLevel</code> to open it—you see the outdoor environment again</li>
-                        <li>Double-click <code>MyEmptyLevel</code>—you see the black empty space</li>
-                        <li>Go to <strong>File → Recent Levels</strong>—both levels appear in the list</li>
+                        <li>Double-click <code>MyFirstLevel</code> to open it&#183; you see the floor and sky again</li>
+                        <li>Double-click <code>MyEmptyLevel</code>&#183; you see the black empty space</li>
+                        <li>Go to <strong>File &#8594; Open Recent</strong>&#183; both levels appear in the list</li>
                     </ol>
-                    
+
                     <p>Congratulations! You've created, configured, saved, and navigated between multiple levels. These are fundamental skills you'll use in every Unreal project.</p>
-                    
+
+                    <details>
+                        <summary>🌍 <strong>Bonus:</strong> Peek at a World Partition world</summary>
+                        <p>Create one more level with the <strong>Open World</strong> template. Open <strong>Window &#8594; World Partition</strong> to see the streaming grid minimap, and notice in World Settings that <strong>Enable Streaming</strong> is already on. You don't need to build anything here&#183; just observe that a large world is one level whose grid streams automatically. (You can discard this level afterward.)</p>
+                    </details>
+
                     <details>
                         <summary>✅ <strong>Solution Checkpoint:</strong> What should you have now?</summary>
                         <p>You should have two .umap files in your Content/Maps/ folder:
                             <ul>
-                                <li><code>MyFirstLevel.umap</code> - Contains default outdoor lighting</li>
+                                <li><code>MyFirstLevel.umap</code> - A Basic level with floor and outdoor lighting</li>
                                 <li><code>MyEmptyLevel.umap</code> - Completely empty</li>
                             </ul>
                         Both should appear in your Content Browser. If you don't see them, make sure you saved both levels (<kbd>Ctrl + S</kbd>).
@@ -717,42 +742,42 @@
             <!-- Section 7: Summary -->
             <section id="summary" class="lesson-section">
                 <h2>Summary</h2>
-                
-                <p>In this lesson, you've learned the foundational concepts of how Unreal Engine organizes 3D worlds using levels. Let's recap the key points:</p>
-                
+
+                <p>In this lesson, you've learned the foundational concepts of how Unreal Engine 5.8 organizes 3D worlds using levels. Let's recap the key points:</p>
+
                 <h3>Key Takeaways</h3>
-                
+
                 <ul>
-                    <li>📦 <strong>Levels are containers</strong> that hold all the objects, lighting, and gameplay elements for a scene or area</li>
-                    <li>🏗️ <strong>Persistent levels</strong> stay loaded at all times, while <strong>streaming levels</strong> load and unload dynamically</li>
-                    <li>🗺️ <strong>Organization strategies</strong> like linear progression, hub-and-spoke, open-world streaming, and layered levels help structure complex projects</li>
-                    <li>⚙️ <strong>World Settings</strong> control level-specific configuration like game mode, physics, and audio properties</li>
-                    <li>💾 <strong>Creating and saving levels</strong> is straightforward—use descriptive names and save frequently</li>
-                    <li>🎯 <strong>Different templates</strong> (Default vs. Empty) serve different purposes—Default gives you basic lighting, Empty gives you a blank slate</li>
+                    <li>📦 <strong>Levels are containers</strong> that hold all the objects, lighting, and gameplay elements for a scene or area, saved as <code>.umap</code> files</li>
+                    <li>🌍 <strong>World Partition</strong> is the UE 5.8 default for large worlds&#183; it stores the world in one persistent level and streams a grid of cells automatically, with One File Per Actor and HLOD</li>
+                    <li>🏗️ <strong>Persistent and streaming levels</strong> are the concepts World Partition automates; manual Level Streaming still exists for specific cases, while <strong>World Composition is now legacy</strong></li>
+                    <li>🗂️ <strong>Organization strategies</strong> range from linear and hub-and-spoke flows between levels to <strong>Data Layers</strong> inside a single World Partition world</li>
+                    <li>⚙️ <strong>World Settings</strong> control level-specific configuration&#183; World Partition Setup, game mode, physics, and Kill Z</li>
+                    <li>💾 <strong>Creating and saving levels</strong> uses the Open World, Empty Open World, Basic, and Empty Level templates&#183; pick Basic for learning, Open World for large worlds</li>
                 </ul>
-                
+
                 <h3>What's Next?</h3>
-                
-                <p>Now that you understand how levels work, the next step is populating them with content. In <strong>Lesson 2.2: Actors and Components</strong>, you'll learn about the building blocks that go <em>inside</em> levels—the objects, lights, sounds, and gameplay elements that bring your worlds to life.</p>
-                
+
+                <p>Now that you understand how levels work, the next step is populating them with content. In <strong>Lesson 2.2: Actors and Components</strong>, you'll learn about the building blocks that go <em>inside</em> levels&#183; the objects, lights, sounds, and gameplay elements that bring your worlds to life.</p>
+
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
                     <h4>✅ Self-Check Quiz</h4>
                     <p>Before moving on, make sure you can answer these questions:</p>
                     <ol>
-                        <li>What's the difference between a persistent level and a streaming level?</li>
-                        <li>Which level organization strategy would work best for a small linear platformer?</li>
+                        <li>What is World Partition, and what problem does it solve compared to hand-authored sublevels?</li>
+                        <li>What is the difference between a persistent level and a streaming level?</li>
+                        <li>Which New Level template would you use to start a large open world, and why?</li>
                         <li>Where do you find the World Settings panel, and what kinds of things can you configure there?</li>
                         <li>What file extension do Unreal levels use?</li>
-                        <li>Why would you choose the "Default" template over "Empty Level" when creating a new level?</li>
                     </ol>
                     <details>
                         <summary>📝 <strong>Show Answers</strong></summary>
                         <ol>
-                            <li>Persistent levels stay loaded throughout gameplay; streaming levels load and unload dynamically based on proximity or triggers.</li>
-                            <li>Linear level progression—separate .umap files for each stage that load sequentially.</li>
-                            <li>Settings menu (gear icon) → World Settings. You can configure game mode, gravity, kill Z, audio reverb, and more.</li>
+                            <li>World Partition automatically streams a single, large persistent level as a grid of cells, loading only what's near the player. It replaces the manual work of splitting a world into sublevels and wiring up Level Streaming by hand, and it stores actors as individual files so teams can collaborate.</li>
+                            <li>Persistent levels stay loaded throughout gameplay; streaming levels (or World Partition cells) load and unload dynamically based on proximity or triggers.</li>
+                            <li>Open World (or Empty Open World)&#183; both create a level with World Partition already enabled, so the large world streams automatically.</li>
+                            <li>Window &#8594; World Settings (or the Settings gear dropdown). You can configure World Partition Setup, game mode, gravity, Kill Z, and more.</li>
                             <li>.umap (Unreal Map)</li>
-                            <li>Default includes basic outdoor lighting setup so you can immediately see what you're building; Empty Level is completely dark until you add lights.</li>
                         </ol>
                     </details>
                 </div>
@@ -792,8 +817,8 @@
         <div class="container">
             <p>&copy; 2025 Practical Ace - Introduction to Unreal Engine 5. All rights reserved.</p>
             <p>
-                <a href="index.html">Course Home</a> | 
-                <a href="index.html#modules">All Modules</a> | 
+                <a href="index.html">Course Home</a> |
+                <a href="index.html#modules">All Modules</a> |
                 <a href="#main-content">Back to Top ↑</a>
             </p>
         </div>

@@ -116,11 +116,13 @@
 
                 <p>UMG supports several binding approaches:</p>
 
-                <p><strong>Property Binding (Function):</strong> Bind a property to a function that returns the value. Called every frame. Simple and automatic but can be expensive if the function is complex.</p>
+                <p><strong>Property Binding (Function):</strong> Bind a property to a function that returns the value. Simple and automatic, but the function is <strong>polled every frame</strong> whether or not the value changed, so it can get expensive across a busy HUD.</p>
 
                 <p><strong>Property Binding (Variable):</strong> Bind directly to a variable. Less flexible but slightly more efficient.</p>
 
                 <p><strong>Event-Driven Updates:</strong> Don't bind—instead, update the widget manually when data changes. More control, better performance for infrequent updates.</p>
+
+                <p><strong>MVVM (Viewmodel):</strong> Unreal Engine 5's modern, recommended binding system (built into the engine since 5.3). A <strong>Viewmodel</strong> holds your UI data, and widgets bind to it through an <strong>event-driven</strong> mechanism, so the UI refreshes only when that data actually changes &#183; no per-frame polling. Covered in depth in Lesson 7.5.</p>
 
                 <!-- SVG: Binding Approaches -->
                 <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
@@ -181,7 +183,7 @@
                         
                         <text x="120" y="45" text-anchor="middle" fill="#1976D2" font-size="8" font-weight="bold">Function Binding</text>
                         <text x="120" y="60" text-anchor="middle" fill="#666" font-size="7">Simple values, frequent changes</text>
-                        <text x="120" y="72" text-anchor="middle" fill="#666" font-size="7">Health, ammo, timers</text>
+                        <text x="120" y="72" text-anchor="middle" fill="#666" font-size="7">Quick prototypes</text>
                         
                         <text x="350" y="45" text-anchor="middle" fill="#FF9800" font-size="8" font-weight="bold">Variable Binding</text>
                         <text x="350" y="60" text-anchor="middle" fill="#666" font-size="7">Widget-local data</text>
@@ -204,7 +206,12 @@
                         </marker>
                     </defs>
                 </svg>
-                <p class="caption"><em>Figure: Three approaches to connecting UI with game data.</em></p>
+                <p class="caption"><em>Figure: Three ways to connect UI with game data. In UE 5.8 a fourth &#183; MVVM &#183; is the recommended default (see below).</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Modern Binding: MVVM (UE 5.8)</h4>
+                    <p>All three approaches above still work, but per-frame <strong>Property Binding</strong> polls its function every single frame, which adds up fast across a full HUD. In modern Unreal the recommended approach is <strong>MVVM (Model-View-Viewmodel)</strong>, an event-driven system built into the engine since 5.3: your game logic updates a Viewmodel, and bound widgets refresh <em>only</em> when that data changes, at zero per-frame cost. Prefer MVVM (or plain event-driven updates) for anything that changes often &#183; health, ammo, timers &#183; and keep per-frame Property Binding for quick prototypes. <strong>Lesson 7.5</strong> covers MVVM end to end; this lesson uses simple Property Binding so you can focus on the HUD itself.</p>
+                </div>
 
                 <h3>Creating a Property Binding</h3>
 
@@ -217,6 +224,9 @@
                     <li>Select <strong>Create Binding</strong></li>
                     <li>A function is created—add logic to return the correct value</li>
                 </ol>
+
+                <img src="images/m07_l03/m07_l03_fig01_property_binding.png" alt="The Details panel in the UMG Designer for a selected Progress Bar, showing the Progress section. The Percent property (0.65) has a highlighted chain-link Bind button next to it, and its dropdown menu is open showing a plus Create Binding option. Bar Fill Type and Bar Fill Style are below." style="max-width: 640px; width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p class="caption"><em>Figure: Creating a Property Binding &#183; a bindable property (here a Progress Bar’s Percent) shows a Bind dropdown in the Details panel; choosing Create Binding generates the function it polls.</em></p>
 
                 <p>The binding function must return the correct type for that property:</p>
                 <ul>

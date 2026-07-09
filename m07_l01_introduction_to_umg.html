@@ -472,84 +472,8 @@ flowchart TD
                 <p><strong>Animations (Bottom):</strong> UI animation timeline. Create and edit widget animations.</p>
 
                 <!-- SVG: Designer Interface -->
-                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #1e1e1e;">
-                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">UMG Designer Interface</text>
-                    
-                    <!-- Left panel - Palette/Hierarchy -->
-                    <g transform="translate(20, 45)">
-                        <rect x="0" y="0" width="150" height="220" rx="3" fill="#2d2d2d" stroke="#555"/>
-                        <rect x="0" y="0" width="150" height="25" fill="#3d3d3d"/>
-                        <text x="75" y="17" text-anchor="middle" fill="#4CAF50" font-size="9" font-weight="bold">Palette / Hierarchy</text>
-                        
-                        <text x="10" y="45" fill="#888" font-size="8">▼ Panel</text>
-                        <text x="20" y="60" fill="#aaa" font-size="7">Canvas Panel</text>
-                        <text x="20" y="73" fill="#aaa" font-size="7">Vertical Box</text>
-                        <text x="10" y="93" fill="#888" font-size="8">▼ Common</text>
-                        <text x="20" y="108" fill="#aaa" font-size="7">Text</text>
-                        <text x="20" y="121" fill="#aaa" font-size="7">Button</text>
-                        <text x="20" y="134" fill="#aaa" font-size="7">Image</text>
-                        
-                        <line x1="5" y1="150" x2="145" y2="150" stroke="#555"/>
-                        <text x="10" y="168" fill="#667eea" font-size="8">▼ [Root]</text>
-                        <text x="25" y="183" fill="#aaa" font-size="7">├─ Background</text>
-                        <text x="25" y="198" fill="#aaa" font-size="7">├─ TitleText</text>
-                        <text x="25" y="213" fill="#aaa" font-size="7">└─ PlayButton</text>
-                    </g>
-                    
-                    <!-- Center - Canvas -->
-                    <g transform="translate(185, 45)">
-                        <rect x="0" y="0" width="380" height="220" rx="3" fill="#252525" stroke="#555"/>
-                        <rect x="0" y="0" width="380" height="25" fill="#3d3d3d"/>
-                        <text x="190" y="17" text-anchor="middle" fill="#2196F3" font-size="9" font-weight="bold">Designer Canvas</text>
-                        
-                        <!-- Preview area -->
-                        <rect x="40" y="45" width="300" height="160" fill="#1a1a1a" stroke="#444"/>
-                        
-                        <!-- Sample UI in preview -->
-                        <rect x="60" y="65" width="260" height="120" rx="5" fill="#333"/>
-                        <text x="190" y="95" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">My Game</text>
-                        <rect x="130" y="115" width="120" height="30" rx="5" fill="#667eea" stroke="#fff" stroke-width="2"/>
-                        <text x="190" y="135" text-anchor="middle" fill="#fff" font-size="10">Play</text>
-                        <rect x="130" y="155" width="120" height="25" rx="3" fill="#444"/>
-                        <text x="190" y="172" text-anchor="middle" fill="#aaa" font-size="9">Quit</text>
-                        
-                        <!-- Selection indicator -->
-                        <rect x="128" y="113" width="124" height="34" fill="none" stroke="#4CAF50" stroke-width="2" stroke-dasharray="4,2"/>
-                    </g>
-                    
-                    <!-- Right panel - Details -->
-                    <g transform="translate(580, 45)">
-                        <rect x="0" y="0" width="180" height="220" rx="3" fill="#2d2d2d" stroke="#555"/>
-                        <rect x="0" y="0" width="180" height="25" fill="#3d3d3d"/>
-                        <text x="90" y="17" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">Details</text>
-                        
-                        <text x="10" y="45" fill="#4CAF50" font-size="8">PlayButton (Button)</text>
-                        
-                        <text x="10" y="65" fill="#888" font-size="7">▼ Slot</text>
-                        <text x="20" y="80" fill="#aaa" font-size="6">Anchors: Center</text>
-                        <text x="20" y="92" fill="#aaa" font-size="6">Position: 0, 50</text>
-                        
-                        <text x="10" y="112" fill="#888" font-size="7">▼ Appearance</text>
-                        <text x="20" y="127" fill="#aaa" font-size="6">Style: Default</text>
-                        <text x="20" y="139" fill="#aaa" font-size="6">Color: #667eea</text>
-                        
-                        <text x="10" y="159" fill="#888" font-size="7">▼ Behavior</text>
-                        <text x="20" y="174" fill="#aaa" font-size="6">Is Enabled: ☑</text>
-                        <text x="20" y="186" fill="#aaa" font-size="6">Tool Tip Text:</text>
-                        
-                        <text x="10" y="206" fill="#888" font-size="7">▼ Events</text>
-                        <text x="20" y="218" fill="#4CAF50" font-size="6">On Clicked +</text>
-                    </g>
-                    
-                    <!-- Labels -->
-                    <text x="95" y="280" text-anchor="middle" fill="#4CAF50" font-size="8">Widget palette &</text>
-                    <text x="95" y="292" text-anchor="middle" fill="#4CAF50" font-size="8">hierarchy tree</text>
-                    <text x="375" y="280" text-anchor="middle" fill="#2196F3" font-size="8">Visual preview &</text>
-                    <text x="375" y="292" text-anchor="middle" fill="#2196F3" font-size="8">direct manipulation</text>
-                    <text x="670" y="280" text-anchor="middle" fill="#FF9800" font-size="8">Selected widget</text>
-                    <text x="670" y="292" text-anchor="middle" fill="#FF9800" font-size="8">properties</text>
-                </svg>
-                <p class="caption"><em>Figure: The UMG Designer interface with Palette, Canvas, and Details panels.</em></p>
+                <img src="images/m07_l01/m07_l01_fig01_umg_designer.png" alt="The UMG Designer in the Unreal Editor 5.8 for a health-HUD Widget Blueprint. On the left is the Palette (Border, Button, Check Box, Image, Progress Bar, Text and more) with the widget Hierarchy below it (WBP_HealthHUD, HUDCanvas, HealthBar, HealthText, AmmoText, PauseButton). The center canvas shows the HUD: a green health bar at 72 percent with the label Health 72 / 100, a button, and Ammo 30 / 120. On the right the Details panel shows the selected HealthBar's Canvas Panel Slot (position and size) and Progress settings (Percent 0.72, Bar Fill Type)." style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p class="caption"><em>Figure: The UMG Designer &#183; the Palette and widget Hierarchy (left), the visual Canvas with a health HUD (center), and the Details panel for the selected widget (right).</em></p>
 
                 <h3>Working with Anchors</h3>
 

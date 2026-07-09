@@ -65,7 +65,7 @@
                         <li>Master advanced viewport navigation and camera controls</li>
                         <li>Understand all viewport visualization modes and when to use them</li>
                         <li>Use the Content Browser like a professional asset manager</li>
-                        <li>Organize complex scenes with the World Outliner</li>
+                        <li>Organize complex scenes with the Outliner</li>
                         <li>Efficiently modify object properties using the Details Panel</li>
                         <li>Customize the editor layout for your personal workflow</li>
                         <li>Utilize essential keyboard shortcuts to speed up development</li>
@@ -87,7 +87,7 @@
                         <li><a href="#overview" class="toc-link">Interface Overview</a></li>
                         <li><a href="#viewport-deep-dive" class="toc-link">Viewport Deep Dive</a></li>
                         <li><a href="#content-browser-mastery" class="toc-link">Content Browser Mastery</a></li>
-                        <li><a href="#world-outliner" class="toc-link">World Outliner</a></li>
+                        <li><a href="#world-outliner" class="toc-link">Outliner</a></li>
                         <li><a href="#details-panel" class="toc-link">Details Panel</a></li>
                         <li><a href="#toolbar-menus" class="toc-link">Toolbar and Menus</a></li>
                         <li><a href="#customization" class="toc-link">Customization and Layouts</a></li>
@@ -122,7 +122,7 @@
                         A[Unreal Editor] --> B[1. Menu Bar & Toolbar<br/>Commands and Quick Actions]
                         A --> C[2. Viewport<br/>3D Scene Visualization]
                         A --> D[3. Content Browser<br/>Asset Management]
-                        A --> E[4. World Outliner<br/>Scene Hierarchy]
+                        A --> E[4. Outliner<br/>Scene Hierarchy]
                         A --> F[5. Details Panel<br/>Object Properties]
                         
                         style B fill:#3b82f6,stroke:#1e40af,color:#fff
@@ -157,7 +157,7 @@
                             <td>Finding materials, importing assets, creating new content</td>
                         </tr>
                         <tr>
-                            <td><strong>World Outliner</strong></td>
+                            <td><strong>Outliner</strong></td>
                             <td>List and organize scene objects</td>
                             <td>Selecting hard-to-click objects, organizing large scenes</td>
                         </tr>
@@ -175,7 +175,7 @@
                     <ul>
                         <li><strong>Content Browser:</strong> Your warehouse—where all materials and tools are stored</li>
                         <li><strong>Viewport:</strong> Your workshop—where you assemble and arrange things</li>
-                        <li><strong>World Outliner:</strong> Your inventory list—keeping track of everything in the workshop</li>
+                        <li><strong>Outliner:</strong> Your inventory list—keeping track of everything in the workshop</li>
                         <li><strong>Details Panel:</strong> Your control panel—adjusting specific settings for each item</li>
                         <li><strong>Toolbar:</strong> Your quick-access tools—frequently used actions at your fingertips</li>
                     </ul>
@@ -230,10 +230,10 @@
                     <line x1="300" y1="360" x2="300" y2="400" stroke="#444" stroke-width="1" opacity="0.5"/>
                     <line x1="400" y1="360" x2="400" y2="400" stroke="#444" stroke-width="1" opacity="0.5"/>
                     
-                    <!-- World Outliner (top right) -->
+                    <!-- Outliner (top right) -->
                     <rect x="510" y="125" width="270" height="140" fill="#383838" stroke="#ef4444" stroke-width="2" rx="5"/>
                     <rect x="510" y="125" width="270" height="22" fill="#4a4a4a" rx="5"/>
-                    <text x="520" y="141" font-size="11" font-weight="bold" fill="#ef4444">④ World Outliner</text>
+                    <text x="520" y="141" font-size="11" font-weight="bold" fill="#ef4444">④ Outliner</text>
                     <text x="520" y="165" font-size="10" fill="#888">🔍 Search...</text>
                     <text x="525" y="185" font-size="10" fill="#ccc">📁 Lighting</text>
                     <text x="540" y="200" font-size="10" fill="#aaa">  💡 DirectionalLight</text>
@@ -815,114 +815,8 @@
                         style D fill:#fbbf24,stroke:#d97706,color:#000
                 </div>
                 
-                <!-- SVG: Content Browser Panel Mockup -->
-                <svg viewBox="0 0 800 340" style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
-                    <defs>
-                        <linearGradient id="cbBg" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#1a1a2e"/>
-                            <stop offset="100%" style="stop-color:#16213e"/>
-                        </linearGradient>
-                    </defs>
-                    
-                    <!-- Background -->
-                    <rect width="800" height="340" fill="url(#cbBg)"/>
-                    
-                    <!-- Title -->
-                    <text x="400" y="25" font-size="16" font-weight="bold" fill="white" text-anchor="middle">Content Browser Anatomy</text>
-                    
-                    <!-- Content Browser Panel -->
-                    <rect x="30" y="40" width="740" height="280" fill="#383838" stroke="#fbbf24" stroke-width="2" rx="8"/>
-                    
-                    <!-- Header Bar with Search -->
-                    <rect x="30" y="40" width="740" height="40" fill="#4a4a4a" rx="8"/>
-                    <text x="45" y="65" font-size="12" font-weight="bold" fill="#fbbf24">Content Browser</text>
-                    
-                    <!-- Search Bar -->
-                    <rect x="180" y="50" width="300" height="24" fill="#2d2d2d" stroke="#555" stroke-width="1" rx="4"/>
-                    <text x="195" y="67" font-size="11" fill="#888">🔍 Search assets...</text>
-                    <text x="480" y="52" font-size="9" fill="#fbbf24">③ Search Bar</text>
-                    
-                    <!-- Filters Button -->
-                    <rect x="490" y="50" width="70" height="24" fill="#667eea" rx="4"/>
-                    <text x="525" y="67" font-size="10" fill="white" text-anchor="middle">Filters</text>
-                    <text x="560" y="52" font-size="9" fill="#9C27B0">④ Filters</text>
-                    
-                    <!-- Add New -->
-                    <rect x="570" y="50" width="80" height="24" fill="#4CAF50" rx="4"/>
-                    <text x="610" y="67" font-size="10" fill="white" text-anchor="middle">+ Add New</text>
-                    
-                    <!-- Import -->
-                    <rect x="660" y="50" width="60" height="24" fill="#2196F3" rx="4"/>
-                    <text x="690" y="67" font-size="10" fill="white" text-anchor="middle">Import</text>
-                    
-                    <!-- Folder Tree (Left Panel) -->
-                    <rect x="35" y="85" width="160" height="230" fill="#2d2d2d" rx="4"/>
-                    <text x="45" y="105" font-size="10" fill="#fbbf24">① Folder Tree</text>
-                    <text x="50" y="125" font-size="10" fill="#fff">📁 Content</text>
-                    <text x="60" y="145" font-size="10" fill="#aaa">📂 Blueprints</text>
-                    <text x="60" y="162" font-size="10" fill="#7cb3f5">📂 Materials</text>
-                    <text x="60" y="179" font-size="10" fill="#aaa">📂 Meshes</text>
-                    <text x="60" y="196" font-size="10" fill="#aaa">📂 Textures</text>
-                    <text x="60" y="213" font-size="10" fill="#aaa">📂 Audio</text>
-                    <text x="50" y="235" font-size="10" fill="#fff">📁 StarterContent</text>
-                    <text x="60" y="255" font-size="10" fill="#aaa">📂 Props</text>
-                    <text x="60" y="272" font-size="10" fill="#aaa">📂 Architecture</text>
-                    
-                    <!-- Path Bar -->
-                    <rect x="200" y="85" width="565" height="25" fill="#2a2a2a" rx="4"/>
-                    <text x="210" y="102" font-size="10" fill="#888">Content</text>
-                    <text x="260" y="102" font-size="10" fill="#555">/</text>
-                    <text x="275" y="102" font-size="10" fill="#888">Materials</text>
-                    <text x="500" y="102" font-size="9" fill="#FF9800">⑤ Path Bar</text>
-                    
-                    <!-- Asset View (Main Area) -->
-                    <rect x="200" y="115" width="565" height="200" fill="#252525" rx="4"/>
-                    <text x="215" y="135" font-size="10" fill="#4CAF50">② Asset View</text>
-                    
-                    <!-- Asset Thumbnails -->
-                    <g transform="translate(215, 145)">
-                        <!-- Row 1 -->
-                        <rect x="0" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
-                        <text x="35" y="45" font-size="24" fill="#888" text-anchor="middle">🟧</text>
-                        <text x="35" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Metal</text>
-                        
-                        <rect x="85" y="0" width="70" height="70" fill="#3d3d3d" stroke="#667eea" stroke-width="2" rx="4"/>
-                        <text x="120" y="45" font-size="24" fill="#4CAF50" text-anchor="middle">🟩</text>
-                        <text x="120" y="82" font-size="8" fill="#7cb3f5" text-anchor="middle">M_Grass</text>
-                        
-                        <rect x="170" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
-                        <text x="205" y="45" font-size="24" fill="#795548" text-anchor="middle">🟥</text>
-                        <text x="205" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Wood</text>
-                        
-                        <rect x="255" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
-                        <text x="290" y="45" font-size="24" fill="#607d8b" text-anchor="middle">⬜</text>
-                        <text x="290" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Concrete</text>
-                        
-                        <rect x="340" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
-                        <text x="375" y="45" font-size="24" fill="#2196F3" text-anchor="middle">📊</text>
-                        <text x="375" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Glass</text>
-                        
-                        <rect x="425" y="0" width="70" height="70" fill="#3d3d3d" rx="4"/>
-                        <text x="460" y="45" font-size="24" fill="#ffc107" text-anchor="middle">✨</text>
-                        <text x="460" y="82" font-size="8" fill="#aaa" text-anchor="middle">M_Gold</text>
-                    </g>
-                    
-                    <!-- Bottom bar -->
-                    <rect x="200" y="290" width="565" height="25" fill="#2a2a2a" rx="4"/>
-                    <text x="210" y="306" font-size="9" fill="#888">23 items | Tile View</text>
-                    <rect x="700" y="294" width="55" height="16" fill="#444" rx="3"/>
-                    <text x="727" y="305" font-size="8" fill="#aaa" text-anchor="middle">🔍 Size</text>
-                    
-                    <!-- Legend -->
-                    <g transform="translate(580, 240)">
-                        <rect width="170" height="70" fill="#1a1a2e" rx="4" opacity="0.9"/>
-                        <text x="10" y="18" font-size="9" fill="#fbbf24">① Folder Tree - Navigate</text>
-                        <text x="10" y="32" font-size="9" fill="#4CAF50">② Asset View - Browse</text>
-                        <text x="10" y="46" font-size="9" fill="#2196F3">③ Search - Find quickly</text>
-                        <text x="10" y="60" font-size="9" fill="#9C27B0">④ Filters - By type</text>
-                    </g>
-                </svg>
-                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The Content Browser interface showing folder tree, asset view, search, and filters.</em></p>
+                <img src="images/m01_l04/m01_l04_fig01_content_browser.png" alt="The Unreal Editor Content Browser panel in UE 5.8: the Favorites and folder tree on the left (All, Content, Ballroom, Engine), the Add, Import, Save All and Fab toolbar buttons, the path bar (All &gt; Content), the asset search field, and the asset view showing the Ballroom folder." style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The Content Browser in UE 5.8 &#183; folder tree (left), asset view (center), the search and filter bar, and the toolbar with Add, Import, Save All, and the Fab button.</em></p>
                 
                 <h3>Navigation and Organization</h3>
                 
@@ -1187,11 +1081,11 @@
                 </table>
             </section>
 
-            <!-- Section 4: World Outliner -->
+            <!-- Section 4: Outliner -->
             <section id="world-outliner" class="lesson-section">
-                <h2>World Outliner</h2>
+                <h2>Outliner</h2>
                 
-                <p>The World Outliner is your hierarchical list of every object (called "Actors" in Unreal) currently in your level. Think of it as the "Layers" panel in Photoshop or the "Hierarchy" in Unity—it shows everything in your scene.</p>
+                <p>The Outliner is your hierarchical list of every object (called "Actors" in Unreal) currently in your level. Think of it as the "Layers" panel in Photoshop or the "Hierarchy" in Unity—it shows everything in your scene.</p>
                 
                 <h3>Understanding Actors</h3>
                 
@@ -1200,7 +1094,7 @@
                     <p style="color: white;"><strong>Actors</strong> are any objects that can be placed in a level. This includes 3D models (Static Meshes), lights, cameras, triggers, character spawn points, sound emitters, and more. If it exists in your 3D scene, it's an Actor.</p>
                 </div>
                 
-                <h3>World Outliner Interface</h3>
+                <h3>Outliner Interface</h3>
                 
                 <p>The Outliner has several components:</p>
                 
@@ -1210,6 +1104,9 @@
                     <li><strong>Eye Icons:</strong> Toggle actor visibility in viewport</li>
                     <li><strong>Type Icons:</strong> Visual indicators of actor type (mesh, light, camera, etc.)</li>
                 </ul>
+                
+                <img src="images/m01_l04/m01_l04_fig02_outliner.png" alt="The Unreal Editor Outliner in UE 5.8 showing the Ballroom level hierarchy: nested folders (Columns, Figure, Shell, Castle, HLOD, Lighting, Landscape), the Item Label / Sequencer / Type columns, per-actor visibility eye icons (the Castle folder is hidden), and the selected DirectionalLight. The status bar reads 156 actors, 1 selected." style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The Outliner in UE 5.8 &#183; the level's actors grouped in folders, with the Type column, visibility eye icons, and the selected DirectionalLight highlighted.</em></p>
                 
                 <h3>Basic Operations</h3>
                 
@@ -1278,7 +1175,7 @@
                 <h4>Creating Folders</h4>
                 
                 <ol>
-                    <li>Right-click in World Outliner</li>
+                    <li>Right-click in the Outliner</li>
                     <li>Select <strong>Create Folder</strong></li>
                     <li>Name it descriptively (e.g., "Environment", "Lighting", "Props_Level01")</li>
                 </ol>
@@ -1378,7 +1275,7 @@
                     <ol>
                         <li>Place a Cylinder from Place Actors (lamp base)</li>
                         <li>Place a Point Light above it</li>
-                        <li>In World Outliner, drag the Point Light onto the Cylinder</li>
+                        <li>In the Outliner, drag the Point Light onto the Cylinder</li>
                         <li>Now move the Cylinder—the light moves with it!</li>
                     </ol>
                 </div>
@@ -1396,7 +1293,7 @@
                     <li><strong>Convert to:</strong> Change actor type</li>
                 </ul>
                 
-                <h3>World Outliner Settings</h3>
+                <h3>Outliner Settings</h3>
                 
                 <p>Click the settings icon (three dots) in the Outliner for customization:</p>
                 
@@ -1424,6 +1321,9 @@
                     <li><strong>Multiple actors selected:</strong> Shows common properties, grays out different values</li>
                     <li><strong>Different actor types:</strong> Each type has unique properties</li>
                 </ul>
+                
+                <img src="images/m01_l04/m01_l04_fig03_details_panel.png" alt="The Unreal Editor Details panel in UE 5.8 with a DirectionalLight selected: the component tree at the top, the property search field and category filter chips (General, Actor, LOD, Misc, Physics, Rendering, Streaming, All), and the Transform and Light categories showing Location, Rotation, Scale, Mobility, Intensity (6.0 lux), Light Color, and Temperature." style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The Details panel is context-sensitive &#183; here it shows the selected DirectionalLight's Transform and Light properties, grouped into expandable categories.</em></p>
                 
                 <h3>Common Property Categories</h3>
                 
@@ -1770,62 +1670,8 @@
                 
                 <p>The main toolbar provides quick access to frequently used actions. Here's what each button does:</p>
                 
-                <!-- SVG Toolbar Diagram -->
-                <div class="card" style="background: #f8f9fa; padding: 2rem;">
-                    <h4 style="text-align: center; margin-bottom: 1rem;">📊 Main Toolbar Layout</h4>
-                    <svg width="100%" height="120" viewBox="0 0 1000 120" style="max-width: 100%; height: auto;">
-                        <!-- Save Button -->
-                        <rect x="10" y="10" width="80" height="80" fill="#4CAF50" stroke="#2e7d32" stroke-width="2" rx="5"/>
-                        <text x="50" y="50" font-size="40" text-anchor="middle" fill="white">💾</text>
-                        <text x="50" y="110" font-size="12" text-anchor="middle" fill="#333">Save</text>
-                        
-                        <!-- Content Browser -->
-                        <rect x="110" y="10" width="80" height="80" fill="#2196F3" stroke="#1565c0" stroke-width="2" rx="5"/>
-                        <text x="150" y="50" font-size="40" text-anchor="middle" fill="white">📁</text>
-                        <text x="150" y="110" font-size="12" text-anchor="middle" fill="#333">Content</text>
-                        
-                        <!-- Marketplace -->
-                        <rect x="210" y="10" width="80" height="80" fill="#FF9800" stroke="#e65100" stroke-width="2" rx="5"/>
-                        <text x="250" y="50" font-size="40" text-anchor="middle" fill="white">🛒</text>
-                        <text x="250" y="110" font-size="12" text-anchor="middle" fill="#333">Market</text>
-                        
-                        <!-- Settings -->
-                        <rect x="310" y="10" width="80" height="80" fill="#9C27B0" stroke="#6a1b9a" stroke-width="2" rx="5"/>
-                        <text x="350" y="50" font-size="40" text-anchor="middle" fill="white">⚙️</text>
-                        <text x="350" y="110" font-size="12" text-anchor="middle" fill="#333">Settings</text>
-                        
-                        <!-- Separator -->
-                        <line x1="410" y1="20" x2="410" y2="90" stroke="#ccc" stroke-width="2"/>
-                        
-                        <!-- Play -->
-                        <rect x="430" y="10" width="100" height="80" fill="#4CAF50" stroke="#2e7d32" stroke-width="3" rx="5"/>
-                        <text x="480" y="50" font-size="40" text-anchor="middle" fill="white">▶️</text>
-                        <text x="480" y="110" font-size="12" text-anchor="middle" fill="#333" font-weight="bold">PLAY</text>
-                        
-                        <!-- Play Options Dropdown -->
-                        <rect x="550" y="10" width="60" height="80" fill="#66BB6A" stroke="#2e7d32" stroke-width="2" rx="5"/>
-                        <text x="580" y="50" font-size="30" text-anchor="middle" fill="white">▼</text>
-                        <text x="580" y="110" font-size="12" text-anchor="middle" fill="#333">Options</text>
-                        
-                        <!-- Separator -->
-                        <line x1="630" y1="20" x2="630" y2="90" stroke="#ccc" stroke-width="2"/>
-                        
-                        <!-- Build -->
-                        <rect x="650" y="10" width="80" height="80" fill="#FF5722" stroke="#d32f2f" stroke-width="2" rx="5"/>
-                        <text x="690" y="50" font-size="40" text-anchor="middle" fill="white">🔨</text>
-                        <text x="690" y="110" font-size="12" text-anchor="middle" fill="#333">Build</text>
-                        
-                        <!-- Source Control -->
-                        <rect x="750" y="10" width="80" height="80" fill="#607D8B" stroke="#37474f" stroke-width="2" rx="5"/>
-                        <text x="790" y="50" font-size="40" text-anchor="middle" fill="white">🔄</text>
-                        <text x="790" y="110" font-size="12" text-anchor="middle" fill="#333">Source</text>
-                        
-                        <!-- Cinematics -->
-                        <rect x="850" y="10" width="80" height="80" fill="#E91E63" stroke="#ad1457" stroke-width="2" rx="5"/>
-                        <text x="890" y="50" font-size="40" text-anchor="middle" fill="white">🎬</text>
-                        <text x="890" y="110" font-size="12" text-anchor="middle" fill="#333">Sequence</text>
-                    </svg>
-                </div>
+                <img src="images/m01_l04/m01_l04_fig04_main_toolbar.png" alt="The Unreal Editor 5.8 main toolbar: Save and Open Level buttons, the Selection Mode dropdown, the Add, Blueprints and Cinematics dropdowns, and the Play, Skip, Stop and Step simulation controls." style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; border: 2px solid #667eea;">
+                <p style="text-align: center; font-style: italic; color: #666; margin-top: 0.5rem;"><em>Figure: The UE 5.8 Main Toolbar &#183; Save and Open, the Selection Mode dropdown, the Add / Blueprints / Cinematics menus, and the Play simulation controls.</em></p>
                 
                 <h4>Toolbar Button Details</h4>
                 
@@ -1849,9 +1695,9 @@
                             <td>Or press <kbd>Ctrl + Space</kbd></td>
                         </tr>
                         <tr>
-                            <td>🛒 <strong>Marketplace</strong></td>
-                            <td>Browse Unreal Marketplace for assets</td>
-                            <td>Free content available monthly</td>
+                            <td>🛒 <strong>Fab</strong></td>
+                            <td>Browse Fab (fab.com), Epic's content library</td>
+                            <td>Opens from the Content Browser toolbar</td>
                         </tr>
                         <tr>
                             <td>⚙️ <strong>Settings</strong></td>
@@ -2074,7 +1920,7 @@
                     <li><strong>Realtime Toggle:</strong> Disable real-time updates to save GPU (animation won't play)</li>
                 </ul>
                 
-                <h4>World Outliner</h4>
+                <h4>Outliner</h4>
                 
                 <ul>
                     <li><strong>Settings Menu:</strong> Three dots → sort options, filter settings</li>
@@ -2288,7 +2134,7 @@
                     </thead>
                     <tbody>
                         <tr><td><kbd>Ctrl + Space</kbd></td><td>Open Content Browser</td></tr>
-                        <tr><td><kbd>Ctrl + Shift + O</kbd></td><td>Focus World Outliner</td></tr>
+                        <tr><td><kbd>Ctrl + Shift + O</kbd></td><td>Focus Outliner</td></tr>
                         <tr><td><kbd>Ctrl + B</kbd></td><td>Find selected in Content Browser</td></tr>
                         <tr><td><kbd>Ctrl + K</kbd></td><td>Open Asset Picker</td></tr>
                         <tr><td><kbd>~</kbd> (backtick)</td><td>Open console command line</td></tr>
@@ -2344,7 +2190,7 @@
                     <ul>
                         <li><strong>Viewport Mastery:</strong> Multiple navigation modes (fly, orbit, pan), view modes (Lit, Unlit, Wireframe), and Show flags for controlling visibility.</li>
                         <li><strong>Content Browser:</strong> Your asset library—use search, filters, and collections to stay organized. Follow naming conventions for scalability.</li>
-                        <li><strong>World Outliner:</strong> Hierarchical list of all actors—use folders for organization, visibility toggles for complex scenes, and parenting for compound objects.</li>
+                        <li><strong>Outliner:</strong> Hierarchical list of all actors—use folders for organization, visibility toggles for complex scenes, and parenting for compound objects.</li>
                         <li><strong>Details Panel:</strong> Context-sensitive property editor—Transform controls, rendering settings, collision, physics, and more. Use search and favorites for efficiency.</li>
                         <li><strong>Toolbar:</strong> Quick access to Save, Play, Build, Settings, and Content Browser. Dropdown menus reveal additional options.</li>
                         <li><strong>Customization:</strong> Drag panels to rearrange, save layouts for different tasks, and optimize for multi-monitor setups.</li>
@@ -2511,8 +2357,8 @@
                 <h3>📖 Additional Resources</h3>
                 
                 <ul>
-                    <li><strong>Official Documentation:</strong> <a href="https://docs.unrealengine.com/5.5/en-US/unreal-editor-interface/" target="_blank" rel="noopener">Unreal Editor Interface</a></li>
-                    <li><strong>Keyboard Shortcuts:</strong> <a href="https://docs.unrealengine.com/5.5/en-US/keyboard-shortcuts-in-unreal-engine/" target="_blank" rel="noopener">Complete Shortcut Reference</a></li>
+                    <li><strong>Official Documentation:</strong> <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-editor-interface" target="_blank" rel="noopener">Unreal Editor Interface</a></li>
+                    <li><strong>Keyboard Shortcuts:</strong> <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/keyboard-shortcuts-in-unreal-engine" target="_blank" rel="noopener">Complete Shortcut Reference</a></li>
                     <li><strong>Video Tutorial:</strong> Search "Unreal Engine 5 Interface Complete Guide" on YouTube</li>
                     <li><strong>Quick Reference Card:</strong> Print keyboard shortcut diagrams from this lesson for your desk</li>
                 </ul>

@@ -1045,77 +1045,9 @@
                 
                 <p>The editor consists of several main panels, each with a specific purpose:</p>
                 
-                <!-- SVG: Editor Interface Layout -->
-                <svg width="100%" height="380" viewBox="0 0 800 380" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Unreal Editor Interface Overview</text>
-                    
-                    <!-- Top Menu Bar -->
-                    <rect x="10" y="40" width="780" height="25" rx="3" fill="#3d3d3d" stroke="#555" stroke-width="1"/>
-                    <text x="30" y="57" fill="#aaa" font-size="9">File</text>
-                    <text x="60" y="57" fill="#aaa" font-size="9">Edit</text>
-                    <text x="90" y="57" fill="#aaa" font-size="9">Window</text>
-                    <text x="130" y="57" fill="#aaa" font-size="9">Tools</text>
-                    <text x="165" y="57" fill="#aaa" font-size="9">Build</text>
-                    <text x="200" y="57" fill="#aaa" font-size="9">Help</text>
-                    <text x="400" y="57" text-anchor="middle" fill="#667eea" font-size="9" font-weight="bold">① Menu Bar</text>
-                    
-                    <!-- Main Toolbar -->
-                    <rect x="10" y="70" width="780" height="35" rx="3" fill="#404040" stroke="#555" stroke-width="1"/>
-                    <rect x="20" y="78" width="50" height="20" rx="3" fill="#4CAF50"/>
-                    <text x="45" y="92" text-anchor="middle" fill="#fff" font-size="8">▶ Play</text>
-                    <rect x="80" y="78" width="50" height="20" rx="3" fill="#555"/>
-                    <text x="105" y="92" text-anchor="middle" fill="#aaa" font-size="8">Save</text>
-                    <rect x="140" y="78" width="60" height="20" rx="3" fill="#555"/>
-                    <text x="170" y="92" text-anchor="middle" fill="#aaa" font-size="8">Content</text>
-                    <rect x="210" y="78" width="60" height="20" rx="3" fill="#555"/>
-                    <text x="240" y="92" text-anchor="middle" fill="#aaa" font-size="8">Settings</text>
-                    <text x="400" y="92" text-anchor="middle" fill="#FF9800" font-size="9" font-weight="bold">② Toolbar</text>
-                    
-                    <!-- Main Content Area -->
-                    <!-- Viewport (largest) -->
-                    <rect x="10" y="110" width="520" height="220" rx="5" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
-                    <text x="270" y="135" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🌍 Viewport</text>
-                    <text x="270" y="155" text-anchor="middle" fill="#93c5fd" font-size="9">3D Scene View</text>
-                    <!-- Simple scene representation -->
-                    <rect x="180" y="200" width="80" height="60" fill="#555" stroke="#777"/>
-                    <polygon points="220,170 180,200 260,200" fill="#777" stroke="#999"/>
-                    <ellipse cx="350" cy="280" rx="60" ry="20" fill="#2a4a6a"/>
-                    <rect x="100" y="290" width="250" height="30" fill="#1a2a3a" stroke="#2a4a6a"/>
-                    <text x="270" y="310" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold">③ Your 3D World</text>
-                    
-                    <!-- Right Panels -->
-                    <!-- Outliner -->
-                    <rect x="540" y="110" width="250" height="100" rx="5" fill="#383838" stroke="#fbbf24" stroke-width="2"/>
-                    <rect x="540" y="110" width="250" height="25" rx="5" fill="#4a4a4a"/>
-                    <text x="665" y="127" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">📋 World Outliner</text>
-                    <text x="555" y="150" fill="#aaa" font-size="8">▼ Scene</text>
-                    <text x="565" y="165" fill="#ccc" font-size="8">  ■ PlayerStart</text>
-                    <text x="565" y="180" fill="#ccc" font-size="8">  ■ Floor</text>
-                    <text x="565" y="195" fill="#ccc" font-size="8">  ■ DirectionalLight</text>
-                    <text x="665" y="203" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="bold">④ Object List</text>
-                    
-                    <!-- Details -->
-                    <rect x="540" y="220" width="250" height="110" rx="5" fill="#383838" stroke="#ef4444" stroke-width="2"/>
-                    <rect x="540" y="220" width="250" height="25" rx="5" fill="#4a4a4a"/>
-                    <text x="665" y="237" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🔧 Details Panel</text>
-                    <text x="555" y="260" fill="#aaa" font-size="8">Transform</text>
-                    <text x="560" y="275" fill="#ccc" font-size="7">Location: X=0 Y=0 Z=0</text>
-                    <text x="560" y="288" fill="#ccc" font-size="7">Rotation: R=0 P=0 Y=0</text>
-                    <text x="560" y="301" fill="#ccc" font-size="7">Scale: X=1 Y=1 Z=1</text>
-                    <text x="665" y="320" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="bold">⑤ Properties</text>
-                    
-                    <!-- Content Browser -->
-                    <rect x="10" y="335" width="780" height="40" rx="5" fill="#383838" stroke="#10b981" stroke-width="2"/>
-                    <rect x="10" y="335" width="150" height="40" rx="5" fill="#2a2a2a"/>
-                    <text x="85" y="358" text-anchor="middle" fill="#aaa" font-size="8">📁 Content</text>
-                    <rect x="170" y="342" width="30" height="26" rx="3" fill="#555"/>
-                    <rect x="205" y="342" width="30" height="26" rx="3" fill="#555"/>
-                    <rect x="240" y="342" width="30" height="26" rx="3" fill="#555"/>
-                    <rect x="275" y="342" width="30" height="26" rx="3" fill="#555"/>
-                    <text x="500" y="360" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">📂 Content Browser - Asset Library</text>
-                    <text x="730" y="360" text-anchor="middle" fill="#10b981" font-size="9" font-weight="bold">⑥</text>
-                </svg>
-                <p class="caption"><em>Figure: The main Unreal Editor interface showing all key panels and their purposes.</em></p>
+                <!-- Figure: real UE 5.8 editor interface capture -->
+                <img src="images/m01_l03/m01_l03_fig01_editor_interface.png" alt="The Unreal Engine 5.8 editor showing six labeled panels: (1) Menu Bar across the top, (2) Main Toolbar below it, (3) Viewport at center displaying a 3D scene, (4) Outliner on the right, (5) Details Panel to its left, and (6) Content Browser along the bottom." style="max-width: 100%; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Unreal Editor 5.8 interface with its six key panels labeled &#183; the Viewport (center) shows your 3D scene, the Outliner and Details panel sit on the right, and the Content Browser runs along the bottom.</em></p>
                 
                 <div class="mermaid">
                     graph TB
@@ -1272,8 +1204,8 @@
                             <td><kbd>Ctrl + Space</kbd></td>
                         </tr>
                         <tr>
-                            <td><strong>Marketplace</strong></td>
-                            <td>Browse Unreal Marketplace</td>
+                            <td><strong>Fab</strong></td>
+                            <td>Browse Fab (fab.com), Epic's content library</td>
                             <td>-</td>
                         </tr>
                         <tr>
@@ -2250,10 +2182,10 @@
                 <h3>📖 Additional Resources</h3>
                 
                 <ul>
-                    <li><strong>Official Documentation:</strong> <a href="https://docs.unrealengine.com/5.5/en-US/unreal-editor-interface/" target="_blank" rel="noopener">Unreal Editor Interface Guide</a></li>
+                    <li><strong>Official Documentation:</strong> <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-editor-interface" target="_blank" rel="noopener">Unreal Editor Interface Guide</a></li>
                     <li><strong>Video Tutorials:</strong> Search for "Unreal Engine 5 Interface Tour" on YouTube</li>
                     <li><strong>Community Forums:</strong> <a href="https://forums.unrealengine.com/" target="_blank" rel="noopener">Unreal Engine Forums</a></li>
-                    <li><strong>Quick Reference:</strong> <a href="https://docs.unrealengine.com/5.5/en-US/keyboard-shortcuts-in-unreal-engine/" target="_blank" rel="noopener">Keyboard Shortcuts</a></li>
+                    <li><strong>Quick Reference:</strong> <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/keyboard-shortcuts-in-unreal-engine" target="_blank" rel="noopener">Keyboard Shortcuts</a></li>
                 </ul>
             </section>
 

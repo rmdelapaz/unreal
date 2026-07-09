@@ -1,3 +1,38 @@
+/* Dark-mode toggle (ported from blender_course) */
+/* Early theme init: apply the saved theme immediately so the page matches the user's choice. */
+(function () {
+	try {
+		var saved = localStorage.getItem('theme');
+		if (saved === 'dark' || saved === 'light') {
+			document.documentElement.setAttribute('data-theme', saved);
+		}
+	} catch (e) {}
+})();
+
+/* Wire the existing #theme-toggle button: toggle data-theme, persist it, and keep the icon in sync. */
+(function () {
+	function currentTheme() {
+		return document.documentElement.getAttribute('data-theme') ||
+			(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+	}
+	function initThemeToggle() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+		btn.textContent = currentTheme() === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+		btn.addEventListener('click', function () {
+			var next = currentTheme() === 'dark' ? 'light' : 'dark';
+			document.documentElement.setAttribute('data-theme', next);
+			try { localStorage.setItem('theme', next); } catch (e) {}
+			btn.textContent = next === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+		});
+	}
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initThemeToggle);
+	} else {
+		initThemeToggle();
+	}
+})();
+
 /* Prism.js 1.29.0 - Minimal Python Syntax Highlighting */
 
 var _self = (typeof window !== 'undefined')
@@ -287,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		
 		// Apply Prism highlighting if available
-		if (typeof Prism !== 'undefined') {
+		if (typeof Prism !== 'undefined' && typeof Prism.highlightElement === 'function') {
 			Prism.highlightElement(block);
 		}
 	});

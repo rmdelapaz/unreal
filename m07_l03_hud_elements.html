@@ -74,11 +74,13 @@
             </header>
 
             <!-- Sticky Table of Contents -->
-            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
-                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">📑</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">▾</span>
                 </summary>
-                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                <nav aria-label="Table of Contents">
                     <ol>
                         <li><a href="#data-binding" class="toc-link">Data Binding Fundamentals</a></li>
                         <li><a href="#health-bar" class="toc-link">Creating a Dynamic Health Bar</a></li>

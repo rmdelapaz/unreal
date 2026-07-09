@@ -74,15 +74,18 @@
             </header>
 
             <!-- Sticky Table of Contents -->
-            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
-                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">📑</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">▾</span>
                 </summary>
-                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                <nav aria-label="Table of Contents">
                     <ol>
                         <li><a href="#binding-vs-events" class="toc-link">Binding vs Event-Driven Updates</a></li>
                         <li><a href="#event-dispatchers" class="toc-link">Event Dispatchers for UI</a></li>
                         <li><a href="#ui-architecture" class="toc-link">UI Architecture Patterns</a></li>
+                        <li><a href="#mvvm" class="toc-link">MVVM: Unreal’s Binding System</a></li>
                         <li><a href="#hands-on" class="toc-link">Hands-On: Event-Driven Inventory UI</a></li>
                         <li><a href="#summary" class="toc-link">Summary</a></li>
                     </ol>
@@ -702,6 +705,96 @@ Function: ShowInventory()
                 </div>
             </section>
             <!-- Section 4: Hands-On Exercise -->
+            <section id="mvvm" class="lesson-section">
+                <h2>MVVM: Unreal’s Built-In Binding System</h2>
+
+                <p>Everything in this lesson so far &#183; separating data from presentation, updating the UI only when data changes, wiring Event Dispatchers by hand &#183; is a pattern common enough that Unreal Engine 5 ships a formal system for it: <strong>MVVM (Model-View-Viewmodel)</strong>. Built into the engine since 5.3 (enable the <strong>Model View Viewmodel</strong> plugin), it gives you event-driven data binding without the per-frame cost of Property Binding or the manual boilerplate of Event Dispatchers.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>MVVM (Model-View-Viewmodel):</strong> An architecture that puts a <strong>Viewmodel</strong> between your game data (the Model) and your widgets (the View). The Viewmodel holds UI-ready data; widgets bind to it and update automatically, and only, when that data changes.</p>
+                </div>
+
+                <h3>The Three Pieces</h3>
+
+                <ul>
+                    <li><strong>Model:</strong> Your actual game data and logic &#183; the Character’s health, the inventory array, the score. It knows nothing about the UI.</li>
+                    <li><strong>Viewmodel:</strong> A bridge object (a Blueprint deriving from <code>MVVMViewModelBase</code>) that holds the data the UI needs, shaped for display. It reads from the Model and broadcasts whenever its values change.</li>
+                    <li><strong>View:</strong> Your Widget Blueprints. They bind their properties to the Viewmodel’s fields and never touch the Model directly.</li>
+                </ul>
+
+                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="28" text-anchor="middle" fill="#333" font-size="15" font-weight="bold">MVVM: Model &#8594; Viewmodel &#8594; View</text>
+                    <g transform="translate(40,70)">
+                        <rect x="0" y="0" width="200" height="150" rx="10" fill="#e3f2fd" stroke="#1976D2" stroke-width="2"/>
+                        <text x="100" y="30" text-anchor="middle" fill="#1565C0" font-size="14" font-weight="bold">Model</text>
+                        <text x="100" y="60" text-anchor="middle" fill="#555" font-size="11">Game data &amp; logic</text>
+                        <text x="100" y="82" text-anchor="middle" fill="#777" font-size="10">Health, inventory, score</text>
+                        <text x="100" y="120" text-anchor="middle" fill="#999" font-size="9">Knows nothing about UI</text>
+                    </g>
+                    <path d="M 245 145 L 295 145" stroke="#667eea" stroke-width="3" marker-end="url(#mvvmArr)"/>
+                    <text x="270" y="137" text-anchor="middle" fill="#667eea" font-size="9">updates</text>
+                    <g transform="translate(300,70)">
+                        <rect x="0" y="0" width="200" height="150" rx="10" fill="#ede7f6" stroke="#673AB7" stroke-width="2"/>
+                        <text x="100" y="26" text-anchor="middle" fill="#4527A0" font-size="14" font-weight="bold">Viewmodel</text>
+                        <text x="100" y="46" text-anchor="middle" fill="#555" font-size="9">MVVMViewModelBase</text>
+                        <rect x="18" y="60" width="164" height="26" rx="4" fill="#fff" stroke="#673AB7"/>
+                        <text x="100" y="77" text-anchor="middle" fill="#4527A0" font-size="9">🔔 HealthPercent (FieldNotify)</text>
+                        <rect x="18" y="94" width="164" height="26" rx="4" fill="#fff" stroke="#673AB7"/>
+                        <text x="100" y="111" text-anchor="middle" fill="#4527A0" font-size="9">🔔 ScoreText (FieldNotify)</text>
+                        <text x="100" y="140" text-anchor="middle" fill="#999" font-size="9">Broadcasts on change</text>
+                    </g>
+                    <path d="M 505 132 L 555 132" stroke="#673AB7" stroke-width="3" marker-end="url(#mvvmArr2)"/>
+                    <text x="530" y="124" text-anchor="middle" fill="#673AB7" font-size="9">binds</text>
+                    <path d="M 555 165 L 505 165" stroke="#9C27B0" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#mvvmArr3)"/>
+                    <text x="530" y="185" text-anchor="middle" fill="#9C27B0" font-size="8">input (two-way)</text>
+                    <g transform="translate(560,70)">
+                        <rect x="0" y="0" width="200" height="150" rx="10" fill="#e8f5e9" stroke="#2E7D32" stroke-width="2"/>
+                        <text x="100" y="28" text-anchor="middle" fill="#1B5E20" font-size="14" font-weight="bold">View</text>
+                        <text x="100" y="48" text-anchor="middle" fill="#555" font-size="10">Widget Blueprints</text>
+                        <rect x="30" y="66" width="140" height="16" rx="8" fill="#4CAF50"/>
+                        <text x="100" y="104" text-anchor="middle" fill="#777" font-size="10">Health bar, score text</text>
+                        <text x="100" y="132" text-anchor="middle" fill="#999" font-size="9">Updates only on broadcast</text>
+                    </g>
+                    <text x="400" y="288" text-anchor="middle" fill="#666" font-size="10">Event-driven: no per-frame polling. The View reacts only when a FieldNotify field changes.</text>
+                    <defs>
+                        <marker id="mvvmArr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#667eea"/></marker>
+                        <marker id="mvvmArr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#673AB7"/></marker>
+                        <marker id="mvvmArr3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#9C27B0"/></marker>
+                    </defs>
+                </svg>
+                <p class="caption"><em>Figure: MVVM &#183; the Model updates a Viewmodel whose FieldNotify fields broadcast to the bound View, which refreshes only when the data changes.</em></p>
+
+                <h3>FieldNotify: How the Viewmodel Broadcasts</h3>
+
+                <p>A plain variable can’t tell anyone it changed. To make a Viewmodel field drive the UI, mark it with <strong>FieldNotify</strong> (click the bell icon next to the variable). Now two things happen:</p>
+
+                <ul>
+                    <li>The field appears in the widget’s <strong>View Bindings</strong> menu as something you can bind to.</li>
+                    <li>Setting it uses a <strong>Set W/Broadcast</strong> node instead of a plain Set &#183; whenever you change the value, it messages every bound widget to update.</li>
+                </ul>
+
+                <p>That is the whole trick: no ticking, no polling. The UI reacts to a broadcast, exactly like the Event Dispatcher pattern you built by hand earlier &#183; only here Unreal generates the plumbing for you.</p>
+
+                <h3>Binding in the View Bindings Panel</h3>
+
+                <p>Inside a Widget Blueprint, open the <strong>View Bindings</strong> panel (its button sits in the editor’s status bar):</p>
+
+                <ol>
+                    <li>Add your Viewmodel to the widget, and choose how it is created: a new instance, set manually from code, or resolved from a global collection.</li>
+                    <li>Add a binding: pick a <strong>widget property</strong> on one side (for example, the health bar’s <code>Percent</code>) and a <strong>Viewmodel FieldNotify field</strong> on the other (for example, <code>HealthPercent</code>). Only FieldNotify fields appear in the list.</li>
+                    <li>Choose a direction: <strong>One Way To View</strong> (data drives the widget, the common case), <strong>Two Way</strong> (an input widget also writes back to the Viewmodel), or One Way To Viewmodel.</li>
+                    <li>Optionally add a <strong>conversion function</strong> to reshape the value &#183; current/max health into a 0-1 percent, or a number into formatted text.</li>
+                </ol>
+
+                <p>Bindings run once between PreConstruct and Construct, then update on their own whenever a FieldNotify field broadcasts.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Binding, Dispatchers, or MVVM?</h4>
+                    <p><strong>Per-frame Property Binding</strong> is the simplest to set up but polls every frame &#183; fine for quick prototypes. <strong>Event Dispatchers</strong> (this lesson) are event-driven and efficient, and are the best way to learn the pattern and handle targeted updates. <strong>MVVM</strong> is that same event-driven idea, formalized and generated for you &#183; the recommended choice for production UI, complex HUDs, and menus, especially as the number of bound elements grows.</p>
+                </div>
+            </section>
+
             <section id="hands-on" class="lesson-section">
                 <h2>Hands-On: Event-Driven Inventory UI</h2>
 
@@ -1301,6 +1394,8 @@ Call UpdateSlot(Empty S_InventoryItem)</code></pre>
                 <p><strong>Event Dispatchers:</strong> The backbone of event-driven UI. Game systems declare dispatchers and call them when state changes. UI widgets bind to these dispatchers and update only when notified. This creates clean, decoupled architecture where data owners don't need to know about their consumers.</p>
 
                 <p><strong>Model-View Separation:</strong> Keep data (Model) in game systems like Characters and Game State. Keep presentation (View) in UI widgets. Connect them via events. This separation makes both sides easier to modify, test, and extend independently.</p>
+
+                <p><strong>MVVM (built-in):</strong> Unreal Engine 5’s formal version of this pattern. A Viewmodel deriving from <code>MVVMViewModelBase</code> holds UI-ready data; its FieldNotify fields broadcast on change, and the View Bindings panel wires widget properties to them. It is event-driven like Event Dispatchers but generated for you &#183; the recommended choice for production UI.</p>
 
                 <p><strong>UI Manager Pattern:</strong> Centralize UI control in a manager that handles showing/hiding screens, managing input modes, and maintaining screen stacks. This prevents scattered UI logic and makes state management predictable.</p>
 

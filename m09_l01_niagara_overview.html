@@ -74,11 +74,13 @@
             </header>
 
             <!-- Sticky Table of Contents -->
-            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
-                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">📑</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">▾</span>
                 </summary>
-                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                <nav aria-label="Table of Contents">
                     <ol>
                         <li><a href="#what-is-niagara" class="toc-link">What is Niagara?</a></li>
                         <li><a href="#system-architecture" class="toc-link">System Architecture</a></li>
@@ -428,6 +430,10 @@ flowchart TD
                     <h4>⚠️ Start with CPU</h4>
                     <p>For learning, start with CPU simulation. It's easier to understand and debug. Switch to GPU when you need massive particle counts or hit performance limits. Many professional effects use CPU simulation perfectly fine.</p>
                 </div>
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Lightweight (Stateless) Emitters &#183; UE 5.8</h4>
+                    <p>Alongside the CPU and GPU simulation targets, UE 5.8 offers <strong>Lightweight Emitters</strong> (also called <strong>stateless</strong> emitters, added in 5.4). They are fixed-function and <strong>don’t need to be compiled</strong>, so they iterate faster in the editor and cost far less at runtime &#183; a system can hold many of them with little performance impact, which makes them ideal for mobile and for effects spawned in large numbers. The trade-off is less flexibility (no arbitrary custom modules). Many of the engine’s template systems are now lightweight, and you can mix lightweight and full stateful emitters in one system. Learn the stack on a standard CPU emitter, then reach for lightweight emitters when performance and scale matter.</p>
+                </div>
             </section>
 
             <!-- Section 3: The Niagara Editor -->
@@ -447,85 +453,8 @@ flowchart TD
 
                 <h3>Editor Panels</h3>
 
-                <!-- SVG: Niagara Editor Layout -->
-                <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #2d2d2d;">
-                    <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Niagara Editor Interface</text>
-                    
-                    <!-- Toolbar -->
-                    <g transform="translate(50, 45)">
-                        <rect x="0" y="0" width="700" height="30" rx="3" fill="#3d3d3d" stroke="#555"/>
-                        <text x="350" y="20" text-anchor="middle" fill="#888" font-size="9">Toolbar: Compile, Save, Apply, Simulation Controls</text>
-                    </g>
-                    
-                    <!-- Main layout -->
-                    <g transform="translate(50, 85)">
-                        <!-- System Overview (left) -->
-                        <rect x="0" y="0" width="180" height="200" rx="5" fill="#1565C0" stroke="#2196F3" stroke-width="2"/>
-                        <text x="90" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">System Overview</text>
-                        <text x="90" y="45" text-anchor="middle" fill="#90CAF9" font-size="8">📋 Emitter list</text>
-                        <text x="90" y="65" text-anchor="middle" fill="#90CAF9" font-size="8">Add/remove emitters</text>
-                        <text x="90" y="85" text-anchor="middle" fill="#90CAF9" font-size="8">Reorder emitters</text>
-                        <text x="90" y="105" text-anchor="middle" fill="#90CAF9" font-size="8">Enable/disable</text>
-                        
-                        <rect x="10" y="120" width="160" height="25" rx="3" fill="#4CAF50"/>
-                        <text x="90" y="137" text-anchor="middle" fill="#fff" font-size="8">✨ Emitter_Fire</text>
-                        <rect x="10" y="150" width="160" height="25" rx="3" fill="#607D8B"/>
-                        <text x="90" y="167" text-anchor="middle" fill="#fff" font-size="8">💨 Emitter_Smoke</text>
-                        <rect x="10" y="180" width="160" height="15" rx="3" fill="#444"/>
-                        <text x="90" y="191" text-anchor="middle" fill="#888" font-size="7">+ Add Emitter</text>
-                    </g>
-                    
-                    <!-- Viewport (center) -->
-                    <g transform="translate(240, 85)">
-                        <rect x="0" y="0" width="260" height="200" rx="5" fill="#1e1e1e" stroke="#4CAF50" stroke-width="2"/>
-                        <text x="130" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Preview Viewport</text>
-                        
-                        <!-- Particle preview representation -->
-                        <circle cx="130" cy="110" r="40" fill="rgba(255,102,0,0.3)"/>
-                        <circle cx="130" cy="100" r="25" fill="rgba(255,102,0,0.5)"/>
-                        <circle cx="130" cy="90" r="15" fill="#FF6600"/>
-                        
-                        <!-- Sparks -->
-                        <circle cx="100" cy="130" r="3" fill="#FFD700"/>
-                        <circle cx="150" cy="125" r="2" fill="#FFD700"/>
-                        <circle cx="115" cy="140" r="2" fill="#FFD700"/>
-                        <circle cx="160" cy="135" r="3" fill="#FFD700"/>
-                        
-                        <text x="130" y="180" text-anchor="middle" fill="#4CAF50" font-size="8">Real-time preview</text>
-                        <text x="130" y="195" text-anchor="middle" fill="#888" font-size="7">Rotate, zoom, scrub timeline</text>
-                    </g>
-                    
-                    <!-- Selection Panel (right) -->
-                    <g transform="translate(510, 85)">
-                        <rect x="0" y="0" width="240" height="200" rx="5" fill="#3d3d3d" stroke="#FF9800" stroke-width="2"/>
-                        <text x="120" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Selection Panel</text>
-                        <text x="120" y="40" text-anchor="middle" fill="#FFB74D" font-size="8">Module details & parameters</text>
-                        
-                        <rect x="10" y="55" width="220" height="30" rx="3" fill="#444"/>
-                        <text x="20" y="75" fill="#4CAF50" font-size="8">Spawn Rate</text>
-                        <text x="180" y="75" fill="#fff" font-size="8">50.0</text>
-                        
-                        <rect x="10" y="90" width="220" height="30" rx="3" fill="#444"/>
-                        <text x="20" y="110" fill="#4CAF50" font-size="8">Lifetime</text>
-                        <text x="180" y="110" fill="#fff" font-size="8">2.0 sec</text>
-                        
-                        <rect x="10" y="125" width="220" height="30" rx="3" fill="#444"/>
-                        <text x="20" y="145" fill="#4CAF50" font-size="8">Initial Velocity</text>
-                        <text x="150" y="145" fill="#fff" font-size="8">(0, 0, 100)</text>
-                        
-                        <rect x="10" y="160" width="220" height="30" rx="3" fill="#444"/>
-                        <text x="20" y="180" fill="#4CAF50" font-size="8">Color</text>
-                        <rect x="150" y="168" width="40" height="15" rx="2" fill="#FF6600"/>
-                    </g>
-                    
-                    <!-- Timeline (bottom) -->
-                    <g transform="translate(50, 295)">
-                        <rect x="0" y="0" width="700" height="20" rx="3" fill="#333" stroke="#555"/>
-                        <text x="350" y="14" text-anchor="middle" fill="#888" font-size="8">Timeline: Scrub, loop, playback controls</text>
-                        <rect x="100" y="5" width="200" height="10" rx="2" fill="#667eea"/>
-                    </g>
-                </svg>
-                <p class="caption"><em>Figure: Niagara editor interface with key panels labeled.</em></p>
+                <img src="images/m09_l01/m09_l01_fig01_niagara_editor.png" alt="The Niagara Editor: the Preview viewport with a fountain playing, the System Overview graph showing the System node and the Fountain emitter stack, the Parameters panel, Details, and the Timeline" style="max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <p class="caption"><em>Figure: the Niagara Editor and its key panels &#183; the <strong>Preview</strong> viewport (a fountain playing), the <strong>System Overview</strong> graph (the System node plus the Fountain emitter’s stack: Spawn &#183; Spawn Rate &#183; Simulate &#183; Render), the <strong>Parameters</strong> panel, <strong>Details</strong>, and the <strong>Timeline</strong>. This example is a lightweight/stateless system &#183; note the green “Lightweight Performance: (Best)” readout.</em></p>
 
                 <h3>Key Panels Explained</h3>
 

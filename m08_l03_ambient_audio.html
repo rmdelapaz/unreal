@@ -74,11 +74,13 @@
             </header>
 
             <!-- Sticky Table of Contents -->
-            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
-                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">📑</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">▾</span>
                 </summary>
-                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                <nav aria-label="Table of Contents">
                     <ol>
                         <li><a href="#ambient-sounds" class="toc-link">Ambient Sound Actors</a></li>
                         <li><a href="#audio-volumes" class="toc-link">Audio Volumes and Reverb</a></li>
@@ -499,6 +501,15 @@
                     <h4>✅ Fade Time Matters</h4>
                     <p>Set an appropriate Fade Time (0.5-2.0 seconds) to smooth transitions between areas. Instant reverb changes sound jarring and unnatural. A gradual fade mimics how your ears would adapt moving between spaces.</p>
                 </div>
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Modern Area Audio &amp; Reverb (UE 5.8)</h4>
+                    <p>The Audio Volume + Reverb Effect workflow above still works and is the simplest way to add reverb zones, which is why we use it here. For larger projects, UE 5.8 offers two more flexible, modern options:</p>
+                    <ul>
+                        <li><strong>Audio Gameplay Volumes</strong> &#183; the next-generation successor to Audio Volumes. Rather than one fixed actor with every setting baked in, you compose behavior from modular <em>components</em> (reverb, filtering, attenuation) and add only what a given volume needs.</li>
+                        <li><strong>Submix effects</strong> &#183; route sounds through an audio <strong>Submix</strong> and apply a Submix Effect Preset (for example Convolution Reverb) to it. This gives you a reusable, shared reverb bus instead of per-volume settings, with finer control over the signal chain.</li>
+                    </ul>
+                    <p>Start with Audio Volumes to learn the concept, then reach for Audio Gameplay Volumes or submix reverb as your soundscape grows.</p>
+                </div>
             </section>
 
             <!-- Section 3: Background Music -->
@@ -667,7 +678,7 @@
                     <li>Occasional sounds for life and variety</li>
                     <li>Not constant—triggered by timer or random chance</li>
                     <li>Examples: bird calls, distant thunder, creaking wood</li>
-                    <li>Use Sound Cues with random delays or Blueprint timers</li>
+                    <li>Use a Sound Cue or MetaSound with random delays, or drive playback from Blueprint timers</li>
                 </ul>
 
                 <!-- SVG: Soundscape Layers -->
@@ -742,6 +753,8 @@
                     <li>Add <strong>Looping</strong> node</li>
                     <li>Connect: Delay → Random → Looping → Output</li>
                 </ol>
+
+                <p style="color: #666; font-size: 0.95em;"><em>The same delay-and-randomize logic can be built inside a MetaSound Source using its own Delay and random-selection nodes &#183; a natural fit for ambient sound in UE 5.8.</em></p>
 
                 <p><strong>Blueprint Timer:</strong></p>
                 <ol>

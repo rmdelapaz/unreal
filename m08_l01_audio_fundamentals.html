@@ -74,11 +74,13 @@
             </header>
 
             <!-- Sticky Table of Contents -->
-            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
-                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">📑</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">▾</span>
                 </summary>
-                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                <nav aria-label="Table of Contents">
                     <ol>
                         <li><a href="#audio-overview" class="toc-link">Audio in Unreal Engine</a></li>
                         <li><a href="#importing-audio" class="toc-link">Importing Audio Files</a></li>
@@ -398,7 +400,7 @@
 
                 <h3>Sound Cues</h3>
 
-                <p>Sound Cues are the traditional node-based sound processing system. They let you combine and modify Sound Waves visually.</p>
+                <p>Sound Cues are Unreal's original node-based sound system &#183; you combine and modify Sound Waves visually in a node graph. As of UE 5.8 they are considered <strong>legacy</strong>: still fully supported and shipped with the engine, but no longer the recommended starting point for brand-new work (see MetaSounds below). They stay an approachable way to learn audio node graphs, which is exactly why the hands-on later in this lesson builds one.</p>
 
                 <p><strong>Creating a Sound Cue:</strong></p>
                 <ol>
@@ -512,7 +514,7 @@
 
                 <h3>MetaSounds</h3>
 
-                <p>MetaSounds is Unreal's modern procedural audio system, introduced in UE5. It's more powerful than Sound Cues, enabling complex, generative audio.</p>
+                <p>MetaSounds is Unreal Engine's modern audio system and, as of UE 5.8, the <strong>recommended replacement</strong> for Sound Cues as the default sound source. Epic built it with full <strong>feature parity</strong> with Sound Cues plus significant performance gains, so anything a Sound Cue can do a MetaSound can do too &#183; and more. Under the hood a MetaSound is a <strong>Digital Signal Processing (DSP) graph</strong>, which is what gives it sample-accurate timing, runtime parameter control, and true procedural, generative audio.</p>
 
                 <p><strong>Creating a MetaSound:</strong></p>
                 <ol>
@@ -576,8 +578,8 @@
                 </table>
 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
-                    <h4>✅ Start with Sound Cues</h4>
-                    <p>For most game audio needs, Sound Cues are sufficient and easier to learn. Use them for randomized sound effects, simple layering, and basic looping. Graduate to MetaSounds when you need runtime parameter control, synthesis, or complex procedural audio.</p>
+                    <h4>✅ MetaSounds Is the Modern Default (UE 5.8)</h4>
+                    <p>For <strong>new</strong> work, Epic recommends <strong>MetaSounds</strong> as the default sound source &#183; it matches Sound Cues feature-for-feature and adds better performance and runtime control. Sound Cues remain fully supported for existing projects and for simple playback of your imported assets, and their node graph is a friendly on-ramp for learning audio concepts &#183; which is why this lesson still builds one. Reach for MetaSounds when you want runtime parameters, synthesis, sample-accurate timing, or complex procedural audio.</p>
                 </div>
 
                 <!-- Mermaid: Sound System Decision -->

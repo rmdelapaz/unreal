@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Set up the experimental Unreal MCP plugin in Unreal Engine 5.8: enable the plugin, configure the Model Context Protocol server, generate a client configuration, and verify the live bridge with real editor screenshots.">
+    <meta name="author" content="Practical Ace">
+    <title>Setting Up Unreal MCP - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 11: AI-Assisted Workflows (Unreal MCP)</a></li>
+            <li aria-current="page">Lesson 11.2: Setting Up Unreal MCP</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🔌 Setting Up Unreal MCP</h1>
+                <p class="lead">In the previous lesson you learned what the Model Context Protocol is and how the agent-to-editor bridge works. Now you will build that bridge for real. In four short steps you will enable the plugin, review its settings, generate a client configuration, and confirm that the embedded server is live, following along with actual screenshots captured in Unreal Engine 5.8.</p>
+
+                <!-- Experimental banner -->
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Experimental in UE 5.8</h4>
+                    <p>The Unreal MCP plugin is marked <strong>Experimental</strong> in Unreal Engine 5.8. The exact setting names, default port, and command names shown here may change in future engine versions. If something does not match your editor, check the plugin's own settings and the official documentation. The steps and concepts stay the same even when a label moves.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Enable the Unreal MCP plugin from the Plugins browser</li>
+                        <li>Locate the Model Context Protocol settings in Editor Preferences and read the server URL path, port, and auto-start options</li>
+                        <li>Generate a client configuration file with the GenerateClientConfig console command</li>
+                        <li>Confirm the embedded server is live and dispatching tools using the Output Log</li>
+                        <li>Diagnose the most common setup problems</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 20-30 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lesson 11.1 (Introduction to AI-Assisted Workflows). A working Unreal Engine 5.8 project you are comfortable experimenting in.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#before-you-begin" class="toc-link">Before You Begin</a></li>
+                        <li><a href="#enable-plugin" class="toc-link">Step 1: Enable the Unreal MCP Plugin</a></li>
+                        <li><a href="#configure-server" class="toc-link">Step 2: Configure the Server</a></li>
+                        <li><a href="#generate-config" class="toc-link">Step 3: Generate the Client Configuration</a></li>
+                        <li><a href="#verify-bridge" class="toc-link">Step 4: Verify the Live Bridge</a></li>
+                        <li><a href="#troubleshooting" class="toc-link">Troubleshooting</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Before You Begin -->
+            <section id="before-you-begin" class="lesson-section">
+                <h2>Before You Begin</h2>
+
+                <p>Setting up Unreal MCP has two halves. Inside Unreal, you enable a plugin and let it run a small server. Outside Unreal, you point an AI client (such as Claude Code, Cursor, or VS Code) at that server using a configuration file. The good news is that Unreal can write most of that configuration for you.</p>
+
+                <p>Here is the whole process at a glance before we walk through each step in detail:</p>
+
+                <!-- Mermaid: setup flow -->
+                <pre class="mermaid">
+flowchart LR
+    A["1&#46; Enable the
+Unreal MCP plugin"] --> B["2&#46; Configure the
+server settings"]
+    B --> C["3&#46; Generate the
+client config"]
+    C --> D["4&#46; Verify the
+live bridge"]
+    D --> E["✅ Ready for
+AI-assisted work"]
+
+    style A fill:#667eea,color:#fff
+    style E fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: The four setup steps in this lesson. Each one has a real screenshot so you can confirm your editor matches.</em></p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Work Somewhere Safe</h4>
+                    <p>As covered in Lesson 11.1, do this in a test project or a project under version control. Enabling a plugin and letting an assistant act on your project are both easier to undo when you can roll back cleanly.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Enable the plugin -->
+            <section id="enable-plugin" class="lesson-section">
+                <h2>Step 1: Enable the Unreal MCP Plugin</h2>
+
+                <p>Open the Plugins browser from the main menu: <strong>Edit &#183; Plugins</strong>. This window lists every plugin the editor can see. Type <code>Unreal MCP</code> into the search box in the top-right to filter the list down to the one you want.</p>
+
+                <p>You are looking for the plugin named <strong>Unreal MCP</strong>, described as "Anthropic MCP (Model Context Protocol) server implementation for Unreal Engine" and published by Epic Games, Inc. Tick its checkbox to enable it.</p>
+
+                <img src="images/m11_l02/m11_l02_fig01_plugins_enabled.png" alt="The Unreal Engine 5.8 Plugins browser filtered to 'Unreal MCP'. The Unreal MCP plugin tile shows a checked (enabled) checkbox, an Experimental badge, the description 'Anthropic MCP (Model Context Protocol) server implementation for Unreal Engine', Version 1.0, and the author Epic Games, Inc." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Unreal MCP plugin enabled in the Plugins browser. Note the purple Experimental badge next to its name. &#183; Experimental in UE 5.8.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 What Gets Enabled</h4>
+                    <p>The Unreal MCP plugin depends on a couple of companion plugins that provide the machinery from Lesson 11.1: a <strong>Toolset Registry</strong> (the catalog of toolsets) and the toolsets themselves. Unreal enables those dependencies for you, so you only need to tick the one plugin.</p>
+                </div>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Restart Required</h4>
+                    <p>Enabling a plugin does not take effect until the editor restarts. Unreal will prompt you to restart. Do so before continuing, otherwise the server and its settings will not be available yet.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: Configure the server -->
+            <section id="configure-server" class="lesson-section">
+                <h2>Step 2: Configure the Server</h2>
+
+                <p>With the plugin enabled and the editor restarted, its settings live in Editor Preferences. Open <strong>Edit &#183; Editor Preferences</strong>, then select <strong>Model Context Protocol</strong> from the list on the left. (If you cannot find it, type "Model Context" into the settings search box at the top.)</p>
+
+                <p>The settings are grouped into <strong>Server</strong> and <strong>Tools</strong>:</p>
+
+                <img src="images/m11_l02/m11_l02_fig02_editor_preferences_mcp.png" alt="The Editor Preferences window with the Model Context Protocol section selected. The right panel shows a Server group with Server Url Path set to /mcp, Server Port Number set to 8000, and Auto Start Server checked, plus a Tools group with Enable Tool Search checked." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Model Context Protocol settings in Editor Preferences. The defaults are all you need to get started. &#183; Experimental in UE 5.8.</em></p>
+
+                <p><strong>Server Url Path</strong> is the path portion of the address, <code>/mcp</code> by default. <strong>Server Port Number</strong> is <code>8000</code> by default. Together with the localhost host, these form the full address a client connects to:</p>
+
+                <pre><code>http://127.0.0.1:8000/mcp</code></pre>
+
+                <p><strong>Auto Start Server</strong> is on by default, which means the embedded server starts automatically each time you open the editor. That is exactly what you want for everyday use, so leave it checked. <strong>Enable Tool Search</strong> (under Tools) lets clients discover tools through the Toolset Registry, as described in Lesson 11.1.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Leave the defaults unless you have a reason to change them. The most common reason to change the <strong>Server Port Number</strong> is a conflict: if something else on your machine already uses port 8000, pick another free port here. If you do change it, remember to regenerate the client configuration in the next step so the client points at the new port.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Generate the client config -->
+            <section id="generate-config" class="lesson-section">
+                <h2>Step 3: Generate the Client Configuration</h2>
+
+                <p>Your AI client needs to know where the server is. Rather than writing that configuration by hand, the plugin ships a console command that generates it for you. Open the editor console (the <strong>Cmd</strong> box at the bottom of the Output Log, or the command bar in the status bar) and run:</p>
+
+                <pre><code>ModelContextProtocol.GenerateClientConfig ClaudeCode</code></pre>
+
+                <p>The argument names which client you are configuring. The supported targets are <code>ClaudeCode</code>, <code>Cursor</code>, <code>VSCode</code>, <code>Gemini</code>, <code>Codex</code>, and <code>All</code>. Use the one that matches the assistant you plan to connect, or <code>All</code> to write configuration for every supported client at once.</p>
+
+                <p>The command writes an <code>.mcp.json</code> file into your project folder and reports the location in the Output Log:</p>
+
+                <img src="images/m11_l02/m11_l02_fig03_generate_client_config.png" alt="The Unreal Editor Output Log and console. The console command 'ModelContextProtocol.GenerateClientConfig ClaudeCode' has been entered, and the log shows the line 'LogModelContextProtocol: Display: MCP client configuration written to' followed by a path ending in ClaudeTest/.mcp.json." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: Running the GenerateClientConfig command writes an .mcp.json client configuration into the project folder and logs where it went. &#183; Experimental in UE 5.8.</em></p>
+
+                <p>That <code>.mcp.json</code> file is a small text file describing the server address (<code>http://127.0.0.1:8000/mcp</code>) in the format your client expects. Point your client at it, or place your client's config where it looks for one, and the client will know how to reach the editor.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Why a Generated File?</h4>
+                    <p>Different clients expect their configuration in slightly different shapes and locations. Letting Unreal generate the file removes a common source of typos and mismatched ports, and it always reflects the current Server settings from Step 2.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Verify the live bridge -->
+            <section id="verify-bridge" class="lesson-section">
+                <h2>Step 4: Verify the Live Bridge</h2>
+
+                <p>Before you rely on the bridge, confirm it is actually running. The clearest proof lives in the <strong>Output Log</strong>. Open it (the <strong>Output Log</strong> button in the status bar, or <strong>Window &#183; Output Log</strong>) and type <code>ModelContextProtocol</code> into its Search Log box to filter out everything else.</p>
+
+                <p>When a client connects and starts working, the server logs each step: it negotiates a protocol version, initializes a session, and dispatches each tool call to the right toolset. Seeing these lines is your confirmation that the bridge is live end to end.</p>
+
+                <img src="images/m11_l02/m11_l02_fig04_live_bridge_toolsets.png" alt="The Unreal Editor Output Log filtered to the ModelContextProtocol category. Entries show the server negotiating protocol version 2024-11-05, initializing and confirming client sessions, and dispatching toolset tools such as EditorToolset.LogsToolset.GetLogEntries and SlateInspectorToolset tools." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The Output Log filtered to ModelContextProtocol, showing the live server negotiate a session and dispatch toolset tools. Each "Dispatching toolset tool" line is one action the agent asked the editor to perform. &#183; Experimental in UE 5.8.</em></p>
+
+                <p>Read a few of those lines and the architecture from Lesson 11.1 comes to life. <code>Client requested protocol version, negotiated</code> is the handshake. <code>Session initialized</code> means a client is connected. Each <code>Dispatching toolset tool</code> line names exactly which toolset and tool ran, for example a logs tool or a UI-inspection tool. That is the Toolset Registry routing a request to the right place.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ You Are Connected</h4>
+                    <p>If you see session and dispatch lines appear as your client works, the setup is complete. The editor is listening, the client is connected, and tool calls are flowing. You are ready for the hands-on workflow in the next lesson.</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Troubleshooting -->
+            <section id="troubleshooting" class="lesson-section">
+                <h2>Troubleshooting</h2>
+
+                <p>If something is not working, most problems fall into a handful of categories. Work through these in order.</p>
+
+                <h3>The plugin is not in the list</h3>
+                <p>Clear the Plugins search box and confirm you are searching by the exact name, <code>Unreal MCP</code>. Because it is an Experimental, Built-In plugin, make sure the browser is not hiding built-in plugins through its filters.</p>
+
+                <h3>Settings or server missing after enabling</h3>
+                <p>Enabling a plugin only takes effect after an editor restart. If the Model Context Protocol settings do not appear in Editor Preferences, or the server never starts, restart the editor and try again.</p>
+
+                <h3>The server does not start</h3>
+                <p>Check that <strong>Auto Start Server</strong> is enabled in Editor Preferences (Step 2). Then open the Output Log filtered to <code>ModelContextProtocol</code> and look for warnings or errors. A common cause is a port already in use: if port 8000 is taken, change the <strong>Server Port Number</strong> and regenerate the client configuration.</p>
+
+                <h3>The client cannot connect</h3>
+                <p>Confirm the address is exactly <code>http://127.0.0.1:8000/mcp</code> (or your custom port). Regenerate the configuration with GenerateClientConfig so the client picks up the current settings. Remember the server is localhost-only by default, so the client must run on the same machine as the editor.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 The Log Is Your Friend</h4>
+                    <p>Almost every setup issue shows up in the Output Log under the <code>ModelContextProtocol</code> category. When in doubt, filter to it and watch what happens as you connect. The log will usually tell you exactly what went wrong.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>From the Server settings (Server Url Path <code>/mcp</code> and Server Port Number <code>8000</code>), what is the full address a client uses to reach the editor?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> https://unrealengine.com/mcp</label>
+                            <label><input type="radio" name="q1" value="b"> http://127.0.0.1:8000/mcp</label>
+                            <label><input type="radio" name="q1" value="c"> tcp://localhost/8000</label>
+                            <label><input type="radio" name="q1" value="d"> http://0.0.0.0:80/mcp</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The localhost host (127.0.0.1) plus the port (8000) plus the URL path (/mcp) form <code>http://127.0.0.1:8000/mcp</code>. Because it is localhost, only clients on your own machine can reach it by default.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>You just ticked the checkbox to enable the Unreal MCP plugin. What must you do before its settings and server are available?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Rebuild all shaders</label>
+                            <label><input type="radio" name="q2" value="b"> Restart the editor</label>
+                            <label><input type="radio" name="q2" value="c"> Reinstall Unreal Engine</label>
+                            <label><input type="radio" name="q2" value="d"> Nothing; it is available immediately</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Enabling a plugin takes effect only after an editor restart. Unreal prompts you to restart; do so before looking for the settings.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>Which console command generates the client configuration file?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> ModelContextProtocol.GenerateClientConfig</label>
+                            <label><input type="radio" name="q3" value="b"> MCP.Connect</label>
+                            <label><input type="radio" name="q3" value="c"> Editor.StartServer</label>
+                            <label><input type="radio" name="q3" value="d"> Plugin.Enable MCP</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; <code>ModelContextProtocol.GenerateClientConfig</code> writes an <code>.mcp.json</code> file. You pass a client name such as ClaudeCode, Cursor, VSCode, Gemini, Codex, or All.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What does running GenerateClientConfig produce, and where (per this lesson)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> A new level saved to the Content folder</label>
+                            <label><input type="radio" name="q4" value="b"> An .mcp.json configuration file written into the project folder</label>
+                            <label><input type="radio" name="q4" value="c"> A compiled plugin binary in the Engine directory</label>
+                            <label><input type="radio" name="q4" value="d"> A screenshot of the viewport</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The command writes a small <code>.mcp.json</code> file describing the server address into the project folder, and the Output Log reports the exact path it used.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Which Output Log category should you filter to when confirming the live bridge or diagnosing setup problems?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> LogTemp</label>
+                            <label><input type="radio" name="q5" value="b"> LogRendering</label>
+                            <label><input type="radio" name="q5" value="c"> LogModelContextProtocol</label>
+                            <label><input type="radio" name="q5" value="d"> LogBlueprint</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; The <code>LogModelContextProtocol</code> (searchable as "ModelContextProtocol") category logs session handshakes and every dispatched toolset tool, so it is the first place to look when verifying or troubleshooting the bridge.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You have turned the concept from Lesson 11.1 into a working setup. Here is the path you followed:</p>
+
+                <p><strong>Enable the plugin.</strong> In Edit &#183; Plugins, search for and enable <strong>Unreal MCP</strong> (Experimental), then restart the editor so the change takes effect.</p>
+
+                <p><strong>Configure the server.</strong> In Edit &#183; Editor Preferences &#183; Model Context Protocol, the server defaults to <code>/mcp</code> on port <code>8000</code> with Auto Start Server enabled, giving the address <code>http://127.0.0.1:8000/mcp</code>.</p>
+
+                <p><strong>Generate the client configuration.</strong> Run <code>ModelContextProtocol.GenerateClientConfig</code> with your client name to write an <code>.mcp.json</code> into the project folder.</p>
+
+                <p><strong>Verify the live bridge.</strong> Filter the Output Log to <code>ModelContextProtocol</code> and watch the server negotiate sessions and dispatch toolset tools. Those lines are proof the bridge is running.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>🔑 Key Takeaways</h3>
+                    <ul>
+                        <li>Enable Unreal MCP in Edit &#183; Plugins, then restart the editor</li>
+                        <li>The server settings live in Editor Preferences &#183; Model Context Protocol</li>
+                        <li>Defaults give the address http://127.0.0.1:8000/mcp, localhost-only</li>
+                        <li>GenerateClientConfig writes an .mcp.json for your chosen client</li>
+                        <li>Supported clients: ClaudeCode, Cursor, VSCode, Gemini, Codex, All</li>
+                        <li>The LogModelContextProtocol category confirms and diagnoses the bridge</li>
+                    </ul>
+                </div>
+
+                <h3>What's Next?</h3>
+
+                <p>The bridge is built and verified. In the final lesson of this module, <strong>Your First AI-Driven Workflow</strong>, you will put it to work: give an assistant a plain-language goal and watch it author something real in your project through the very toolsets you just saw dispatching in the log.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m11_l01_introduction_to_ai_workflows.html" class="btn">← Previous: Introduction to AI-Assisted Workflows</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m11_l03_your_first_ai_workflow.html" class="btn">Next: Your First AI-Driven Workflow →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

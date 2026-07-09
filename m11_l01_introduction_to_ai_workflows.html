@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An introduction to AI-assisted workflows in Unreal Engine 5.8 using the experimental Model Context Protocol (MCP) plugin: what MCP is, how the editor bridge works, and how a plain-language request reaches the editor.">
+    <meta name="author" content="Practical Ace">
+    <title>Introduction to AI-Assisted Workflows - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                ☰
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 11: AI-Assisted Workflows (Unreal MCP)</a></li>
+            <li aria-current="page">Lesson 11.1: Introduction to AI-Assisted Workflows</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>🤖 Introduction to AI-Assisted Workflows</h1>
+                <p class="lead">A new way to work is arriving in Unreal Engine. Instead of clicking through every menu and wiring every node by hand, you can describe what you want in plain language and let an AI assistant carry it out inside the editor. This lesson introduces the Model Context Protocol (MCP), the bridge that makes this possible, and the ideas you need before you set it up in the next lesson.</p>
+
+                <!-- Experimental banner -->
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Experimental in UE 5.8</h4>
+                    <p>The Unreal MCP plugin and everything built on it in this module are marked <strong>Experimental</strong> in Unreal Engine 5.8. That means the feature works and is genuinely useful, but its interface and behavior may change in future releases. Treat it as a powerful preview, not a finished, production-guaranteed tool. Every technique in this module carries that same label.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>🎯 Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what an AI-assisted workflow is and how it differs from traditional manual editing</li>
+                        <li>Describe the Model Context Protocol (MCP) and the problem it solves</li>
+                        <li>Trace how a plain-language request travels from an AI agent into the Unreal Editor and back</li>
+                        <li>Identify the roles of the MCP server, the Toolset Registry, and the editor toolsets</li>
+                        <li>Recognize what Unreal MCP is good at today and where its Experimental limits lie</li>
+                        <li>Apply basic safety habits: review changes, keep undo history, and stay in the loop</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 30-40 minutes</p>
+                    <p><strong>Prerequisites:</strong> Comfortable navigating the Unreal Editor (Module 1). Familiarity with the Content Browser, Material Editor, and Blueprints helps but is not required.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">📑 In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#what-are-ai-workflows" class="toc-link">What Are AI-Assisted Workflows?</a></li>
+                        <li><a href="#what-is-mcp" class="toc-link">Meet the Model Context Protocol</a></li>
+                        <li><a href="#architecture" class="toc-link">How Unreal MCP Works</a></li>
+                        <li><a href="#capabilities" class="toc-link">What You Can Do With It</a></li>
+                        <li><a href="#safety" class="toc-link">Safety and the Human in the Loop</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: What Are AI-Assisted Workflows? -->
+            <section id="what-are-ai-workflows" class="lesson-section">
+                <h2>What Are AI-Assisted Workflows?</h2>
+
+                <p>Everything you have built so far in this course, you built by hand. You opened panels, clicked buttons, dragged nodes, and typed values. That is the traditional workflow, and it is exactly how a craftsperson should learn a tool: deliberately, one step at a time.</p>
+
+                <p>An <strong>AI-assisted workflow</strong> adds a second way to work alongside the first. Rather than performing every click yourself, you describe your goal to an AI assistant, and the assistant performs the steps inside the editor for you. You stay in charge; the assistant handles the repetitive mechanics.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>AI-Assisted Workflow:</strong> A way of working in which you express intent in natural language and an AI assistant carries out the corresponding actions inside a tool, such as the Unreal Editor, on your behalf. You review and guide the results rather than executing every step manually.</p>
+                </div>
+
+                <h3>A Concrete Example</h3>
+
+                <p>Suppose you want a simple material for a prop. In the traditional workflow you would: right-click in the Content Browser, create a Material, open the Material Editor, add a Vector Parameter, set its color, wire it to Base Color, add a Scalar Parameter for Roughness, wire that in, compile, and save. Eight or nine deliberate steps.</p>
+
+                <p>In an AI-assisted workflow you might instead type: <em>"Create a shiny red plastic material called M_RedProp and apply it to the selected chair."</em> The assistant translates that sentence into the same underlying editor actions and performs them, then reports back what it did. The result is identical; the path to it is faster.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Key Insight</h4>
+                    <p>AI assistance does not replace your skill, it amplifies it. You still need to know what a good material, a well-lit scene, or a sensible Blueprint looks like, because you are the one reviewing and approving the work. The assistant is fast, but you are the one with taste and judgment.</p>
+                </div>
+
+                <h3>Manual and AI-Assisted, Side by Side</h3>
+
+                <p>The two workflows are not rivals. They share the same editor and the same underlying operations. The difference is who performs the clicks and how you express what you want.</p>
+
+                <!-- Mermaid: Manual vs AI-assisted -->
+                <pre class="mermaid">
+flowchart LR
+    subgraph Manual["🖱️ Traditional Manual Workflow"]
+        direction TB
+        A1["Open the editor"] --> A2["Click through menus"]
+        A2 --> A3["Wire nodes and set values by hand"]
+        A3 --> A4["✅ Result"]
+    end
+
+    subgraph Assisted["🤖 AI-Assisted Workflow"]
+        direction TB
+        B1["Describe the goal in words"] --> B2["Assistant plans the steps"]
+        B2 --> B3["MCP runs those steps in the editor"]
+        B3 --> B4["✅ Result"]
+    end
+
+    style Manual fill:#eef,stroke:#667eea
+    style Assisted fill:#e8f5e9,stroke:#4CAF50
+    style A4 fill:#4CAF50,color:#fff
+    style B4 fill:#4CAF50,color:#fff
+                </pre>
+                <p class="caption"><em>Figure: Both paths end at the same result inside the same editor. The AI-assisted path swaps manual clicks for a described goal that the assistant executes.</em></p>
+
+                <p>So how does a sentence you type become real actions inside Unreal? That is the job of the Model Context Protocol.</p>
+            </section>
+
+            <!-- Section 2: Meet the Model Context Protocol -->
+            <section id="what-is-mcp" class="lesson-section">
+                <h2>Meet the Model Context Protocol</h2>
+
+                <p>For an AI assistant to do useful work in a program, it needs a reliable way to talk to that program: to ask what is there, to run operations, and to read back the results. Historically, every application invented its own way of being automated, so connecting an assistant to each one meant custom, one-off plumbing.</p>
+
+                <p>The <strong>Model Context Protocol (MCP)</strong> is an open standard that fixes this. It defines one common language for AI assistants to discover and use external tools. An assistant that speaks MCP can connect to any program that exposes an MCP interface, without bespoke integration for each one.</p>
+
+                <div class="card" style="background: #1a1a2e; border-left: 4px solid #667eea;">
+                    <h4>📖 Definition</h4>
+                    <p style="color: white;"><strong>Model Context Protocol (MCP):</strong> An open standard that lets AI assistants connect to external tools and data through a shared, predictable interface. A program exposes its capabilities as an MCP <em>server</em>; an AI assistant connects as an MCP <em>client</em>.</p>
+                </div>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>🔌 A Helpful Analogy</h4>
+                    <p>Think of MCP like a universal port, the way USB-C lets one cable charge a phone, a laptop, and a headset. Before a common standard, every device needed its own connector. MCP is that common connector for AI assistants and tools: learn it once, and many programs become reachable through the same plug.</p>
+                </div>
+
+                <h3>Servers and Clients</h3>
+
+                <p>Two roles matter in every MCP connection:</p>
+
+                <p><strong>The MCP server</strong> is the program being controlled. It advertises a list of things it can do (its tools) and waits for requests. In this module, the server lives inside the Unreal Editor.</p>
+
+                <p><strong>The MCP client</strong> is the AI assistant that connects to the server, reads the available tools, and calls them on your behalf. Popular clients include coding assistants and AI-enabled editors.</p>
+
+                <h3>Unreal Engine 5.8 Ships an MCP Server</h3>
+
+                <p>Unreal Engine 5.8 includes an official, Experimental <strong>Unreal MCP plugin</strong>. When you enable it, the editor runs a small MCP server inside itself, listening on your own machine at this address:</p>
+
+                <pre><code>http://127.0.0.1:8000/mcp</code></pre>
+
+                <p>The address <code>127.0.0.1</code> is <em>localhost</em>, meaning "this computer." The server is reachable only from your own machine, not from the internet. An assistant running on your PC can connect to it; the outside world cannot.</p>
+
+                <p>To make connecting easy, the plugin can generate the configuration a client needs. A single editor command, <code>ModelContextProtocol.GenerateClientConfig</code>, writes a small configuration file (an <code>.mcp.json</code>) describing how to reach the server. It supports several well-known clients out of the box:</p>
+
+                <div class="card" style="background: #f8f9fa; padding: 1.5rem;">
+                    <p style="margin: 0;"><strong>Supported client targets:</strong> <code>ClaudeCode</code> &#183; <code>Cursor</code> &#183; <code>VSCode</code> &#183; <code>Gemini</code> &#183; <code>Codex</code> &#183; <code>All</code></p>
+                </div>
+
+                <p>You will actually enable the plugin, generate this config, and connect a client in the next lesson. For now, the important idea is simply that the editor can speak MCP, and that any MCP client on your machine can therefore drive it.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>Because this plugin is Experimental in 5.8, the exact command names, default port, and client list may shift in later engine versions. Whenever something in this module does not match your editor, check the plugin's own settings and the official documentation first; the concepts stay the same even when a name changes.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: How Unreal MCP Works -->
+            <section id="architecture" class="lesson-section">
+                <h2>How Unreal MCP Works: The Architecture</h2>
+
+                <p>It helps to picture the whole path from your words to a real change in your project. There are four moving parts, arranged in a line, with results flowing back the other way.</p>
+
+                <!-- SVG: MCP Architecture (concept, synthetic per style guide source 4) -->
+                <svg width="100%" height="470" viewBox="0 0 900 470" style="max-width: 900px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <defs>
+                        <marker id="arrowFwd" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#66BB6A"/>
+                        </marker>
+                        <marker id="arrowBack" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#f1c40f"/>
+                        </marker>
+                    </defs>
+
+                    <text x="450" y="34" text-anchor="middle" fill="#fff" font-size="19" font-weight="bold">From Your Words to a Real Change in the Project</text>
+
+                    <!-- Stage 1: AI Agent -->
+                    <g transform="translate(30, 70)">
+                        <rect x="0" y="0" width="170" height="120" rx="10" fill="#2a2a4a" stroke="#667eea" stroke-width="2"/>
+                        <text x="85" y="34" text-anchor="middle" fill="#fff" font-size="34">🤖</text>
+                        <text x="85" y="66" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">AI Agent</text>
+                        <text x="85" y="88" text-anchor="middle" fill="#aab" font-size="11">(the MCP client)</text>
+                        <text x="85" y="107" text-anchor="middle" fill="#aab" font-size="11">Turns words into</text>
+                        <text x="85" y="121" text-anchor="middle" fill="#aab" font-size="11">tool calls</text>
+                    </g>
+
+                    <!-- Stage 2: MCP Server -->
+                    <g transform="translate(250, 70)">
+                        <rect x="0" y="0" width="180" height="120" rx="10" fill="#2a2a4a" stroke="#667eea" stroke-width="2"/>
+                        <text x="90" y="34" text-anchor="middle" fill="#fff" font-size="34">🖥️</text>
+                        <text x="90" y="66" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">MCP Server</text>
+                        <text x="90" y="88" text-anchor="middle" fill="#aab" font-size="11">Embedded in the editor</text>
+                        <text x="90" y="107" text-anchor="middle" fill="#66BB6A" font-size="11" font-family="monospace">127.0.0.1:8000</text>
+                        <text x="90" y="121" text-anchor="middle" fill="#66BB6A" font-size="11" font-family="monospace">/mcp</text>
+                    </g>
+
+                    <!-- Stage 3: Toolset Registry -->
+                    <g transform="translate(490, 70)">
+                        <rect x="0" y="0" width="170" height="120" rx="10" fill="#2a2a4a" stroke="#667eea" stroke-width="2"/>
+                        <text x="85" y="34" text-anchor="middle" fill="#fff" font-size="34">🗂️</text>
+                        <text x="85" y="66" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">Toolset Registry</text>
+                        <text x="85" y="88" text-anchor="middle" fill="#aab" font-size="11">The catalog of</text>
+                        <text x="85" y="102" text-anchor="middle" fill="#aab" font-size="11">available toolsets</text>
+                        <text x="85" y="121" text-anchor="middle" fill="#aab" font-size="11">and their tools</text>
+                    </g>
+
+                    <!-- Stage 4: Unreal Editor -->
+                    <g transform="translate(710, 70)">
+                        <rect x="0" y="0" width="160" height="120" rx="10" fill="#1b3a2a" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="80" y="34" text-anchor="middle" fill="#fff" font-size="34">🎮</text>
+                        <text x="80" y="66" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">Unreal Editor</text>
+                        <text x="80" y="88" text-anchor="middle" fill="#aab" font-size="11">Your live project</text>
+                        <text x="80" y="107" text-anchor="middle" fill="#aab" font-size="11">Actions happen</text>
+                        <text x="80" y="121" text-anchor="middle" fill="#aab" font-size="11">here for real</text>
+                    </g>
+
+                    <!-- Forward arrows -->
+                    <line x1="200" y1="118" x2="248" y2="118" stroke="#66BB6A" stroke-width="3" marker-end="url(#arrowFwd)"/>
+                    <line x1="430" y1="118" x2="488" y2="118" stroke="#66BB6A" stroke-width="3" marker-end="url(#arrowFwd)"/>
+                    <line x1="660" y1="118" x2="708" y2="118" stroke="#66BB6A" stroke-width="3" marker-end="url(#arrowFwd)"/>
+
+                    <text x="224" y="104" text-anchor="middle" fill="#66BB6A" font-size="10">MCP / HTTP</text>
+                    <text x="459" y="104" text-anchor="middle" fill="#66BB6A" font-size="10">lookup</text>
+                    <text x="684" y="104" text-anchor="middle" fill="#66BB6A" font-size="10">execute</text>
+
+                    <!-- Toolsets callout under registry -->
+                    <g transform="translate(360, 250)">
+                        <rect x="0" y="0" width="440" height="150" rx="10" fill="#181830" stroke="#8888aa" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <text x="220" y="26" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Editor Toolsets (grouped capabilities)</text>
+
+                        <rect x="20" y="42" width="190" height="30" rx="5" fill="#3d3d5c"/>
+                        <text x="115" y="62" text-anchor="middle" fill="#cfe" font-size="12">Asset Tools</text>
+                        <rect x="230" y="42" width="190" height="30" rx="5" fill="#3d3d5c"/>
+                        <text x="325" y="62" text-anchor="middle" fill="#cfe" font-size="12">Material Tools</text>
+
+                        <rect x="20" y="80" width="190" height="30" rx="5" fill="#3d3d5c"/>
+                        <text x="115" y="100" text-anchor="middle" fill="#cfe" font-size="12">Object Tools</text>
+                        <rect x="230" y="80" width="190" height="30" rx="5" fill="#3d3d5c"/>
+                        <text x="325" y="100" text-anchor="middle" fill="#cfe" font-size="12">Editor App / Viewport</text>
+
+                        <rect x="125" y="118" width="190" height="30" rx="5" fill="#3d3d5c"/>
+                        <text x="220" y="138" text-anchor="middle" fill="#cfe" font-size="12">UI Inspector</text>
+                    </g>
+
+                    <!-- Registry to toolsets link -->
+                    <line x1="575" y1="190" x2="575" y2="248" stroke="#8888aa" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrowFwd)"/>
+                    <text x="575" y="228" text-anchor="middle" fill="#8888aa" font-size="10">exposes</text>
+
+                    <!-- Return path -->
+                    <path d="M 790 190 L 790 430 L 115 430 L 115 192" fill="none" stroke="#f1c40f" stroke-width="2.5" stroke-dasharray="7,4" marker-end="url(#arrowBack)"/>
+                    <text x="450" y="424" text-anchor="middle" fill="#f1c40f" font-size="12" font-weight="bold">results &#183; data &#183; screenshots flow back to the agent</text>
+                </svg>
+                <p class="caption"><em>Figure: How an AI assistant reaches into the Unreal Editor through MCP. Requests travel left to right; results travel back along the bottom. &#183; Experimental in UE 5.8.</em></p>
+
+                <h3>The Four Parts</h3>
+
+                <p><strong>1. The AI Agent (the client).</strong> This is your assistant, running on your computer. It receives your plain-language request, decides which editor operations are needed, and issues them as structured "tool calls" over MCP. It is the only part that understands your sentence; everything downstream just executes precise instructions.</p>
+
+                <p><strong>2. The MCP Server (embedded in the editor).</strong> When the Unreal MCP plugin is enabled, the running editor hosts this server on localhost. It receives tool calls from the agent, hands them to the editor to perform, and sends results back. Because it lives inside the editor, it can touch your project directly.</p>
+
+                <p><strong>3. The Toolset Registry.</strong> The server does not expose one giant list of commands. Instead, capabilities are organized into <strong>toolsets</strong>, and the registry is the catalog of them. When an agent connects, it can ask the registry what toolsets exist and what each one offers, then call exactly the tool it needs.</p>
+
+                <p><strong>4. The Editor Toolsets.</strong> Each toolset groups related operations. One handles assets (creating folders, saving, deleting), another handles materials (creating a material, adding nodes, wiring them), another handles scene objects (spawning actors, setting properties), another handles the viewport and screenshots, and another lets the agent inspect the editor's own interface. A tool is a single, well-defined action inside a toolset, such as "create a material" or "capture the viewport."</p>
+
+                <h3>One Request, Start to Finish</h3>
+
+                <p>Following a single request through the whole chain makes the round trip concrete:</p>
+
+                <!-- Mermaid: request lifecycle -->
+                <pre class="mermaid">
+sequenceDiagram
+    participant You
+    participant Agent as AI Agent
+    participant Server as MCP Server
+    participant Editor as Unreal Editor
+    You->>Agent: "Make a shiny red material"
+    Agent->>Server: call_tool(create_material, ...)
+    Server->>Editor: perform the operation
+    Editor-->>Server: material created
+    Server-->>Agent: result: success + details
+    Agent-->>You: "Done. Created M_Red for you."
+                </pre>
+                <p class="caption"><em>Figure: The lifecycle of one AI-assisted request. Your intent becomes a tool call, the editor performs it, and the outcome travels back so the assistant can tell you what happened.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>The results that flow back are not limited to text. Because a toolset can capture the viewport or a UI panel, the assistant can send an actual screenshot of the change back to you. That is how an AI assistant can "look" at your scene and describe what it sees, which is genuinely useful when you are iterating on lighting or materials.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: What You Can Do With It -->
+            <section id="capabilities" class="lesson-section">
+                <h2>What You Can Do With It</h2>
+
+                <p>With the toolsets described above, an assistant can carry out a wide range of editor-time tasks. These are the kinds of jobs Unreal MCP handles well today:</p>
+
+                <ul>
+                    <li><strong>Author materials:</strong> create a material, add and wire nodes, expose parameters, then spin up material instances with different values.</li>
+                    <li><strong>Populate a scene:</strong> spawn actors, place lights, and set properties such as position, intensity, or color.</li>
+                    <li><strong>Adjust assets in bulk:</strong> apply the same change across many objects, which is tedious to do by hand.</li>
+                    <li><strong>Inspect and capture:</strong> read the editor's panels and take screenshots of the viewport or a UI panel to report on the current state.</li>
+                    <li><strong>Organize content:</strong> create folders, save assets, and clean up temporary work.</li>
+                </ul>
+
+                <p>Notice the pattern: these are <em>authoring</em> tasks you perform in the editor while building your project. That focus is deliberate, and it is also where the current limits live.</p>
+
+                <!-- SVG: Strengths vs cautions -->
+                <svg width="100%" height="300" viewBox="0 0 800 300" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" font-size="18" font-weight="bold">Where Unreal MCP Shines, and Where to Be Careful</text>
+
+                    <!-- Great for (left) -->
+                    <g transform="translate(40, 55)">
+                        <rect x="0" y="0" width="350" height="215" rx="10" fill="#4CAF50" opacity="0.12" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="175" y="30" text-anchor="middle" fill="#2e7d32" font-size="16" font-weight="bold">✅ Great for</text>
+                        <text x="24" y="62" fill="#333" font-size="13">• Repetitive, well-defined authoring tasks</text>
+                        <text x="24" y="90" fill="#333" font-size="13">• Building materials and material instances</text>
+                        <text x="24" y="118" fill="#333" font-size="13">• Spawning and arranging actors</text>
+                        <text x="24" y="146" fill="#333" font-size="13">• Setting properties across many objects</text>
+                        <text x="24" y="174" fill="#333" font-size="13">• Capturing screenshots to review state</text>
+                        <text x="24" y="202" fill="#333" font-size="13">• Rapid prototyping and first drafts</text>
+                    </g>
+
+                    <!-- Be careful (right) -->
+                    <g transform="translate(410, 55)">
+                        <rect x="0" y="0" width="350" height="215" rx="10" fill="#ffc107" opacity="0.14" stroke="#ffc107" stroke-width="2"/>
+                        <text x="175" y="30" text-anchor="middle" fill="#b8860b" font-size="16" font-weight="bold">⚠️ Be careful with</text>
+                        <text x="24" y="62" fill="#333" font-size="13">• Experimental: behavior may change</text>
+                        <text x="24" y="90" fill="#333" font-size="13">• Not every editor feature is exposed</text>
+                        <text x="24" y="118" fill="#333" font-size="13">• Editor-time authoring, not live gameplay</text>
+                        <text x="24" y="146" fill="#333" font-size="13">• Acts on your real, open project</text>
+                        <text x="24" y="174" fill="#333" font-size="13">• Needs your review; it can misread intent</text>
+                        <text x="24" y="202" fill="#333" font-size="13">• Not yet for mission-critical automation</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: Unreal MCP is a strong accelerator for editor-time authoring, balanced against the honest limits of an Experimental feature.</em></p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Watch Out</h4>
+                    <p>The assistant works on your <em>real, currently open</em> project. A vague or overly broad request can produce changes you did not intend, just as it would if you handed your keyboard to an eager but literal-minded helper. Clear, specific requests get better results, and the safety habits in the next section keep surprises recoverable.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Safety and the Human in the Loop -->
+            <section id="safety" class="lesson-section">
+                <h2>Safety and the Human in the Loop</h2>
+
+                <p>An AI assistant driving your editor is powerful, and power deserves a few sensible precautions. None of these are difficult; together they turn "the assistant did something unexpected" from a disaster into a minor, reversible hiccup.</p>
+
+                <h3>Work Where Mistakes Are Cheap</h3>
+
+                <p>Try AI-assisted workflows in a test project or a scratch level first, not on a scene representing weeks of irreplaceable work. When you do use it on a real project, keep that project under version control (such as Git) so any change can be reviewed and rolled back cleanly.</p>
+
+                <h3>Keep Undo and Review the Results</h3>
+
+                <p>The editor's normal Undo history still applies to actions the assistant performs, so you can step back just as you would after your own edits. More importantly, actually look at what changed: open the assets it created, check the Content Browser, and confirm the result matches what you asked for before you build on top of it.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>✅ Pro Tip</h4>
+                    <p>Ask the assistant to place temporary or experimental assets in a clearly named folder, for example a "Temp" or "Sandbox" folder, and to clean them up when finished. Naming and isolating throwaway work makes it obvious what is safe to delete and keeps your project tidy.</p>
+                </div>
+
+                <h3>Stay in the Loop</h3>
+
+                <p>The phrase "human in the loop" means you remain the decision-maker. The assistant proposes and performs steps, but you set the goal, judge the outcome, and approve what stays. Treat it like a capable junior collaborator: fast and helpful, but working under your direction and review, not unsupervised.</p>
+
+                <h3>Localhost by Default</h3>
+
+                <p>Recall that the MCP server listens on <code>127.0.0.1</code>, your own machine. By default it is not exposed to the network or the internet, so a stranger cannot reach into your editor. That is a reasonable default, and you should be cautious about changing it. If you ever configure remote access, understand exactly who can then connect.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>💡 Key Insight</h4>
+                    <p>Good AI-assisted work feels like pair programming: you describe intent, the assistant drafts the solution, and you review together. The assistant covers speed and tedium; you cover judgment, correctness, and taste. Keep that balance and the workflow stays safe and productive.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is the Model Context Protocol (MCP)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> A new rendering system that replaces Lumen</label>
+                            <label><input type="radio" name="q1" value="b"> An open standard that lets AI assistants connect to external tools through a shared interface</label>
+                            <label><input type="radio" name="q1" value="c"> A file format for storing Unreal materials</label>
+                            <label><input type="radio" name="q1" value="d"> A cloud service that hosts your Unreal projects</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; MCP is an open standard that defines one common way for AI assistants (clients) to discover and use the capabilities that a program (server) exposes, so an assistant can drive many tools without custom integration for each.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>In the Unreal MCP setup, which part plays the role of the MCP server?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> The AI assistant running on your computer</label>
+                            <label><input type="radio" name="q2" value="b"> A remote Epic Games web service</label>
+                            <label><input type="radio" name="q2" value="c"> The Unreal Editor itself, via the embedded plugin</label>
+                            <label><input type="radio" name="q2" value="d"> The operating system's network stack</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; With the Unreal MCP plugin enabled, the running editor hosts the MCP server inside itself. The AI assistant is the client that connects to it.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What address does the embedded Unreal MCP server listen on by default, and what does that imply?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> A public internet address, so anyone can connect</label>
+                            <label><input type="radio" name="q3" value="b"> 127.0.0.1:8000/mcp, which is localhost and reachable only from your own machine</label>
+                            <label><input type="radio" name="q3" value="c"> A random address that changes every session</label>
+                            <label><input type="radio" name="q3" value="d"> The Epic Games Launcher's address</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The server listens on <code>http://127.0.0.1:8000/mcp</code>. The <code>127.0.0.1</code> address is localhost, so by default only clients on your own computer can reach it, not the outside network.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What is the purpose of the Toolset Registry?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> It stores your Epic Games account credentials</label>
+                            <label><input type="radio" name="q4" value="b"> It compiles shaders faster</label>
+                            <label><input type="radio" name="q4" value="c"> It is the catalog of available toolsets and their tools that the agent can discover and call</label>
+                            <label><input type="radio" name="q4" value="d"> It records a video of every action the assistant takes</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; The registry organizes the server's capabilities into toolsets and lets a connected agent ask what toolsets and tools exist, so it can call exactly the operation it needs.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Which habit best reflects keeping a "human in the loop" with AI-assisted workflows?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Letting the assistant run unsupervised on your most important project</label>
+                            <label><input type="radio" name="q5" value="b"> Reviewing the changes it makes and approving what stays, while you set the goals</label>
+                            <label><input type="radio" name="q5" value="c"> Disabling Undo so changes are permanent</label>
+                            <label><input type="radio" name="q5" value="d"> Exposing the MCP server to the internet for convenience</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Staying in the loop means you remain the decision-maker: you set intent, review the results, and approve what is kept. Working in test projects, keeping version control, and preserving Undo all support that role.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>This lesson introduced a new way of working in Unreal Engine and the technology that powers it. Here is what to carry forward:</p>
+
+                <p><strong>AI-assisted workflows</strong> let you describe a goal in plain language and have an AI assistant perform the editor steps for you. They sit alongside manual work, sharing the same editor and operations, and they amplify your skill rather than replacing it.</p>
+
+                <p><strong>The Model Context Protocol (MCP)</strong> is an open standard that connects AI assistants (clients) to programs (servers) through a shared interface. Unreal Engine 5.8 ships an Experimental MCP plugin that runs a server inside the editor at <code>http://127.0.0.1:8000/mcp</code>.</p>
+
+                <p><strong>The architecture</strong> is a short chain: the AI agent turns your words into tool calls, the embedded MCP server receives them, the Toolset Registry catalogs the available editor toolsets, and the editor performs the work. Results, including screenshots, flow back to the agent.</p>
+
+                <p><strong>Its strengths</strong> are editor-time authoring tasks such as building materials, spawning actors, and setting properties, while its Experimental status means limits and the need for your review.</p>
+
+                <p><strong>Safety comes from staying in the loop:</strong> work where mistakes are cheap, keep version control and Undo, review every change, and remember the server is localhost-only by default.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>🔑 Key Takeaways</h3>
+                    <ul>
+                        <li>AI assistance amplifies your skill; it does not replace your judgment</li>
+                        <li>MCP is a shared standard: servers expose tools, clients call them</li>
+                        <li>Unreal 5.8 embeds an Experimental MCP server at 127.0.0.1:8000/mcp</li>
+                        <li>Agent, MCP server, Toolset Registry, and editor form the request chain</li>
+                        <li>Results flow back, including real screenshots of your scene</li>
+                        <li>Stay in the loop: test projects, version control, Undo, and review</li>
+                        <li>Localhost-only by default keeps the bridge private to your machine</li>
+                    </ul>
+                </div>
+
+                <h3>What's Next?</h3>
+
+                <p>In the next lesson, <strong>Setting Up Unreal MCP</strong>, you will move from concept to practice. You will enable the plugin in Edit &#183; Plugins, review the Model Context Protocol settings in Editor Preferences, generate the client configuration, and confirm that the live bridge and its toolsets are reachable, all with real screenshots of each step in UE 5.8.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m10_l03_building_distribution.html" class="btn">← Previous: Building and Distribution</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="m11_l02_setting_up_unreal_mcp.html" class="btn">Next: Setting Up Unreal MCP →</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                // Remove previous states
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                // Show result
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    // Highlight correct answer
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

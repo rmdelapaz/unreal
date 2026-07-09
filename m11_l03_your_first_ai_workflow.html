@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Run your first AI-driven workflow in Unreal Engine 5.8: learn to phrase, refine, and review a natural-language request while an assistant authors a real parameterized material and material instances through the experimental Unreal MCP bridge.">
+    <meta name="author" content="Practical Ace">
+    <title>Your First AI-Driven Workflow - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#modules">Module 11: AI-Assisted Workflows (Unreal MCP)</a></li>
+            <li aria-current="page">Lesson 11.3: Your First AI-Driven Workflow</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#128640; Your First AI-Driven Workflow</h1>
+                <p class="lead">The bridge is built and verified. Now you put it to work. In this final lesson you will run a real workflow end to end: an assistant authors a small reusable material and a set of material instances in your project, entirely from a plain-language request. The star of the lesson is not the clicking, because the assistant does that. The skill that matters most is learning to <strong>ask well</strong>, then <strong>review</strong> what comes back. That is the habit that turns an AI assistant into a dependable collaborator.</p>
+
+                <!-- Experimental banner -->
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Experimental in UE 5.8</h4>
+                    <p>The Unreal MCP plugin is marked <strong>Experimental</strong> in Unreal Engine 5.8. The exact tool names, log wording, and editor panels shown here may change in future engine versions. The workflow habits you learn, phrasing a request and reviewing the result, stay useful no matter how the details move.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Break a request into its four useful parts: goal, specifics, constraints, and acceptance</li>
+                        <li>Turn a vague prompt into a clear one and predict how the results differ</li>
+                        <li>Read the Output Log to watch your request become a sequence of editor tool calls</li>
+                        <li>Review an AI-authored result and correct it with a small, scoped follow-up</li>
+                        <li>Apply the human-in-the-loop safety habits from Lesson 11.1 to a real task</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 25-35 minutes</p>
+                    <p><strong>Prerequisites:</strong> Lessons 11.1 and 11.2. A working Unreal Engine 5.8 project with the Unreal MCP bridge running and a client connected.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card" open style="position: sticky; top: 80px; z-index: 100; background: var(--card-bg, white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 1rem; user-select: none;">
+                    <h2 style="display: inline; margin: 0;">&#128209; In This Lesson</h2>
+                </summary>
+                <nav aria-label="Table of Contents" style="padding: 0 1rem 1rem 1rem;">
+                    <ol>
+                        <li><a href="#before-you-begin" class="toc-link">Before You Begin</a></li>
+                        <li><a href="#anatomy" class="toc-link">Anatomy of a Good Request</a></li>
+                        <li><a href="#vague-to-clear" class="toc-link">From Vague to Clear</a></li>
+                        <li><a href="#watch-it-work" class="toc-link">Watch It Work: Authoring a Material</a></li>
+                        <li><a href="#reviewing" class="toc-link">Reviewing and Iterating</a></li>
+                        <li><a href="#your-turn" class="toc-link">Your Turn: Practice Prompts</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1: Before You Begin -->
+            <section id="before-you-begin" class="lesson-section">
+                <h2>Before You Begin</h2>
+
+                <p>By now the pieces are in place. Lesson 11.1 explained the architecture: your words become tool calls, the embedded server receives them, the Toolset Registry routes each one to the right editor toolset, and the editor does the work. Lesson 11.2 turned that idea into a live bridge you verified in the Output Log. This lesson is where you drive it.</p>
+
+                <p>To keep things concrete, the whole lesson follows one small workflow. You will ask an assistant to build a <strong>reusable master material</strong> with a few adjustable settings, then spin off <strong>three material instances</strong> that each look different. It is a genuinely useful task, it is quick, and the result is easy to judge with your eyes. Everything the assistant does here it does through the exact toolsets you met in Lesson 11.1.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Work in a Sandbox</h4>
+                    <p>Follow the safety habits from Lesson 11.1. Use a test project or one under version control, and ask the assistant to keep its work in a clearly named <strong>sandbox folder</strong> so it is obvious what is safe to remove. You stay in control: review each result, and undo freely if something is not what you meant.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Anatomy of a Good Request -->
+            <section id="anatomy" class="lesson-section">
+                <h2>Anatomy of a Good Request</h2>
+
+                <p>An AI assistant is powerful but literal. It does its best with whatever you give it, so the quality of your request shapes the quality of the result. The good news is that a strong request is not about clever wording. It is about including four simple parts. Once you can name them, you can write a good prompt every time.</p>
+
+                <!-- SVG: anatomy of a request -->
+                <svg width="100%" height="430" viewBox="0 0 800 430" style="max-width: 800px; margin: 2rem auto; display: block; border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9;" role="img" aria-label="Diagram: a good request has four parts. Goal is what you want to end up with. Specifics are the concrete details. Constraints are the limits and safety rules. Acceptance is how you will know it worked.">
+                    <text x="400" y="34" text-anchor="middle" fill="#333" font-size="19" font-weight="bold">The Four Parts of a Good Request</text>
+
+                    <!-- Goal -->
+                    <g transform="translate(40, 60)">
+                        <rect x="0" y="0" width="720" height="78" rx="10" fill="#667eea" opacity="0.12" stroke="#667eea" stroke-width="2"/>
+                        <text x="18" y="30" fill="#4a4a8a" font-size="16" font-weight="bold">1&#46; Goal</text>
+                        <text x="18" y="55" fill="#333" font-size="13">What you want to end up with, in one sentence.</text>
+                        <text x="360" y="55" fill="#555" font-size="12" font-style="italic">&#8220;a reusable material with a few instances&#8221;</text>
+                    </g>
+
+                    <!-- Specifics -->
+                    <g transform="translate(40, 150)">
+                        <rect x="0" y="0" width="720" height="78" rx="10" fill="#4CAF50" opacity="0.12" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="18" y="30" fill="#2e7d32" font-size="16" font-weight="bold">2&#46; Specifics</text>
+                        <text x="18" y="55" fill="#333" font-size="13">The concrete details that remove guesswork.</text>
+                        <text x="360" y="55" fill="#555" font-size="12" font-style="italic">&#8220;Base Color, Roughness, Metallic; three instances&#8221;</text>
+                    </g>
+
+                    <!-- Constraints -->
+                    <g transform="translate(40, 240)">
+                        <rect x="0" y="0" width="720" height="78" rx="10" fill="#ffc107" opacity="0.16" stroke="#ffc107" stroke-width="2"/>
+                        <text x="18" y="30" fill="#b8860b" font-size="16" font-weight="bold">3&#46; Constraints</text>
+                        <text x="18" y="55" fill="#333" font-size="13">The limits and safety rules to respect.</text>
+                        <text x="360" y="55" fill="#555" font-size="12" font-style="italic">&#8220;keep it in a sandbox folder; do not touch my level&#8221;</text>
+                    </g>
+
+                    <!-- Acceptance -->
+                    <g transform="translate(40, 330)">
+                        <rect x="0" y="0" width="720" height="78" rx="10" fill="#2196F3" opacity="0.12" stroke="#2196F3" stroke-width="2"/>
+                        <text x="18" y="30" fill="#1565c0" font-size="16" font-weight="bold">4&#46; Acceptance</text>
+                        <text x="18" y="55" fill="#333" font-size="13">How you will know it worked.</text>
+                        <text x="360" y="55" fill="#555" font-size="12" font-style="italic">&#8220;show me each instance on a preview sphere&#8221;</text>
+                    </g>
+                </svg>
+                <p class="caption"><em>Figure: A good request names its goal, fills in the specifics, states its constraints, and describes how you will know it worked.</em></p>
+
+                <p>You do not have to label these parts out loud, and you do not have to write a paragraph. You just have to make sure they are present. A one-line request that quietly includes all four beats a long, wandering one that leaves the assistant guessing.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip</h4>
+                    <p>Specific beats polite. &#8220;Please make something nice&#8221; gives the assistant nothing to aim at, while &#8220;a matte blue paint, Roughness around 0.85&#8221; gives it a target it can hit and you can check. Say what you mean plainly.</p>
+                </div>
+            </section>
+
+            <!-- Section 3: From Vague to Clear -->
+            <section id="vague-to-clear" class="lesson-section">
+                <h2>From Vague to Clear</h2>
+
+                <p>Watch the four parts do their work. Here is the same task expressed two ways. The first is what many people type first. The second is what you will actually send.</p>
+
+                <div class="card" style="background-color: #fdecea; border-left: 4px solid #e53935;">
+                    <h4>&#10060; Vague</h4>
+                    <p style="font-size: 1.05rem;"><em>&#8220;Make me some materials.&#8221;</em></p>
+                    <p>Every part is missing. How many materials? What kind? Where should they go? What should they look like when done? The assistant has to guess all of it. It might create one material or ten, put them anywhere, and pick looks you did not want. Worse, without a constraint it has no reason to avoid changing your open level. A vague request does not save you time, it just moves the work to a cleanup step later.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Clear</h4>
+                    <p style="font-size: 1.05rem;"><em>&#8220;In a new sandbox folder, create a master material with three exposed parameters: a Base Color, a Roughness value, and a Metallic value. Then make three material instances from it: a shiny red plastic, a brushed gold metal, and a matte blue paint. Show me each on a preview sphere. Do not modify my current level, and delete the sandbox folder when we are done.&#8221;</em></p>
+                    <p>All four parts are present. The <strong>goal</strong> is a reusable material plus instances. The <strong>specifics</strong> name the parameters and the three looks. The <strong>constraints</strong> pin the work to a sandbox folder and protect your level. The <strong>acceptance</strong> is a preview sphere for each instance. There is almost nothing left to guess, and the closing cleanup instruction keeps your project tidy.</p>
+                </div>
+
+                <p>Notice that the clear version is only a little longer, and none of the extra words are decorative. Each one closes a gap the assistant would otherwise have to fill on its own. This is the request we will run.</p>
+            </section>
+
+            <!-- Section 4: Watch It Work -->
+            <section id="watch-it-work" class="lesson-section">
+                <h2>Watch It Work: Authoring a Material</h2>
+
+                <p>Send the clear request and the assistant gets to work. It does not perform one giant action. It breaks the goal into a series of small, precise editor operations and dispatches each one across the bridge. You do not have to imagine this happening, because the Output Log records every step. Filter it to the material toolsets, as you learned in Lesson 11.2, and you can read the workflow unfold line by line.</p>
+
+                <img src="images/m11_l03/m11_l03_fig01_dispatch_log.png" alt="The Unreal Editor Output Log filtered to the search term toolsets.material. It lists a sequence of ModelContextProtocol dispatch lines: MaterialTools add_expression twice, MaterialTools connect_to_output three times, MaterialTools recompile, MaterialInstanceTools create three times, then several MaterialInstanceTools set_vector_parameter and set_scalar_parameter calls, and finally MaterialInstanceTools list_parameters." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: Your one request, seen as the editor sees it. Each &#8220;Dispatching toolset tool&#8221; line is a single action the assistant took over the bridge. &#183; Experimental in UE 5.8.</em></p>
+
+                <p>Read the log top to bottom and the story is plain. The assistant <strong>adds expression nodes</strong> for the three parameters, <strong>connects them</strong> to the material outputs, and <strong>recompiles</strong> so the master material is ready. Then it <strong>creates three material instances</strong> and <strong>sets their values</strong>, one <code>set_vector_parameter</code> or <code>set_scalar_parameter</code> at a time, before <strong>listing the parameters</strong> to confirm the result. That is your sentence, translated into the toolsets from Lesson 11.1 and dispatched through the bridge from Lesson 11.2.</p>
+
+                <p>The result is not a throwaway preview. It is a set of real, saved assets you can open and edit by hand at any time. Open the gold instance and its Details panel shows the parameters the assistant exposed, each with an override checkbox, all inheriting from the master material:</p>
+
+                <img src="images/m11_l03/m11_l03_fig02_mi_details.png" alt="The Details panel of the brushed gold metal material instance. Under Parameter Groups, a Surface group lists three checked parameters: Base Color with a gold swatch, Roughness set to 0.35, and Metallic set to 1.0. Below, the General section shows the Parent set to M_SandboxSurface." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The gold instance the assistant authored. The three exposed parameters (Base Color, Roughness, Metallic) sit in a Surface group, and the Parent points back to the master material. Fully editable by hand. &#183; Experimental in UE 5.8.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Why This Matters</h4>
+                    <p>The assistant did not hand you a picture of a material. It built the same asset you would have built by hand, using the same editor operations, and left it in place for you to keep working with. AI-assisted authoring accelerates your workflow, it does not replace the project you own.</p>
+                </div>
+            </section>
+
+            <!-- Section 5: Reviewing and Iterating -->
+            <section id="reviewing" class="lesson-section">
+                <h2>Reviewing and Iterating</h2>
+
+                <p>The workflow is not finished when the assistant stops typing. It is finished when <em>you</em> have looked at the result and agreed with it. This is the human-in-the-loop step from Lesson 11.1, and it is the most important habit in the whole module. Start with the acceptance criterion you set: you asked to see each instance on a preview sphere, so look at them.</p>
+
+                <img src="images/m11_l03/m11_l03_fig03_result_spheres.jpg" alt="Three material preview spheres side by side. The first is a glossy bright red plastic labeled Shiny Red Plastic, Roughness 0.15, Metallic 0. The second is a warm reflective gold labeled Brushed Gold Metal, Roughness 0.35, Metallic 1. The third is a flat matte blue labeled Matte Blue Paint, Roughness 0.85, Metallic 0." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The payoff. Three material instances, one shared master, three distinct looks: glossy plastic, reflective metal, and flat matte paint. &#183; Experimental in UE 5.8.</em></p>
+
+                <p>This is exactly what the request described. The plastic is glossy, the metal is reflective and warm, and the paint is flat. When the result matches your intent, you are done. When it does not, you do not start over. You send a small, scoped follow-up.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128172; Iterating with a Follow-up</h4>
+                    <p>Suppose the gold read a little too rough for your taste. You would not rebuild anything. You would say: <em>&#8220;Set the gold instance's Roughness to 0.2.&#8221;</em> That is one parameter on one instance, easy for the assistant to change and easy for you to verify. Small, specific follow-ups keep both of you in sync and keep every change reviewable.</p>
+                </div>
+
+                <p>Build a quick review checklist into your habit and every workflow stays under your control:</p>
+
+                <div class="card">
+                    <h4>A four-question review</h4>
+                    <ul>
+                        <li><strong>Did it do what I meant?</strong> Compare the result to your goal, not just your words.</li>
+                        <li><strong>Is it in the right place?</strong> Confirm the work landed in the sandbox folder and nowhere else.</li>
+                        <li><strong>Did anything unintended change?</strong> A glance at the Output Log or your level answers this.</li>
+                        <li><strong>Does it look right?</strong> Trust your eyes on the visual result, as you did with the spheres.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 6: Your Turn -->
+            <section id="your-turn" class="lesson-section">
+                <h2>Your Turn: Practice Prompts</h2>
+
+                <p>The best way to build the habit is to run a few requests of your own. Work in a sandbox folder, review each result with the four-question checklist, and undo anything you do not like. Here are three prompts that grow in richness. Read each one and spot the goal, specifics, constraints, and acceptance before you send it.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>1&#46; Warm up</h4>
+                    <p><em>&#8220;In my sandbox folder, add two more instances of the master material: a matte black rubber and a polished white ceramic. Show me each on a preview sphere.&#8221;</em></p>
+                    <p>Reuses the master you already have, so it is quick. Notice it still names the looks and asks to see them.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>2&#46; A small change across several assets</h4>
+                    <p><em>&#8220;For every instance in the sandbox folder, nudge its Roughness up by 0.1, then show me the updated preview spheres side by side. Do not change anything outside that folder.&#8221;</em></p>
+                    <p>This is the kind of repetitive edit that is tedious by hand and quick for an assistant. The constraint keeps the change contained, and the acceptance lets you confirm it.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>3&#46; A fresh little build</h4>
+                    <p><em>&#8220;In the sandbox folder, create a new emissive material with an exposed Emissive Color and Brightness, then make a warm-orange instance and a cool-cyan instance. Show me both, and tell me which toolsets you used.&#8221;</em></p>
+                    <p>A new master, two instances, and a request for the assistant to report its own steps. Asking it to explain what it did is a good way to learn the toolsets and to double-check its work.</p>
+                </div>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Clean Up When You Are Done</h4>
+                    <p>Finish the way the worked example did: <em>&#8220;Delete the sandbox folder and confirm it is gone.&#8221;</em> Naming and removing throwaway work keeps your project tidy and makes it obvious that nothing experimental was left behind. If in doubt, check the folder yourself afterward.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Which set best describes the four useful parts of a good request?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Speed, cost, model, and version</label>
+                            <label><input type="radio" name="q1" value="b"> Goal, specifics, constraints, and acceptance</label>
+                            <label><input type="radio" name="q1" value="c"> Import, edit, export, and publish</label>
+                            <label><input type="radio" name="q1" value="d"> Who, what, when, and where</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A strong request names its goal, fills in the specifics, states its constraints, and describes how you will know it worked. You do not have to label them, only include them.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why is a specific request usually better than a vague one?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> The assistant is literal, so vagueness forces it to guess and it may guess wrong</label>
+                            <label><input type="radio" name="q2" value="b"> Specific requests use fewer tokens and always run faster</label>
+                            <label><input type="radio" name="q2" value="c"> The assistant refuses to act on short requests</label>
+                            <label><input type="radio" name="q2" value="d"> Vague requests can only edit one asset at a time</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; An assistant does its best with what you give it. A vague request leaves gaps it has to fill on its own, so a clear one that names the details gets you closer to what you actually wanted.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>In the Output Log, what does a single &#8220;Dispatching toolset tool&#8221; line represent?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> A warning that the bridge is offline</label>
+                            <label><input type="radio" name="q3" value="b"> The entire request, compiled into one command</label>
+                            <label><input type="radio" name="q3" value="c"> One editor action the assistant took, routed to a specific toolset</label>
+                            <label><input type="radio" name="q3" value="d"> A screenshot saved to disk</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; The assistant breaks your goal into small operations and dispatches each one. Every dispatch line names the toolset and tool that ran, so the log reads as a step-by-step record of the workflow.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>The result is mostly right, but one instance looks a little off. What is the best next move?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Delete everything and start the whole request over</label>
+                            <label><input type="radio" name="q4" value="b"> Send a small, scoped follow-up that changes just that one thing, then review it</label>
+                            <label><input type="radio" name="q4" value="c"> Disable the plugin and edit the asset only by hand</label>
+                            <label><input type="radio" name="q4" value="d"> Accept it as is, since AI results cannot be changed</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A narrow follow-up such as &#8220;set the gold instance's Roughness to 0.2&#8221; is easy for the assistant to apply and easy for you to verify. Small, specific corrections keep every change reviewable.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Which habit best keeps experimental AI-assisted authoring safe and recoverable?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Running requests only on your most important production project</label>
+                            <label><input type="radio" name="q5" value="b"> Turning off the Output Log so it does not slow you down</label>
+                            <label><input type="radio" name="q5" value="c"> Keeping work in a named sandbox folder, reviewing the result, and using undo or version control</label>
+                            <label><input type="radio" name="q5" value="d"> Sending as many requests as possible before checking any of them</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; A sandbox folder isolates throwaway work, review keeps you in the loop, and undo or version control makes any change recoverable. Together they let you experiment freely without risking your project.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You ran a complete AI-driven workflow, from a single sentence to a set of real, editable assets, and you reviewed the result the whole way. Here is the arc you followed:</p>
+
+                <p><strong>Ask well.</strong> A good request quietly includes four parts: a goal, the specifics, the constraints, and how you will know it worked. Specific beats vague, and specific beats polite.</p>
+
+                <p><strong>Watch it work.</strong> Your one sentence became a sequence of small editor operations, each dispatched across the bridge and visible in the Output Log. Those operations left behind genuine, hand-editable assets.</p>
+
+                <p><strong>Review and iterate.</strong> The workflow ends when you have agreed with the result. Check it against your goal, and when something is off, send a small scoped follow-up rather than starting over.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>A good request has a goal, specifics, constraints, and acceptance</li>
+                        <li>Clear, specific phrasing gets you closer to what you meant than vague phrasing</li>
+                        <li>Each Output Log dispatch line is one editor action the assistant took</li>
+                        <li>The assistant builds real assets you can keep editing by hand</li>
+                        <li>Review every result, and correct it with small, scoped follow-ups</li>
+                        <li>A sandbox folder, review, and undo keep experimental work safe</li>
+                    </ul>
+                </div>
+
+                <h3>Module Complete</h3>
+
+                <p>That wraps up Module 11 and the course. You started by learning what AI-assisted workflows are and how the Model Context Protocol connects an assistant to the Unreal Editor. You set up the experimental Unreal MCP bridge and verified it live. And now you have run a real workflow, asking for something in plain language, watching it built through the bridge, and reviewing the result like the collaborator in charge. That last habit, asking clearly and reviewing carefully, is what will carry you as these tools keep evolving toward UE6 and beyond. Go build something.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m11_l02_setting_up_unreal_mcp.html" class="btn">&#8592; Previous: Setting Up Unreal MCP</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="index.html#modules" class="btn">Finish: All Modules &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

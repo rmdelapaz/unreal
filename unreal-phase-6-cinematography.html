@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Unreal's role in Phase 6 of the Story-to-Screen production pipeline: cinematography — a Level Sequence per shot with cine cameras, camera moves, animation timing, and lens / depth-of-field / exposure.">
+<meta name="author" content="Ray De La Paz">
+<title>Unreal in Phase 6 — Cinematography</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  :root{
+    --bg:#0f1216; --panel:#171c22; --panel2:#1e252d; --ink:#e8edf2; --muted:#9aa7b4;
+    --line:#2a333d; --amber:#f2a33c; --amber-d:#c97f1e; --teal:#4fd1c5; --violet:#a78bfa;
+    --green:#5fd08a; --red:#f2708a; --chip:#232b34;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 10px 30px rgba(0,0,0,.35);
+    --maxw:1000px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f6f9; --panel:#ffffff; --panel2:#f0f3f7; --ink:#182028; --muted:#5d6b78;
+      --line:#e2e8ef; --chip:#eef2f7; --shadow:0 1px 2px rgba(16,24,32,.06), 0 12px 30px rgba(16,24,32,.08);}
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:0 20px 80px;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto}
+  a{color:var(--teal)}
+  .crumbs{max-width:var(--maxw); margin:0 auto; padding:18px 0 0; font-size:13px; color:var(--muted)}
+  .crumbs a{color:var(--muted); text-decoration:none}
+  .crumbs a:hover{color:var(--ink)}
+  .crumbs .sep{padding:0 8px; color:var(--line)}
+  .stepstrip{max-width:var(--maxw); margin:18px auto 0; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  .stepstrip .step{display:inline-flex; align-items:center; gap:8px; text-decoration:none; font-size:13px; font-weight:600;
+    color:var(--muted); background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:5px 13px 5px 5px}
+  .stepstrip .step .sn{display:grid; place-items:center; width:22px; height:22px; border-radius:999px; font-size:12px; font-weight:800;
+    background:var(--chip); color:var(--muted); border:1px solid var(--line)}
+  .stepstrip .step:hover{border-color:var(--muted); color:var(--ink)}
+  .stepstrip .step.current{color:var(--ink); border-color:color-mix(in srgb,var(--teal) 55%,var(--line)); background:color-mix(in srgb,var(--teal) 10%,var(--panel))}
+  .stepstrip .step.current .sn{background:var(--teal); color:#04201d; border-color:transparent}
+  .stepstrip .ppl{margin-left:auto; font-size:12px; font-weight:700; color:var(--teal); text-decoration:none; white-space:nowrap; padding:6px 2px}
+  .stepstrip .ppl:hover{text-decoration:underline}
+  header.top{ max-width:var(--maxw); margin:0 auto; padding:24px 0 26px; border-bottom:1px solid var(--line); }
+  .eyebrow{color:var(--teal); font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:12px}
+  h1{font-size:clamp(26px,4.4vw,40px); line-height:1.12; margin:.35em 0 .25em; letter-spacing:-.01em}
+  .flow{color:var(--muted); font-size:15px}
+  .flow b{color:var(--ink)}
+  .arrow{color:var(--teal); font-weight:700; padding:0 6px}
+  .diagram{max-width:var(--maxw); margin:24px auto 0; overflow-x:auto}
+  .diagram svg{width:100%; min-width:680px; height:auto; display:block}
+  .principle{
+    margin:30px auto 0; max-width:var(--maxw); background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:14px; padding:22px 24px; box-shadow:var(--shadow);
+  }
+  .principle .tag{color:var(--teal); font-weight:700; font-size:12px; letter-spacing:.1em; text-transform:uppercase}
+  .principle p{margin:.5em 0 0; font-size:17px}
+  .principle .em{color:var(--ink); font-weight:600}
+  h2.sec{font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:46px auto 16px; max-width:var(--maxw); font-weight:700}
+  .phases{max-width:var(--maxw); margin:0 auto; display:grid; gap:14px}
+  .phase{ display:grid; grid-template-columns:56px 1fr; gap:18px; align-items:start;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow); }
+  .num{ width:44px; height:44px; border-radius:11px; display:grid; place-items:center; font-weight:800; font-size:18px;
+    background:var(--chip); color:var(--teal); border:1px solid var(--line); }
+  .phase h3{margin:2px 0 4px; font-size:19px}
+  .phase h3 .pershot{font-size:12px; font-weight:700; color:var(--violet); background:color-mix(in srgb,var(--violet) 14%, transparent);
+    border:1px solid color-mix(in srgb,var(--violet) 35%, transparent); padding:2px 8px; border-radius:999px; margin-left:8px; vertical-align:middle; letter-spacing:.02em}
+  .phase p{margin:.2em 0 .6em; color:var(--ink)}
+  .phase p .muted, .muted{color:var(--muted)}
+  .sub{margin:14px 0 0; padding:14px 0 0; border-top:1px dashed var(--line)}
+  .sub:first-of-type{border-top:none; padding-top:6px}
+  .sub h4{margin:0 0 4px; font-size:15px}
+  .sub h4 .st{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:6px; font-size:12px; font-weight:800;
+    background:var(--chip); color:var(--teal); border:1px solid var(--line); margin-right:8px; vertical-align:middle}
+  .sub p{margin:.2em 0 .4em; color:var(--ink)}
+  ul.tight{margin:.2em 0 .6em; padding-left:18px}
+  ul.tight li{margin:.15em 0}
+  code{background:var(--chip); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:13px; color:var(--teal)}
+  .chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:8px}
+  .chip{font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--chip);
+    border:1px solid var(--line); color:var(--muted); text-decoration:none; display:inline-block}
+  a.chip:hover{border-color:var(--muted); color:var(--ink)}
+  .chip.unreal{color:var(--teal); border-color:color-mix(in srgb,var(--teal) 30%,var(--line))}
+  .chip.lesson{color:var(--teal); border-color:color-mix(in srgb,var(--teal) 30%,var(--line)); background:color-mix(in srgb,var(--teal) 8%,var(--chip))}
+  .lessonrow{display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-top:10px}
+  .lessonrow .lbl{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-right:2px}
+  .cards{max-width:var(--maxw); margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:var(--shadow)}
+  .card.key{grid-column:1/-1; border-left:4px solid var(--green)}
+  .card.warn{grid-column:1/-1; border-left:4px solid var(--amber)}
+  .card.note{grid-column:1/-1; border-left:4px solid var(--violet)}
+  .card h4{margin:0 0 6px; font-size:16px}
+  .card h4 .dot{color:var(--amber)}
+  .card.key h4 .dot{color:var(--green)}
+  .card.note h4 .dot{color:var(--violet)}
+  .card p{margin:.35em 0; color:var(--ink)}
+  footer{max-width:var(--maxw); margin:48px auto 0; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px}
+  footer a{color:var(--muted)}
+  @media (max-width:640px){
+    .cards{grid-template-columns:1fr}
+    .phase{grid-template-columns:44px 1fr; gap:14px; padding:16px}
+    .num{width:38px;height:38px;border-radius:9px;font-size:16px}
+  }
+  @media print{
+    body{background:#fff; color:#000; padding:0}
+    .phase,.card,.principle{box-shadow:none; break-inside:avoid}
+    header.top{padding-top:8px}
+    .stepstrip{display:none}
+  }
+</style>
+</head>
+<body>
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <a href="index.html">Unreal Course</a><span class="sep">/</span>
+  <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Production Pipeline</a><span class="sep">/</span>
+  <span>Unreal · Phase 6</span>
+</nav>
+
+<nav class="stepstrip" aria-label="Unreal's steps in the pipeline">
+  <a class="step" href="unreal-phase-2-character-finalization.html"><span class="sn">2</span> Character</a>
+  <a class="step" href="unreal-phase-3-prop-prep.html"><span class="sn">3</span> Props</a>
+  <a class="step" href="unreal-phase-4-animation-retargeting.html"><span class="sn">4</span> Animation</a>
+  <a class="step" href="unreal-phase-5-shot-assembly.html"><span class="sn">5</span> Shot assembly</a>
+  <a class="step current" href="unreal-phase-6-cinematography.html" aria-current="page"><span class="sn">6</span> Cinematography</a>
+  <a class="step" href="unreal-phase-7-output.html"><span class="sn">7</span> Output</a>
+  <a class="ppl" href="https://rays-daz3d.netlify.app/production-pipeline.html">Full pipeline ↗</a>
+</nav>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Story-to-Screen Pipeline · Unreal's Role</div>
+    <h1>Unreal in Phase 6 — Cinematography</h1>
+    <div class="flow">A <b>Level Sequence</b> per shot: <b>cine cameras</b>, camera moves, <b>animation timing</b>, and <b>lens / depth-of-field / exposure</b>. This is where an assembled shot becomes a directed one.</div>
+    <div class="diagram" role="img" aria-label="Phase 6 in Unreal: a Level Sequence per shot holds the cine camera, camera moves, animation timing, and lens, depth-of-field and exposure settings">
+      <svg viewBox="0 0 1000 150" xmlns="http://www.w3.org/2000/svg">
+        <style>
+          .nd{fill:var(--panel2);stroke:var(--line);stroke-width:1}
+          .ndt{fill:color-mix(in srgb,var(--teal) 8%, var(--panel2));stroke:var(--teal);stroke-opacity:.55;stroke-width:1}
+          .nm{fill:var(--ink);font:700 15px system-ui,-apple-system,sans-serif}
+          .cap{fill:var(--muted);font:12.5px system-ui,-apple-system,sans-serif}
+          .gl{font:800 18px system-ui,-apple-system,sans-serif;text-anchor:middle}
+          .teal{fill:var(--teal)}.tealf{fill:var(--teal);fill-opacity:.16;stroke:var(--teal)}
+        </style>
+        <rect class="nd" x="10" y="46" width="220" height="58" rx="14"/>
+        <text class="nm" x="34" y="70" style="font-size:14px">Assembled shot</text>
+        <text class="cap" x="34" y="90">from Phase 5</text>
+
+        <rect class="ndt" x="262" y="20" width="720" height="110" rx="16"/>
+        <circle class="tealf" cx="296" cy="50" r="17"/><text class="gl teal" x="296" y="55" style="font-size:15px">U</text>
+        <text class="nm" x="322" y="46">Level Sequence (per shot)</text>
+        <!-- timeline tracks -->
+        <rect x="290" y="70" width="660" height="14" rx="4" fill="color-mix(in srgb,var(--teal) 18%, transparent)" stroke="var(--teal)" stroke-opacity=".4"/>
+        <text class="cap" x="298" y="80" style="font-size:10.5px; fill:var(--teal)">Cine Camera · moves</text>
+        <rect x="290" y="90" width="660" height="14" rx="4" fill="color-mix(in srgb,var(--violet) 16%, transparent)" stroke="var(--violet)" stroke-opacity=".4"/>
+        <text class="cap" x="298" y="100" style="font-size:10.5px">Animation timing</text>
+        <rect x="290" y="110" width="660" height="14" rx="4" fill="color-mix(in srgb,var(--amber) 16%, transparent)" stroke="var(--amber)" stroke-opacity=".4"/>
+        <text class="cap" x="298" y="120" style="font-size:10.5px">Lens · DOF · exposure</text>
+
+        <g><line x1="232" y1="75" x2="258" y2="75" stroke="var(--teal)" stroke-width="3"/><polygon points="258,67 258,83 274,75" fill="var(--teal)"/></g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section class="principle">
+  <div class="tag">Unreal's job in Phase 6</div>
+  <p><span class="em">One Level Sequence per shot holds the whole performance.</span>
+  Cinematography is where an assembled shot (<a href="unreal-phase-5-shot-assembly.html">Phase 5</a>) becomes a directed one: a <b>Level Sequence</b> carries the cine camera and its moves, the timing of the retargeted animation, and the lens language — focal length, depth of field, exposure. The composition and depth-of-field theory here is exactly what the camera- and post-process side of production is about.</p>
+</section>
+
+<h2 class="sec">What Unreal does in cinematography</h2>
+<div class="phases">
+  <div class="phase">
+    <div class="num">6</div>
+    <div>
+      <h3>Direct the shot in Sequencer <span class="pershot">per shot</span></h3>
+      <p>The Level Sequence is the film strip: cameras, timing, and lens all live on its tracks.</p>
+
+      <div class="sub">
+        <h4><span class="st">A</span>Create a Level Sequence per shot</h4>
+        <p>One sequence per shot keeps timing, cameras, and animation self-contained and re-renderable. It's the unit Phase&nbsp;7's render queue consumes.</p>
+      </div>
+
+      <div class="sub">
+        <h4><span class="st">B</span>Add a Cine Camera &amp; camera moves</h4>
+        <p>Place a Cine Camera Actor and keyframe its moves — pushes, pans, handheld — on the camera track for the shot's coverage.</p>
+      </div>
+
+      <div class="sub">
+        <h4><span class="st">C</span>Time the animation</h4>
+        <p>Line up the retargeted character animation (<a href="unreal-phase-4-animation-retargeting.html">Phase 4</a>) against the camera so action and framing hit together.</p>
+      </div>
+
+      <div class="sub">
+        <h4><span class="st">D</span>Set lens, depth-of-field &amp; exposure</h4>
+        <p>Dial focal length, aperture (f-stop) and focus distance for the DOF look, and control exposure and color via the Post Process Volume — the cinematic-look toolkit this course teaches directly.</p>
+      </div>
+
+      <div class="lessonrow">
+        <span class="lbl">Foundations in</span>
+        <a class="chip lesson" href="m04_l05_post_process_effects.html">4.5 · Post-Process (Exposure, DOF, Color)</a>
+        <a class="chip lesson" href="m02_l02_actors_and_components.html">2.2 · Actors (Cameras)</a>
+      </div>
+      <div class="chips">
+        <span class="chip unreal">UE · Sequencer + Cine Camera</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cards" style="margin-top:14px">
+  <div class="card note">
+    <h4><span class="dot">◆</span> Beyond the intro course</h4>
+    <p>Sequencer and Cine Cameras are Unreal's cinematics toolset — past this course's intro scope (listed under “Cinematics with Sequencer” in future expansion). This page places them in the pipeline; the <a href="m04_l05_post_process_effects.html">Post-Process Effects</a> lesson already covers the exposure, depth-of-field and color-grading half of the cinematic look.</p>
+  </div>
+  <div class="card key">
+    <h4><span class="dot">◆</span> The sequence is the deliverable</h4>
+    <p>Everything upstream exists so that, per shot, you can point a camera and time a performance. The finished Level Sequence is exactly what Phase&nbsp;7 renders — <b>not</b> a viewport grab.</p>
+  </div>
+</div>
+
+<h2 class="sec">Where it goes next</h2>
+<div class="phases">
+  <div class="phase">
+    <div class="num">→</div>
+    <div>
+      <h3>Handing the sequence on</h3>
+      <ul class="tight">
+        <li><b>To output:</b> the Level Sequence is rendered with the Movie Render Queue in <a href="unreal-phase-7-output.html">Phase 7</a>.</li>
+        <li><b>Built on:</b> the assembled shot from <a href="unreal-phase-5-shot-assembly.html">Phase 5</a> and the retargeted animation from <a href="unreal-phase-4-animation-retargeting.html">Phase 4</a>.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Unreal's role · Phase 6 of the Daz → Blender → Unreal pipeline</span>
+  <span><a href="https://rays-daz3d.netlify.app/production-pipeline.html">Full pipeline ↗</a> · <a href="index.html">Unreal course home</a></span>
+</footer>
+
+</body>
+</html>

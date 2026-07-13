@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Unreal's role in Phase 2 of the Story-to-Screen production pipeline: importing the Blender-finalized character as a Skeletal Mesh on one canonical skeleton, adding hand sockets once, and building an IK Rig for retargeting.">
+<meta name="author" content="Ray De La Paz">
+<title>Unreal in Phase 2 — Character Finalization</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  :root{
+    --bg:#0f1216; --panel:#171c22; --panel2:#1e252d; --ink:#e8edf2; --muted:#9aa7b4;
+    --line:#2a333d; --amber:#f2a33c; --amber-d:#c97f1e; --teal:#4fd1c5; --violet:#a78bfa;
+    --green:#5fd08a; --red:#f2708a; --chip:#232b34;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 10px 30px rgba(0,0,0,.35);
+    --maxw:1000px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f6f9; --panel:#ffffff; --panel2:#f0f3f7; --ink:#182028; --muted:#5d6b78;
+      --line:#e2e8ef; --chip:#eef2f7; --shadow:0 1px 2px rgba(16,24,32,.06), 0 12px 30px rgba(16,24,32,.08);}
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:0 20px 80px;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto}
+  a{color:var(--teal)}
+  .crumbs{max-width:var(--maxw); margin:0 auto; padding:18px 0 0; font-size:13px; color:var(--muted)}
+  .crumbs a{color:var(--muted); text-decoration:none}
+  .crumbs a:hover{color:var(--ink)}
+  .crumbs .sep{padding:0 8px; color:var(--line)}
+  .stepstrip{max-width:var(--maxw); margin:18px auto 0; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  .stepstrip .step{display:inline-flex; align-items:center; gap:8px; text-decoration:none; font-size:13px; font-weight:600;
+    color:var(--muted); background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:5px 13px 5px 5px}
+  .stepstrip .step .sn{display:grid; place-items:center; width:22px; height:22px; border-radius:999px; font-size:12px; font-weight:800;
+    background:var(--chip); color:var(--muted); border:1px solid var(--line)}
+  .stepstrip .step:hover{border-color:var(--muted); color:var(--ink)}
+  .stepstrip .step.current{color:var(--ink); border-color:color-mix(in srgb,var(--teal) 55%,var(--line)); background:color-mix(in srgb,var(--teal) 10%,var(--panel))}
+  .stepstrip .step.current .sn{background:var(--teal); color:#04201d; border-color:transparent}
+  .stepstrip .ppl{margin-left:auto; font-size:12px; font-weight:700; color:var(--teal); text-decoration:none; white-space:nowrap; padding:6px 2px}
+  .stepstrip .ppl:hover{text-decoration:underline}
+  header.top{ max-width:var(--maxw); margin:0 auto; padding:24px 0 26px; border-bottom:1px solid var(--line); }
+  .eyebrow{color:var(--teal); font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:12px}
+  h1{font-size:clamp(26px,4.4vw,40px); line-height:1.12; margin:.35em 0 .25em; letter-spacing:-.01em}
+  .flow{color:var(--muted); font-size:15px}
+  .flow b{color:var(--ink)}
+  .arrow{color:var(--teal); font-weight:700; padding:0 6px}
+  .diagram{max-width:var(--maxw); margin:24px auto 0; overflow-x:auto}
+  .diagram svg{width:100%; min-width:680px; height:auto; display:block}
+  .principle{
+    margin:30px auto 0; max-width:var(--maxw); background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:14px; padding:22px 24px; box-shadow:var(--shadow);
+  }
+  .principle .tag{color:var(--teal); font-weight:700; font-size:12px; letter-spacing:.1em; text-transform:uppercase}
+  .principle p{margin:.5em 0 0; font-size:17px}
+  .principle .em{color:var(--ink); font-weight:600}
+  h2.sec{font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:46px auto 16px; max-width:var(--maxw); font-weight:700}
+  .phases{max-width:var(--maxw); margin:0 auto; display:grid; gap:14px}
+  .phase{ display:grid; grid-template-columns:56px 1fr; gap:18px; align-items:start;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow); }
+  .num{ width:44px; height:44px; border-radius:11px; display:grid; place-items:center; font-weight:800; font-size:18px;
+    background:var(--chip); color:var(--teal); border:1px solid var(--line); }
+  .phase h3{margin:2px 0 4px; font-size:19px}
+  .phase h3 .once{font-size:12px; font-weight:700; color:var(--teal); background:color-mix(in srgb,var(--teal) 14%, transparent);
+    border:1px solid color-mix(in srgb,var(--teal) 35%, transparent); padding:2px 8px; border-radius:999px; margin-left:8px; vertical-align:middle; letter-spacing:.02em}
+  .phase p{margin:.2em 0 .6em; color:var(--ink)}
+  .phase p .muted, .muted{color:var(--muted)}
+  .sub{margin:14px 0 0; padding:14px 0 0; border-top:1px dashed var(--line)}
+  .sub:first-of-type{border-top:none; padding-top:6px}
+  .sub h4{margin:0 0 4px; font-size:15px}
+  .sub h4 .st{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:6px; font-size:12px; font-weight:800;
+    background:var(--chip); color:var(--teal); border:1px solid var(--line); margin-right:8px; vertical-align:middle}
+  .sub p{margin:.2em 0 .4em; color:var(--ink)}
+  ul.tight{margin:.2em 0 .6em; padding-left:18px}
+  ul.tight li{margin:.15em 0}
+  code{background:var(--chip); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:13px; color:var(--teal)}
+  .chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:8px}
+  .chip{font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--chip);
+    border:1px solid var(--line); color:var(--muted); text-decoration:none; display:inline-block}
+  a.chip:hover{border-color:var(--muted); color:var(--ink)}
+  .chip.daz{color:#e9c07a; border-color:color-mix(in srgb,#e9c07a 30%,var(--line))}
+  .chip.blender{color:#f0955a; border-color:color-mix(in srgb,#f0955a 30%,var(--line))}
+  .chip.unreal{color:var(--teal); border-color:color-mix(in srgb,var(--teal) 30%,var(--line))}
+  .chip.lesson{color:var(--teal); border-color:color-mix(in srgb,var(--teal) 30%,var(--line)); background:color-mix(in srgb,var(--teal) 8%,var(--chip))}
+  .lessonrow{display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-top:10px}
+  .lessonrow .lbl{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-right:2px}
+  .cards{max-width:var(--maxw); margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:var(--shadow)}
+  .card.key{grid-column:1/-1; border-left:4px solid var(--green)}
+  .card.warn{grid-column:1/-1; border-left:4px solid var(--amber)}
+  .card.note{grid-column:1/-1; border-left:4px solid var(--violet)}
+  .card h4{margin:0 0 6px; font-size:16px}
+  .card h4 .dot{color:var(--amber)}
+  .card.key h4 .dot{color:var(--green)}
+  .card.note h4 .dot{color:var(--violet)}
+  .card p{margin:.35em 0; color:var(--ink)}
+  footer{max-width:var(--maxw); margin:48px auto 0; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px}
+  footer a{color:var(--muted)}
+  @media (max-width:640px){
+    .cards{grid-template-columns:1fr}
+    .phase{grid-template-columns:44px 1fr; gap:14px; padding:16px}
+    .num{width:38px;height:38px;border-radius:9px;font-size:16px}
+  }
+  @media print{
+    body{background:#fff; color:#000; padding:0}
+    .phase,.card,.principle{box-shadow:none; break-inside:avoid}
+    header.top{padding-top:8px}
+    .stepstrip{display:none}
+  }
+</style>
+</head>
+<body>
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <a href="index.html">Unreal Course</a><span class="sep">/</span>
+  <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Production Pipeline</a><span class="sep">/</span>
+  <span>Unreal · Phase 2</span>
+</nav>
+
+<nav class="stepstrip" aria-label="Unreal's steps in the pipeline">
+  <a class="step current" href="unreal-phase-2-character-finalization.html" aria-current="page"><span class="sn">2</span> Character</a>
+  <a class="step" href="unreal-phase-3-prop-prep.html"><span class="sn">3</span> Props</a>
+  <a class="step" href="unreal-phase-4-animation-retargeting.html"><span class="sn">4</span> Animation</a>
+  <a class="step" href="unreal-phase-5-shot-assembly.html"><span class="sn">5</span> Shot assembly</a>
+  <a class="step" href="unreal-phase-6-cinematography.html"><span class="sn">6</span> Cinematography</a>
+  <a class="step" href="unreal-phase-7-output.html"><span class="sn">7</span> Output</a>
+  <a class="ppl" href="https://rays-daz3d.netlify.app/production-pipeline.html">Full pipeline ↗</a>
+</nav>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Story-to-Screen Pipeline · Unreal's Role</div>
+    <h1>Unreal in Phase 2 — Character Finalization</h1>
+    <div class="flow"><b>Blender</b> exports the finished character<span class="arrow">→</span><b>Unreal</b> receives it as a <b>Skeletal Mesh</b> on one canonical skeleton, then adds hand <b>sockets</b> once and builds an <b>IK&nbsp;Rig</b>. Done <b>once per character</b>.</div>
+    <div class="diagram" role="img" aria-label="Phase 2 in Unreal: import the character as a Skeletal Mesh on one canonical skeleton, add a hand socket, and build an IK Rig for retargeting">
+      <svg viewBox="0 0 1000 150" xmlns="http://www.w3.org/2000/svg">
+        <style>
+          .nd{fill:var(--panel2);stroke:var(--line);stroke-width:1}
+          .ndt{fill:color-mix(in srgb,var(--teal) 8%, var(--panel2));stroke:var(--teal);stroke-opacity:.55;stroke-width:1}
+          .nm{fill:var(--ink);font:700 15px system-ui,-apple-system,sans-serif}
+          .cap{fill:var(--muted);font:12.5px system-ui,-apple-system,sans-serif}
+          .gl{font:800 18px system-ui,-apple-system,sans-serif;text-anchor:middle}
+          .ar{fill:var(--teal);stroke:var(--teal)}
+          .bl{fill:#f0955a}.blf{fill:#f0955a;fill-opacity:.16;stroke:#f0955a}
+          .teal{fill:var(--teal)}.tealf{fill:var(--teal);fill-opacity:.16;stroke:var(--teal)}
+        </style>
+        <rect class="nd" x="10" y="46" width="230" height="58" rx="14"/>
+        <circle class="blf" cx="44" cy="75" r="18"/><text class="gl bl" x="44" y="81">B</text>
+        <text class="nm" x="72" y="70">Blender FBX</text>
+        <text class="cap" x="72" y="90">mesh + skeleton</text>
+
+        <rect class="ndt" x="280" y="24" width="440" height="102" rx="16"/>
+        <circle class="tealf" cx="314" cy="75" r="19"/><text class="gl teal" x="314" y="81">U</text>
+        <text class="nm" x="342" y="56">Unreal · finalize the character</text>
+        <text class="cap" x="342" y="76">Skeletal Mesh · one canonical skeleton</text>
+        <text class="cap" x="342" y="94">add hand socket (once)</text>
+        <text class="cap" x="342" y="112">build IK Rig for retargeting</text>
+
+        <rect class="nd" x="760" y="46" width="230" height="58" rx="14"/>
+        <text class="nm" x="784" y="70" style="fill:var(--teal)">Reusable rig</text>
+        <text class="cap" x="784" y="90">serves every shot</text>
+
+        <g class="ar">
+          <line x1="242" y1="75" x2="270" y2="75" stroke-width="3"/><polygon points="270,67 270,83 286,75" stroke="none"/>
+          <line x1="722" y1="75" x2="750" y2="75" stroke-width="3"/><polygon points="750,67 750,83 766,75" stroke="none"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section class="principle">
+  <div class="tag">Unreal's job in Phase 2</div>
+  <p><span class="em">Turn the imported character into a rig the whole production reuses.</span>
+  Unreal is the tail of character finalization: it receives the Blender export as a <em>Skeletal Mesh on one canonical skeleton</em>, and you add hand <b>sockets</b> and an <b>IK&nbsp;Rig</b> a single time. From then on, every pose, animation, and shot draws on that one setup. The upstream cleanup is on the <a href="https://rays-blender.netlify.app/blender-phase-2-character-finalization.html">Blender Phase&nbsp;2</a> page.</p>
+</section>
+
+<h2 class="sec">What Unreal does in character finalization</h2>
+<div class="phases">
+  <div class="phase">
+    <div class="num">2</div>
+    <div>
+      <h3>Import &amp; rig the character <span class="once">once per character</span></h3>
+      <p>The goal is a Skeletal Mesh that every downstream phase can trust: one skeleton, one socket scheme, one retarget rig.</p>
+
+      <div class="sub">
+        <h4><span class="st">A</span>Import as a Skeletal Mesh</h4>
+        <p>Bring the FBX in via the same <b>FBX import workflow</b> you use for any asset — but as a Skeletal Mesh, and <b>onto one canonical skeleton asset reused across characters</b> rather than letting each import mint its own.</p>
+      </div>
+
+      <div class="sub">
+        <h4><span class="st">B</span>Confirm materials &amp; LODs</h4>
+        <p>Check that material slots resolved to Material Instances and that import options (LODs, collision where relevant) are sane — ordinary asset hygiene, same as static meshes.</p>
+      </div>
+
+      <div class="sub">
+        <h4><span class="st">C</span>Add hand sockets — once</h4>
+        <p>In the <b>Skeleton editor</b>, add a socket on the right-hand bone (e.g. a weapon socket). This socket is the attach point held props snap to in every shot — set it here, use it forever.</p>
+      </div>
+
+      <div class="sub">
+        <h4><span class="st">D</span>Build an IK Rig</h4>
+        <p>Create an <b>IK Rig</b> for the skeleton, defining the retarget chains and goals. It's what lets Phase&nbsp;4's IK Retargeter map animation from other skeletons onto this character.</p>
+      </div>
+
+      <div class="lessonrow">
+        <span class="lbl">Foundations in</span>
+        <a class="chip lesson" href="m02_l04_static_meshes_and_assets.html">2.4 · Meshes &amp; the FBX Import Workflow</a>
+        <a class="chip lesson" href="m02_l02_actors_and_components.html">2.2 · Actors &amp; Components</a>
+        <a class="chip lesson" href="m01_l04_unreal_editor_interface.html">1.4 · Editor Interface</a>
+      </div>
+      <div class="chips">
+        <span class="chip blender">Blender · export</span>
+        <span class="chip unreal">UE · Skeletal Mesh + Socket + IK Rig</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cards" style="margin-top:14px">
+  <div class="card warn">
+    <h4><span class="dot">◆</span> One canonical skeleton — don't let each import make its own</h4>
+    <p>On FBX import it's easy to accept a brand-new skeleton per character. Do that and your sockets live on the wrong skeleton and retargeting has nothing shared to map through.</p>
+    <p><b>Fix:</b> import every character onto the <b>same</b> skeleton asset. Sockets and the IK Rig then apply across your whole cast.</p>
+  </div>
+  <div class="card note">
+    <h4><span class="dot">◆</span> Beyond the intro course</h4>
+    <p>Skeletal Mesh sockets and IK Rigs sit in Unreal's animation toolset — past this course's intro scope (see “Cinematics / Animation” under future expansion). This page is the pipeline-level map; the <a href="m02_l04_static_meshes_and_assets.html">asset-import</a> and <a href="m02_l02_actors_and_components.html">actor</a> foundations transfer directly.</p>
+  </div>
+  <div class="card key">
+    <h4><span class="dot">◆</span> Once per character, reused forever</h4>
+    <p>Skeleton + sockets + IK Rig are built a single time. Every held prop (<a href="unreal-phase-3-prop-prep.html">Phase 3</a>), every animation (<a href="unreal-phase-4-animation-retargeting.html">Phase 4</a>), and every shot (<a href="unreal-phase-5-shot-assembly.html">Phase 5</a>) reuses them.</p>
+  </div>
+</div>
+
+<h2 class="sec">Where it comes from &amp; goes next</h2>
+<div class="phases">
+  <div class="phase">
+    <div class="num">↔</div>
+    <div>
+      <h3>Upstream &amp; downstream</h3>
+      <ul class="tight">
+        <li><b>Upstream:</b> the character was cleaned, shaded and rigged in <a href="https://rays-blender.netlify.app/blender-phase-2-character-finalization.html">Blender · Phase 2</a>, after being assembled &amp; bridged in <a href="https://rays-daz3d.netlify.app/daz-studio-steps.html">Daz</a>.</li>
+        <li><b>Downstream:</b> the socket receives props in <a href="unreal-phase-3-prop-prep.html">Phase 3</a>; the IK Rig feeds retargeting in <a href="unreal-phase-4-animation-retargeting.html">Phase 4</a>.</li>
+        <li><b>Big picture:</b> the <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen Production Pipeline</a>.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Unreal's role · Phase 2 of the Daz → Blender → Unreal pipeline</span>
+  <span><a href="https://rays-daz3d.netlify.app/production-pipeline.html">Full pipeline ↗</a> · <a href="index.html">Unreal course home</a></span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Intermediate Unreal Engine 5.8: understand Skeletal Meshes, the Skeleton and its bone hierarchy, sockets for attaching props, playing Animation Sequences and Anim Blueprints, and retargeting animation across different skeletons with the IK Rig and IK Retargeter.">
+    <meta name="author" content="Practical Ace">
+    <title>Characters &amp; Animation - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#intermediate">Intermediate: Cinematic Production</a></li>
+            <li aria-current="page">Characters &amp; Animation</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#129485; Characters &amp; Animation</h1>
+                <p class="lead">Everything you built in the introductory modules stood still. A wall does not walk, a lamp does not wave. To put a <em>character</em> on screen, one that moves and can be animated, you need a different kind of asset: the <strong>Skeletal Mesh</strong>. This lesson is the bridge from the static world you know into moving characters. You will meet the Skeleton and its bones, learn how sockets attach props to a hand, see how Animation Sequences and Anim Blueprints drive motion, and finish with the single most useful idea in production animation: <strong>retargeting</strong>, which lets one library of animation drive many different characters.</p>
+
+                <!-- Intermediate banner -->
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#127916; Intermediate Track</h4>
+                    <p>This is the first lesson of the <strong>Cinematic Production</strong> track. It assumes you have finished the introductory modules, so it moves faster and leans on ideas you already have: assets and the Content Browser (Module 2), materials (Module 3), and Blueprints (Module 5). It also fills in the exact animation topics the <a href="unreal-phase-2-character-finalization.html">Production Pipeline pages</a> point to as "beyond the intro course."</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain how a Skeletal Mesh differs from a Static Mesh: mesh, Skeleton, and skin weights</li>
+                        <li>Read a bone hierarchy and understand why one canonical Skeleton is shared across a cast</li>
+                        <li>Add a socket to a bone and use it as a consistent attach point for props and effects</li>
+                        <li>Describe how Animation Sequences and Anim Blueprints turn bone data into motion</li>
+                        <li>Explain why animation must be retargeted between different skeletons, and how the IK Rig and IK Retargeter do it</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 35-45 minutes</p>
+                    <p><strong>Prerequisites:</strong> The introductory modules, especially <a href="m02_l04_static_meshes_and_assets.html">2.4 Static Meshes and Assets</a> and <a href="m05_l01_what_are_blueprints.html">Module 5 Blueprints</a>. A working Unreal Engine 5.8 project.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#skeletal-vs-static" class="toc-link">From Static Mesh to Skeletal Mesh</a></li>
+                        <li><a href="#the-skeleton" class="toc-link">The Skeleton and Its Bone Hierarchy</a></li>
+                        <li><a href="#sockets" class="toc-link">Sockets: Attach Points for Props</a></li>
+                        <li><a href="#playing-animation" class="toc-link">Playing Animation: Sequences and Anim Blueprints</a></li>
+                        <li><a href="#retargeting" class="toc-link">Retargeting Animation Across Skeletons</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Explore a Character</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="skeletal-vs-static" class="lesson-section">
+                <h2>From Static Mesh to Skeletal Mesh</h2>
+
+                <p>A <a href="m02_l04_static_meshes_and_assets.html">Static Mesh</a> is a single rigid shape. You can move, rotate, and scale the whole thing as one piece, but you cannot bend it. That is perfect for a crate, a wall, or a rock, and it is most of what fills a level. A character is different. An arm has to swing while the torso stays put; fingers curl independently of the wrist. For that you need a mesh whose parts can move relative to each other, and that is exactly what a <strong>Skeletal Mesh</strong> is.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Skeletal Mesh:</strong> a mesh that is deformed by an internal <em>Skeleton</em> of bones. Three things travel together: the <strong>mesh</strong> (the visible surface), the <strong>Skeleton</strong> (a hierarchy of bones), and the <strong>skin weights</strong> (which record how much each bone pulls on each vertex). Move a bone and the skin follows.</p>
+                </div>
+
+                <p>Think of it the way your own body works. Your skeleton is a frame of bones connected at joints. Your skin is painted onto that frame so that when your elbow bends, the skin of your forearm comes along for the ride. A Skeletal Mesh is the same arrangement, built for a computer: bones you can rotate, and a surface weighted to follow them.</p>
+
+                <h3>Where characters come from</h3>
+
+                <p>Most characters are not modeled inside Unreal. They are built in a dedicated character tool and imported. In a full <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, a figure is assembled in Daz Studio, cleaned up and rigged in Blender, and then handed to Unreal as a Skeletal Mesh. The character below, "Kat," is a real Daz Genesis figure sitting in Blender, fully textured and posed, one export away from becoming an Unreal Skeletal Mesh.</p>
+
+                <img src="images/int_l01/int_l01_fig01_kat_blender.png" alt="A textured Daz Genesis character named Kat rendered in Blender: a young woman in layered leather armor, arm guards, a studded vest, a skirt, and tall boots, with long braided auburn hair, standing in a gesturing pose on a neutral studio floor." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: "Kat for Genesis 9," a finished Daz character in Blender, textured and posed. This is the upstream end of the pipeline &#183; the same figure becomes a Skeletal Mesh once it is exported into Unreal.</em></p>
+
+                <p>The moment that character arrives in Unreal it becomes three linked assets: a <strong>Skeletal Mesh</strong>, a <strong>Skeleton</strong> it is bound to, and usually a <strong>Physics Asset</strong> for collision. The import itself is the same FBX workflow you already used for static meshes in Lesson 2.4, with one crucial difference: you import it <em>as a Skeletal Mesh</em>, which tells Unreal to keep the bones and skin weights instead of flattening everything into one rigid shape.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The whole pipeline at a glance</h4>
+                    <pre class="mermaid">
+flowchart LR
+    A[Daz Studio<br/>assemble figure] --> B[Blender<br/>clean, shade, rig]
+    B --> C[Unreal<br/>Skeletal Mesh<br/>+ Skeleton]
+    C --> D[Add sockets<br/>attach props]
+    C --> E[Play &amp; retarget<br/>animation]
+    E --> F[Sequencer<br/>&amp; render]
+    style C fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>This lesson lives at the green step: turning the imported character into something riggable and animatable. The pipeline pages for <a href="unreal-phase-2-character-finalization.html">Phase 2</a> and <a href="unreal-phase-4-animation-retargeting.html">Phase 4</a> map the same territory at production scale.</p>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="the-skeleton" class="lesson-section">
+                <h2>The Skeleton and Its Bone Hierarchy</h2>
+
+                <p>The Skeleton is the heart of a character. It is a separate asset from the mesh, and it holds the <strong>bone hierarchy</strong>: an ordered tree of bones, each one parented to another. When a parent bone rotates, every bone below it in the tree moves too. Rotate the upper arm and the forearm, hand, and fingers all follow, exactly as they do on a real body.</p>
+
+                <p>Open a Skeletal Mesh and Unreal shows you the character in a reference pose alongside its Skeleton Tree. Here is the real "Kat" figure after import, now the Skeletal Mesh <code>SK_Anya</code> in Unreal, with its bone tree on the right and its material slots below:</p>
+
+                <img src="images/int_l01/int_l01_fig02_anya_skeletal_mesh_editor.png" alt="The Unreal 5.8 Skeletal Mesh editor showing SK_Anya, the imported Kat character, standing in a reference A-pose in a lit viewport. The viewport reports 1,517,708 triangles and 992,381 vertices. On the right, the Skeleton Tree panel lists the bone hierarchy starting at a root named Kat-for-Genesis-9, then hip, pelvis, l_thigh, l_shin, l_foot, l_toes and toe bones. Below, an Asset Details panel lists 34 Material Slots including scalp, hair, ties, and Eyebrows." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The same Daz character as an Unreal Skeletal Mesh (<code>SK_Anya</code>). The Skeleton Tree on the right is the real bone hierarchy; the root bone is even named <code>Kat-for-Genesis-9</code>. Note the count: ~992k vertices and 34 material slots &#183; a production character carries far more than a game prop.</em></p>
+
+                <p>Look closely at the bone names in that tree: <code>hip</code>, <code>pelvis</code>, <code>l_thigh</code>, <code>l_shin</code>, <code>l_foot</code>. Those are <strong>Daz-style</strong> names, carried over from the character's origin. Hold that thought, because Unreal's own mannequin names its bones completely differently, and that difference is the whole reason retargeting exists (Section 5).</p>
+
+                <h3>One canonical Skeleton, reused</h3>
+
+                <p>A Skeleton is meant to be <em>shared</em>. Many meshes can bind to the same Skeleton asset, and every Animation Sequence is authored <em>for</em> a specific Skeleton. This is the single most important habit in character setup: pick one canonical Skeleton per character type and reuse it. Do that and a socket you add once, or an animation you make once, applies to everyone on that Skeleton. Let each import mint its own brand-new Skeleton instead and nothing is shared, so sockets and animation cannot travel between characters.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Watch out: don't fork the Skeleton on import</h4>
+                    <p>When you import a Skeletal Mesh, the FBX dialog offers to create a new Skeleton or bind to an existing one. If a character should share rig setup with others, bind it to the <strong>existing</strong> Skeleton. Accepting a new Skeleton every time is the most common reason sockets and retargeting "mysteriously" fail to carry across a cast. The <a href="unreal-phase-2-character-finalization.html">Phase 2 pipeline page</a> calls this out as its number-one pitfall.</p>
+                </div>
+
+                <p>Bones are also where you read a character's complexity. A simple game character might have 60 to 90 bones. The Kat figure above carries a full facial rig (jaw, tongue, eyelids, brows, lip corners) and even hair-braid bones, on top of the usual arms, spine, and legs, which is why film-grade Daz characters have hundreds of bones and close to a million vertices where a mannequin has a fraction of that.</p>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="sockets" class="lesson-section">
+                <h2>Sockets: Attach Points for Props</h2>
+
+                <p>A character rarely acts alone. They hold a sword, carry a torch, wear a backpack, trail a spell effect from one hand. You could try to place those props by hand every frame, but the hand is moving, so the prop would drift instantly. The answer is a <strong>socket</strong>: a named attach point parented to a bone. Because the socket rides the bone, anything attached to it follows the animation automatically.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Socket:</strong> a named transform (position, rotation, scale) attached to a specific bone on a Skeleton or Skeletal Mesh. Actors, Static Meshes, and particle effects can be attached to a socket by name, and they inherit the bone's motion. Set it once, and every animation reuses it.</p>
+                </div>
+
+                <p>You add a socket in the Skeleton or Skeletal Mesh editor: right-click the target bone, choose <em>Add Socket</em>, name it, and nudge its transform so an attached prop sits correctly in the grip. Unreal's own mannequin, for instance, ships with sockets already in place, including <code>weapon_r_muzzle</code> on the gun bone and foot sockets for effects. A weapon socket on the right hand looks like this:</p>
+
+                <div style="max-width: 760px; margin: 2rem auto;">
+                <svg width="100%" viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block;">
+                    <text x="380" y="34" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">A socket turns a bone into an attach point</text>
+                    <!-- bone chain -->
+                    <g style="font:600 13px system-ui,-apple-system,sans-serif">
+                        <line x1="120" y1="120" x2="210" y2="150" stroke="#667eea" stroke-width="6" stroke-linecap="round"/>
+                        <line x1="210" y1="150" x2="300" y2="185" stroke="#667eea" stroke-width="6" stroke-linecap="round"/>
+                        <circle cx="120" cy="120" r="9" fill="#4CAF50"/>
+                        <circle cx="210" cy="150" r="9" fill="#4CAF50"/>
+                        <circle cx="300" cy="185" r="11" fill="#f5576c" stroke="#fff" stroke-width="2"/>
+                        <text x="112" y="106" fill="#555">lowerarm_r</text>
+                        <text x="196" y="138" fill="#555">wrist</text>
+                        <text x="270" y="222" fill="#f5576c" style="font-weight:700">hand_r (bone)</text>
+                    </g>
+                    <!-- socket -->
+                    <g style="font:600 13px system-ui,-apple-system,sans-serif">
+                        <rect x="336" y="150" width="150" height="70" rx="8" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                        <text x="411" y="180" text-anchor="middle" fill="#333" style="font-weight:700">prop_r</text>
+                        <text x="411" y="200" text-anchor="middle" fill="#777" style="font-size:11px">socket (transform)</text>
+                        <line x1="300" y1="185" x2="336" y2="185" stroke="#ffc107" stroke-width="3" stroke-dasharray="4 3"/>
+                    </g>
+                    <!-- attached prop -->
+                    <g style="font:600 13px system-ui,-apple-system,sans-serif">
+                        <line x1="486" y1="185" x2="540" y2="185" stroke="#999" stroke-width="2" marker-end="url(#ar)"/>
+                        <rect x="548" y="150" width="180" height="70" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="638" y="180" text-anchor="middle" fill="#333" style="font-weight:700">SM_Sword</text>
+                        <text x="638" y="200" text-anchor="middle" fill="#777" style="font-size:11px">Static Mesh, attached by name</text>
+                    </g>
+                    <defs>
+                        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><polygon points="0,0 9,4.5 0,9" fill="#999"/></marker>
+                    </defs>
+                    <text x="380" y="270" text-anchor="middle" fill="#666" style="font:13px system-ui,-apple-system,sans-serif">The socket rides <tspan style="font-weight:700">hand_r</tspan>, so the sword follows every hand animation with no per-frame work.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: A socket named <code>prop_r</code> parented to the <code>hand_r</code> bone. Attach a Static Mesh to that socket by name and it inherits the hand's motion automatically. (Adding exactly this socket to the Kat character's <code>r_hand</code> bone is a one-line operation in Unreal.)</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: name sockets for their purpose, not the bone</h4>
+                    <p>A socket called <code>prop_r</code> or <code>weapon_r</code> tells the next person what it is for. Because attachment is <em>by name</em>, a consistent socket name across your whole cast means one Blueprint can attach a prop to any character without special-casing each one. This is exactly the hand-off the <a href="unreal-phase-3-prop-prep.html">Phase 3 prop-prep page</a> relies on.</p>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="playing-animation" class="lesson-section">
+                <h2>Playing Animation: Sequences and Anim Blueprints</h2>
+
+                <p>A Skeleton can hold a pose, but motion comes from animation data. In Unreal that data lives in a few asset types, and they all reference a Skeleton.</p>
+
+                <div class="card">
+                    <h4>The animation assets you will meet most</h4>
+                    <ul>
+                        <li><strong>Animation Sequence:</strong> a single clip of keyframed bone motion, such as a walk, a jump, or a wave. It is authored for one specific Skeleton.</li>
+                        <li><strong>Blend Space:</strong> blends between sequences based on an input, for example fading walk into run as speed rises.</li>
+                        <li><strong>Animation Montage:</strong> a sequence set up for triggered, one-off actions like an attack or a reload, with sections and notifies.</li>
+                        <li><strong>Anim Blueprint:</strong> the brain. A graph that decides <em>which</em> animations play and how they blend, every frame.</li>
+                    </ul>
+                </div>
+
+                <p>You can preview any Animation Sequence right in the animation editor: open the clip and the character performs it on a loop. That is enough to check a walk cycle or an idle. But a game character needs to <em>choose</em> its animation based on what is happening, and that decision-making is the job of the <strong>Anim Blueprint</strong>.</p>
+
+                <h3>The Anim Blueprint: a state machine for motion</h3>
+
+                <p>An Anim Blueprint has two halves. The <strong>Event Graph</strong> reads game state (speed, is-falling, is-crouched) into variables, using the same Blueprint skills from <a href="m05_l01_what_are_blueprints.html">Module 5</a>. The <strong>Anim Graph</strong> then uses those variables to blend poses, most often through a <em>state machine</em>: named states like Idle, Walk, Run, and Jump, with transition rules between them.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; A locomotion state machine</h4>
+                    <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Walk: Speed &gt; 0
+    Walk --> Idle: Speed = 0
+    Walk --> Run: Speed &gt; 350
+    Run --> Walk: Speed &lt; 350
+    Idle --> Jump: IsFalling
+    Walk --> Jump: IsFalling
+    Run --> Jump: IsFalling
+    Jump --> Idle: Landed
+                    </pre>
+                    <p>Each state plays an animation (or a Blend Space); each arrow is a transition rule. The Anim Blueprint evaluates this every frame, so the character always shows the right motion for its current state. This is the same "if this, then that" logic you learned for gameplay Blueprints, applied to poses.</p>
+                </div>
+
+                <p>You do not have to author every clip yourself. Marketplaces like Fab, and free libraries such as Mixamo or Epic's own animation packs, give you thousands of ready-made sequences. There is only one catch, and it is a big one: those clips were made for <em>their</em> skeleton, not yours. Which brings us to the most valuable idea in the lesson.</p>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="retargeting" class="lesson-section">
+                <h2>Retargeting Animation Across Skeletons</h2>
+
+                <p>Here is the problem, made concrete with two real characters in one project. The Kat figure (<code>SK_Anya</code>) came from Daz, so its bones use Daz names on its own Skeleton, <code>SK_Anya_Skeleton</code>. Unreal's standard mannequin (<code>SK_Manny</code>) uses Epic's names on a different Skeleton, <code>SK_Mannequin</code>. The same body part has a different name on each:</p>
+
+                <div style="max-width: 820px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 820 400" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:640px;">
+                    <text x="410" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Same body, different bone names</text>
+                    <!-- left column: Daz -->
+                    <rect x="40" y="55" width="250" height="315" rx="10" fill="#fff" stroke="#e9c07a" stroke-width="2"/>
+                    <text x="165" y="80" text-anchor="middle" fill="#b8860b" style="font:700 14px system-ui">SK_Anya (Daz)</text>
+                    <text x="165" y="98" text-anchor="middle" fill="#999" style="font:11px system-ui">Skeleton: SK_Anya_Skeleton</text>
+                    <!-- right column: UE -->
+                    <rect x="530" y="55" width="250" height="315" rx="10" fill="#fff" stroke="#4fd1c5" stroke-width="2"/>
+                    <text x="655" y="80" text-anchor="middle" fill="#2b9e92" style="font:700 14px system-ui">SK_Manny (Unreal)</text>
+                    <text x="655" y="98" text-anchor="middle" fill="#999" style="font:11px system-ui">Skeleton: SK_Mannequin</text>
+                    <!-- rows -->
+                    <g style="font:600 13px system-ui,-apple-system,sans-serif" fill="#333">
+                        <!-- hip/pelvis -->
+                        <rect x="60" y="120" width="210" height="30" rx="6" fill="#fdf3e0"/><text x="75" y="140">hip</text>
+                        <rect x="550" y="120" width="210" height="30" rx="6" fill="#e6faf7"/><text x="565" y="140">pelvis</text>
+                        <line x1="270" y1="135" x2="550" y2="135" stroke="#bbb" stroke-width="2" stroke-dasharray="5 4"/>
+                        <!-- spine -->
+                        <rect x="60" y="165" width="210" height="30" rx="6" fill="#fdf3e0"/><text x="75" y="185">spine1 &#8230; spine4</text>
+                        <rect x="550" y="165" width="210" height="30" rx="6" fill="#e6faf7"/><text x="565" y="185">spine_01 &#8230; spine_05</text>
+                        <line x1="270" y1="180" x2="550" y2="180" stroke="#bbb" stroke-width="2" stroke-dasharray="5 4"/>
+                        <!-- upperarm -->
+                        <rect x="60" y="210" width="210" height="30" rx="6" fill="#fdf3e0"/><text x="75" y="230">l_upperarm</text>
+                        <rect x="550" y="210" width="210" height="30" rx="6" fill="#e6faf7"/><text x="565" y="230">upperarm_l</text>
+                        <line x1="270" y1="225" x2="550" y2="225" stroke="#bbb" stroke-width="2" stroke-dasharray="5 4"/>
+                        <!-- forearm -->
+                        <rect x="60" y="255" width="210" height="30" rx="6" fill="#fdf3e0"/><text x="75" y="275">l_forearm</text>
+                        <rect x="550" y="255" width="210" height="30" rx="6" fill="#e6faf7"/><text x="565" y="275">lowerarm_l</text>
+                        <line x1="270" y1="270" x2="550" y2="270" stroke="#bbb" stroke-width="2" stroke-dasharray="5 4"/>
+                        <!-- hand -->
+                        <rect x="60" y="300" width="210" height="30" rx="6" fill="#fdf3e0"/><text x="75" y="320">l_hand</text>
+                        <rect x="550" y="300" width="210" height="30" rx="6" fill="#e6faf7"/><text x="565" y="320">hand_l</text>
+                        <line x1="270" y1="315" x2="550" y2="315" stroke="#bbb" stroke-width="2" stroke-dasharray="5 4"/>
+                    </g>
+                    <text x="410" y="360" text-anchor="middle" fill="#f5576c" style="font:700 13px system-ui">A Manny animation names hand_l &#183; SK_Anya has no hand_l, only l_hand</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The real bone names from both characters in this project. Every row is the same body part under a different name. An animation authored for one Skeleton references names the other simply does not have &#183; so it cannot be applied directly.</em></p>
+
+                <p>If you drop a mannequin walk animation onto Kat, Unreal looks for a bone called <code>hand_l</code>, finds only <code>l_hand</code>, and the motion falls apart. The bones also sit at different proportions: Kat is a different height and build than the mannequin, so even matching names would not place the limbs correctly. This is not a bug. It is the fundamental reason a whole retargeting system exists.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Retargeting:</strong> transferring animation from one Skeleton to another that has different bone names and proportions. In UE5 this is done with two assets: an <strong>IK Rig</strong> for each character (which labels the spine, arms, and legs as retarget chains) and an <strong>IK Retargeter</strong> that maps a source rig's chains onto a target rig's chains.</p>
+                </div>
+
+                <h3>How the IK Rig and IK Retargeter work together</h3>
+
+                <p>The system works in two steps. First you build an <strong>IK Rig</strong> for each character. An IK Rig marks up a Skeleton with <em>retarget chains</em>: "these bones are the left arm," "these are the spine," and so on. It is where the machine learns that Kat's <code>l_upperarm &#8594; l_forearm &#8594; l_hand</code> is the same limb as the mannequin's <code>upperarm_l &#8594; lowerarm_l &#8594; hand_l</code>.</p>
+
+                <p>Then an <strong>IK Retargeter</strong> connects a source IK Rig to a target IK Rig and maps chain to chain. Point it at any animation on the source Skeleton and it produces a matching animation on the target, respecting the target's proportions. Do this once per character pair and your <em>entire</em> animation library becomes available to that character.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The retargeting flow</h4>
+                    <pre class="mermaid">
+flowchart LR
+    A[Mannequin walk<br/>Animation Sequence] --> B[IK Retargeter]
+    R1[IK Rig: Mannequin<br/>source chains] --> B
+    R2[IK Rig: Kat<br/>target chains] --> B
+    B --> C[Kat walk<br/>retargeted animation]
+    style B fill:#fff3cd,stroke:#ffc107
+    style C fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>One Retargeter, pointed at a whole animation library, gives Kat every clip the mannequin has. This is why studios standardize on one Skeleton and retarget everything else to it &#183; the <a href="unreal-phase-4-animation-retargeting.html">Phase 4 pipeline page</a> is entirely about this step.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Why this is the payoff idea</h4>
+                    <p>Retargeting is what makes a character library economical. Animate (or buy) a motion once against a standard Skeleton, and retargeting spreads it across every character in your cast, whatever tool they came from. It is the reason a Daz figure, a mannequin, and a Mixamo download can all share the same walk.</p>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Explore a Character</h2>
+
+                <p>You do not need a custom character to practice any of this. Every Unreal project can add Epic's mannequins, which come as ready Skeletal Meshes with a full Skeleton, sockets, and an IK Rig already set up. Work through these steps and you will have touched every idea in the lesson.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127947;&#65039; Exercise: from mesh to socket to animation</h3>
+                    <ol>
+                        <li><strong>Get a Skeletal Mesh.</strong> Add the Third Person feature (or any character pack) to your project so you have a mannequin such as <code>SK_Manny</code> in the Content Browser.</li>
+                        <li><strong>Open it and read the Skeleton.</strong> Double-click the Skeletal Mesh. Find the Skeleton Tree panel and expand it. Trace the chain from <code>pelvis</code> up the <code>spine</code> to the <code>hand_r</code> bone, and notice the finger bones below it.</li>
+                        <li><strong>Add a socket.</strong> Right-click the <code>hand_r</code> bone and choose <em>Add Socket</em>. Name it <code>prop_r</code>. Select it and drag its transform so it sits in the palm.</li>
+                        <li><strong>Attach a prop.</strong> Drag any Static Mesh (a cube is fine) into the preview and attach it to your <code>prop_r</code> socket. Confirm it sits in the hand.</li>
+                        <li><strong>Preview an animation.</strong> Find an Animation Sequence for that Skeleton (the mannequin ships with several) and open it. Watch the character move, and watch your attached prop ride along in the hand.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: where is "Add Socket"?</summary>
+                        <p style="margin-top: 0.5rem;">Sockets are added from the <strong>Skeleton Tree</strong> panel inside the Skeletal Mesh or Skeleton editor. If you do not see the panel, use <em>Window &#8594; Skeleton Tree</em>. Right-clicking any bone gives the <em>Add Socket</em> option; the new socket appears nested under that bone in the tree.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Reach exercise: retarget a clip</h4>
+                    <p>If you have two different characters (for example a mannequin and any Fab or Mixamo character), create an <strong>IK Rig</strong> for each, then an <strong>IK Retargeter</strong> between them, and export one of the mannequin's walk animations onto the other character. Watching a clip made for one body drive a completely different one is the moment retargeting clicks.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What are the three things that travel together in a Skeletal Mesh?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Base color, roughness, and normal map</label>
+                            <label><input type="radio" name="q1" value="b"> The mesh, the Skeleton, and the skin weights</label>
+                            <label><input type="radio" name="q1" value="c"> A camera, a light, and a floor</label>
+                            <label><input type="radio" name="q1" value="d"> Location, rotation, and scale</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A Skeletal Mesh is the visible mesh, a Skeleton of bones, and the skin weights that record how strongly each bone pulls on each vertex. Move a bone and the weighted skin follows.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why is it important to bind characters to one canonical Skeleton rather than a new one per import?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> A shared Skeleton lets sockets and animation carry across every character that uses it</label>
+                            <label><input type="radio" name="q2" value="b"> New Skeletons take up too much disk space</label>
+                            <label><input type="radio" name="q2" value="c"> Unreal only allows one Skeleton per project</label>
+                            <label><input type="radio" name="q2" value="d"> A new Skeleton deletes the mesh's materials</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; Animation and sockets are authored against a specific Skeleton. Share one Skeleton and that work applies to everyone bound to it; fork the Skeleton on every import and nothing carries across.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is a socket used for?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Baking lighting into a character</label>
+                            <label><input type="radio" name="q3" value="b"> Compressing an animation clip</label>
+                            <label><input type="radio" name="q3" value="c"> A named attach point on a bone, so props and effects follow the animation</label>
+                            <label><input type="radio" name="q3" value="d"> Storing the character's material slots</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; A socket is a named transform parented to a bone. Attach a Static Mesh or effect to it by name and the prop inherits the bone's motion, so a sword in <code>hand_r</code> stays in the hand through every animation.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>In an Anim Blueprint, what does the state machine in the Anim Graph do?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> It imports FBX files from disk</label>
+                            <label><input type="radio" name="q4" value="b"> It decides which animation plays and blends between them based on game state</label>
+                            <label><input type="radio" name="q4" value="c"> It assigns materials to the mesh</label>
+                            <label><input type="radio" name="q4" value="d"> It packages the project for shipping</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The Anim Graph's state machine holds states like Idle, Walk, and Run with transition rules, and evaluates them every frame so the character always shows the right motion for its current state.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>You want to play a mannequin walk animation on a Daz character whose bones are named differently. What do you use?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Nothing special; any animation plays on any Skeleton directly</label>
+                            <label><input type="radio" name="q5" value="b"> A Post Process Volume</label>
+                            <label><input type="radio" name="q5" value="c"> An IK Rig for each character plus an IK Retargeter to map between them</label>
+                            <label><input type="radio" name="q5" value="d"> A new material instance</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; Different skeletons need retargeting. You build an IK Rig on each character to label its retarget chains, then an IK Retargeter maps the source chains onto the target, transferring the animation across different names and proportions.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You crossed the line from static props into moving characters. Here is the arc:</p>
+
+                <p><strong>Skeletal Mesh.</strong> A character is a mesh plus a Skeleton plus skin weights. Bones move, and the weighted skin follows. Most characters are built elsewhere (like the Daz-to-Blender figure you saw) and imported as Skeletal Meshes.</p>
+
+                <p><strong>Skeleton and sockets.</strong> The Skeleton is a shared, reusable bone hierarchy. Keep one canonical Skeleton per character type. Add sockets to bones as named attach points, and props ride the animation for free.</p>
+
+                <p><strong>Animation and retargeting.</strong> Animation Sequences hold motion; Anim Blueprints decide which motion plays through state machines. And because every clip belongs to a specific Skeleton, retargeting (via IK Rigs and an IK Retargeter) is what lets one animation library drive characters from any source.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>A Skeletal Mesh = mesh + Skeleton + skin weights; a Static Mesh cannot deform</li>
+                        <li>The Skeleton is a shared bone hierarchy; reuse one canonical Skeleton per character type</li>
+                        <li>Sockets are named attach points on bones; attach props and effects by name</li>
+                        <li>Animation Sequences store motion; Anim Blueprints choose and blend it with state machines</li>
+                        <li>Different skeletons need retargeting: an IK Rig per character plus an IK Retargeter between them</li>
+                    </ul>
+                </div>
+
+                <h3>Where this goes next</h3>
+
+                <p>Your character can now move and carry props. The next lesson, <strong>Cinematics with Sequencer</strong>, puts that character on a stage: you will place it in a shot, drive a cine camera, and choreograph the scene on a timeline. From there, <strong>Rendering Output</strong> turns the finished shot into final frames with the Movie Render Queue. Together these three lessons are the Unreal half of the <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="index.html#intermediate" class="btn">&#8592; Intermediate Track</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="int_l02_cinematics_with_sequencer.html" class="btn">Next: Cinematics with Sequencer &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

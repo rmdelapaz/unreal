@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Intermediate Unreal Engine 5.8: render finished frames with the Movie Render Queue. Learn why the viewport is only a preview, how MRQ render jobs and settings work, how spatial and temporal anti-aliasing samples plus warm-up frames produce clean images, the difference between the deferred renderer and path tracing, and how to output image sequences for post.">
+    <meta name="author" content="Practical Ace">
+    <title>Rendering Output - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#intermediate">Intermediate: Cinematic Production</a></li>
+            <li aria-current="page">Rendering Output</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#127902; Rendering Output</h1>
+                <p class="lead">You have staged a scene, pointed a Cine Camera at it, and cut between angles in Sequencer. Press play and the shot runs, but what you are watching is a real-time <em>approximation</em> the editor draws fast enough to stay interactive. It is not the finished film. Turning that preview into clean, delivery-quality frames is a separate, deliberate step, and it has its own tool: the <strong>Movie Render Queue</strong>. In this lesson you will learn why the viewport is only a preview, how MRQ render jobs and settings are organized, how <strong>spatial and temporal anti-aliasing samples</strong> and <strong>warm-up frames</strong> turn a noisy image into a smooth one, the difference between the <strong>deferred renderer</strong> and <strong>path tracing</strong>, and why you output an <strong>image sequence</strong> rather than a single video file.</p>
+
+                <!-- Intermediate banner -->
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#127916; Intermediate Track</h4>
+                    <p>This is the third and final lesson of the <strong>Cinematic Production</strong> track. It follows directly from <a href="int_l02_cinematics_with_sequencer.html">Cinematics with Sequencer</a>: that lesson ended with a shot that existed only as an editor preview, and this one turns that Level Sequence into finished frames. It is the exact ground the <a href="unreal-phase-7-output.html">Phase 7 Output</a> pipeline page assumes you already know.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain why an editor viewport preview is not a final render, and what the Movie Render Queue adds</li>
+                        <li>Set up an MRQ render job and read its output settings: format, resolution, frame range, and output directory</li>
+                        <li>Describe how spatial and temporal anti-aliasing sample counts combine, and why warm-up frames are needed</li>
+                        <li>Compare the deferred renderer with path tracing and choose the right one for a shot</li>
+                        <li>Output an image sequence (PNG or EXR) and describe the handoff into post-production</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 35-45 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="int_l02_cinematics_with_sequencer.html">Intermediate Lesson 2: Cinematics with Sequencer</a> (you need a Level Sequence to render), and the introductory modules (especially <a href="m04_l05_post_process_effects.html">4.5 Post-Process Effects</a> and <a href="m10_l02_optimization.html">10.2 Optimization</a>). A working Unreal Engine 5.8 project.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#preview-to-final" class="toc-link">From Preview to Deliverable</a></li>
+                        <li><a href="#movie-render-queue" class="toc-link">The Movie Render Queue: Jobs and Settings</a></li>
+                        <li><a href="#anti-aliasing" class="toc-link">Anti-Aliasing: Spatial and Temporal Samples</a></li>
+                        <li><a href="#renderers" class="toc-link">Deferred Renderer vs Path Tracing</a></li>
+                        <li><a href="#output-formats" class="toc-link">Output Formats and the Post Handoff</a></li>
+                        <li><a href="#workflow" class="toc-link">A Repeatable Render Workflow</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Render Your First Shot</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- About the visuals note -->
+            <div class="card" style="background: #fff8e1; border-left: 4px solid #ffb300;">
+                <h4>&#128444;&#65039; A note on this lesson's figures</h4>
+                <p>The figure in the next section is a genuine real-time viewport preview, the <em>before</em> that this whole lesson improves on. What you will <em>not</em> see here is a captured Movie Render Queue frame or a path-traced frame, and that is deliberate: MRQ produces its output through a dedicated offline pipeline that writes files to disk rather than to the screen, so a live-viewport grab literally cannot stand in for one without misrepresenting a preview as a finished render. The renderer and sampling concepts are therefore taught with precise labeled diagrams. Everything they describe is exactly what you will see in the MRQ window in your own project.</p>
+            </div>
+
+            <!-- Section 1 -->
+            <section id="preview-to-final" class="lesson-section">
+                <h2>From Preview to Deliverable</h2>
+
+                <p>The editor viewport has one overriding job: stay responsive. To keep the frame rate high enough to work with, it takes shortcuts. Edges get an approximate, single-pass smoothing; motion blur and depth of field are rough; effects that build up over several frames never fully settle because the camera keeps moving. That is exactly what you want while you block and time a shot, and exactly what you do <em>not</em> want in a deliverable.</p>
+
+                <img src="images/int_l03/int_l03_fig01_viewport_preview.png" alt="A real-time Unreal Engine 5.8 editor viewport preview: the armored, braided character SK_Anya stands in an A-pose on a checkered working ground plane under a hazy, sun-backlit sky with distant dunes on the horizon. The image has the soft edges and approximate lighting of an interactive preview rather than the resolved look of a finished render." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A real-time editor viewport preview &#183; the same <code>SK_Anya</code> character from Lesson 1, staged on a working plane in the <code>ClaudeTest</code> project. This is the fast, interactive approximation you compose and time against, not a final render &#183; the Movie Render Queue re-renders this same scene with full sampling to produce the clean deliverable.</em></p>
+
+                <p>Rendering is the separate step that spends the time the viewport could not. Instead of drawing each frame once in a few milliseconds, the renderer draws each output frame many times over, accumulating those passes into one clean image, and writes it to disk. The tool that orchestrates this in Unreal is the <strong>Movie Render Queue</strong>.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Movie Render Queue (MRQ):</strong> Unreal's high-quality offline renderer. You hand it one or more Level Sequences as render <em>jobs</em>, attach settings that control quality and output, and it renders each frame with full anti-aliasing, correct motion blur, and resolved effects, then saves the result as an image sequence or video. It is the correct and only path to final frames.</p>
+                </div>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Where this sits in the pipeline</h4>
+                    <p>In the <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, this is the output stage: the shot is assembled, and now Unreal produces the frames that leave the engine and enter post. The <a href="unreal-phase-7-output.html">Phase 7 Output page</a> maps this handoff, and its headline is the same as this lesson's: <em>final frames come from the Movie Render Queue, never the viewport.</em></p>
+                </div>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Preview and final are two different passes</h4>
+                    <pre class="mermaid">
+flowchart LR
+    SEQ[Level Sequence<br/>from Lesson 2] --> PV[Editor preview<br/>real-time approximation]
+    SEQ --> MRQ[Movie Render Queue<br/>offline render]
+    PV --> BT[blocking &amp; timing<br/>fast, rough]
+    MRQ --> FR[final frames<br/>clean, on disk]
+    FR --> POST[into post]
+    style PV fill:#fff3cd,stroke:#ffc107
+    style MRQ fill:#ede7f6,stroke:#7e57c2
+    style FR fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The same Level Sequence feeds both. The preview is for your eyes while you work; the Movie Render Queue is for the audience.</p>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="movie-render-queue" class="lesson-section">
+                <h2>The Movie Render Queue: Jobs and Settings</h2>
+
+                <p>You open the Movie Render Queue from the Cinematics menu in the toolbar (Window then Cinematics then Movie Render Queue, or the Render button in Sequencer). The window is a <strong>queue</strong>: a list of render <strong>jobs</strong>, where each job is one Level Sequence you want rendered. You can line up several jobs and render them in a batch, which is how a whole sequence of shots gets rendered overnight.</p>
+
+                <p>Each job carries a <strong>settings</strong> configuration, and this is where quality and output are decided. The settings are grouped into modular entries you add to the job. Four groups matter most when you start:</p>
+
+                <div class="card">
+                    <h4>The settings that shape a render</h4>
+                    <ul>
+                        <li><strong>Output.</strong> Where and how big: the output <em>directory</em>, the file <em>name</em> pattern, the <em>resolution</em> (for example 1920x1080 or 3840x2160), and the <em>frame rate</em>. The frame range comes from the sequence's playback range by default.</li>
+                        <li><strong>Image format.</strong> What kind of file each frame becomes: a PNG, JPG, or BMP image, an EXR image, or a video file. This is covered in detail in Section 5.</li>
+                        <li><strong>Anti-Aliasing.</strong> The sample counts that determine how clean each frame is, plus the warm-up settings. This is Section 3.</li>
+                        <li><strong>Rendering feature settings.</strong> Optional toggles such as the Path Tracer, high-quality shadows, or extra render passes. Path tracing is Section 4.</li>
+                    </ul>
+                </div>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 440" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Anatomy of a Movie Render Queue job</text>
+                    <!-- Queue panel (left) -->
+                    <text x="175" y="62" text-anchor="middle" fill="#888" style="font:600 12px system-ui">THE QUEUE (render jobs)</text>
+                    <rect x="30" y="74" width="290" height="46" rx="6" fill="#ede7f6" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="44" y="97" fill="#4527a0" style="font:700 13px system-ui">&#127909; Shot_010</text>
+                    <text x="44" y="113" fill="#7e57c2" style="font:400 11px system-ui">INT_L02_ShotDemo (a Level Sequence)</text>
+                    <rect x="30" y="128" width="290" height="40" rx="6" fill="#f3effa" stroke="#b39ddb"/>
+                    <text x="44" y="153" fill="#7e57c2" style="font:600 12px system-ui">&#127909; Shot_020 <tspan fill="#aaa" style="font-weight:400">(queued)</tspan></text>
+                    <rect x="30" y="176" width="290" height="40" rx="6" fill="#f3effa" stroke="#b39ddb"/>
+                    <text x="44" y="201" fill="#7e57c2" style="font:600 12px system-ui">&#127909; Shot_030 <tspan fill="#aaa" style="font-weight:400">(queued)</tspan></text>
+                    <text x="44" y="246" fill="#888" style="font:400 11px system-ui">Jobs render top to bottom, in a batch.</text>
+                    <!-- arrow -->
+                    <line x1="325" y1="97" x2="360" y2="97" stroke="#7e57c2" stroke-width="2" marker-end="url(#ar)"/>
+                    <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#7e57c2"/></marker></defs>
+                    <!-- Settings panel (right) -->
+                    <text x="600" y="62" text-anchor="middle" fill="#888" style="font:600 12px system-ui">SETTINGS FOR Shot_010</text>
+                    <!-- Output -->
+                    <rect x="368" y="74" width="466" height="70" rx="6" fill="#e8f5e9" stroke="#4CAF50" stroke-width="1.5"/>
+                    <text x="382" y="95" fill="#2e7d32" style="font:700 13px system-ui">&#128193; Output</text>
+                    <text x="382" y="115" fill="#33691e" style="font:400 11.5px system-ui">Directory &#183; file name &#183; resolution 1920x1080 &#183; 24 fps</text>
+                    <text x="382" y="133" fill="#33691e" style="font:400 11.5px system-ui">Frame range: from the sequence playback range</text>
+                    <!-- Image format -->
+                    <rect x="368" y="152" width="466" height="52" rx="6" fill="#e3f2fd" stroke="#2196F3" stroke-width="1.5"/>
+                    <text x="382" y="173" fill="#1565c0" style="font:700 13px system-ui">&#128444;&#65039; Image format</text>
+                    <text x="382" y="192" fill="#1565c0" style="font:400 11.5px system-ui">.png &#183; .jpg &#183; .exr &#183; or a video file (Section 5)</text>
+                    <!-- Anti-aliasing -->
+                    <rect x="368" y="212" width="466" height="66" rx="6" fill="#fff3cd" stroke="#ffc107" stroke-width="1.5"/>
+                    <text x="382" y="233" fill="#7a5c00" style="font:700 13px system-ui">&#10022; Anti-Aliasing</text>
+                    <text x="382" y="252" fill="#7a5c00" style="font:400 11.5px system-ui">Spatial samples &#215; Temporal samples (Section 3)</text>
+                    <text x="382" y="270" fill="#7a5c00" style="font:400 11.5px system-ui">Warm-up / engine warm-up frame count</text>
+                    <!-- Feature settings -->
+                    <rect x="368" y="286" width="466" height="52" rx="6" fill="#fce4ec" stroke="#e91e63" stroke-width="1.5"/>
+                    <text x="382" y="307" fill="#ad1457" style="font:700 13px system-ui">&#9881;&#65039; Rendering features</text>
+                    <text x="382" y="326" fill="#ad1457" style="font:400 11.5px system-ui">Path Tracer toggle &#183; extra passes &#183; console variables (Section 4)</text>
+                    <!-- render button -->
+                    <rect x="612" y="356" width="222" height="42" rx="8" fill="#4CAF50"/>
+                    <text x="723" y="383" text-anchor="middle" fill="#fff" style="font:700 15px system-ui">&#9654; Render (Local)</text>
+                    <text x="368" y="382" fill="#888" style="font:400 11px system-ui">Each job = one sequence + its settings.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: A Movie Render Queue job. The queue (left) lists sequences to render; each job carries a settings stack (right) for output, image format, anti-aliasing, and rendering features &#183; jobs render top to bottom when you press Render.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: save your settings as a preset</h4>
+                    <p>Once you have a settings stack you like (resolution, format, sample counts, warm-up), save it as a <strong>preset</strong>. Every future job can load that preset in one click, so your whole project renders with consistent quality and you never re-type sample counts shot by shot.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="anti-aliasing" class="lesson-section">
+                <h2>Anti-Aliasing: Spatial and Temporal Samples</h2>
+
+                <p>Aliasing is the stair-stepping you see on a diagonal edge, and the shimmer on fine detail, when a single sample per pixel cannot decide whether that pixel is foreground or background. The fix is to sample each pixel many times at slightly different positions and average the results, so the edge becomes a smooth gradient. The Movie Render Queue does this by rendering each output frame several times over and accumulating the passes. It exposes that budget as two multiplied numbers.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Spatial samples</strong> render the frame multiple times at a single instant, each jittered by a fraction of a pixel, to smooth edges (spatial anti-aliasing). <strong>Temporal samples</strong> render the frame at several sub-steps <em>across the frame's shutter interval</em> and accumulate them, which builds accurate motion blur and averages out time-varying noise. The total renders accumulated into one output frame is <strong>spatial &#215; temporal</strong>.</p>
+                </div>
+
+                <p>So a job with 8 temporal samples and 4 spatial samples renders and blends 32 internal passes for every single frame you get out. More samples mean a cleaner image and a longer render. The split between the two matters: spatial samples clean up static edges, and temporal samples clean up anything that moves and produce the smooth motion blur that reads as filmic.</p>
+
+                <div style="max-width: 840px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 840 430" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:660px;">
+                    <text x="420" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">One output frame is many accumulated samples</text>
+                    <!-- temporal axis -->
+                    <text x="215" y="66" text-anchor="middle" fill="#7e57c2" style="font:700 12px system-ui">TEMPORAL: sub-steps across the shutter</text>
+                    <line x1="60" y1="86" x2="370" y2="86" stroke="#7e57c2" stroke-width="2"/>
+                    <polygon points="370,81 380,86 370,91" fill="#7e57c2"/>
+                    <text x="60" y="104" fill="#999" style="font:11px system-ui">frame open</text>
+                    <text x="300" y="104" fill="#999" style="font:11px system-ui">frame close</text>
+                    <g fill="#7e57c2">
+                        <circle cx="80" cy="86" r="5"/><circle cx="140" cy="86" r="5"/>
+                        <circle cx="200" cy="86" r="5"/><circle cx="260" cy="86" r="5"/>
+                        <circle cx="320" cy="86" r="5"/>
+                    </g>
+                    <!-- at each temporal step, spatial jitter grid -->
+                    <text x="620" y="66" text-anchor="middle" fill="#e0a800" style="font:700 12px system-ui">SPATIAL: sub-pixel jitter within a pixel</text>
+                    <rect x="540" y="80" width="160" height="160" fill="#fffbe6" stroke="#e0a800" stroke-width="1.5"/>
+                    <line x1="620" y1="80" x2="620" y2="240" stroke="#f0d780" stroke-width="1"/>
+                    <line x1="540" y1="160" x2="700" y2="160" stroke="#f0d780" stroke-width="1"/>
+                    <g fill="#e0a800" stroke="#7a5c00" stroke-width="0.6">
+                        <circle cx="588" cy="122" r="6"/><circle cx="655" cy="106" r="6"/>
+                        <circle cx="602" cy="196" r="6"/><circle cx="668" cy="182" r="6"/>
+                    </g>
+                    <text x="620" y="262" text-anchor="middle" fill="#7a5c00" style="font:11px system-ui">4 spatial samples, jittered</text>
+                    <text x="620" y="278" text-anchor="middle" fill="#999" style="font:11px system-ui">(one pixel, magnified)</text>
+                    <!-- multiply -->
+                    <text x="455" y="165" text-anchor="middle" fill="#333" style="font:700 22px system-ui">&#215;</text>
+                    <!-- accumulation arrow to result -->
+                    <text x="420" y="320" text-anchor="middle" fill="#333" style="font:600 13px system-ui">accumulate &amp; average all passes &#8594;</text>
+                    <!-- result frame: clean -->
+                    <rect x="330" y="336" width="180" height="72" rx="6" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="420" y="368" text-anchor="middle" fill="#2e7d32" style="font:700 13px system-ui">one clean frame</text>
+                    <text x="420" y="388" text-anchor="middle" fill="#33691e" style="font:400 11px system-ui">smooth edges + motion blur</text>
+                    <!-- totals callout -->
+                    <rect x="60" y="150" width="300" height="150" rx="8" fill="#fff" stroke="#bbb"/>
+                    <text x="75" y="176" fill="#333" style="font:700 13px system-ui">Total samples per frame</text>
+                    <text x="75" y="202" fill="#7e57c2" style="font:600 13px system-ui">temporal (8)</text>
+                    <text x="180" y="202" fill="#333" style="font:600 13px system-ui">&#215;</text>
+                    <text x="200" y="202" fill="#e0a800" style="font:600 13px system-ui">spatial (4)</text>
+                    <text x="300" y="202" fill="#333" style="font:600 13px system-ui">=</text>
+                    <text x="320" y="202" fill="#2e7d32" style="font:700 13px system-ui">32</text>
+                    <text x="75" y="232" fill="#666" style="font:400 12px system-ui">More samples = cleaner image,</text>
+                    <text x="75" y="250" fill="#666" style="font:400 12px system-ui">longer render time.</text>
+                    <text x="75" y="278" fill="#666" style="font:400 12px system-ui">Spatial fixes static edges;</text>
+                    <text x="75" y="296" fill="#666" style="font:400 12px system-ui">temporal fixes motion.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The Movie Render Queue renders each output frame as spatial samples (sub-pixel jitter, for edges) times temporal samples (sub-frame time steps, for motion blur), then accumulates them into one resolved frame &#183; 8 temporal &#215; 4 spatial is 32 internal passes per frame.</em></p>
+
+                <h3>Warm-up frames: letting the image settle first</h3>
+
+                <p>Some parts of the image are not correct on the very first frame. Automatic exposure (eye adaptation) drifts toward its target brightness over time, temporal effects such as Temporal Super Resolution and screen-space reflections build a history across frames, and hair, particles, and physics need a moment to reach a steady state. If MRQ recorded frame 0 cold, that frame would look wrong: too bright or dark, or noisier than the frames after it.</p>
+
+                <p><strong>Warm-up frames</strong> solve this. Before recording the first output frame, MRQ advances the engine through a number of frames so all of those time-dependent systems converge. There are two related controls: an <em>engine warm-up count</em> that ticks the world without rendering (good for letting gameplay and physics settle), and a <em>render warm-up</em> that actually renders throwaway frames so the GPU-side temporal history is built up before frame 0 is saved.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; The classic first-frame flicker</h4>
+                    <p>If your render starts too bright and then darkens over the first second, or the opening frames look grainy and then clean up, you almost certainly need more warm-up frames. This is eye adaptation and temporal history catching up. Raising the warm-up count so those systems settle <em>before</em> frame 0 removes the flicker.</p>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="renderers" class="lesson-section">
+                <h2>Deferred Renderer vs Path Tracing</h2>
+
+                <p>Anti-aliasing decides how <em>cleanly</em> a frame is sampled. A separate choice decides how the light in that frame is actually computed. The Movie Render Queue can render with either of two engines, and they make fundamentally different trade-offs between speed and physical accuracy.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Two ways to compute light</h4>
+                    <p style="color: white;"><strong>The deferred renderer</strong> is Unreal's default, real-time-derived path. It rasterizes the scene into buffers of surface data (color, normal, roughness, depth) and then computes lighting from those buffers, using fast, high-quality approximations such as Lumen global illumination and screen-space reflections. <strong>Path tracing</strong> instead traces many light rays per pixel that bounce through the scene, converging on a physically accurate, ground-truth image. It is far slower and needs hardware ray tracing.</p>
+                </div>
+
+                <p>The deferred renderer is what every earlier lesson has been using, and with Lumen and Nanite it is fully production-capable: the vast majority of real-time cinematics ship on it. Path tracing exists for when you want a physically exact reference or a hero shot with perfect reflections, refractions, and soft shadows, and you are willing to pay for it in render time and hardware.</p>
+
+                <div style="max-width: 840px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 840 400" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:660px;">
+                    <text x="420" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Two renderers, two ways of tracing light</text>
+                    <!-- Deferred panel -->
+                    <rect x="24" y="50" width="384" height="320" rx="8" fill="#eef3ff" stroke="#667eea" stroke-width="1.5"/>
+                    <text x="216" y="76" text-anchor="middle" fill="#3949ab" style="font:700 15px system-ui">Deferred renderer (default)</text>
+                    <!-- G-buffer stack -->
+                    <rect x="60" y="96" width="120" height="20" rx="3" fill="#c5cae9" stroke="#7986cb"/>
+                    <text x="120" y="111" text-anchor="middle" fill="#283593" style="font:600 10px system-ui">base color</text>
+                    <rect x="60" y="120" width="120" height="20" rx="3" fill="#c5cae9" stroke="#7986cb"/>
+                    <text x="120" y="135" text-anchor="middle" fill="#283593" style="font:600 10px system-ui">normals</text>
+                    <rect x="60" y="144" width="120" height="20" rx="3" fill="#c5cae9" stroke="#7986cb"/>
+                    <text x="120" y="159" text-anchor="middle" fill="#283593" style="font:600 10px system-ui">roughness / depth</text>
+                    <text x="120" y="184" text-anchor="middle" fill="#5c6bc0" style="font:400 10px system-ui">1. rasterize to a G-buffer</text>
+                    <line x1="200" y1="140" x2="245" y2="140" stroke="#3949ab" stroke-width="2" marker-end="url(#ar2)"/>
+                    <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#3949ab"/></marker></defs>
+                    <rect x="250" y="112" width="120" height="56" rx="5" fill="#fff" stroke="#3949ab"/>
+                    <text x="310" y="136" text-anchor="middle" fill="#283593" style="font:600 11px system-ui">lighting pass</text>
+                    <text x="310" y="153" text-anchor="middle" fill="#5c6bc0" style="font:400 9.5px system-ui">Lumen GI, SSR</text>
+                    <text x="216" y="184" text-anchor="middle" fill="#5c6bc0" style="font:400 10px system-ui">2. light the buffers with approximations</text>
+                    <!-- pros/cons -->
+                    <text x="48" y="222" fill="#2e7d32" style="font:700 12px system-ui">&#43; fast, real-time-derived</text>
+                    <text x="48" y="244" fill="#2e7d32" style="font:700 12px system-ui">&#43; production-proven with Lumen + Nanite</text>
+                    <text x="48" y="266" fill="#2e7d32" style="font:700 12px system-ui">&#43; runs on most GPUs</text>
+                    <text x="48" y="292" fill="#c62828" style="font:700 12px system-ui">&#8722; reflections / GI are approximations</text>
+                    <text x="48" y="314" fill="#c62828" style="font:700 12px system-ui">&#8722; some effects limited to screen space</text>
+                    <text x="216" y="352" text-anchor="middle" fill="#3949ab" style="font:600 12px system-ui">Best for: nearly all real-time cinematics</text>
+                    <!-- Path tracing panel -->
+                    <rect x="432" y="50" width="384" height="320" rx="8" fill="#fce4ec" stroke="#e91e63" stroke-width="1.5"/>
+                    <text x="624" y="76" text-anchor="middle" fill="#ad1457" style="font:700 15px system-ui">Path tracing</text>
+                    <!-- camera -->
+                    <rect x="456" y="120" width="30" height="22" rx="3" fill="#880e4f"/>
+                    <text x="471" y="160" text-anchor="middle" fill="#880e4f" style="font:600 10px system-ui">camera</text>
+                    <!-- bouncing rays -->
+                    <circle cx="760" cy="100" r="16" fill="#ffd54f" stroke="#f9a825"/>
+                    <text x="760" y="104" text-anchor="middle" fill="#7a5c00" style="font:600 10px system-ui">light</text>
+                    <polyline points="486,131 600,120 700,150 758,112" fill="none" stroke="#e91e63" stroke-width="1.6"/>
+                    <polyline points="486,131 560,190 660,160 758,112" fill="none" stroke="#f06292" stroke-width="1.4" stroke-dasharray="4 3"/>
+                    <polyline points="486,131 620,205 745,190" fill="none" stroke="#f06292" stroke-width="1.4" stroke-dasharray="4 3"/>
+                    <circle cx="600" cy="120" r="4" fill="#ad1457"/><circle cx="700" cy="150" r="4" fill="#ad1457"/>
+                    <circle cx="560" cy="190" r="4" fill="#ad1457"/><circle cx="660" cy="160" r="4" fill="#ad1457"/>
+                    <text x="624" y="230" text-anchor="middle" fill="#ad1457" style="font:400 10px system-ui">rays bounce until they reach light; average many per pixel</text>
+                    <text x="456" y="262" fill="#2e7d32" style="font:700 12px system-ui">&#43; physically accurate, ground truth</text>
+                    <text x="456" y="284" fill="#2e7d32" style="font:700 12px system-ui">&#43; true reflections, refraction, soft shadows</text>
+                    <text x="456" y="306" fill="#c62828" style="font:700 12px system-ui">&#8722; slow; noise falls only as samples rise</text>
+                    <text x="456" y="328" fill="#c62828" style="font:700 12px system-ui">&#8722; needs hardware ray tracing (RTX-class GPU)</text>
+                    <text x="624" y="358" text-anchor="middle" fill="#ad1457" style="font:600 12px system-ui">Best for: hero shots, reference, archviz</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The deferred renderer rasterizes surface data into a G-buffer and lights it with fast approximations (Lumen, screen-space reflections); path tracing traces bouncing rays per pixel for a physically accurate but slower, hardware-ray-tracing-dependent result.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Which renderer should a shot use?</h4>
+                    <pre class="mermaid">
+flowchart TD
+    Q{Does the shot need<br/>physically exact light?}
+    Q -->|No: most cinematics| DEF[Deferred renderer<br/>fast, Lumen + Nanite]
+    Q -->|Yes: hero shot, archviz,<br/>ground-truth reference| PT{RTX-class GPU<br/>available?}
+    PT -->|Yes| USE[Path tracing<br/>accept longer renders]
+    PT -->|No| DEF
+    style DEF fill:#eef3ff,stroke:#667eea
+    style USE fill:#fce4ec,stroke:#e91e63
+                    </pre>
+                    <p>Most shots stay on the deferred renderer, which with Lumen and Nanite is production quality. Reach for path tracing only when a shot genuinely needs ground-truth light and you have the hardware and render time to spend.</p>
+                </div>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Path tracing and samples are the same idea again</h4>
+                    <p>Notice that path tracing also gets cleaner with more samples: its characteristic look at low sample counts is <em>noise</em> (grain), not the stair-stepping of aliasing, and both are cured by accumulating more samples. This is why MRQ's sample settings matter even more for path-traced renders, and why a path-traced hero frame can take minutes rather than milliseconds.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="output-formats" class="lesson-section">
+                <h2>Output Formats and the Post Handoff</h2>
+
+                <p>When MRQ finishes a frame, it writes a file. The natural instinct is to ask for a finished video file straight away, but professional pipelines almost always render an <strong>image sequence</strong> instead: one image file per frame, numbered in order, that a video editor or compositor stitches back together. Understanding why is the last piece of this lesson.</p>
+
+                <div class="card">
+                    <h4>The formats you will choose between</h4>
+                    <ul>
+                        <li><strong>PNG</strong> (image sequence). Lossless, 8-bit, widely compatible. A solid default for previews and for shots that do not need heavy grading.</li>
+                        <li><strong>JPG</strong> (image sequence). Lossy and small. Fine for quick dailies, poor for final work because it discards data.</li>
+                        <li><strong>EXR</strong> (image sequence). The professional choice. OpenEXR stores <em>high dynamic range</em>, floating-point color, so highlights that blew out on screen are still recoverable, and it can hold multiple render passes in one file. This is what you hand a colorist or compositor.</li>
+                        <li><strong>Video</strong> (a single file, such as ProRes or a movie container). Convenient for a one-off preview you want to play immediately, but it commits the whole render to one file.</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Why an image sequence, not a single video</h4>
+                    <pre class="mermaid">
+flowchart LR
+    MRQ[Movie Render Queue] --> SEQ[EXR / PNG image sequence<br/>frame_0001, frame_0002, ...]
+    SEQ --> POST[Post: grade &amp; composite<br/>Resolve, Nuke, After Effects]
+    POST --> ENC[Encode final video<br/>H.264 / ProRes]
+    style SEQ fill:#e8f5e9,stroke:#4CAF50
+    style ENC fill:#ede7f6,stroke:#7e57c2
+                    </pre>
+                    <p>An image sequence is robust and flexible: if a render crashes at frame 900 you keep the first 899 and resume, the high dynamic range of EXR survives into color grading, and post tools expect sequences. You encode to a compressed video only at the very end, after the picture is finished.</p>
+                </div>
+
+                <p>This is exactly the handoff the <a href="unreal-phase-7-output.html">Phase 7 Output page</a> describes as leaving Unreal and entering post. The render is not the end of the story; it is the clean, high-quality raw material that grading, compositing, and editing are built on. That is where the Unreal half of the <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a> hands off.</p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="workflow" class="lesson-section">
+                <h2>A Repeatable Render Workflow</h2>
+
+                <p>Every final render follows the same short sequence of steps. Once your Level Sequence from Lesson 2 is timed and cut, turning it into frames is mechanical.</p>
+
+                <div class="card">
+                    <h4>The six steps of a render</h4>
+                    <ol>
+                        <li><strong>Finish the sequence.</strong> Confirm the playback range, camera cuts, and timing are final in Sequencer. Rendering an unfinished cut just wastes time.</li>
+                        <li><strong>Open the Movie Render Queue</strong> and add the Level Sequence as a render job.</li>
+                        <li><strong>Set output.</strong> Choose the directory, resolution, and frame rate, and pick an image format (EXR or PNG for final work).</li>
+                        <li><strong>Set quality.</strong> Choose spatial and temporal sample counts, and a warm-up frame count high enough that the first frame is settled. Enable the Path Tracer only if the shot needs it.</li>
+                        <li><strong>Render.</strong> Press Render (Local) and let MRQ write the image sequence to disk. Batch multiple jobs to render a whole scene unattended.</li>
+                        <li><strong>Hand off to post.</strong> Take the image sequence into a grading or editing tool, finish the picture, and encode the final video.</li>
+                    </ol>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: test small before you commit</h4>
+                    <p>Before a long final render, do a cheap test pass: render a short slice of the range at low sample counts, or a single frame, to confirm the framing, exposure, and warm-up are right. Catching a wrong setting on one test frame is far better than discovering it after an overnight batch.</p>
+                </div>
+            </section>
+
+            <!-- Section 7 -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Render Your First Shot</h2>
+
+                <p>You need only the Level Sequence you built in Lesson 2 (or any short sequence with a camera). Work through these steps to produce a real image sequence on disk.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127916; Exercise: render a five second shot</h3>
+                    <ol>
+                        <li><strong>Open MRQ.</strong> With your sequence open, click the Render button in Sequencer (the clapperboard), or open Window then Cinematics then Movie Render Queue.</li>
+                        <li><strong>Add the job.</strong> Your sequence should appear as a job. If not, use the plus button and pick it.</li>
+                        <li><strong>Add settings.</strong> Click the job's settings and add an <em>Output</em> entry (set a folder and 1920x1080) and an <em>Image Sequence PNG</em> entry.</li>
+                        <li><strong>Set anti-aliasing.</strong> Add an <em>Anti-Aliasing</em> entry. Try 8 temporal samples and 2 spatial samples, and set an engine warm-up count of around 30 frames.</li>
+                        <li><strong>Render.</strong> Press Render (Local). A window shows progress frame by frame, then closes.</li>
+                        <li><strong>Check the output.</strong> Open the folder you chose. You will find one PNG per frame, numbered in order. That numbered sequence is your deliverable.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: the first frames look brighter or grainier than the rest?</summary>
+                        <p style="margin-top: 0.5rem;">That is eye adaptation and temporal history settling in. Raise the warm-up frame count in the Anti-Aliasing settings so those systems reach steady state before frame 0 is recorded, then re-render. If the whole sequence looks soft or aliased, raise the spatial and temporal sample counts.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: compare quality levels</h4>
+                    <p>Render one frame twice: once at 1 temporal and 1 spatial sample, and once at 8 temporal and 4 spatial. Open both. The difference in edge smoothness and motion blur, and in render time, is the entire point of anti-aliasing sampling made visible. If your GPU supports it, enable the Path Tracer and render that same frame a third time to see a physically accurate version.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Why is the editor viewport preview not suitable as a final deliverable?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> It renders at the wrong resolution and cannot be changed</label>
+                            <label><input type="radio" name="q1" value="b"> It uses fast approximations for anti-aliasing, motion blur, and effects so it can stay interactive, rather than fully resolving them</label>
+                            <label><input type="radio" name="q1" value="c"> It can only show one camera at a time</label>
+                            <label><input type="radio" name="q1" value="d"> It does not display lighting</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The viewport trades quality for speed so you can work interactively. The Movie Render Queue spends the extra time to fully resolve edges, motion blur, and time-dependent effects, then writes the result to disk.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>In the Movie Render Queue, how many internal render passes are accumulated into one output frame when you set 8 temporal samples and 4 spatial samples?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> 12 (they are added)</label>
+                            <label><input type="radio" name="q2" value="b"> 8 (only temporal counts)</label>
+                            <label><input type="radio" name="q2" value="c"> 32 (they are multiplied)</label>
+                            <label><input type="radio" name="q2" value="d"> 4 (only spatial counts)</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; Total samples per frame is spatial &#215; temporal, so 8 &#215; 4 is 32 accumulated passes. Spatial samples (sub-pixel jitter) smooth static edges; temporal samples (sub-frame time steps) build motion blur and average out time-varying noise.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What problem do warm-up frames solve?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> They give time-dependent systems like eye adaptation and temporal history time to reach a steady state before the first frame is recorded</label>
+                            <label><input type="radio" name="q3" value="b"> They compress the output files to save disk space</label>
+                            <label><input type="radio" name="q3" value="c"> They convert the image sequence into a video</label>
+                            <label><input type="radio" name="q3" value="d"> They increase the resolution of the render</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; Auto-exposure, temporal accumulation, hair, and physics need a few frames to settle. Warm-up frames advance the engine so they converge before frame 0, removing the classic first-frame brightness flicker or grain.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Which statement best describes path tracing compared with the deferred renderer?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Path tracing is faster and less accurate</label>
+                            <label><input type="radio" name="q4" value="b"> Path tracing is physically accurate ground truth but is slower and needs hardware ray tracing, while the deferred renderer is fast and uses approximations</label>
+                            <label><input type="radio" name="q4" value="c"> They produce identical images; only the file format differs</label>
+                            <label><input type="radio" name="q4" value="d"> The deferred renderer cannot be used for cinematics</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The deferred renderer rasterizes surface data and lights it with fast approximations (Lumen, screen-space reflections); it is production-proven for most cinematics. Path tracing traces bouncing rays per pixel for accurate light transport, at the cost of render time and needing an RTX-class GPU.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Why do professional pipelines usually render an EXR or PNG image sequence rather than a single video file?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Image sequences render faster than video</label>
+                            <label><input type="radio" name="q5" value="b"> Video files cannot be opened in Unreal</label>
+                            <label><input type="radio" name="q5" value="c"> A sequence is robust (a crash does not lose everything and can resume), EXR preserves high dynamic range for grading, and post tools expect sequences; you encode to video only at the end</label>
+                            <label><input type="radio" name="q5" value="d"> Image sequences are always smaller than video files</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; One file per frame means a crash keeps the frames already done, EXR keeps floating-point HDR color that survives grading, and compositors expect numbered sequences. The compressed video is produced last, after the picture is finished in post.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You closed the loop from a live scene to files a colorist can open. Here is the arc:</p>
+
+                <p><strong>Preview is not final.</strong> The viewport is a fast approximation for blocking and timing. Finished frames come from the Movie Render Queue, which renders offline and writes to disk. It is the one correct output path.</p>
+
+                <p><strong>Jobs and settings.</strong> MRQ is a queue of render jobs, one per Level Sequence, each carrying settings for output (directory, resolution, frame rate), image format, anti-aliasing, and rendering features. Save a settings preset for consistency across a project.</p>
+
+                <p><strong>Sampling and warm-up.</strong> Each output frame is spatial samples times temporal samples, accumulated into one clean image: spatial for edges, temporal for motion blur. Warm-up frames let time-dependent systems settle before frame 0 so the render does not flicker.</p>
+
+                <p><strong>Renderer and output.</strong> The deferred renderer is fast and production-proven; path tracing is slower but physically accurate and needs ray-tracing hardware. Final work is rendered as an EXR or PNG image sequence, which hands off cleanly into post before being encoded to video.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Final frames come from the Movie Render Queue, never a viewport screenshot; MRQ renders offline and writes files</li>
+                        <li>An MRQ queue holds render jobs (one per sequence), each with settings for output, image format, anti-aliasing, and features</li>
+                        <li>Each frame accumulates spatial &#215; temporal samples: spatial smooths edges, temporal builds motion blur; more samples mean cleaner but slower</li>
+                        <li>Warm-up frames let eye adaptation and temporal history settle before frame 0, removing first-frame flicker and grain</li>
+                        <li>The deferred renderer is fast with approximations; path tracing is accurate but slow and needs ray-tracing hardware</li>
+                        <li>Render an EXR or PNG image sequence for robustness and high dynamic range, then encode to video in post</li>
+                    </ul>
+                </div>
+
+                <h3>Where this goes next</h3>
+
+                <p>That completes the <strong>Cinematic Production</strong> track. You can now put a moving character on screen (<a href="int_l01_characters_and_animation.html">Lesson 1</a>), direct and cut a shot with Sequencer and a Cine Camera (<a href="int_l02_cinematics_with_sequencer.html">Lesson 2</a>), and render that shot to finished frames with the Movie Render Queue (this lesson). Together these are the Unreal half of the full <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>: the assembled shot leaves the engine as an image sequence and enters post, mapped by the <a href="unreal-phase-7-output.html">Phase 7 Output page</a>. From here, the neighbouring craft lessons on <a href="m04_l05_post_process_effects.html">post-process effects</a> and <a href="m10_l02_optimization.html">quality settings</a> deepen the look of every frame you render.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="int_l02_cinematics_with_sequencer.html" class="btn">&#8592; Previous: Cinematics with Sequencer</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="index.html#intermediate" class="btn">Back to Track &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

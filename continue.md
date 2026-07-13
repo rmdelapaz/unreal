@@ -92,9 +92,7 @@ Before doing ANY work, Claude must read this file and output:
 - ⏳ None currently
 
 ### Pending
-- ⏳ Module 3: Blueprint Visual Scripting (5 lessons)
-- ⏳ Module 4: Advanced Blueprints (5 lessons)  
-- ⏳ Modules 5-10 (see intro_to_unreal_curriculum.md for complete outline)
+- ⏳ None. The course is **content-complete** (11 modules, 41 lessons + bonus + 6 pipeline pages) and the 5.4→5.8 modernization sweep is finished. See `unreal_58_update_progress.md` for the per-lesson log. This "Pending" list (Module 3 = Blueprints, etc.) reflected an OLD numbering and is obsolete — trust `index.html`.
 
 ---
 
@@ -487,11 +485,12 @@ Please read the continue.md file and let's continue with [NEXT TASK].
 
 ## Progress Tracking
 
-**Total Modules Planned:** 10 modules (see intro_to_unreal_curriculum.md)
-**Modules Completed:** 2 (Module 1: Getting Started, Module 2: Working with Levels and Actors)
-**Module 1 Lessons:** 4/4 complete (combined)
-**Module 2 Lessons:** 5/5 complete (parts created, user will combine)
-**Overall Progress:** ~20% (Modules 1-2 of 10 complete)
+**Total Modules:** 11 modules + Bonus + 6 Production Pipeline pages (see intro_to_unreal_curriculum.md / index.html)
+**Modules Completed:** All 11 (content-complete; 41 lessons)
+**Current initiative:** 5.4→5.8 modernization + real-capture sweep — **COMPLETE** (see `unreal_58_update_progress.md`)
+**Overall Progress:** 100% built and linked
+
+> ⚠️ The numbers below this line and in the "Session History" are historical snapshots from early development (Nov 2025, ~20% era). They are kept for provenance only — do NOT read them as current status.
 
 ### Session History
 - **November 25, 2025 (Session 1):** Fixed m01_l01_what_is_unreal_engine_a.html heading structure. Identified and resolved CSS issue by replacing styles/main.css with complete TypeScript template CSS.

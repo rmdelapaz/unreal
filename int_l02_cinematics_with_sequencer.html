@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Intermediate Unreal Engine 5.8: direct cinematic shots with Sequencer. Learn what a Level Sequence is, read the Sequencer timeline of tracks, bindings, sections and keyframes, drive a Cine Camera Actor with focal length, aperture and focus, and assemble a multi-shot scene with the Camera Cuts track.">
+    <meta name="author" content="Practical Ace">
+    <title>Cinematics with Sequencer - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#intermediate">Intermediate: Cinematic Production</a></li>
+            <li aria-current="page">Cinematics with Sequencer</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#127909; Cinematics with Sequencer</h1>
+                <p class="lead">In the introductory modules, motion happened because <em>gameplay</em> made it happen: a Blueprint reacted to input, a character walked where the player steered it, timing was different every run. A film is the opposite. A shot has to play the same way every time, frame for frame, on a schedule the director controls. The tool that turns Unreal from a game engine into a virtual film set is <strong>Sequencer</strong>. In this lesson you will meet the <strong>Level Sequence</strong> and its timeline of tracks and keyframes, set up a <strong>Cine Camera</strong> and shape its look with focal length, aperture, and focus, and assemble several camera angles into a cut scene with the <strong>Camera Cuts</strong> track.</p>
+
+                <!-- Intermediate banner -->
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#127916; Intermediate Track</h4>
+                    <p>This is the second lesson of the <strong>Cinematic Production</strong> track. It follows directly from <a href="int_l01_characters_and_animation.html">Characters &amp; Animation</a>: now that you can put a moving character on screen, Sequencer is where you point a camera at it and direct the shot. It also fills in the exact ground the <a href="unreal-phase-5-shot-assembly.html">Shot Assembly</a> and <a href="unreal-phase-6-cinematography.html">Cinematography</a> pipeline pages assume you already know.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what a Level Sequence is and how directed animation in Sequencer differs from gameplay-driven motion</li>
+                        <li>Read the Sequencer timeline: bindings, tracks, sections, keyframes, and the playback range</li>
+                        <li>Add a Cine Camera Actor and control its framing with focal length, aperture, and focus</li>
+                        <li>Assemble a multi-angle scene with the Camera Cuts track, and describe the master-sequence-and-shots structure used at production scale</li>
+                        <li>Follow a repeatable workflow to block, populate, and refine a cinematic shot</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 35-45 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="int_l01_characters_and_animation.html">Intermediate Lesson 1: Characters &amp; Animation</a>, and the introductory modules (especially <a href="m02_l04_static_meshes_and_assets.html">2.4 Static Meshes and Assets</a>). A working Unreal Engine 5.8 project with a character or mannequin to point a camera at.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#what-is-sequencer" class="toc-link">From Gameplay to Directed Shots</a></li>
+                        <li><a href="#the-timeline" class="toc-link">The Level Sequence and Its Timeline</a></li>
+                        <li><a href="#cine-camera" class="toc-link">The Cine Camera: Lens, Aperture, Focus</a></li>
+                        <li><a href="#shot-assembly" class="toc-link">Assembling Shots with Camera Cuts</a></li>
+                        <li><a href="#workflow" class="toc-link">A Repeatable Shot Workflow</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Direct Your First Shot</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="what-is-sequencer" class="lesson-section">
+                <h2>From Gameplay to Directed Shots</h2>
+
+                <p>Everything you animated before this point moved because of <em>gameplay logic</em>. A character walked because a Blueprint read the controller; a door opened because the player overlapped a trigger. That motion is reactive and its timing changes every session. A cinematic is the reverse: the director decides exactly what moves, when, and for how long, and it must replay identically every time. You are no longer writing rules for a system to interpret. You are laying events on a timeline.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Level Sequence:</strong> an asset that stores <em>directed</em> animation as a set of tracks on a timeline. <strong>Sequencer</strong> is the editor you open it in. Think of it as a video editor's timeline fused with a director's shot list, living inside your Unreal level: it can animate an actor's position, a camera's lens, a light's brightness, a material's color, an object's visibility, and play audio, all keyed to exact frames.</p>
+                </div>
+
+                <p>If you have ever used a video editor or a 2D animation tool, the mental model transfers cleanly. Time runs left to right. Things you want to control get their own rows. You mark values at specific moments and the tool fills in the motion between them. What makes Sequencer special is that the "things" are live actors in your 3D level, and the "values" are any property those actors expose.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Where this sits in the pipeline</h4>
+                    <p>In the <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, Sequencer is the assembly stage: characters and props are ready, and now you stage them, point cameras, and build shots. That is the subject of the <a href="unreal-phase-5-shot-assembly.html">Phase 5 Shot Assembly</a> page. The next lesson, Rendering Output, then turns the assembled sequence into final frames.</p>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="the-timeline" class="lesson-section">
+                <h2>The Level Sequence and Its Timeline</h2>
+
+                <p>Open a Level Sequence and the Sequencer panel appears with two halves: an <strong>outliner</strong> on the left listing everything the sequence controls, and a <strong>timeline</strong> on the right where that control plays out over time. Four ideas make up almost everything you will do here: bindings, tracks, sections, and keyframes.</p>
+
+                <h3>Bindings: what the sequence controls</h3>
+
+                <p>An empty sequence controls nothing. To animate an actor you <strong>bind</strong> it into the sequence, which creates a row for it in the outliner. There are two kinds of binding, and the difference matters:</p>
+
+                <div class="card">
+                    <h4>Possessable vs Spawnable</h4>
+                    <ul>
+                        <li><strong>Possessable:</strong> the sequence takes control of an actor that already exists in the level. The actor lives in the level whether the sequence is playing or not; the sequence just "possesses" it while it runs.</li>
+                        <li><strong>Spawnable:</strong> the sequence <em>owns</em> the actor. Unreal spawns it when the sequence needs it and removes it afterward. Spawnables travel with the sequence, which is handy when a shot needs a prop or camera that should not clutter the level otherwise.</li>
+                    </ul>
+                </div>
+
+                <h3>Tracks, sections, and keyframes</h3>
+
+                <p>Under each binding you add <strong>tracks</strong>, one per thing you want to animate: a <em>Transform</em> track to move it, an <em>Animation</em> track to play a clip on a character, a visibility track, a material track, and so on. A track holds one or more <strong>sections</strong>, each a bar covering a span of time. Inside a section you place <strong>keyframes</strong>: a keyframe records a property's value at a specific frame, and Sequencer interpolates smoothly between one keyframe and the next. Set the camera at position A on frame 0 and position B on frame 120, and you get a 5 second dolly move with two keys.</p>
+
+                <p>Some tracks do not belong to any single actor. These <strong>sequence-level tracks</strong> (also called master tracks) sit at the top of the outliner: the <strong>Camera Cuts</strong> track that chooses which camera is live, plus Fade and Audio tracks. You will use Camera Cuts in Section 4.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 470" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Anatomy of the Sequencer timeline</text>
+                    <!-- panel split -->
+                    <line x1="330" y1="50" x2="330" y2="410" stroke="#ccc" stroke-width="2"/>
+                    <text x="175" y="66" text-anchor="middle" fill="#888" style="font:600 12px system-ui">OUTLINER (what is controlled)</text>
+                    <text x="595" y="66" text-anchor="middle" fill="#888" style="font:600 12px system-ui">TIMELINE (over time)</text>
+                    <!-- time ruler -->
+                    <g style="font:11px system-ui" fill="#999">
+                        <line x1="345" y1="86" x2="840" y2="86" stroke="#ddd" stroke-width="1"/>
+                        <text x="350" y="80">0</text>
+                        <text x="470" y="80">30</text>
+                        <text x="590" y="80">60</text>
+                        <text x="710" y="80">90</text>
+                        <text x="815" y="80">120 (frames)</text>
+                    </g>
+                    <!-- playback range band -->
+                    <rect x="352" y="88" width="470" height="300" fill="#eef3ff" opacity="0.5"/>
+                    <!-- Row 1: Camera Cuts (master) -->
+                    <rect x="20" y="96" width="300" height="40" rx="5" fill="#fff3cd" stroke="#ffc107" stroke-width="1.5"/>
+                    <text x="34" y="121" fill="#7a5c00" style="font:700 13px system-ui">&#127909; Camera Cuts</text>
+                    <rect x="352" y="100" width="180" height="32" rx="4" fill="#ffe08a" stroke="#e0a800"/>
+                    <text x="360" y="121" fill="#5c4600" style="font:600 11px system-ui">Cam A</text>
+                    <rect x="536" y="100" width="286" height="32" rx="4" fill="#ffd35c" stroke="#e0a800"/>
+                    <text x="544" y="121" fill="#5c4600" style="font:600 11px system-ui">Cam B</text>
+                    <!-- Row 2: Camera binding -->
+                    <rect x="20" y="146" width="300" height="38" rx="5" fill="#e6f7f4" stroke="#4fd1c5" stroke-width="1.5"/>
+                    <text x="34" y="170" fill="#1f7a70" style="font:700 12px system-ui">&#127916; CineCameraActor <tspan fill="#8aa" style="font-weight:400">(binding)</tspan></text>
+                    <!-- Row 3: Transform track under camera -->
+                    <rect x="40" y="190" width="280" height="34" rx="5" fill="#fff" stroke="#bbb"/>
+                    <text x="54" y="211" fill="#555" style="font:600 12px system-ui">&#8735; Transform</text>
+                    <rect x="352" y="194" width="470" height="26" rx="4" fill="#e8f5e9" stroke="#4CAF50"/>
+                    <!-- keyframe diamonds -->
+                    <g fill="#2e7d32" stroke="#fff" stroke-width="1">
+                        <rect x="356" y="200" width="12" height="12" transform="rotate(45 362 206)"/>
+                        <rect x="524" y="200" width="12" height="12" transform="rotate(45 530 206)"/>
+                        <rect x="700" y="200" width="12" height="12" transform="rotate(45 706 206)"/>
+                        <rect x="806" y="200" width="12" height="12" transform="rotate(45 812 206)"/>
+                    </g>
+                    <!-- Row 4: Character binding -->
+                    <rect x="20" y="230" width="300" height="38" rx="5" fill="#e6f7f4" stroke="#4fd1c5" stroke-width="1.5"/>
+                    <text x="34" y="254" fill="#1f7a70" style="font:700 12px system-ui">&#129485; Character <tspan fill="#8aa" style="font-weight:400">(binding)</tspan></text>
+                    <!-- Row 5: Animation track under character -->
+                    <rect x="40" y="274" width="280" height="34" rx="5" fill="#fff" stroke="#bbb"/>
+                    <text x="54" y="295" fill="#555" style="font:600 12px system-ui">&#8735; Animation</text>
+                    <rect x="352" y="278" width="360" height="26" rx="4" fill="#ede7f6" stroke="#7e57c2"/>
+                    <text x="362" y="295" fill="#4527a0" style="font:600 11px system-ui">Idle &#8594; Walk clip (a section)</text>
+                    <!-- Row 6: Transform track under character -->
+                    <rect x="40" y="314" width="280" height="34" rx="5" fill="#fff" stroke="#bbb"/>
+                    <text x="54" y="335" fill="#555" style="font:600 12px system-ui">&#8735; Transform</text>
+                    <rect x="352" y="318" width="470" height="26" rx="4" fill="#e8f5e9" stroke="#4CAF50"/>
+                    <g fill="#2e7d32" stroke="#fff" stroke-width="1">
+                        <rect x="356" y="324" width="12" height="12" transform="rotate(45 362 330)"/>
+                        <rect x="806" y="324" width="12" height="12" transform="rotate(45 812 330)"/>
+                    </g>
+                    <!-- playhead -->
+                    <line x1="590" y1="90" x2="590" y2="388" stroke="#f5576c" stroke-width="2"/>
+                    <polygon points="582,90 598,90 590,102" fill="#f5576c"/>
+                    <text x="590" y="404" text-anchor="middle" fill="#f5576c" style="font:700 11px system-ui">playhead</text>
+                    <!-- callouts -->
+                    <text x="720" y="188" fill="#2e7d32" style="font:600 11px system-ui">&#9670; keyframes</text>
+                    <text x="40" y="440" fill="#e0a800" style="font:600 12px system-ui">&#9632; sequence-level track</text>
+                    <text x="300" y="440" fill="#1f7a70" style="font:600 12px system-ui">&#9632; binding (an actor)</text>
+                    <text x="520" y="440" fill="#4CAF50" style="font:600 12px system-ui">&#9632; section (a span of time)</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The Sequencer timeline. The outliner (left) lists sequence-level tracks and per-actor bindings; the timeline (right) shows each track's sections and keyframes &#183; the red playhead marks the current frame, and the shaded band is the playback range.</em></p>
+
+                <p>Two timeline settings round this out. The <strong>playback range</strong> (the shaded band, bounded by green and red markers) defines where the sequence starts and ends. The <strong>display rate</strong> sets the frame rate you author in; film work is typically <strong>24 fps</strong>, so a 120 frame range is exactly 5 seconds. Here is the same structure as a tree:</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; What a Level Sequence holds</h4>
+                    <pre class="mermaid">
+flowchart TD
+    LS[Level Sequence asset] --> CC[Camera Cuts track<br/>sequence-level]
+    LS --> B1[Binding: Cine Camera Actor]
+    LS --> B2[Binding: Character]
+    B1 --> T1[Transform track<br/>keyframes]
+    B2 --> T3[Animation track<br/>walk / idle clip]
+    B2 --> T4[Transform track<br/>keyframes]
+    style LS fill:#ede7f6,stroke:#7e57c2
+    style CC fill:#fff3cd,stroke:#ffc107
+                    </pre>
+                    <p>Bindings hang off the sequence; tracks hang off bindings; the Camera Cuts track sits at the sequence level because it is about the whole scene, not one actor.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="cine-camera" class="lesson-section">
+                <h2>The Cine Camera: Lens, Aperture, Focus</h2>
+
+                <p>You could point an ordinary Camera Actor at your scene, but cinematics use the <strong>Cine Camera Actor</strong>, which models a real film camera. Instead of a single "field of view" slider it gives you the controls a cinematographer actually uses, and those controls are what make a frame read as filmic rather than game-like.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Cine Camera Actor:</strong> a camera built around real-world optics. Its key controls are the <strong>filmback</strong> (sensor size), the <strong>focal length</strong> in millimeters (which sets how wide or tight the view is), the <strong>aperture</strong> as an f-stop (which sets depth of field), and the <strong>focus</strong> distance (which plane is sharp). Together these give you the same creative dials as a physical camera.</p>
+                </div>
+
+                <p>Two of these dials do most of the visual work:</p>
+
+                <ul>
+                    <li><strong>Focal length</strong> controls the angle of view. A short focal length (say 18mm) is <em>wide</em>: it takes in a lot of the scene and exaggerates depth. A long focal length (85mm and up) is a <em>telephoto</em>: it is tight, flattens perspective, and isolates the subject. The default cine camera sits around a natural 35mm.</li>
+                    <li><strong>Aperture (f-stop)</strong> controls <strong>depth of field</strong>, the band of distance that appears sharp. A wide aperture like f/1.4 gives a shallow, dreamy focus with a blurred background; a narrow aperture like f/16 keeps almost everything sharp. Low f-number means shallow focus.</li>
+                </ul>
+
+                <p><strong>Focus</strong> then decides <em>where</em> that sharp band sits. You can set a <em>manual</em> focus distance, or use <em>tracking</em> focus that locks onto an actor and stays sharp as it moves. The diagram shows how focal length and aperture shape the image:</p>
+
+                <div style="max-width: 820px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:640px;">
+                    <text x="410" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">How a cine camera shapes the frame</text>
+                    <!-- camera -->
+                    <rect x="40" y="150" width="70" height="50" rx="6" fill="#37474f"/>
+                    <rect x="104" y="163" width="26" height="24" rx="3" fill="#607d8b"/>
+                    <text x="75" y="222" text-anchor="middle" fill="#37474f" style="font:700 12px system-ui">Cine Camera</text>
+                    <!-- FOV cone -->
+                    <line x1="130" y1="175" x2="760" y2="60" stroke="#667eea" stroke-width="2" stroke-dasharray="5 4"/>
+                    <line x1="130" y1="175" x2="760" y2="300" stroke="#667eea" stroke-width="2" stroke-dasharray="5 4"/>
+                    <path d="M 200 158 A 60 60 0 0 1 200 192" fill="none" stroke="#667eea" stroke-width="2"/>
+                    <text x="196" y="150" text-anchor="middle" fill="#667eea" style="font:600 11px system-ui">angle of view</text>
+                    <text x="196" y="215" text-anchor="middle" fill="#667eea" style="font:600 11px system-ui">= focal length</text>
+                    <!-- depth of field band -->
+                    <rect x="400" y="55" width="120" height="250" fill="#e8f5e9" opacity="0.7"/>
+                    <line x1="460" y1="55" x2="460" y2="305" stroke="#4CAF50" stroke-width="2" stroke-dasharray="3 3"/>
+                    <text x="460" y="325" text-anchor="middle" fill="#2e7d32" style="font:600 11px system-ui">focus distance</text>
+                    <text x="460" y="48" text-anchor="middle" fill="#2e7d32" style="font:700 11px system-ui">in focus (depth of field)</text>
+                    <!-- subjects: near blurred, focus sharp, far blurred -->
+                    <circle cx="300" cy="205" r="20" fill="#bbb" opacity="0.6"/>
+                    <text x="300" y="245" text-anchor="middle" fill="#999" style="font:600 11px system-ui">near: blurred</text>
+                    <circle cx="460" cy="185" r="22" fill="#f5576c" stroke="#fff" stroke-width="2"/>
+                    <text x="460" y="150" text-anchor="middle" fill="#f5576c" style="font:700 11px system-ui">subject: sharp</text>
+                    <circle cx="660" cy="150" r="18" fill="#bbb" opacity="0.6"/>
+                    <text x="660" y="120" text-anchor="middle" fill="#999" style="font:600 11px system-ui">far: blurred</text>
+                    <!-- aperture note -->
+                    <rect x="150" y="330" width="520" height="34" rx="6" fill="#fff3cd" stroke="#ffc107"/>
+                    <text x="410" y="352" text-anchor="middle" fill="#7a5c00" style="font:600 12px system-ui">Aperture sets how wide that green band is &#183; f/1.4 = shallow (thin band) &#183; f/16 = deep (wide band)</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Focal length sets the angle of view; the aperture (f-stop) sets the depth of field, the band of distance that stays sharp; focus distance places that band on your subject.</em></p>
+
+                <p>To see through a Cine Camera while you work, you <strong>pilot</strong> it or lock it to the viewport, so the editor view becomes exactly what that camera captures. Frame your subject, dial the focal length and focus, and you have composed a shot. Here is the "Kat" character from Lesson 1, now the Skeletal Mesh <code>SK_Anya</code>, staged on a landscape and framed through a Cine Camera Actor bound in a Level Sequence:</p>
+
+                <img src="images/int_l02/int_l02_fig01_cine_camera_shot.png" alt="A cinematic frame captured in Unreal Engine 5.8: the armored, red-haired character SK_Anya (Kat) stands facing camera in an A-pose on a vast flat landscape under a hazy, cloud-streaked sky, lit from the front so her leather-and-plate armor, braided hair, and boots are clearly readable. The framing is a wide full-body shot composed through a Cine Camera Actor." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A shot composed in Sequencer. The <code>SK_Anya</code> character was placed on a stage, bound into a Level Sequence alongside a Cine Camera Actor, and lit from the front &#183; captured from the Unreal level viewport, framed to that camera's pose in the <code>ClaudeTest</code> project.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: animate the lens, not just the camera</h4>
+                    <p>Because focal length, aperture, and focus are all animatable properties, they get keyframes just like position. Keying the focus distance from a foreground object to a background one is a <em>rack focus</em>; easing the focal length is a <em>zoom</em>. The <a href="unreal-phase-6-cinematography.html">Phase 6 Cinematography page</a> leans on exactly these animated camera properties.</p>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="shot-assembly" class="lesson-section">
+                <h2>Assembling Shots with Camera Cuts</h2>
+
+                <p>One camera gives you one angle. A scene needs several: a wide to establish, a close-up for emotion, an over-the-shoulder for a conversation. In Sequencer you place several Cine Camera Actors, bind them all, and then let the <strong>Camera Cuts</strong> track decide which one the audience is looking through at any moment.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Camera Cuts track:</strong> a sequence-level track whose sections each point to a camera binding. Whichever section is under the playhead is the camera the sequence renders through. Laying camera sections end to end is how you cut from one angle to the next, exactly like editing a film.</p>
+                </div>
+
+                <p>Editing, then, is just arranging colored bars on that one track. Cut from the wide to the close-up by ending the wide section and starting the close-up section on the same frame. Because the track is on the timeline, your edit is frame-accurate and repeatable.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The Camera Cuts track chooses the live camera</h4>
+                    <pre class="mermaid">
+flowchart LR
+    subgraph Cameras
+      CA[Cam A<br/>wide 24mm]
+      CB[Cam B<br/>close-up 85mm]
+      CC[Cam C<br/>over-shoulder 50mm]
+    end
+    CA --> CUT[Camera Cuts track]
+    CB --> CUT
+    CC --> CUT
+    CUT --> OUT[What the audience sees<br/>Cam A &#8594; Cam B &#8594; Cam C]
+    style CUT fill:#fff3cd,stroke:#ffc107
+    style OUT fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The three cameras all exist for the whole shot; the Camera Cuts track simply picks which one is live over each span of time.</p>
+                </div>
+
+                <h3>Scaling up: master sequences and shots</h3>
+
+                <p>A single Level Sequence is enough for one shot or a short scene. A whole film would be unmanageable in one timeline, so production uses a <strong>master sequence</strong> that contains a <strong>Shots</strong> track, where each shot is its own <em>sub-sequence</em>. Each shot holds its own cameras, animation, and timing, and the master stitches them in order. This is the same nesting you saw for sub-sequences, applied to organize an entire edit.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Master sequence and shots</h4>
+                    <pre class="mermaid">
+flowchart TD
+    MS[Master Sequence] --> S1[Shot_010<br/>sub-sequence]
+    MS --> S2[Shot_020<br/>sub-sequence]
+    MS --> S3[Shot_030<br/>sub-sequence]
+    S1 --> D1[its own cameras,<br/>animation, cuts]
+    S2 --> D2[its own cameras,<br/>animation, cuts]
+    S3 --> D3[its own cameras,<br/>animation, cuts]
+    style MS fill:#ede7f6,stroke:#7e57c2
+                    </pre>
+                    <p>Each shot is edited in isolation, then the master plays them back to back. The <a href="unreal-phase-5-shot-assembly.html">Phase 5 Shot Assembly page</a> is built entirely around this master-and-shots structure.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="workflow" class="lesson-section">
+                <h2>A Repeatable Shot Workflow</h2>
+
+                <p>Every shot you build in Sequencer follows the same rhythm. Learn it once and it scales from a five second test to a full scene. The figure of <code>SK_Anya</code> above was built with exactly these steps.</p>
+
+                <div class="card">
+                    <h4>The six steps of a shot</h4>
+                    <ol>
+                        <li><strong>Block the scene.</strong> Place your characters and props in the level where the action happens, and rough in the lighting.</li>
+                        <li><strong>Create a Level Sequence</strong> and open it in Sequencer.</li>
+                        <li><strong>Bind your actors.</strong> Add the subject (a character) and a Cine Camera Actor as bindings. Add more cameras if the shot needs coverage.</li>
+                        <li><strong>Frame the camera.</strong> Pilot the Cine Camera, set focal length and focus, and compose the shot.</li>
+                        <li><strong>Animate.</strong> Keyframe the camera's Transform for moves, drop Animation clips onto the character, and key any lens changes.</li>
+                        <li><strong>Cut and time.</strong> Add a Camera Cuts track, set the playback range and a 24 fps display rate, and preview.</li>
+                    </ol>
+                </div>
+
+                <p>That leaves one thing undone: turning the previewed sequence into a finished video file at full quality. Previewing in the editor is not the same as rendering, and doing it properly (with anti-aliasing, warm-up, and the right output settings) is the whole subject of the next lesson.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Preview is not final</h4>
+                    <p>The editor viewport shows an approximation so it can stay interactive. Motion blur, anti-aliasing, and effects are only fully resolved when you render through the <strong>Movie Render Queue</strong>. Treat your Sequencer preview as the blocking and timing pass, and expect the final frames to look cleaner. That handoff is <a href="int_l03_rendering_output.html">Lesson 3: Rendering Output</a>.</p>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Direct Your First Shot</h2>
+
+                <p>You need only a character or a mannequin and an empty level to practice the entire loop. Work through these steps and you will have a real, replayable shot.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127916; Exercise: a five second reveal</h3>
+                    <ol>
+                        <li><strong>Stage it.</strong> Drop a character (a mannequin from the Third Person feature works) into your level.</li>
+                        <li><strong>Make a sequence.</strong> From the Cinematics button in the toolbar, add a <em>Level Sequence</em> and open Sequencer.</li>
+                        <li><strong>Add a camera.</strong> Use Sequencer's <em>Create Camera</em> button. It adds a Cine Camera Actor, binds it, and creates a Camera Cuts section pointing at it automatically.</li>
+                        <li><strong>Bind the character.</strong> Select the character in the level and add it to the sequence (a possessable), then drop an idle or walk Animation clip onto its Animation track.</li>
+                        <li><strong>Frame and key a move.</strong> Pilot the camera. On frame 0, set a wide framing and add a Transform keyframe. Move the playhead to frame 120, push in closer, and add a second keyframe. You have a slow push-in.</li>
+                        <li><strong>Time it.</strong> Set the display rate to 24 fps and the playback range to 0&#8211;120, then press play in Sequencer and watch your shot.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: nothing animates when I scrub?</summary>
+                        <p style="margin-top: 0.5rem;">Two usual causes. First, make sure you added a <strong>keyframe</strong> at each end of the move, not just changed the value once (one key holds a constant pose). Second, check you are keying the property on the <strong>bound</strong> actor's track inside the sequence, not nudging the actor in the level with the sequence closed. The little key icon next to a property in the Details panel adds a keyframe at the current playhead frame.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: cut between two angles</h4>
+                    <p>Add a second Cine Camera Actor for a tighter angle and bind it. On the Camera Cuts track, end the first camera's section at frame 60 and start the second camera's section at frame 60. Play it back: the shot now cuts from your wide to your close-up at the halfway point. That single edit is the seed of every scene you will ever assemble.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is a Level Sequence?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> A lighting setup saved for reuse across levels</label>
+                            <label><input type="radio" name="q1" value="b"> An asset that stores directed animation as tracks on a timeline, edited in Sequencer</label>
+                            <label><input type="radio" name="q1" value="c"> A Blueprint that reacts to player input</label>
+                            <label><input type="radio" name="q1" value="d"> A compressed video file exported from Unreal</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A Level Sequence holds tracks and keyframes that play back on a timeline. Sequencer is the editor for it. Unlike gameplay motion, it is directed and replays identically every time.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What is the difference between a possessable and a spawnable binding?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> A possessable is a camera; a spawnable is a character</label>
+                            <label><input type="radio" name="q2" value="b"> A possessable controls an actor already in the level; a spawnable is owned and spawned by the sequence itself</label>
+                            <label><input type="radio" name="q2" value="c"> A possessable is animated; a spawnable is static</label>
+                            <label><input type="radio" name="q2" value="d"> There is no difference; the terms are interchangeable</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A possessable binds an actor that lives in the level independently. A spawnable travels with the sequence: Unreal spawns it while the sequence runs and removes it afterward.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>On a Cine Camera Actor, which control sets the depth of field (how much of the scene is in sharp focus)?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> The filmback preset name</label>
+                            <label><input type="radio" name="q3" value="b"> The actor's scale</label>
+                            <label><input type="radio" name="q3" value="c"> The aperture, expressed as an f-stop</label>
+                            <label><input type="radio" name="q3" value="d"> The playback range</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; Aperture (the f-stop) controls depth of field. A low f-number like f/1.4 gives shallow focus with a blurred background; a high f-number like f/16 keeps most of the scene sharp. Focal length, by contrast, sets the angle of view.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What does the Camera Cuts track do?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> It decides which bound camera is live at each point in time</label>
+                            <label><input type="radio" name="q4" value="b"> It trims the character's animation clips</label>
+                            <label><input type="radio" name="q4" value="c"> It renders the final movie file</label>
+                            <label><input type="radio" name="q4" value="d"> It stores the level's lighting</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; The Camera Cuts track is a sequence-level track whose sections each point to a camera. Whichever section is under the playhead is the camera the sequence renders through, so laying sections end to end cuts between angles.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Your Sequencer preview looks a little rough, with soft edges and approximate effects. What produces the clean, final version?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Increasing the display rate to 60 fps</label>
+                            <label><input type="radio" name="q5" value="b"> Rendering through the Movie Render Queue</label>
+                            <label><input type="radio" name="q5" value="c"> Deleting and re-adding the camera</label>
+                            <label><input type="radio" name="q5" value="d"> Converting all bindings to spawnables</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The editor viewport shows an interactive approximation. Final anti-aliasing, motion blur, and effects are resolved by the Movie Render Queue, which is the subject of the next lesson.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You turned Unreal into a film set. Here is the arc:</p>
+
+                <p><strong>Sequencer and the Level Sequence.</strong> A Level Sequence stores directed animation on a timeline, edited in Sequencer. Unlike gameplay, it is frame-accurate and repeatable. You bind actors into it (possessable or spawnable), give each binding tracks, fill tracks with sections, and set values with keyframes that interpolate over time.</p>
+
+                <p><strong>The Cine Camera.</strong> A Cine Camera Actor gives you real optical controls: focal length sets the angle of view, aperture sets depth of field, and focus places the sharp plane. Because they are all animatable, you can rack focus and zoom on the timeline.</p>
+
+                <p><strong>Shot assembly.</strong> Bind several cameras and let the Camera Cuts track choose which is live over time, which is how you edit. At production scale a master sequence holds a Shots track of sub-sequences, one per shot.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>A Level Sequence stores directed, repeatable animation as tracks on a timeline; Sequencer is its editor</li>
+                        <li>Bindings (possessable or spawnable) hold tracks; tracks hold sections; sections hold keyframes that interpolate</li>
+                        <li>A Cine Camera Actor uses real optics: focal length sets angle of view, aperture sets depth of field, focus sets the sharp plane</li>
+                        <li>The Camera Cuts track decides which camera is live over time; that is how you cut between angles</li>
+                        <li>At scale, a master sequence contains a Shots track of sub-sequences, one per shot</li>
+                    </ul>
+                </div>
+
+                <h3>Where this goes next</h3>
+
+                <p>Your shot is staged, framed, and cut, but it only exists as a preview inside the editor. The final lesson, <strong>Rendering Output</strong>, takes that Level Sequence and produces finished frames with the <strong>Movie Render Queue</strong>: output formats, anti-aliasing and warm-up settings, and the choice between the deferred renderer and path tracing. That is the last step of the Unreal half of the <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, mapped by the <a href="unreal-phase-7-output.html">Phase 7 Output page</a>.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="int_l01_characters_and_animation.html" class="btn">&#8592; Previous: Characters &amp; Animation</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="int_l03_rendering_output.html" class="btn">Next: Rendering Output &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -24,6 +24,7 @@ By the end of this course, students will be able to:
 8. Understand the basics of character movement and player input
 9. Package and export a playable project
 10. Apply industry-standard workflows and best practices
+11. Understand AI-assisted authoring in Unreal via the Experimental MCP plugin
 
 ---
 
@@ -82,28 +83,28 @@ By the end of this course, students will be able to:
 - Duplicating, grouping, and organizing actors
 - **Hands-On:** Place and manipulate basic actors
 
-### Lesson 2.3: BSP Geometry (Brush Modeling)
-- What is BSP and when to use it
-- Additive vs. Subtractive brushes
-- Creating rooms, corridors, and basic architecture
-- BSP limitations and performance considerations
-- Converting BSP to Static Mesh
-- **Hands-On:** Build a simple room using BSP brushes
+### Lesson 2.3: Blockout Geometry (Modeling Mode & BSP)
+- Blockout/greyboxing: what it is and why to do it first
+- Modeling Mode (modern) vs. BSP brushes (legacy)
+- Additive vs. subtractive geometry (Booleans and brushes)
+- Shaping and combining: Extrude, Inset, Bevel, Boolean
+- Why BSP became legacy; from blockout to production meshes
+- **Hands-On:** Build a two-room blockout using Modeling Mode
 
-### Lesson 2.4: Working with Static Meshes
-- Importing static meshes (FBX workflow)
-- Mesh LODs (Level of Detail) explained
+### Lesson 2.4: Static Meshes and Assets
+- Importing static meshes (FBX and the Interchange framework)
+- Mesh LODs (Level of Detail) and Nanite in UE 5.8
 - Collision: simple vs. complex
 - Static Mesh Editor basics
 - Organizing meshes in the Content Browser
 - **Hands-On:** Import and place external 3D assets
 
-### Lesson 2.5: The Modeling Tools
-- Introduction to Unreal's built-in modeling mode
-- PolyEdit: vertices, edges, faces
-- Creating and modifying geometry in-engine
-- When to model in Unreal vs. external DCC tools
-- **Hands-On:** Create a simple prop using modeling tools
+### Lesson 2.5: Materials and Lighting
+- Applying materials to placed meshes
+- PBR foundations and Substrate in UE 5.8
+- Light mobility and a Lumen-first workflow
+- Global illumination: Lumen and baked lighting
+- **Hands-On:** Material and lighting pass on a blockout
 
 ---
 
@@ -368,32 +369,65 @@ By the end of this course, students will be able to:
 
 ## Module 10: Packaging and Publishing
 
-### Lesson 10.1: Preparing Your Project
-- Content audit and cleanup
-- Removing unused assets
-- Fixing errors and warnings
-- Map Check and asset validation
-- Redirect fixup
+### Lesson 10.1: Project Settings
+- Description, branding, icons, and splash screens
+- Maps & Modes: default map and game mode
+- Rendering settings (RHI, anti-aliasing/TSR, Lumen, Virtual Shadow Maps)
+- Target Hardware presets and UE5 feature tiers
+- Content audit and validation before packaging
 
-### Lesson 10.2: Project Settings for Packaging
-- Target platform configuration
-- Quality settings and scalability
-- Default maps and game mode
-- Packaging settings overview
-- Build configurations: Development vs. Shipping
+### Lesson 10.2: Optimization
+- Profiling: stat commands, GPU Visualizer, Unreal Insights
+- Content optimization: LODs, culling, Nanite
+- Runtime optimization and package size (Size Map)
+- The optimization cycle: measure, fix, re-measure
 
-### Lesson 10.3: Building and Packaging
-- Cooking content explained
-- Packaging for Windows
-- Understanding the build process
+### Lesson 10.3: Building and Distribution
+- Cooking content and build configurations (Development vs. Shipping)
+- Packaging for Windows via the Platforms menu
 - Common packaging errors and solutions
+- Distribution options: ZIP, installers, Steam, Epic Games Store
 - **Hands-On:** Package your project
 
-### Lesson 10.4: Distribution Basics
-- Creating installers (overview)
-- File size optimization
-- Platform-specific considerations
-- What's next: Steam, Epic Games Store, itch.io
+---
+
+## Module 11: AI-Assisted Workflows (Unreal MCP)
+
+> **Experimental in UE 5.8.** Drive the Unreal Editor with natural language through the official Model Context Protocol plugin.
+
+### Lesson 11.1: Introduction to AI-Assisted Workflows
+- What AI-assisted authoring in Unreal is (and isn't)
+- Meet the Model Context Protocol (MCP)
+- How the agent → MCP server → editor bridge works
+- What you can do, and human-in-the-loop safety
+
+### Lesson 11.2: Setting Up Unreal MCP
+- Enabling the Experimental Unreal MCP plugin
+- Configuring the embedded server (`http://127.0.0.1:8000/mcp`)
+- Generating the client config (`.mcp.json`)
+- **Hands-On:** Verify the live bridge from a client
+
+### Lesson 11.3: Your First AI-Driven Workflow
+- Anatomy of a good request: goal, specifics, constraints, acceptance
+- From vague to clear prompts
+- Watching the editor execute and reviewing the result
+- **Hands-On:** Author assets live via natural language
+
+---
+
+## Bonus Content
+
+### Using Marketplace Assets
+- Finding and acquiring assets on Fab (Epic's content marketplace)
+- Megascans, free on Fab
+- Migrating assets between projects
+- Integrating third-party content into your project
+
+---
+
+## Companion: Unreal in the Production Pipeline
+
+Six reference pages mapping Unreal's role in the full Daz → Blender → Unreal Story-to-Screen pipeline (Phases 2–7: Character Finalization, Prop Prep, Animation Retargeting, Shot Assembly, Cinematography, Output). These sit alongside the Daz and Blender pipeline pages and reach past the intro scope into Unreal's animation and cinematics toolsets.
 
 ---
 
@@ -455,16 +489,18 @@ Students will create a small, playable experience that demonstrates:
 
 ## Course Maintenance Notes
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Engine Version Target:** UE 5.8  
-**Last Updated:** November 2025  
-**Author:** [Instructor Name]
+**Last Updated:** July 2026  
+**Author:** Practical Ace
+
+> **Structure note:** This outline mirrors the shipped course in `index.html` (the source of truth): **11 modules, 41 lessons**, plus a Bonus lesson and six Production Pipeline companion pages. Version 2.0 reconciled the outline to that structure — updated Module 2 (Blockout Geometry / Materials & Lighting), consolidated Module 10 to three lessons, and added Module 11 (AI-Assisted Workflows).
 
 ### Future Expansion Considerations
 - Advanced Blueprint patterns (interfaces, components)
-- Animation and Animation Blueprints
+- Animation and Animation Blueprints (touched at pipeline level in the Production Pipeline pages)
 - AI and Behavior Trees
 - Multiplayer basics
 - Landscape and terrain tools
-- Cinematics with Sequencer
+- Cinematics with Sequencer (touched at pipeline level in the Production Pipeline pages)
 - C++ integration fundamentals

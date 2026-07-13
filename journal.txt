@@ -1,5 +1,9 @@
 # Introduction to Unreal Engine 5 Course - Development Journal
 
+> ⚠️ STALE (as of 2026-07): this journal stops at Module 7 and trails the disk. The course is now
+> content-complete (11 modules, 41 lessons + bonus + 6 pipeline pages) and fully 5.8-modernized.
+> For current status trust `index.html` + `unreal_58_update_progress.md`. Kept for early-development provenance only.
+
 ## Project Overview
 - **Project:** Introduction to Unreal Engine 5 Course
 - **Location:** \\wsl$\Ubuntu\home\practicalace\projects\unreal\

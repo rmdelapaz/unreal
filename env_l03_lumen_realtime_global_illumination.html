@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8 environment art: Lumen real-time global illumination and reflections. Learn what global illumination is and why direct light alone looks wrong, why lighting used to be baked into lightmaps and what that cost, how Lumen computes bounced light every frame with no bake so the sun can move, how Lumen reflections come from the same system, the instant relight loop, and the software versus hardware ray tracing choice with Lumen's costs and limits.">
+    <meta name="author" content="Practical Ace">
+    <title>Lumen: Real-Time Global Illumination and Reflections - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#environment">Advanced: Environment Art with Nanite, Lumen &amp; PCG</a></li>
+            <li aria-current="page">Lumen: Real-Time Global Illumination and Reflections</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#128262; Lumen: Real-Time Global Illumination and Reflections</h1>
+                <p class="lead">The overview named Lumen as the second pillar, the one that removes the lighting bake. This lesson is where that promise gets its detail. Lumen is Unreal's system for real-time global illumination and reflections, and its whole purpose is to give you the bounced, indirect light and the reflections a scene needs without precomputing anything, so you can move the sun and watch the world relight instantly. You will see what global illumination actually is and why a scene lit only by direct light looks wrong, why lighting used to be baked into textures and what that cost, and how Lumen computes the bounce every frame instead. Then the practical half: reflections from the same system, the instant relight loop that changes how you work, and the choice between software and hardware ray tracing along with what Lumen costs.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #faf0e6 0%, #fff 100%); border-left: 4px solid #c1662f;">
+                    <h4>&#127956;&#65039; Advanced Track &#183; Environment Art</h4>
+                    <p>This is the third lesson of the <strong>Environment Art with Nanite, Lumen &amp; PCG</strong> track. The <a href="env_l01_the_modern_environment_pipeline.html">first lesson</a> mapped the whole modern pipeline, and the <a href="env_l02_nanite_virtualized_geometry.html">second</a> went deep on geometry with Nanite. Here we go deep on the second pillar, light. Where Nanite lets a world be built from detailed geometry, Lumen lets that world be lit without baking, so the light bounces, the reflections update, and the sun can move in real time. The next lesson takes PCG and procedural placement, then a capstone assembles a complete environment.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what global illumination is and why a scene lit only by direct light looks wrong</li>
+                        <li>Describe why real-time global illumination used to be too costly, so lighting was baked into lightmaps, and what that bake cost</li>
+                        <li>Explain how Lumen computes bounced light every frame with no bake, so lights and the sun can move</li>
+                        <li>Describe how Lumen reflections come from the same system and integrate with the bounced light</li>
+                        <li>Explain the relight loop and why instant lighting feedback changes how a lighting artist works</li>
+                        <li>Choose between software and hardware ray tracing and name Lumen's main costs and limits</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> The track overview, <a href="env_l01_the_modern_environment_pipeline.html">The Modern Environment Pipeline</a>, and the geometry lesson, <a href="env_l02_nanite_virtualized_geometry.html">Nanite: Virtualized Geometry</a>. Helpful but not required: the beginner lessons on <a href="m04_l01_lighting_fundamentals.html">lighting fundamentals</a> and <a href="m04_l04_lumen_global_illumination.html">Lumen global illumination</a>, which introduce direct and indirect light. A working Unreal Engine 5.8 install with Lumen available.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#bounce" class="toc-link">Light That Bounces: What Global Illumination Is</a></li>
+                        <li><a href="#baking" class="toc-link">Why Light Used to Be Baked</a></li>
+                        <li><a href="#dynamic" class="toc-link">Lumen: Global Illumination Without the Bake</a></li>
+                        <li><a href="#reflections" class="toc-link">Reflections, from the Same System</a></li>
+                        <li><a href="#loop" class="toc-link">The Relight Loop</a></li>
+                        <li><a href="#knobs" class="toc-link">Software, Hardware, and the Cost</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Move the Sun and Watch It Bounce</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="bounce" class="lesson-section">
+                <h2>Light That Bounces: What Global Illumination Is</h2>
+
+                <p>Start with what light actually does in the real world. When sunlight hits a surface, only some of it is absorbed; the rest bounces off and travels on, carrying a tint of whatever it hit. A wall in shadow is never truly black, because light that struck the sunlit floor nearby bounced up and filled it, picking up the floor's color on the way. This bounced, secondhand light is called <strong>indirect light</strong>, and the job of accounting for it, all the light that reaches a surface after bouncing one or more times, is <strong>global illumination</strong>, usually shortened to GI.</p>
+
+                <p>Direct light is the easy half: it travels straight from a source, the sun or a lamp, to a surface, and any surface facing away from the source gets none of it. If you compute only direct light, every shadowed face and every corner the sun cannot reach goes flat and black, and the scene looks harsh and unreal, like an object lit by a single bare bulb in a room painted matte black. Global illumination is what fills those areas back in. It is the soft warmth in a shadow, the color one surface casts onto another, the general sense that a space is lit and not just spotlit. Get it right and a scene reads as a real place; leave it out and no amount of detailed geometry will save the look.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Direct light alone, versus direct light plus the bounce</text>
+                    <!-- left: direct only -->
+                    <rect x="30" y="55" width="400" height="255" rx="10" fill="#f3ece4" stroke="#a9772f" stroke-width="2.5"/>
+                    <text x="230" y="80" text-anchor="middle" fill="#7a5518" style="font:700 13.5px system-ui">Direct light only</text>
+                    <!-- sun -->
+                    <circle cx="95" cy="120" r="16" fill="#ffd27f" stroke="#e0a53a" stroke-width="2"/>
+                    <line x1="112" y1="132" x2="180" y2="180" stroke="#e0a53a" stroke-width="2.5" marker-end="url(#ar1)"/>
+                    <line x1="110" y1="140" x2="172" y2="205" stroke="#e0a53a" stroke-width="2.5" marker-end="url(#ar1)"/>
+                    <defs><marker id="ar1" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0a53a"/></marker></defs>
+                    <!-- ground -->
+                    <rect x="55" y="250" width="350" height="40" fill="#d8b98a"/>
+                    <!-- rock: lit face + black shadow face -->
+                    <polygon points="190,250 250,180 300,180 300,250" fill="#e8cfa6"/>
+                    <polygon points="300,180 300,250 360,250 360,205" fill="#1c1a17"/>
+                    <text x="245" y="230" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">lit</text>
+                    <text x="330" y="235" text-anchor="middle" fill="#efe6da" style="font:600 11px system-ui">black</text>
+                    <text x="230" y="278" text-anchor="middle" fill="#b23b2f" style="font:600 11.5px system-ui">the shadow side goes dead black</text>
+                    <text x="230" y="300" text-anchor="middle" fill="#7a5518" style="font:italic 10.5px system-ui">nothing fills what the sun cannot reach</text>
+                    <!-- arrow -->
+                    <line x1="432" y1="182" x2="488" y2="182" stroke="#999" stroke-width="3" marker-end="url(#arv)"/>
+                    <defs><marker id="arv" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- right: direct + GI -->
+                    <rect x="500" y="55" width="350" height="255" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="675" y="80" text-anchor="middle" fill="#8f3f14" style="font:700 13.5px system-ui">Direct light plus global illumination</text>
+                    <circle cx="545" cy="118" r="15" fill="#ffd27f" stroke="#e0a53a" stroke-width="2"/>
+                    <line x1="560" y1="130" x2="625" y2="180" stroke="#e0a53a" stroke-width="2.5" marker-end="url(#ar1)"/>
+                    <rect x="525" y="250" width="300" height="40" fill="#e6c187"/>
+                    <!-- rock lit + warm-filled shadow -->
+                    <polygon points="640,250 700,180 748,180 748,250" fill="#eed0a4"/>
+                    <polygon points="748,180 748,250 800,250 800,205" fill="#b98c55"/>
+                    <text x="690" y="230" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">lit</text>
+                    <text x="775" y="235" text-anchor="middle" fill="#5c3f1e" style="font:600 10.5px system-ui">warm fill</text>
+                    <!-- bounce arrows from ground to shadow side -->
+                    <path d="M690,255 Q740,250 748,220" fill="none" stroke="#d98a2b" stroke-width="2.2" stroke-dasharray="4 3" marker-end="url(#ar2)"/>
+                    <path d="M720,258 Q760,250 772,230" fill="none" stroke="#d98a2b" stroke-width="2.2" stroke-dasharray="4 3" marker-end="url(#ar2)"/>
+                    <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#d98a2b"/></marker></defs>
+                    <text x="675" y="278" text-anchor="middle" fill="#2e7d32" style="font:600 11.5px system-ui">light bounces off the sunlit ground</text>
+                    <text x="675" y="300" text-anchor="middle" fill="#8f3f14" style="font:italic 10.5px system-ui">and fills the shadow, carrying the ground's warm color</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: What global illumination adds &#183; with only direct light the shadow side of an object goes black. Global illumination is the bounced, indirect light that fills those areas, and it carries the color of whatever it bounced off, here the warm tint of sunlit sand.</em></p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="baking" class="lesson-section">
+                <h2>Why Light Used to Be Baked</h2>
+
+                <p>Global illumination is expensive to compute, because tracing where light goes after it bounces, again and again, off every surface, is a lot of work to do sixty or more times a second. For most of real-time graphics history that was simply out of reach, so the classic solution was to compute it <strong>ahead of time</strong> and store the answer. This is called <strong>baking</strong>. A tool, in Unreal historically the Lightmass system, would precompute all the bounced light in a level and write the result into textures called <strong>lightmaps</strong> that wrap each surface. At runtime the engine did not compute any bounce at all; it just read the baked lightmap, which was cheap. The look could be gorgeous, because the bake could afford to be thorough.</p>
+
+                <p>The cost was in the workflow. A bake is slow, minutes for a small scene and hours for a large one, and you paid it every time the lighting changed. Worse, because the answer was frozen into textures, <strong>the lights had to hold still</strong>: you could not move the sun for a time-of-day change, because its bounce was baked for one position only. Every surface needed a second set of unwrapped texture coordinates just for its lightmap, and the lightmaps ate memory and disk. Moving objects could not receive the baked bounce properly and needed separate approximations. None of this was a flaw in the idea; it was the price of precomputing. But it meant lighting a world was a slow, commit-and-wait loop, and a dynamic sun was off the table.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; The bake loop, and its tax</h4>
+                    <pre class="mermaid">
+flowchart TD
+    A[Author the lighting<br/>place lights, set the sun] --> B[Build Lighting<br/>Lightmass precomputes every bounce]
+    B --> C[Wait for the bake<br/>minutes to hours]
+    C --> D[Bounced light is frozen<br/>into lightmap textures]
+    D --> E{Change a light<br/>or move the sun?}
+    E -->|yes, rebake| B
+    E -->|no| F[Ship it,<br/>but the lighting is static]
+    style A fill:#faf0e6,stroke:#c1662f
+    style B fill:#f3ece4,stroke:#a9772f
+    style C fill:#f3ece4,stroke:#a9772f
+    style D fill:#fdf1e7,stroke:#c1662f
+    style E fill:#ede7f6,stroke:#7e57c2
+    style F fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Baking moved the cost of the bounce out of the frame and into a build step. That made runtime cheap, but every lighting change meant another wait, and the sun could not move.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="dynamic" class="lesson-section">
+                <h2>Lumen: Global Illumination Without the Bake</h2>
+
+                <p>Lumen takes the opposite bet: compute the bounce <strong>at runtime, every frame</strong>, fast enough to keep up. It can do this because it does not trace light against the full, millions-of-triangles scene directly. Instead Lumen keeps a lightweight stand-in for the world, a coarse representation built from mesh <strong>distance fields</strong> plus a cached record of each surface's color and how lit it is. Tracing rays against that simplified scene is far cheaper than tracing the real geometry, cheap enough to afford in real time.</p>
+
+                <p>Each frame, for the points the camera can see, Lumen gathers indirect light by sending out rays that sample this representation: a ray leaves a surface, travels until it meets something in the stand-in scene, and brings back the light and color it found there. Do that across the view and you have an estimate of the bounced light arriving everywhere, updated live. Because nothing is precomputed, there are no lightmaps, no lightmap coordinates, and no bake to wait for, and crucially <strong>the lights can move</strong>. Slide the sun and the whole world's bounce follows it, because the bounce is being recomputed continuously rather than read from a frozen texture. This is the pillar the overview promised: light without baking.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 350" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:700px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">How Lumen gathers the bounce each frame</text>
+                    <!-- sun -->
+                    <circle cx="90" cy="80" r="18" fill="#ffd27f" stroke="#e0a53a" stroke-width="2"/>
+                    <text x="90" y="120" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">sun</text>
+                    <line x1="106" y1="92" x2="250" y2="250" stroke="#e0a53a" stroke-width="2" marker-end="url(#ard)"/>
+                    <defs><marker id="ard" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0a53a"/></marker></defs>
+                    <!-- lit surface -->
+                    <rect x="210" y="250" width="150" height="26" rx="4" fill="#e6c187" stroke="#c1662f"/>
+                    <text x="285" y="292" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">sunlit surface</text>
+                    <!-- shaded point -->
+                    <circle cx="560" cy="235" r="7" fill="#5c3f1e"/>
+                    <text x="560" y="292" text-anchor="middle" fill="#5c3f1e" style="font:600 11px system-ui">a shaded point in view</text>
+                    <!-- gather rays from shaded point to representation -->
+                    <path d="M553,232 L360,262" fill="none" stroke="#d98a2b" stroke-width="2.2" stroke-dasharray="5 3" marker-end="url(#ar3)"/>
+                    <path d="M556,229 L470,150" fill="none" stroke="#d98a2b" stroke-width="2.2" stroke-dasharray="5 3" marker-end="url(#ar3)"/>
+                    <path d="M566,232 L690,180" fill="none" stroke="#d98a2b" stroke-width="2.2" stroke-dasharray="5 3" marker-end="url(#ar3)"/>
+                    <defs><marker id="ar3" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#d98a2b"/></marker></defs>
+                    <text x="470" y="210" text-anchor="middle" fill="#8f3f14" style="font:italic 10.5px system-ui">rays sample the scene stand-in</text>
+                    <!-- representation blobs -->
+                    <g fill="#e3f2fd" stroke="#2196F3" stroke-width="1.5">
+                        <ellipse cx="470" cy="140" rx="34" ry="24"/>
+                        <ellipse cx="700" cy="172" rx="30" ry="22"/>
+                    </g>
+                    <text x="585" y="95" text-anchor="middle" fill="#1565c0" style="font:600 12px system-ui">coarse stand-in: distance fields + a surface cache</text>
+                    <text x="585" y="113" text-anchor="middle" fill="#1565c0" style="font:italic 10.5px system-ui">a cheap stand-in for the real geometry, traced instead of it</text>
+                    <!-- result -->
+                    <rect x="470" y="300" width="360" height="34" rx="6" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="650" y="322" text-anchor="middle" fill="#2e7d32" style="font:600 12px system-ui">bounced light, gathered live &#183; no bake, and the sun can move</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Lumen gathers the bounce at runtime &#183; instead of baking, Lumen keeps a coarse stand-in of the scene made of distance fields and a cached record of surface lighting. Each frame it traces rays from visible points against that stand-in to gather the indirect light, so the bounce updates live and the sun is free to move.</em></p>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="reflections" class="lesson-section">
+                <h2>Reflections, from the Same System</h2>
+
+                <p>Reflections are the same problem wearing a different hat. A reflection asks what a surface sees in a given direction, which is exactly the question the bounce already answers, just aimed as a mirror rather than gathered as a soft fill. So Lumen handles reflections with the <strong>same machinery</strong>: to reflect, it traces a ray in the mirror direction into the same scene stand-in and brings back what that ray sees, including the bounced light that is already there. That last part matters. Because reflections read the same lit scene, a puddle or a polished floor reflects a world that has global illumination in it, not a flat, GI-less copy, and the reflection stays consistent with the rest of the lighting.</p>
+
+                <p>How sharp the reflection is depends on the surface. A near-mirror surface needs a crisp traced ray to get a clean image, while a rough, glossy surface only needs a blurred, averaged result, which Lumen can read more cheaply from its cached lighting rather than tracing a sharp ray per pixel. The upshot is a single, unified answer: one system produces both the soft indirect light that fills your shadows and the reflections in your shiny surfaces, and they agree with each other because they come from the same traces. In this project, both are switched to Lumen, the global illumination method and the reflection method alike.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; One system, both the bounce and the reflections</h4>
+                    <pre class="mermaid">
+flowchart LR
+    SURF[A glossy or mirror surface<br/>needs a reflection] --> TRACE[Trace a ray in the mirror direction<br/>into Lumen's scene stand-in]
+    TRACE --> HIT[The ray brings back what it sees,<br/>including the bounced light already there]
+    HIT --> SHARP{How rough<br/>is the surface?}
+    SHARP -->|smooth| CRISP[Read a crisp traced result]
+    SHARP -->|rough| BLUR[Read a blurred cached result]
+    CRISP --> ONE[One system draws<br/>the bounce and the reflections together]
+    BLUR --> ONE
+    style SURF fill:#faf0e6,stroke:#c1662f
+    style TRACE fill:#e3f2fd,stroke:#2196F3
+    style HIT fill:#e3f2fd,stroke:#2196F3
+    style SHARP fill:#ede7f6,stroke:#7e57c2
+    style CRISP fill:#fdf1e7,stroke:#c1662f
+    style BLUR fill:#fdf1e7,stroke:#c1662f
+    style ONE fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Reflections trace the same stand-in scene the bounce uses, so a reflective surface shows a world that already has global illumination in it. Smooth surfaces get a crisp trace; rough ones read a cheaper blurred result.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="loop" class="lesson-section">
+                <h2>The Relight Loop</h2>
+
+                <p>The single biggest change Lumen brings to a lighting artist's day is not any one image; it is the <strong>loop</strong>. With baking, lighting was a commit-and-wait cycle: change a light, start a build, wait out the bake, look at the result, and only then decide what to change next. With Lumen there is no build. You move the sun and the world relights in front of you, bounce and reflections and all, in real time. That turns lighting from a slow batch process into a live, interactive one, where you nudge and judge as fast as you can look. It is the same shift Nanite brought to geometry, no precompute standing between you and the result, applied to light.</p>
+
+                <p>The image below is a real frame from this course's project, captured live with Lumen doing the lighting. A single scanned-style desert rock sits on the sand under a low warm sun. Look at the side of the rock that faces away from the sun: it is in shadow, receiving no direct light at all, yet it is not black. It glows a warm tan, because light from the brightly sunlit sand around it has bounced up and filled it, carrying the sand's color. That warm fill in the shadow is global illumination, computed in real time. No bounce was baked for this shot; slide the sun and that fill would move and recolor with it. This is the practical shape of the pillar: believable, bounced light with nothing precomputed.</p>
+
+                <img src="images/env_l03/env_l03_fig01_lumen_bounce.png" alt="A real-time desert scene captured live in the course's Unreal project, lit by Lumen. A single large scanned-style boulder sits half-buried in warm sand under a low golden sun. The top and one side of the rock catch bright direct sunlight, while the opposite side and the deep crevices face away from the sun and receive no direct light, yet they are not black: they glow a warm tan because light bounced off the sunlit sand fills them. Behind the rock a hazy ring of dunes meets a clear graded sky. The shadowed side is filled entirely by Lumen's real-time indirect light." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: Lumen's bounce, captured live in the course's Unreal project &#183; a desert rock under a low warm sun. The side facing away from the sun gets no direct light, yet it glows warm rather than going black, because light bounced off the sunlit sand fills it and carries the sand's color. That fill is global illumination, computed in real time with no bake (the project runs Lumen for both global illumination and reflections, verified).</em></p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; The relight loop: no build step</h4>
+                    <pre class="mermaid">
+flowchart LR
+    EDIT[Move the sun or a light,<br/>change a material] --> UPDATE[Lumen recomputes the bounce<br/>and reflections in real time]
+    UPDATE --> SEE[You see the final lit look<br/>right away, with no build]
+    SEE --> AGAIN[Adjust again<br/>the loop is instant]
+    AGAIN --> EDIT
+    style EDIT fill:#faf0e6,stroke:#c1662f
+    style UPDATE fill:#ede7f6,stroke:#7e57c2
+    style SEE fill:#e8f5e9,stroke:#4CAF50
+    style AGAIN fill:#fdf1e7,stroke:#c1662f
+                    </pre>
+                    <p>No bake sits between a change and its result, so lighting becomes a live, interactive loop instead of a commit-and-wait cycle. This is what makes a dynamic sun and fast iteration possible.</p>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="knobs" class="lesson-section">
+                <h2>Software, Hardware, and the Cost</h2>
+
+                <p>Lumen traces rays against the scene, and there are two ways it can do that tracing, which is the main knob you will meet. <strong>Software ray tracing</strong> is the default: it traces against the coarse mesh distance fields described earlier, it runs on a wide range of graphics cards, and it needs the project to generate those distance fields. <strong>Hardware ray tracing</strong> instead uses the dedicated ray tracing units on a capable GPU to trace against the actual triangle geometry, which gives sharper reflections and more accurate contact between surfaces, at the price of requiring that hardware and more performance. Both are Lumen and produce the same kind of result; hardware ray tracing simply buys more accuracy where the GPU can afford it.</p>
+
+                <p>None of this is free, and that is the honest boundary of the pillar. Lumen costs more than reading a baked lightmap or skipping the bounce entirely, so it targets mid-range and high-end hardware rather than the lowest tier, and it comes with quality settings, how detailed the scene stand-in is and how many rays the gather uses, that trade cost against fidelity. Very small or very thin emissive details can be missed by the coarse representation, and there are scenes where a carefully baked solution is still cheaper. The trade Lumen offers is clear: you give up some performance and accept some approximation, and in return you get dynamic, bounced light and reflections with no bake and instant iteration. For a modern environment built to be lit and relit, that is usually the trade you want.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Two ways Lumen traces, one cost to weigh</text>
+                    <!-- software -->
+                    <rect x="30" y="55" width="400" height="180" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="230" y="82" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">Software ray tracing (default)</text>
+                    <g style="font:12.5px system-ui" fill="#2e7d32">
+                        <text x="55" y="116">&#10003; traces the coarse mesh distance fields</text>
+                        <text x="55" y="146">&#10003; runs on a wide range of GPUs</text>
+                        <text x="55" y="176">&#10003; needs Generate Mesh Distance Fields on</text>
+                    </g>
+                    <text x="230" y="212" text-anchor="middle" fill="#388e3c" style="font:italic 11.5px system-ui">the broad-compatibility path most projects start on</text>
+                    <!-- hardware -->
+                    <rect x="450" y="55" width="400" height="180" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="650" y="82" text-anchor="middle" fill="#8f3f14" style="font:700 14px system-ui">Hardware ray tracing</text>
+                    <g style="font:12.5px system-ui" fill="#8f3f14">
+                        <text x="475" y="116">&#9670; traces the actual triangle geometry</text>
+                        <text x="475" y="146">&#9670; sharper reflections and contact</text>
+                        <text x="475" y="176">&#9670; needs a ray-tracing-capable GPU</text>
+                    </g>
+                    <text x="650" y="212" text-anchor="middle" fill="#a9772f" style="font:italic 11.5px system-ui">more accuracy where the hardware can afford it</text>
+                    <!-- cost strip -->
+                    <rect x="30" y="255" width="820" height="46" rx="8" fill="#ede7f6" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="440" y="275" text-anchor="middle" fill="#4527a0" style="font:600 12.5px system-ui">Both are Lumen, and neither is free: it costs more than a baked lightmap.</text>
+                    <text x="440" y="293" text-anchor="middle" fill="#5e35b1" style="font:11.5px system-ui">Quality settings trade cost against fidelity, and very small or thin details can be missed.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The tracing choice and the cost &#183; software ray tracing traces coarse distance fields and runs broadly; hardware ray tracing traces real triangles for sharper results on a capable GPU. Both are Lumen, and both cost more than a baked lightmap, which is the trade you make for dynamic, bake-free light.</em></p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Move the Sun and Watch It Bounce</h2>
+
+                <p>This lesson is best felt live, because the whole point of Lumen is that you can see it react. The exercise is to set up a simple lit scene and then move the light, so the words in this lesson, the bounce, the fill, the instant loop, turn into something you watch happen in your own viewport.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128262; Exercise: see the bounce fill a shadow, live</h3>
+                    <ol>
+                        <li><strong>Confirm Lumen is on.</strong> In Project Settings, under Rendering, check that the Dynamic Global Illumination Method and the Reflection Method are both set to Lumen. This is the default in a new project and is how this course's project is set.</li>
+                        <li><strong>Build a tiny scene.</strong> Drop a light-colored floor and one detailed object on it, a rock or any prop, and add a Directional Light for the sun plus a Sky Light. You now have a surface for light to bounce off and an object to catch the bounce.</li>
+                        <li><strong>Find the shadow side.</strong> Angle the sun low from one side so one face of the object is lit and the opposite face falls into shadow. Notice that the shadow side is not black; it holds a soft fill. That fill is Lumen's bounced light.</li>
+                        <li><strong>Move the sun.</strong> Rotate the Directional Light and watch the whole scene relight in real time, with no build step. The bounce, the shadows, and any reflections all follow the sun as you drag it.</li>
+                        <li><strong>Tint the bounce.</strong> Change the floor to a strongly colored material and look at the shadow side of the object again. It now picks up that color, because the light filling it bounced off the colored floor. That is color in global illumination, live.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: how do I see the difference GI makes?</summary>
+                        <p style="margin-top: 0.5rem;">Open the viewport's view mode menu (the one that normally reads Lit) and look for the Lumen and global illumination visualization options, or toggle the reflection and global illumination show flags. Turning the indirect light off drops every shadow to near black; turning it back on fills them again. Flipping that switch is the fastest way to see exactly what the bounce is contributing to your scene.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: relight the same scene twice</h4>
+                    <p>Take your little scene and light it as a warm early morning, sun low and golden, then, without any build or bake, swing the sun high and cool for harsh midday. Notice that you did nothing but move and recolor the light, and the entire look, the bounce, the shadow fill, the reflections, changed with it in real time. Under the old baked pipeline each of those would have been a separate bake and a separate wait. That is the relight loop, and it is the reason a modern environment can carry a moving sun and a full day-night cycle.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What is global illumination?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> The direct light that travels straight from a source to a surface</label>
+                            <label><input type="radio" name="q1" value="b"> The indirect, bounced light that fills shadowed areas and carries the color of the surfaces it bounced off</label>
+                            <label><input type="radio" name="q1" value="c"> A type of texture applied to every material</label>
+                            <label><input type="radio" name="q1" value="d"> The setting that controls how many polygons are drawn</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Global illumination is the light that reaches a surface after bouncing off other surfaces. It fills the areas direct light cannot reach and tints them with the color of what it bounced off. Without it, shadow sides go flat black.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why was lighting traditionally baked into lightmaps?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Because computing the bounce in real time was too expensive, so it was precomputed and stored in textures</label>
+                            <label><input type="radio" name="q2" value="b"> Because baked lighting looks worse and was only used for testing</label>
+                            <label><input type="radio" name="q2" value="c"> Because lightmaps let the sun move freely at runtime</label>
+                            <label><input type="radio" name="q2" value="d"> Because it removed the need for any lights in the scene</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; Real-time global illumination used to be out of reach, so the bounce was precomputed ahead of time and frozen into lightmap textures. Runtime was then cheap, but every lighting change meant another slow bake, and the lights had to stay still.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>How does Lumen compute global illumination without baking?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> It reads a lightmap that was baked earlier</label>
+                            <label><input type="radio" name="q3" value="b"> It keeps a coarse stand-in of the scene and traces rays against it every frame to gather bounced light, so the sun can move</label>
+                            <label><input type="radio" name="q3" value="c"> It only lights objects that are directly in sunlight</label>
+                            <label><input type="radio" name="q3" value="d"> It requires the artist to paint the bounce by hand</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Lumen keeps a lightweight representation of the scene, built from mesh distance fields and a cache of surface lighting, and traces rays against that cheap stand-in each frame to gather the bounce. Because nothing is precomputed, there are no lightmaps and the lights can move.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>How do Lumen reflections relate to its global illumination?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> They are a completely separate system that ignores the bounced light</label>
+                            <label><input type="radio" name="q4" value="b"> They come from the same system: reflections trace the same scene stand-in and show the world with its global illumination already in it</label>
+                            <label><input type="radio" name="q4" value="c"> Reflections only work on baked lightmaps</label>
+                            <label><input type="radio" name="q4" value="d"> Reflections require turning global illumination off</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A reflection asks what a surface sees in the mirror direction, the same question the bounce answers. Lumen traces the same stand-in scene, so reflections show a world that already has global illumination, and smooth surfaces get a crisp trace while rough ones read a cheaper blurred result.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What is a fair statement about the choice between software and hardware ray tracing, and Lumen's cost?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Hardware ray tracing is always required to use Lumen at all</label>
+                            <label><input type="radio" name="q5" value="b"> Software ray tracing traces coarse distance fields and runs broadly, hardware ray tracing traces real triangles for sharper results on a capable GPU, and Lumen costs more than a baked lightmap</label>
+                            <label><input type="radio" name="q5" value="c"> Both modes are free and run identically on any device</label>
+                            <label><input type="radio" name="q5" value="d"> Software ray tracing produces sharper reflections than hardware ray tracing</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Software ray tracing is the default, tracing coarse distance fields across a wide range of GPUs; hardware ray tracing traces the actual triangles for sharper reflections and contact where the hardware allows. Both are Lumen, and both cost more than reading a baked lightmap, which is the trade for dynamic, bake-free light.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You now know the second pillar in depth. Lumen is the reason a modern environment can be lit and relit in real time, with believable bounced light and reflections and no bake. Here is what to carry forward:</p>
+
+                <p><strong>Global illumination is the bounce.</strong> Direct light travels straight from a source and leaves everything it cannot reach black. Global illumination is the indirect light that has bounced off other surfaces, filling shadows and carrying color. Without it a scene looks harsh and unreal, no matter how detailed the geometry.</p>
+
+                <p><strong>Baking traded workflow for runtime cost.</strong> Because real-time bounce was once too expensive, lighting was precomputed into lightmaps. That made runtime cheap but froze the lights in place and turned every lighting change into a slow rebake, with no moving sun.</p>
+
+                <p><strong>Lumen computes the bounce live, and reflections come with it.</strong> Lumen keeps a coarse stand-in of the scene and traces rays against it every frame to gather indirect light, so there is no bake and the sun can move. Reflections trace the same stand-in, so they show a world with global illumination already in it. The result is an instant relight loop, tuned with software or hardware ray tracing, at a real but usually worthwhile performance cost.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Global illumination is the bounced, indirect light that fills shadows and carries the color of the surfaces it bounced off; direct light alone leaves those areas black</li>
+                        <li>Lighting used to be baked into lightmaps because real-time bounce was too costly, which made the lights static and every change a slow rebake</li>
+                        <li>Lumen computes the bounce every frame by tracing a coarse scene stand-in of distance fields and a surface cache, so there is no bake and the sun can move</li>
+                        <li>Lumen reflections come from the same system and show a world that already has global illumination, crisp on smooth surfaces and blurred on rough ones</li>
+                        <li>Software ray tracing runs broadly on distance fields while hardware ray tracing traces real triangles for sharper results; Lumen costs more than a baked lightmap, the trade for dynamic, bake-free light and an instant relight loop</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #faf0e6 0%, #fff 100%); border-left: 4px solid #c1662f;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The desert rock image is a genuine live capture from the course's <code>ClaudeTest</code> project: a scanned-style boulder on the landscape under a low warm sun, with no character in the scene, and it is lit by Lumen with nothing baked. The point it makes is real and visible: the side of the rock facing away from the sun receives no direct light, yet it glows warm rather than going black, because light bounced off the sunlit sand fills it. That warm fill is Lumen's global illumination, computed in real time; the project runs Lumen for both global illumination and reflections, which was confirmed directly. The direct-versus-bounce diagram, the bake loop, the runtime gather, the reflections flow, and the software-versus-hardware map are labeled illustrations, because the internal traces and caches are best understood as diagrams before you watch them react in your own viewport. What they show is what you will confirm live when you move the sun and see the world relight.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This lesson builds out the light pillar the <a href="env_l01_the_modern_environment_pipeline.html">overview</a> introduced, sitting alongside the geometry pillar from <a href="env_l02_nanite_virtualized_geometry.html">Nanite</a>. Next in the track, <a href="index.html#environment">PCG</a> takes procedural placement, before a capstone assembles a full environment. Lumen is what lets the worlds built here be lit for the <a href="index.html#intermediate">Cinematic Production</a> track, whose <a href="int_l05_cinematic_lighting.html">cinematic lighting</a> lesson shapes a shot inside a Lumen-lit scene, and it deepens the beginner introduction in <a href="m04_l04_lumen_global_illumination.html">Lumen global illumination</a>. In the larger <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, this is the craft behind the light of <a href="unreal-phase-5-shot-assembly.html">shot assembly</a>.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="env_l02_nanite_virtualized_geometry.html" class="btn">&#8592; Previous: Nanite: Virtualized Geometry</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="index.html#environment" class="btn btn-outline">Back to Track &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

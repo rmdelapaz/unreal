@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Complete Introduction to Unreal Engine 5 course - Learn game development from beginner to confident creator. 11 modules covering interface, levels, materials, lighting, Blueprints, AI-assisted workflows, and more.">
+    <meta name="description" content="Complete Unreal Engine 5 course - Learn game development from beginner to advanced. Twelve modules from the interface to a build-a-game capstone, plus specialization tracks in Cinematic Production and MetaHuman digital humans.">
     <meta name="author" content="Practical Ace">
-    <title>Introduction to Unreal Engine 5 - Complete Course</title>
+    <title>Unreal Engine 5 - Complete Course</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
@@ -14,7 +14,18 @@
             color: white;
             padding: 4rem 2rem;
             text-align: center;
-            margin: -2rem -2rem 2rem -2rem;
+            /* Full-bleed banner: the side margins must cancel the body's responsive padding,
+               which main.css sets to --spacing-md (1rem) on mobile, --spacing-lg (1.5rem) at
+               >=768px, and --spacing-xl (2rem) at >=1024px. The old fixed -2rem only matched the
+               desktop padding, so on mobile it overshot by ~16px and caused a horizontal scroll.
+               Mobile-first base uses --spacing-md; the media queries below scale it up in step. */
+            margin: -2rem calc(-1 * var(--spacing-md)) 2rem;
+        }
+        @media (min-width: 768px) {
+            .hero { margin-left: calc(-1 * var(--spacing-lg)); margin-right: calc(-1 * var(--spacing-lg)); }
+        }
+        @media (min-width: 1024px) {
+            .hero { margin-left: calc(-1 * var(--spacing-xl)); margin-right: calc(-1 * var(--spacing-xl)); }
         }
         .hero h1 {
             font-size: 2.5rem;
@@ -231,21 +242,21 @@
     <!-- Hero Section -->
     <div class="hero">
         <h1>🎮 Introduction to Unreal Engine 5</h1>
-        <p>Master game development from beginner to confident creator</p>
-        <p style="font-size: 1rem; opacity: 0.9;">A comprehensive course covering everything from installation to publishing your own interactive experiences</p>
+        <p>Master Unreal Engine 5 from beginner to advanced, from your first level to cinematic shots and digital humans</p>
+        <p style="font-size: 1rem; opacity: 0.9;">A complete course: eleven core modules and a build-a-game capstone, then specialization tracks in Cinematic Production and MetaHuman digital humans</p>
         
         <div class="stats">
             <div class="stat-box">
-                <strong>11</strong>
+                <strong>12</strong>
                 <span>Modules</span>
             </div>
             <div class="stat-box">
-                <strong>41</strong>
+                <strong>69</strong>
                 <span>Lessons</span>
             </div>
             <div class="stat-box">
-                <strong>40-50</strong>
-                <span>Hours</span>
+                <strong>3</strong>
+                <span>Levels: beginner to advanced</span>
             </div>
             <div class="stat-box">
                 <strong>100%</strong>
@@ -261,12 +272,12 @@
             <!-- Course Overview -->
             <section style="margin-bottom: 3rem;">
                 <h2>📚 Course Overview</h2>
-                <p>This course is designed for complete beginners with no prior game development experience. Through hands-on lessons, you'll learn to navigate Unreal Engine's interface, build 3D environments, apply materials and lighting, create interactive gameplay with Blueprints, and package your projects for distribution.</p>
+                <p>This course takes you from complete beginner to advanced Unreal Engine creator, with no prior game development experience required. The eleven core modules teach you to navigate the interface, build 3D environments, apply materials and lighting, create interactive gameplay with Blueprints, and package your projects, and a hands-on capstone threads them into a small playable game. From there, two specialization tracks go further: Cinematic Production (Sequencer, cine cameras, lighting, and rendering) and Digital Humans with MetaHuman.</p>
                 
                 <div class="info-grid">
                     <div class="info-card">
                         <h3>🎯 Target Audience</h3>
-                        <p>Beginners with basic computer skills; no programming required</p>
+                        <p>Complete beginners with basic computer skills, growing into intermediate and advanced work; no programming required</p>
                     </div>
                     <div class="info-card">
                         <h3>💻 Requirements</h3>
@@ -278,7 +289,7 @@
                     </div>
                     <div class="info-card">
                         <h3>🏆 Outcome</h3>
-                        <p>Build and package your own interactive game experience</p>
+                        <p>Build and package your own game, then produce cinematic shots and MetaHuman digital humans</p>
                     </div>
                 </div>
             </section>
@@ -286,7 +297,7 @@
             <!-- Call to Action -->
             <div class="cta-section">
                 <h2>Ready to Start Your Journey?</h2>
-                <p>Begin with Module 1 and learn the fundamentals of Unreal Engine</p>
+                <p>Begin with Module 1 for the fundamentals, or jump ahead to the capstone or a specialization track</p>
                 <a href="m01_l01_what_is_unreal_engine.html" class="cta-button">Start Learning →</a>
             </div>
 
@@ -764,7 +775,7 @@
                             </a>
                         </li>
                     </ul>
-                    <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">The finale of the intro course: a small but complete game that puts every module to work at once. Walk a character around a tiled arena, collect three glowing orbs, watch a HUD count them, hear and see each pickup, win when all three are gathered, then package it into a runnable build.</p>
+                    <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">The finale of the intro course: a small but complete game that puts every module to work at once. Walk a character around a tiled arena, collect three glowing orbs, watch a HUD count them, hear and see each pickup, race a countdown to win (or lose when it runs out), then package it into a runnable build.</p>
                 </div>
 
                 <!-- Bonus Content -->
@@ -885,6 +896,38 @@
                         </li>
                     </ul>
                     <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">A new frontier that builds on the <a href="index.html#intermediate">Cinematic Production</a> track: the character itself. Where the intermediate track taught you to move, film, light, and render a character, this track is about the digital human you send down that pipeline and the face performance that brings it to life.</p>
+                </div>
+
+                <!-- Advanced: Environment Art with Nanite, Lumen & PCG -->
+                <div class="module-card" id="environment" style="border: 3px solid #c1662f; background: linear-gradient(135deg, #faf0e6 0%, #fff 100%);">
+                    <div class="module-header">
+                        <div class="module-icon">🏔️</div>
+                        <div class="module-info">
+                            <h2>Advanced: Environment Art with Nanite, Lumen &amp; PCG</h2>
+                            <div class="module-meta">3 Lessons • The world-building counterpart to the MetaHuman track: build the environment a character stands in with the three pillars of the modern real-time pipeline — Nanite virtualized geometry, Lumen dynamic global illumination, and PCG procedural generation — plus Landscape, World Partition &amp; Fab Megascans assets</div>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li class="lesson-item available">
+                            <a href="env_l01_the_modern_environment_pipeline.html">
+                                <span class="lesson-number">Lesson 1</span>
+                                <span class="lesson-title">🏔️ The Modern Environment Pipeline — the map of the whole track: the three pillars (Nanite, Lumen, PCG), how Landscape, World Partition &amp; Fab fit around them, and how a finished world becomes the stage for a shot</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="env_l02_nanite_virtualized_geometry.html">
+                                <span class="lesson-number">Lesson 2</span>
+                                <span class="lesson-title">🪨 Nanite: Virtualized Geometry — the first pillar in depth: what virtualized micropolygon geometry is, how Nanite streams a mesh as clusters and picks detail per cluster with no LOD chain, using scanned Fab Megascans assets as-is, and where Nanite fits (and where it does not)</span>
+                            </a>
+                        </li>
+                        <li class="lesson-item available">
+                            <a href="env_l03_lumen_realtime_global_illumination.html">
+                                <span class="lesson-number">Lesson 3</span>
+                                <span class="lesson-title">🔆 Lumen: Real-Time Global Illumination and Reflections — the second pillar in depth: what global illumination is, why lighting used to be baked into lightmaps, how Lumen computes the bounce every frame with no bake so the sun can move, reflections from the same system, and the instant relight loop</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">The second track in the advanced tier, sibling to <a href="index.html#advanced">Digital Humans with MetaHuman</a>: where that track builds the character, this one builds the world it inhabits. Nanite for geometry, Lumen for light, PCG for populating a landscape, then a capstone that assembles a complete environment.</p>
                 </div>
 
                 <!-- Production Pipeline: Unreal's role -->

@@ -55,7 +55,7 @@
             <!-- Lesson Header -->
             <header>
                 <h1>&#128377;&#65039; Capstone: Build the Collect-the-Orbs Mini-Game</h1>
-                <p class="lead">You have learned eleven modules of skills on their own: <a href="m02_l01_understanding_levels.html">levels and actors</a>, <a href="m03_l01_material_fundamentals.html">materials</a>, <a href="m04_l01_lighting_fundamentals.html">lighting</a>, <a href="m05_l01_what_are_blueprints.html">Blueprints</a>, <a href="m06_l02_enhanced_input_system.html">input</a>, <a href="m07_l01_introduction_to_umg.html">UMG</a>, <a href="m08_l02_playing_sounds.html">audio</a>, <a href="m09_l01_niagara_overview.html">particles</a>, and <a href="m10_l03_building_distribution.html">packaging</a>. A <strong>game</strong> is where they stop being separate features and become one built thing. This capstone threads them into a small, complete, playable project: you walk a character around a tiled arena, collect three glowing orbs, watch a heads-up display count them, hear and see each pickup, win when all three are gathered, and package the result into a build you can hand to someone. There is little new to learn here. There is everything to connect.</p>
+                <p class="lead">You have learned eleven modules of skills on their own: <a href="m02_l01_understanding_levels.html">levels and actors</a>, <a href="m03_l01_material_fundamentals.html">materials</a>, <a href="m04_l01_lighting_fundamentals.html">lighting</a>, <a href="m05_l01_what_are_blueprints.html">Blueprints</a>, <a href="m06_l02_enhanced_input_system.html">input</a>, <a href="m07_l01_introduction_to_umg.html">UMG</a>, <a href="m08_l02_playing_sounds.html">audio</a>, <a href="m09_l01_niagara_overview.html">particles</a>, and <a href="m10_l03_building_distribution.html">packaging</a>. A <strong>game</strong> is where they stop being separate features and become one built thing. This capstone threads them into a small, complete, playable project: you walk a character around a tiled arena, collect three glowing orbs, watch a heads-up display count them, hear and see each pickup, win by gathering all three before a countdown runs out, and package the result into a build you can hand to someone. There is little new to learn here. There is everything to connect.</p>
 
                 <!-- Capstone banner -->
                 <div class="card" style="background: linear-gradient(135deg, #e6f7ef 0%, #fff 100%); border-left: 4px solid #2e9e6b;">
@@ -72,7 +72,7 @@
                         <li>Build a play space from a level, actors, materials, and lighting</li>
                         <li>Make the space playable with a controllable pawn, input, and a Blueprint that reacts to an overlap</li>
                         <li>Give the player feedback across three senses: a UMG counter, a pickup sound, and a Niagara burst</li>
-                        <li>Close the loop with a win condition that fires when every orb is collected</li>
+                        <li>Close the loop with a win condition, then add stakes with a countdown timer and a lose condition</li>
                         <li>Package the finished project into a runnable build to share</li>
                     </ul>
                     <p><strong>Estimated Time:</strong> 90 to 120 minutes</p>
@@ -93,7 +93,7 @@
                         <li><a href="#space" class="toc-link">Build the Space</a></li>
                         <li><a href="#play" class="toc-link">Make It Playable</a></li>
                         <li><a href="#feedback" class="toc-link">Give the Player Feedback</a></li>
-                        <li><a href="#win" class="toc-link">Close the Loop: the Win Condition</a></li>
+                        <li><a href="#win" class="toc-link">Close the Loop: Win and Lose</a></li>
                         <li><a href="#ship" class="toc-link">Ship It</a></li>
                         <li><a href="#hands-on" class="toc-link">Hands-On: Build the Whole Loop</a></li>
                         <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
@@ -154,7 +154,7 @@
 flowchart LR
     S[Build the space<br/>Modules 2, 3, 4] --> P[Make it playable<br/>Modules 5, 6]
     P --> F[Give feedback<br/>Modules 7, 8, 9]
-    F --> W[Win condition<br/>Module 5]
+    F --> W[Win and lose<br/>Module 5]
     W --> R[Package and ship<br/>Modules 10, 11]
     style S fill:#ede7f6,stroke:#7e57c2
     style F fill:#fff3cd,stroke:#ffc107
@@ -285,29 +285,38 @@ flowchart LR
 
             <!-- Section 5 -->
             <section id="win" class="lesson-section">
-                <h2>Close the Loop: the Win Condition</h2>
+                <h2>Close the Loop: Win and Lose</h2>
 
                 <p>A loop that never ends is a toy, not a game. What makes it a game is a <strong>goal</strong>, and the goal here is simple: collect all three orbs. To know when that happens, the game has to <em>keep score</em>, and that is one integer variable, held somewhere that outlives any single orb (the player, the level Blueprint, or a small game-mode Blueprint). Each pickup adds one to it, then checks: is the count now three?</p>
 
-                <p>This is <a href="m05_l04_flow_control.html">Blueprint flow control</a> at its most useful. Increment the counter, then a branch: if it equals three, the player has won, so fire the win, whether that is a message on the HUD, an opening door, or simply a bright <em>You Win</em> panel. If it is not three yet, do nothing special and let the player keep collecting. That one branch is the difference between a pile of pickups and a game with an ending.</p>
+                <p>This is <a href="m05_l04_flow_control.html">Blueprint flow control</a> at its most useful. Increment the counter, then a branch: if it equals the target, the player has won, so fire the win, whether that is a message on the HUD, an opening door, or simply a bright <em>You Win</em> panel. If it is not there yet, do nothing special and let the player keep collecting. That one branch is the difference between a pile of pickups and a game with an ending.</p>
+
+                <h3>Add stakes: a countdown and a lose</h3>
+
+                <p>A goal with no pressure is a chore. The cheapest way to add tension is a <strong>countdown timer</strong> that races the player: a clock that starts full, ticks down while they play, and shows on the <a href="m07_l03_hud_elements.html">HUD</a> next to the orb counter. Now the game has <em>two</em> ways to end, and they race each other: the player wins by reaching the target first, or loses if the clock reaches zero first.</p>
+
+                <p>The clock is a second small piece of state: a float of seconds remaining, decremented over time. You can drive it two ways, subtract the frame's delta time every tick, or set a repeating timer that fires once a second and subtracts one, and each time it changes you update the HUD so the player feels the pressure. Then add the mirror image of the win branch: when the timer reaches zero, check whether the game is already won, and if not, the player <em>loses</em>, so fire a <em>Time's Up</em> panel. Winning and losing are the same shape, one branch each, watching two different numbers.</p>
 
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
-                    <h4>&#128161; The score is a tiny state machine</h4>
+                    <h4>&#128161; Two ways to end, racing each other</h4>
                     <pre class="mermaid">
 flowchart LR
-    Z["Orbs: 0 of 3"] -->|collect| O["1 of 3"]
+    Z["Orbs: 0 of 3<br/>clock ticking"] -->|collect| O["1 of 3"]
     O -->|collect| T["2 of 3"]
     T -->|collect| H["3 of 3"]
-    H --> W["You win<br/>show a panel or open a door"]
+    H --> W["You win"]
+    C["Clock reaches 0<br/>before 3 collected"] --> L["You lose"]
     style Z fill:#ede7f6,stroke:#7e57c2
     style W fill:#e8f5e9,stroke:#4CAF50
+    style C fill:#fff3cd,stroke:#ffc107
+    style L fill:#fdecea,stroke:#e53935
                     </pre>
-                    <p>Every pickup moves the game one step to the right and asks the same question: are we at three yet? The win is just the last transition, fired by the branch that runs on every collection.</p>
+                    <p>The top row is the collection race to the win; the bottom is the timer that can cut it short. Both are one branch watching one number: the count for the win, the clock for the lose.</p>
                 </div>
 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
-                    <h4>&#9989; Pro Tip: count up to a variable, not a hard-coded three</h4>
-                    <p>Store the target (three) as its own variable, and compare the count against it. Then turning your three-orb game into a ten-orb game is one number, not a hunt through your Blueprints for every place you typed "3". Small habit, and it is the difference between a demo and something you can grow.</p>
+                    <h4>&#9989; Pro Tip: stop the clock the moment the game ends</h4>
+                    <p>Whichever branch fires first, disable the timer and freeze input right away, or the countdown keeps ticking under your win panel and can fire a <em>Time's Up</em> a second later, ending the same game twice. A single <em>is the game over</em> flag that both branches check, and set, keeps the two endings from stepping on each other. And store the target count and the starting time as variables, not hard-coded numbers, so a three-orb, thirty-second game becomes a ten-orb, minute-long one by editing two values.</p>
                 </div>
             </section>
 
@@ -348,7 +357,7 @@ flowchart LR
                         <li><strong>Make it playable.</strong> Use the template pawn so the player can move. On each orb, add a collision component set to generate overlap events, and a Blueprint with an On Component Begin Overlap event.</li>
                         <li><strong>React to the pickup.</strong> From that overlap event, do three things: add one to a counter, play a pickup sound, spawn a Niagara burst, then destroy the orb.</li>
                         <li><strong>Show the score.</strong> Make a UMG widget that displays "Orbs: X / 3", add it to the screen, and update it whenever the counter changes.</li>
-                        <li><strong>Close the loop.</strong> After incrementing, branch: if the count equals three, show a "You Win" message (or open a door). Otherwise, keep playing.</li>
+                        <li><strong>Close the loop.</strong> After incrementing, branch: if the count equals your target, show a "You Win" panel (or open a door). Otherwise, keep playing. Then add a countdown: a seconds-remaining variable that ticks down and shows on the HUD, plus a second branch that shows a "Time's Up" panel and stops the game if the clock reaches zero before all three orbs are collected.</li>
                         <li><strong>Package it.</strong> Set your default map to the game level, then package the project for your platform and run the build outside the editor.</li>
                     </ol>
                     <details style="margin-top: 1rem;">
@@ -358,8 +367,8 @@ flowchart LR
                 </div>
 
                 <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
-                    <h4>&#9989; Reach exercise: add a timer and a lose condition</h4>
-                    <p>Once the win works, give the game stakes. Add a countdown on the HUD and a second branch: if the timer hits zero before all three orbs are collected, show a "Time's Up" panel instead. You now have a real little game, with a way to win and a way to lose, built entirely from the modules of this course.</p>
+                    <h4>&#9989; Reach exercise: make the clock part of the risk and reward</h4>
+                    <p>Now that a timer can end the game, use it as a reward too. Give each collected orb a small time bonus, a few seconds added back to the countdown, so the player is racing the clock and refilling it at once. Then tighten the starting time until the game is just barely winnable. You are now tuning difficulty, which is the last real job in making something fun to play.</p>
                 </div>
             </section>
 
@@ -412,15 +421,15 @@ flowchart LR
 
                     <div class="quiz-question">
                         <h4>Question 4</h4>
-                        <p>How does the game know the player has won?</p>
+                        <p>The game has two ways to end. How do the win and the lose each fire?</p>
                         <div class="quiz-options">
-                            <label><input type="radio" name="q4" value="a"> It waits a fixed number of seconds</label>
-                            <label><input type="radio" name="q4" value="b"> A counter variable is incremented on each pickup, and a branch checks whether it has reached the target</label>
-                            <label><input type="radio" name="q4" value="c"> The emissive material turns off</label>
-                            <label><input type="radio" name="q4" value="d"> Packaging triggers the win automatically</label>
+                            <label><input type="radio" name="q4" value="a"> Both are triggered by packaging the project</label>
+                            <label><input type="radio" name="q4" value="b"> A branch wins when the orb counter reaches the target, and a second branch loses when the countdown timer reaches zero first</label>
+                            <label><input type="radio" name="q4" value="c"> The emissive material decides the outcome</label>
+                            <label><input type="radio" name="q4" value="d"> The player can only ever win, never lose</label>
                         </div>
                         <div class="quiz-answer" data-correct="b">
-                            <p><strong>Correct answer: B</strong> &#183; The game keeps score in one integer that outlives any single orb. Each pickup adds one and a branch asks whether the count equals the target; the win is that final transition.</p>
+                            <p><strong>Correct answer: B</strong> &#183; Win and lose are the same shape: one branch each, watching one number. The counter reaching the target fires the win; the countdown reaching zero first fires the lose. Whichever happens first should stop the game so the other cannot fire too.</p>
                         </div>
                     </div>
 
@@ -446,9 +455,9 @@ flowchart LR
 
                 <p>You put the whole course to work. Here is the arc, which is also the order you build every small game:</p>
 
-                <p><strong>Plan the loop, then build in order.</strong> A game is a cycle the player repeats: act, respond, keep score, repeat. Name that loop, then build the space, make it playable, give feedback, close the loop with a win, and ship it. Each step depends on the one before, which is why the order is not negotiable.</p>
+                <p><strong>Plan the loop, then build in order.</strong> A game is a cycle the player repeats: act, respond, keep score, repeat. Name that loop, then build the space, make it playable, give feedback, close the loop with a win and a timed lose, and ship it. Each step depends on the one before, which is why the order is not negotiable.</p>
 
-                <p><strong>Every step is a module you already know.</strong> The space is <a href="m02_l01_understanding_levels.html">levels and actors</a>, <a href="m03_l01_material_fundamentals.html">materials</a>, and <a href="m04_l01_lighting_fundamentals.html">lighting</a>; playability is <a href="m06_l02_enhanced_input_system.html">input</a> and a <a href="m05_l05_working_with_actors_in_blueprints.html">Blueprint overlap</a>; feedback is <a href="m07_l03_hud_elements.html">UMG</a>, <a href="m08_l02_playing_sounds.html">audio</a>, and <a href="m09_l03_triggering_vfx.html">Niagara</a>; the win is <a href="m05_l04_flow_control.html">flow control</a>; the deliverable is <a href="m10_l03_building_distribution.html">packaging</a>, sped up by <a href="m11_l01_introduction_to_ai_workflows.html">AI-assisted workflows</a>. The capstone is not new knowledge, it is the wiring between what you already have.</p>
+                <p><strong>Every step is a module you already know.</strong> The space is <a href="m02_l01_understanding_levels.html">levels and actors</a>, <a href="m03_l01_material_fundamentals.html">materials</a>, and <a href="m04_l01_lighting_fundamentals.html">lighting</a>; playability is <a href="m06_l02_enhanced_input_system.html">input</a> and a <a href="m05_l05_working_with_actors_in_blueprints.html">Blueprint overlap</a>; feedback is <a href="m07_l03_hud_elements.html">UMG</a>, <a href="m08_l02_playing_sounds.html">audio</a>, and <a href="m09_l03_triggering_vfx.html">Niagara</a>; the win and the timed lose are <a href="m05_l04_flow_control.html">flow control</a>; the deliverable is <a href="m10_l03_building_distribution.html">packaging</a>, sped up by <a href="m11_l01_introduction_to_ai_workflows.html">AI-assisted workflows</a>. The capstone is not new knowledge, it is the wiring between what you already have.</p>
 
                 <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
                     <h3>&#128273; Key Takeaways</h3>
@@ -457,7 +466,7 @@ flowchart LR
                         <li>Build in a fixed order: space, playability, feedback, win, ship, because each step depends on the last</li>
                         <li>One overlap event is the trigger the whole pickup hangs from</li>
                         <li>Feedback across three senses (counter, sound, VFX) is what makes a collectible feel collected</li>
-                        <li>The win is a counter plus a branch; the deliverable is a packaged build a player can open</li>
+                        <li>The win is a counter plus a branch, and a countdown timer adds a matching lose; the deliverable is a packaged build a player can open</li>
                     </ul>
                 </div>
 

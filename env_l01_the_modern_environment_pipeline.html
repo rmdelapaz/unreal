@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8 environment art: the modern real-time environment pipeline. Meet the three pillars that changed how worlds are built, Nanite virtualized geometry, Lumen dynamic global illumination, and PCG procedural generation, then see how Landscape, World Partition, and Fab Megascans assets fit together into one lit, real-time world that becomes the stage for a cinematic shot.">
+    <meta name="author" content="Practical Ace">
+    <title>The Modern Environment Pipeline - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#environment">Advanced: Environment Art with Nanite, Lumen &amp; PCG</a></li>
+            <li aria-current="page">The Modern Environment Pipeline</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#127956;&#65039; The Modern Environment Pipeline</h1>
+                <p class="lead">The advanced track you just finished built a character. This one builds the world that character stands in. For most of real-time history, environment art meant fighting budgets: polygon counts, hand-authored levels of detail, baked lighting that took hours to compute, and thousands of assets placed by hand. Unreal Engine 5 removed those constraints one by one. This lesson is the map of that change. You will meet the three pillars of the modern environment pipeline, Nanite for geometry, Lumen for light, and PCG for populating a world, and see how Landscape, World Partition, and the Fab Megascans library fit around them into a single real-time world. Everything here is a preview: each pillar gets its own lesson next. First, the shape of the whole thing.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #faf0e6 0%, #fff 100%); border-left: 4px solid #c1662f;">
+                    <h4>&#127956;&#65039; Advanced Track &#183; Environment Art</h4>
+                    <p>This is the opening lesson of the <strong>Environment Art with Nanite, Lumen &amp; PCG</strong> track, the world-building counterpart to the <a href="index.html#advanced">Digital Humans with MetaHuman</a> track. Where that track built the character you send down the cinematic pipeline, this one builds the environment that character inhabits. This overview maps the whole domain; the lessons that follow go deep, one pillar at a time: Nanite in <a href="env_l02_nanite_virtualized_geometry.html">Lesson 2</a>, Lumen in Lesson 3, PCG in Lesson 4, and a complete assembled environment in the Lesson 5 capstone.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what the old real-time environment pipeline had to budget for, and why those budgets existed</li>
+                        <li>Name the three pillars of the modern pipeline, Nanite, Lumen, and PCG, and the constraint each one removes</li>
+                        <li>Describe Nanite virtualized geometry at a high level and what it changes for an environment artist</li>
+                        <li>Describe Lumen dynamic global illumination and why real-time light transforms iteration</li>
+                        <li>Explain how PCG, Landscape, World Partition, and Fab Megascans assets combine to populate a world</li>
+                        <li>Place the whole environment pipeline in order and see how a finished world becomes the stage for a cinematic shot</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> Comfort with the Unreal editor and levels from the beginner modules. This is an overview, so no single earlier lesson is required, but it pays off the <a href="index.html#intermediate">Cinematic Production</a> track, whose <a href="int_l05_cinematic_lighting.html">lighting</a> and <a href="int_l01_characters_and_animation.html">staging</a> lessons this world is built to serve. A working Unreal Engine 5.8 install with the Nanite, Lumen, and PCG features available.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#shift" class="toc-link">From Baking to Building in Real Time</a></li>
+                        <li><a href="#pillars" class="toc-link">The Three Pillars: Nanite, Lumen, PCG</a></li>
+                        <li><a href="#geometry" class="toc-link">Geometry Without Budgets: Nanite</a></li>
+                        <li><a href="#light" class="toc-link">Light Without Baking: Lumen</a></li>
+                        <li><a href="#populate" class="toc-link">Worlds Without Hand-Placing: PCG and Landscape</a></li>
+                        <li><a href="#pipeline" class="toc-link">How It Fits Together</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Read Your Own World</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="shift" class="lesson-section">
+                <h2>From Baking to Building in Real Time</h2>
+
+                <p>To understand why the modern pipeline matters, it helps to know what it replaced. For most of real-time history, an environment artist worked inside a set of hard budgets, and much of the craft was managing them. Geometry had a polygon budget, so every rock and wall was modeled twice, once at full detail and again as a series of cheaper <strong>levels of detail</strong> that swapped in as the camera pulled away. Lighting was <strong>baked</strong>: the engine spent minutes or hours precomputing how light bounced through a static scene into texture maps, and if you moved a single light you paid that cost again. Surfaces leaned on <strong>tiling textures</strong> because unique detail everywhere was too expensive. And a large world was filled by hand, one placed asset at a time, or was carved into streaming sublevels an artist loaded and unloaded manually.</p>
+
+                <p>None of that was wrong. It was the honest cost of drawing a world sixty times a second on the hardware of the day. But every one of those budgets shaped the work: time went into optimization rather than into the world itself, and iteration was slow because the expensive steps, the LOD chains and the light bakes, sat between you and seeing a change. The modern pipeline attacks exactly these costs. Its goal is simple to state and hard to deliver: let the artist build the world they want, at the detail they want, lit the way they want, and see it immediately.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">What the modern pipeline replaced</text>
+                    <!-- old column -->
+                    <rect x="30" y="55" width="380" height="255" rx="10" fill="#f3ece4" stroke="#a9772f" stroke-width="2.5"/>
+                    <text x="220" y="82" text-anchor="middle" fill="#7a5518" style="font:700 14px system-ui">The old way</text>
+                    <text x="220" y="100" text-anchor="middle" fill="#a9772f" style="font:italic 11px system-ui">budgets to manage</text>
+                    <g style="font:12px system-ui" fill="#7a5518">
+                        <text x="52" y="132">&#183; polygon budget, hand-made LODs</text>
+                        <text x="52" y="162">&#183; baked lighting, hours to recompute</text>
+                        <text x="52" y="192">&#183; tiling textures to fake detail</text>
+                        <text x="52" y="222">&#183; assets placed one by one</text>
+                        <text x="52" y="252">&#183; sublevels streamed by hand</text>
+                    </g>
+                    <text x="220" y="290" text-anchor="middle" fill="#7a5518" style="font:600 11.5px system-ui">time spent on optimization</text>
+                    <!-- new column -->
+                    <rect x="470" y="55" width="380" height="255" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="660" y="82" text-anchor="middle" fill="#8f3f14" style="font:700 14px system-ui">The modern way</text>
+                    <text x="660" y="100" text-anchor="middle" fill="#c1662f" style="font:italic 11px system-ui">budgets removed</text>
+                    <g style="font:12px system-ui" fill="#8f3f14">
+                        <text x="492" y="132">&#183; Nanite: film-detail mesh, auto LOD</text>
+                        <text x="492" y="162">&#183; Lumen: dynamic light, instant</text>
+                        <text x="492" y="192">&#183; unique scanned surfaces</text>
+                        <text x="492" y="222">&#183; PCG: scatter by rules</text>
+                        <text x="492" y="252">&#183; World Partition streams itself</text>
+                    </g>
+                    <text x="660" y="290" text-anchor="middle" fill="#8f3f14" style="font:600 11.5px system-ui">time spent on the world</text>
+                    <!-- arrow -->
+                    <line x1="412" y1="182" x2="468" y2="182" stroke="#999" stroke-width="3" marker-end="url(#ars)"/>
+                    <defs><marker id="ars" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The shift &#183; the old pipeline spent the artist's time managing polygon, lighting, texture, and streaming budgets. The modern pipeline removes those budgets one by one, so the time goes into the world instead.</em></p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="pillars" class="lesson-section">
+                <h2>The Three Pillars: Nanite, Lumen, PCG</h2>
+
+                <p>Three technologies carry most of that change, and it is worth holding all three in your head at once before going deep on any one. Each removes a different budget from the old list. <strong>Nanite</strong> is virtualized geometry: it draws meshes of almost any detail without a polygon budget and without hand-made levels of detail. <strong>Lumen</strong> is dynamic global illumination and reflections: it lights a scene in real time with no baking, so light bounces the moment you place it. <strong>PCG</strong>, Procedural Content Generation, populates a world by rules rather than by hand, scattering and placing assets across terrain and along splines from a graph you author once.</p>
+
+                <p>They are pillars because they hold up the same roof. Nanite lets you use the high-detail, photo-scanned assets that a modern world is built from. Lumen lights those assets convincingly as you move them. PCG places thousands of them across a landscape you would never populate by hand. You can use any one alone, but together they are what makes it practical to build a large, detailed, believable world and still iterate on it in an afternoon. The rest of this lesson previews each pillar in turn, then puts them back together.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; Three budgets removed, one world built</h4>
+                    <pre class="mermaid">
+flowchart TD
+    N[Nanite<br/>virtualized geometry<br/>no polycount budget] --> W[One real-time world<br/>detailed, lit, populated]
+    L[Lumen<br/>dynamic global illumination<br/>no light baking] --> W
+    P[PCG<br/>procedural generation<br/>no hand placement] --> W
+    style N fill:#faf0e6,stroke:#c1662f
+    style L fill:#faf0e6,stroke:#c1662f
+    style P fill:#faf0e6,stroke:#c1662f
+    style W fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Each pillar removes one of the old budgets. Detailed geometry, dynamic light, and rule-driven placement meet in a single world you can keep changing.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="geometry" class="lesson-section">
+                <h2>Geometry Without Budgets: Nanite</h2>
+
+                <p>Start with the geometry. Nanite is Unreal's system for <strong>virtualized micropolygon geometry</strong>. The short version is that it lets you drop a mesh with millions of triangles straight into a scene and render it efficiently, with no separate low-poly version and no hand-authored levels of detail. Nanite breaks a mesh into small clusters of triangles and streams only the clusters the camera can actually see, at only the detail the screen can actually resolve, so a boulder that fills the frame draws its fine surface and the same boulder far away draws a fraction of it. That decision happens automatically, per frame, cluster by cluster.</p>
+
+                <p>For an environment artist this changes the daily job. The photo-scanned rocks and cliffs from a library like Megascans arrive at film resolution, and with Nanite you use them as they are, no retopology, no LOD chain to build and babysit. The old polygon budget, the one that shaped every model, mostly stops being the thing you plan around. There are edges to know: Nanite began as an opaque and masked surface system, and while Unreal has extended it to foliage and added tessellation, it is not the tool for everything, animated skeletal characters still render the classic way. <a href="env_l02_nanite_virtualized_geometry.html">Lesson 2</a> goes deep on how Nanite works and where its edges are. For now, hold onto the headline: detailed geometry, without the budget.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 320" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:700px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Nanite draws only what the screen can resolve</text>
+                    <!-- source mesh -->
+                    <rect x="30" y="70" width="200" height="180" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="130" y="96" text-anchor="middle" fill="#8f3f14" style="font:700 12.5px system-ui">Full-detail mesh</text>
+                    <text x="130" y="114" text-anchor="middle" fill="#c1662f" style="font:11px system-ui">millions of triangles</text>
+                    <g stroke="#c1662f" stroke-width="0.8" fill="#f0d9c4" opacity="0.9">
+                        <polygon points="70,150 95,135 110,160"/><polygon points="110,160 95,135 125,140"/>
+                        <polygon points="125,140 150,132 155,158"/><polygon points="70,150 110,160 90,180"/>
+                        <polygon points="110,160 125,140 145,165"/><polygon points="145,165 155,158 178,172"/>
+                        <polygon points="90,180 110,160 128,185"/><polygon points="128,185 145,165 160,190"/>
+                        <polygon points="160,190 145,165 178,172"/><polygon points="178,172 155,158 190,165"/>
+                    </g>
+                    <text x="130" y="235" text-anchor="middle" fill="#8f3f14" style="font:italic 10.5px system-ui">stored in small clusters</text>
+                    <!-- arrow -->
+                    <line x1="235" y1="160" x2="300" y2="160" stroke="#999" stroke-width="2.5" marker-end="url(#arn)"/>
+                    <text x="267" y="150" text-anchor="middle" fill="#666" style="font:600 10px system-ui">per frame</text>
+                    <defs><marker id="arn" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- near -->
+                    <rect x="315" y="70" width="240" height="90" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="435" y="98" text-anchor="middle" fill="#2e7d32" style="font:700 12px system-ui">Close to camera</text>
+                    <text x="435" y="118" text-anchor="middle" fill="#2e7d32" style="font:11px system-ui">fine clusters streamed in</text>
+                    <text x="435" y="138" text-anchor="middle" fill="#388e3c" style="font:italic 10.5px system-ui">full surface detail</text>
+                    <!-- far -->
+                    <rect x="315" y="172" width="240" height="90" rx="8" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                    <text x="435" y="200" text-anchor="middle" fill="#0d47a1" style="font:700 12px system-ui">Far from camera</text>
+                    <text x="435" y="220" text-anchor="middle" fill="#1565c0" style="font:11px system-ui">a fraction of the clusters</text>
+                    <text x="435" y="240" text-anchor="middle" fill="#1976d2" style="font:italic 10.5px system-ui">no LOD chain to author</text>
+                    <!-- result -->
+                    <rect x="600" y="115" width="230" height="100" rx="10" fill="#fdf1e7" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="715" y="150" text-anchor="middle" fill="#8f3f14" style="font:700 12.5px system-ui">Automatic detail</text>
+                    <text x="715" y="172" text-anchor="middle" fill="#c1662f" style="font:11px system-ui">chosen per cluster,</text>
+                    <text x="715" y="190" text-anchor="middle" fill="#c1662f" style="font:11px system-ui">to match the screen</text>
+                    <line x1="555" y1="115" x2="605" y2="140" stroke="#999" stroke-width="2" marker-end="url(#arn)"/>
+                    <line x1="555" y1="217" x2="605" y2="190" stroke="#999" stroke-width="2" marker-end="url(#arn)"/>
+                    <text x="430" y="298" text-anchor="middle" fill="#666" style="font:600 12px system-ui">One mesh, no low-poly copy: the engine picks the detail, cluster by cluster, every frame.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Nanite in one picture &#183; a single high-detail mesh is stored as small clusters, and each frame the engine streams and draws only the clusters the camera needs at the detail the screen can show. No hand-authored levels of detail, no low-poly copy.</em></p>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="light" class="lesson-section">
+                <h2>Light Without Baking: Lumen</h2>
+
+                <p>Detailed geometry is only half a believable world; the other half is how it is lit. Lumen is Unreal's system for <strong>fully dynamic global illumination and reflections</strong>. Global illumination is the indirect light, the bounce: sunlight striking sand and filling the shaded side of a dune with warm light, a red wall tinting the floor beside it, the sky itself acting as a soft blue source. Older pipelines got that bounce by baking it into textures ahead of time, which looked good but froze the lighting in place. Lumen computes it live, every frame, so there is nothing to bake and nothing to wait for.</p>
+
+                <p>The image below is a real frame from this course's project, a desert landscape lit entirely by Lumen: the low sun rakes across the dunes, the sky fills the shadows with soft light, and the horizon hazes into atmospheric distance, all computed in real time with no baked lightmaps. The payoff is iteration. Because nothing is baked, you can drag the sun from noon to sunset and watch the whole world relight as you move it, bounce and all. That feedback loop, change and see, is what makes lighting a world feel like art direction instead of a render queue. Lesson 3 is devoted to Lumen; here, notice only that this vista carries no baking step at all.</p>
+
+                <img src="images/env_l01/env_l01_fig01_lumen_vista.png" alt="A real-time desert landscape vista captured live in the course's Unreal project, lit entirely by Lumen. A low warm sun rakes across a field of sand dunes on the horizon, modeling their forms with soft light and shadow. The flat desert floor sweeps into the distance and hazes into warm atmospheric perspective at the base of the dunes. Above, a clean sky graduates from deep blue at the top to a pale warm band at the horizon. No character or object is in the scene; it is a pure lit environment." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A Lumen-lit vista, captured live in the course's Unreal project &#183; a desert landscape with a low warm sun, soft filled shadows, and hazy atmospheric distance, computed in real time with no baked lighting. Drag the sun and the whole scene relights, bounce and all. This is the light half of the modern pipeline.</em></p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; Nothing baked means nothing to wait for</h4>
+                    <pre class="mermaid">
+flowchart LR
+    MOVE[Move a light<br/>drag the sun to sunset] --> GI[Lumen recomputes<br/>bounce and reflections]
+    GI --> SEE[You see it<br/>immediately in the viewport]
+    SEE --> MOVE
+    style MOVE fill:#faf0e6,stroke:#c1662f
+    style GI fill:#e3f2fd,stroke:#2196F3
+    style SEE fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>With no bake between the change and the result, lighting becomes a fast loop: adjust, look, adjust again. That is the difference dynamic global illumination makes to how a world is lit.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="populate" class="lesson-section">
+                <h2>Worlds Without Hand-Placing: PCG and Landscape</h2>
+
+                <p>A world needs more than one lit landscape. It needs terrain to stand on, thousands of assets scattered across it, and a way to hold all of that without grinding the editor to a halt. Three systems handle that. <strong>Landscape</strong> is the terrain itself: a heightmap you sculpt into hills, dunes, and valleys and paint with layered materials. <strong>World Partition</strong> is how a large world is managed: instead of hand-built streaming sublevels, it divides the world into a grid and loads only the region near the camera automatically, which is exactly the system running under the desert you saw above. And <strong>PCG</strong>, Procedural Content Generation, is how that terrain gets populated.</p>
+
+                <p>PCG is the shift from placing to describing. Rather than dragging in ten thousand rocks and grass clumps by hand, you author a graph of rules once: scatter this rock set on slopes below this steepness, keep them off the paths, thin them near water, vary their scale and rotation. Run it, and the graph fills the whole landscape, and re-runs the moment you reshape the terrain underneath it. The assets it scatters come from somewhere, and increasingly that source is <strong>Fab</strong>, Epic's content marketplace, and its <strong>Megascans</strong> library of photo-scanned meshes and materials, the same high-detail assets Nanite was built to draw. Landscape, World Partition, PCG, and Fab are one loop: shape the land, stream it, scatter detail across it, from a library made for exactly this. Lessons 4 and 5 build that loop for real.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">From rules to a populated world</text>
+                    <!-- rules -->
+                    <rect x="30" y="70" width="230" height="170" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="145" y="96" text-anchor="middle" fill="#8f3f14" style="font:700 13px system-ui">A PCG graph of rules</text>
+                    <text x="145" y="114" text-anchor="middle" fill="#c1662f" style="font:italic 10.5px system-ui">authored once</text>
+                    <g style="font:11.5px system-ui" fill="#8f3f14">
+                        <text x="50" y="142">&#183; scatter on gentle slopes</text>
+                        <text x="50" y="166">&#183; keep clear of paths</text>
+                        <text x="50" y="190">&#183; thin out near water</text>
+                        <text x="50" y="214">&#183; vary scale and rotation</text>
+                    </g>
+                    <!-- inputs feeding -->
+                    <rect x="330" y="60" width="200" height="52" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="430" y="82" text-anchor="middle" fill="#2e7d32" style="font:700 12px system-ui">Landscape</text>
+                    <text x="430" y="100" text-anchor="middle" fill="#388e3c" style="font:10.5px system-ui">the terrain to read</text>
+                    <rect x="330" y="124" width="200" height="52" rx="8" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                    <text x="430" y="146" text-anchor="middle" fill="#0d47a1" style="font:700 12px system-ui">Fab Megascans</text>
+                    <text x="430" y="164" text-anchor="middle" fill="#1565c0" style="font:10.5px system-ui">the assets to scatter</text>
+                    <rect x="330" y="188" width="200" height="52" rx="8" fill="#ede7f6" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="430" y="210" text-anchor="middle" fill="#4527a0" style="font:700 12px system-ui">World Partition</text>
+                    <text x="430" y="228" text-anchor="middle" fill="#5e35b1" style="font:10.5px system-ui">streams the result</text>
+                    <line x1="260" y1="130" x2="326" y2="90" stroke="#999" stroke-width="2" marker-end="url(#arp2)"/>
+                    <line x1="260" y1="150" x2="326" y2="150" stroke="#999" stroke-width="2" marker-end="url(#arp2)"/>
+                    <line x1="260" y1="180" x2="326" y2="210" stroke="#999" stroke-width="2" marker-end="url(#arp2)"/>
+                    <defs><marker id="arp2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- result -->
+                    <line x1="530" y1="150" x2="600" y2="150" stroke="#999" stroke-width="2.5" marker-end="url(#arp2)"/>
+                    <rect x="610" y="95" width="240" height="110" rx="10" fill="#fdf1e7" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="730" y="135" text-anchor="middle" fill="#8f3f14" style="font:700 13.5px system-ui">A populated world</text>
+                    <text x="730" y="158" text-anchor="middle" fill="#c1662f" style="font:11px system-ui">thousands of assets placed,</text>
+                    <text x="730" y="176" text-anchor="middle" fill="#c1662f" style="font:11px system-ui">re-run when the land changes</text>
+                    <text x="440" y="284" text-anchor="middle" fill="#666" style="font:600 12px system-ui">You describe the world once; the graph fills it, and refills it whenever the terrain moves.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Populating by rules &#183; a PCG graph reads the Landscape, scatters Fab Megascans assets by rules you set once, and lets World Partition stream the result. Reshape the land and the graph refills it, so a whole world is described rather than hand-placed.</em></p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="pipeline" class="lesson-section">
+                <h2>How It Fits Together</h2>
+
+                <p>Put the pieces in order and the modern environment pipeline reads as a sequence, not a pile of features. You <strong>block out</strong> the world with Landscape and World Partition, shaping the terrain and setting the streaming grid. You <strong>fill</strong> it with detailed assets, Fab Megascans meshes drawn by Nanite, so the geometry costs you detail rather than budget. You <strong>scatter</strong> the small stuff with PCG, populating the landscape by rules. And you <strong>light</strong> it with Lumen, dynamically, iterating until the mood is right. Each pillar sits at a stage, and each stage feeds the next.</p>
+
+                <p>The reason this matters for you specifically is where it leads. A finished environment is not the end; it is the <strong>stage</strong>. The world you build here is exactly what the <a href="index.html#intermediate">Cinematic Production</a> track stands a character inside: you <a href="int_l01_characters_and_animation.html">place the character</a>, frame it with a <a href="int_l02_cinematics_with_sequencer.html">Cine Camera</a>, and light the shot, all within this environment. A character on an empty grid is a test; the same character in a lit, populated world is a shot. This track builds that world, and the lessons ahead build each pillar in turn, ending in a capstone that assembles a complete environment from all of them.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; The environment pipeline, end to end</h4>
+                    <pre class="mermaid">
+flowchart LR
+    BLOCK[Block out<br/>Landscape and World Partition] --> FILL[Fill<br/>Fab Megascans drawn by Nanite]
+    FILL --> SCATTER[Scatter<br/>PCG populates by rules]
+    SCATTER --> LIGHT[Light<br/>Lumen, dynamic and instant]
+    LIGHT --> STAGE[A finished world<br/>the stage for a shot]
+    style BLOCK fill:#ede7f6,stroke:#7e57c2
+    style FILL fill:#faf0e6,stroke:#c1662f
+    style SCATTER fill:#fdf1e7,stroke:#c1662f
+    style LIGHT fill:#e3f2fd,stroke:#2196F3
+    style STAGE fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Block out, fill, scatter, light. Four stages, one for each pillar, ending in a world ready to become the stage for a cinematic shot.</p>
+                </div>
+
+                <p>That is the whole map. Nanite gives the world its detail, Lumen gives it its light, PCG gives it its density, and Landscape, World Partition, and Fab hold it all together. From here the track stops previewing and starts building, one pillar per lesson, until you can make a complete environment of your own.</p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Read Your Own World</h2>
+
+                <p>This lesson is a map, so the exercise is to learn to read the map in a real project rather than to build anything yet. Open an Unreal Engine 5 project with an open-world or landscape template, or the course project, and go looking for the pillars. The goal is recognition: by the time Lesson 2 begins, you want the words Nanite, Lumen, PCG, Landscape, and World Partition to point at things you have actually seen in the editor.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127956;&#65039; Exercise: spot the pillars in a live scene</h3>
+                    <ol>
+                        <li><strong>Find the light.</strong> Open the World Settings or the Post Process settings and confirm the project's global illumination method is Lumen. Then move the Directional Light and watch the scene relight with no bake step. That is the Lumen loop from this lesson, in your own hands.</li>
+                        <li><strong>Find the geometry.</strong> Select a rock or terrain-detail mesh and look at its Static Mesh settings for the Nanite option. A Nanite-enabled mesh has no separate low-poly levels of detail to manage, which is the whole point of Lesson 2.</li>
+                        <li><strong>Find the terrain.</strong> Identify the Landscape actor and note that the ground is a sculptable heightmap, not a flat plane. If the level uses World Partition, open its window and watch regions load and unload as you move the camera.</li>
+                        <li><strong>Find the scatter, if present.</strong> Look for a PCG actor or graph in the outliner. If the world has procedurally placed foliage or rocks, this is where the rules live, the subject of Lesson 4.</li>
+                        <li><strong>Name what you found.</strong> Write one sentence per pillar describing what you saw. Recognizing each system in a real scene is the readiness this overview is meant to give you.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: not sure which template to open?</summary>
+                        <p style="margin-top: 0.5rem;">Any Unreal Engine 5 project built from the Open World template has all of these on by default: a Landscape, World Partition streaming, Lumen as the lighting method, and Nanite available on meshes. It will not necessarily have a PCG graph unless one was added, so PCG is the one pillar you may have to take on faith until Lesson 4. Everything else you can see and touch today.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: change one thing and watch it ripple</h4>
+                    <p>Pick the single change that best shows off the modern pipeline: drag the sun to a low sunset angle and watch the entire landscape relight, shadows lengthening and the sky warming, with no bake and no wait. That one action, and the fact that it is instant, is the thesis of this whole track in a single gesture. Hold onto how it feels, because the lessons ahead are about earning that immediacy across geometry, scatter, and streaming too.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>In the older real-time environment pipeline, why did artists build hand-authored levels of detail and bake their lighting?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Because the engine could not display color</label>
+                            <label><input type="radio" name="q1" value="b"> To manage hard budgets: a polygon budget for geometry and the high cost of computing light bounce in real time</label>
+                            <label><input type="radio" name="q1" value="c"> Because artists preferred slower workflows</label>
+                            <label><input type="radio" name="q1" value="d"> Because Nanite required it</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Levels of detail and baked lighting were both ways of paying down hard costs: geometry had a polygon budget, so cheaper distant versions were authored by hand, and bouncing light in real time was too expensive, so it was precomputed into textures ahead of time.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Which three technologies are the pillars of the modern environment pipeline, and what does each remove?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Nanite removes the polygon budget, Lumen removes light baking, and PCG removes hand placement</label>
+                            <label><input type="radio" name="q2" value="b"> Sequencer, Control Rig, and the Movie Render Queue</label>
+                            <label><input type="radio" name="q2" value="c"> Nanite removes light baking, Lumen removes hand placement, and PCG removes the polygon budget</label>
+                            <label><input type="radio" name="q2" value="d"> They all do the same job, just faster</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; Nanite is virtualized geometry that removes the polygon budget and hand-made levels of detail. Lumen is dynamic global illumination that removes light baking. PCG is procedural generation that removes placing assets by hand. Each pillar takes one old budget off the table.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What does Nanite let an environment artist do with a high-detail, photo-scanned mesh?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Use it as it is, with the engine choosing detail per cluster and no hand-authored levels of detail</label>
+                            <label><input type="radio" name="q3" value="b"> Only use it if it is first reduced to a few hundred triangles</label>
+                            <label><input type="radio" name="q3" value="c"> Animate its skeleton automatically</label>
+                            <label><input type="radio" name="q3" value="d"> Bake its lighting faster</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; Nanite breaks a mesh into small clusters and streams only what the camera needs at the detail the screen can resolve, per frame. So a film-resolution scanned asset can be used directly, with no low-poly copy and no level-of-detail chain to author and maintain.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Why does Lumen change how a world is lit, compared with baked lighting?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> It makes the sky brighter</label>
+                            <label><input type="radio" name="q4" value="b"> Because it computes global illumination in real time, so moving a light relights the whole scene immediately with no bake to wait for</label>
+                            <label><input type="radio" name="q4" value="c"> It removes the need for any lights at all</label>
+                            <label><input type="radio" name="q4" value="d"> It only works on flat terrain</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Baked lighting precomputes the bounce into textures, which freezes it and costs time to recompute. Lumen computes global illumination and reflections live, so dragging the sun to sunset relights the entire world, bounce included, the instant you move it. That fast loop is what turns lighting into art direction.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>How do Landscape, PCG, World Partition, and Fab Megascans work together to build a populated world?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> They are four names for the same tool</label>
+                            <label><input type="radio" name="q5" value="b"> Landscape is the terrain, a PCG graph scatters Fab Megascans assets across it by rules, and World Partition streams the result</label>
+                            <label><input type="radio" name="q5" value="c"> World Partition sculpts the terrain and Fab bakes the lighting</label>
+                            <label><input type="radio" name="q5" value="d"> PCG replaces the need for terrain entirely</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Landscape is the sculptable terrain, PCG is a graph of placement rules that scatters assets across it, Fab and its Megascans library supply those high-detail assets, and World Partition streams the large result region by region. Together they let you describe a world once rather than hand-place every piece.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You now have the map of the modern environment pipeline, the world-building counterpart to the character work of the MetaHuman track. Here is what to carry into the lessons ahead:</p>
+
+                <p><strong>The modern pipeline removes the budgets the old one managed.</strong> Hand-authored levels of detail, baked lighting, tiling textures, and manual placement were all ways of paying down the cost of drawing a world in real time. Unreal Engine 5 attacks those costs directly, so the artist's time goes into the world instead of into optimizing it.</p>
+
+                <p><strong>Three pillars carry the change.</strong> Nanite draws detailed geometry with no polygon budget and no hand-made levels of detail. Lumen lights the world with fully dynamic global illumination and no baking, so it relights the moment you move a light. PCG populates the world by rules instead of by hand. Around them, Landscape gives you terrain, World Partition streams a large world automatically, and Fab with its Megascans library supplies the high-detail assets Nanite was built to draw.</p>
+
+                <p><strong>A finished environment is a stage.</strong> Blocked out, filled, scattered, and lit, the world you build in this track is exactly what the cinematic pipeline stands a character inside. The lessons ahead build each pillar in turn, Nanite next, then Lumen, then PCG, ending in a capstone that assembles a complete environment from all of them.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>The old environment pipeline spent the artist's time managing polygon, lighting, texture, and streaming budgets</li>
+                        <li>Nanite removes the polygon budget: film-detail meshes with automatic, per-cluster detail and no hand LODs</li>
+                        <li>Lumen removes light baking: fully dynamic global illumination that relights instantly when you move a light</li>
+                        <li>PCG removes hand placement: a graph of rules scatters a whole world and re-runs when the terrain changes</li>
+                        <li>Landscape, World Partition, and Fab Megascans complete the loop, and the finished world becomes the stage for a shot</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #faf0e6 0%, #fff 100%); border-left: 4px solid #c1662f;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The vista image is a genuine live capture from the course's <code>ClaudeTest</code> project: a desert landscape lit entirely by Lumen, with a low sun, soft filled shadows, and hazy atmospheric distance, and no character or object in the scene, so it shows the environment on its own. It is the course's first purely environmental capture; every earlier real figure framed a character or a game arena. The shift diagram, the three-pillars map, the Nanite cluster diagram, the PCG rules diagram, and the end-to-end pipeline are labeled illustrations, because this overview previews systems whose full editor workflows belong to the lessons that follow. The relationships they show are the ones you will drive for real in Lessons 2 through 5.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This lesson opens the environment track and sets up everything after it: <a href="index.html#environment">Nanite, Lumen, and PCG</a> each get a dedicated lesson, then a capstone assembles a full environment. It also sits directly upstream of the <a href="index.html#intermediate">Cinematic Production</a> track, whose <a href="int_l01_characters_and_animation.html">staging</a>, <a href="int_l05_cinematic_lighting.html">lighting</a>, and <a href="int_l03_rendering_output.html">rendering</a> lessons run inside the world you build here, and alongside the <a href="index.html#advanced">Digital Humans with MetaHuman</a> track, its sibling in the advanced tier: one track builds the character, this one builds the world. In the larger <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, this is the craft behind <a href="unreal-phase-5-shot-assembly.html">shot assembly</a>, the environment the shot is assembled in.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="adv_l05_metahuman_in_a_shot.html" class="btn">&#8592; Previous: A MetaHuman in a Finished Cinematic Shot</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="env_l02_nanite_virtualized_geometry.html" class="btn btn-outline">Next: Nanite: Virtualized Geometry &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

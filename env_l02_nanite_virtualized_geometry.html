@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8 environment art: Nanite virtualized geometry. Learn what virtualized micropolygon geometry is, how Nanite breaks a mesh into streamed clusters and picks detail per cluster with no hand-authored LOD chain, how to use photo-scanned Fab Megascans assets as they are, where Nanite fits and where it does not, and how to enable Nanite on a Static Mesh.">
+    <meta name="author" content="Practical Ace">
+    <title>Nanite: Virtualized Geometry - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#environment">Advanced: Environment Art with Nanite, Lumen &amp; PCG</a></li>
+            <li aria-current="page">Nanite: Virtualized Geometry</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#129704; Nanite: Virtualized Geometry</h1>
+                <p class="lead">The overview promised that Nanite removes the polygon budget. This lesson is where that promise gets its detail. Nanite is Unreal's system for virtualized micropolygon geometry, and its whole purpose is to let you drop a mesh of almost any triangle count straight into a scene and render it efficiently, with no low-poly copy and no hand-authored chain of levels of detail. You will see what virtualized geometry actually means, how Nanite breaks a mesh into small clusters and streams only the ones the camera needs at the detail the screen can resolve, and why that ends the level-of-detail chain artists used to build and babysit. Then the practical half: using photo-scanned assets as they are, knowing where Nanite fits and where it does not, and enabling it on a Static Mesh of your own.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #faf0e6 0%, #fff 100%); border-left: 4px solid #c1662f;">
+                    <h4>&#127956;&#65039; Advanced Track &#183; Environment Art</h4>
+                    <p>This is the second lesson of the <strong>Environment Art with Nanite, Lumen &amp; PCG</strong> track. The <a href="env_l01_the_modern_environment_pipeline.html">first lesson</a> mapped the whole modern pipeline and named its three pillars. Here we go deep on the first pillar, geometry. The next lessons take <a href="env_l03_lumen_realtime_global_illumination.html">Lumen</a> (dynamic light) and PCG (procedural placement) in turn, then a capstone assembles a complete environment. Nanite is the reason a modern world can be built from film-resolution scanned assets and still run in real time.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what virtualized micropolygon geometry is and which old constraints it removes</li>
+                        <li>Describe how Nanite breaks a mesh into clusters and streams only the clusters the camera needs</li>
+                        <li>Explain why Nanite chooses detail per cluster and per frame, so there is no level-of-detail chain and no popping</li>
+                        <li>Use photo-scanned Fab Megascans assets directly, without retopology or hand-authored levels of detail</li>
+                        <li>Identify where Nanite fits (opaque and masked meshes, foliage, tessellation) and where it does not (animated skeletal characters)</li>
+                        <li>Enable Nanite on a Static Mesh and verify it with the Nanite visualization modes</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> The track overview, <a href="env_l01_the_modern_environment_pipeline.html">The Modern Environment Pipeline</a>, and comfort with the Unreal editor and the Content Browser from the beginner modules. Helpful but not required: the beginner lesson on <a href="m03_l01_material_fundamentals.html">materials</a>, since Nanite began with opaque and masked surfaces. A working Unreal Engine 5.8 install with Nanite available.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#virtualized" class="toc-link">What Virtualized Geometry Means</a></li>
+                        <li><a href="#clusters" class="toc-link">Clusters and Streaming: How Nanite Works</a></li>
+                        <li><a href="#detail" class="toc-link">Detail Without a LOD Chain</a></li>
+                        <li><a href="#workflow" class="toc-link">Using Scanned Assets As They Are</a></li>
+                        <li><a href="#edges" class="toc-link">Where Nanite Fits, and Where It Does Not</a></li>
+                        <li><a href="#enable" class="toc-link">Enabling Nanite on a Mesh</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Enable and Read Nanite</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="virtualized" class="lesson-section">
+                <h2>What Virtualized Geometry Means</h2>
+
+                <p>Start with the problem Nanite was built to solve. In the older pipeline, geometry had a hard <strong>triangle budget</strong>. A scene could only draw so many triangles per frame, so every asset was authored to a budget: a rock might be modeled at full detail once, then rebuilt as a handful of cheaper copies, and its fine surface faked with a normal map painted from the high-detail version. On top of that, each asset carried a <strong>level-of-detail chain</strong>, a series of lower and lower resolution versions, LOD0 through LOD3 or more, that the engine swapped in as the object moved away from the camera. Building that chain, tuning the distances at which each version took over, and hiding the visible pop when they switched was a large part of the job.</p>
+
+                <p>Nanite replaces all of that with one idea borrowed from how engines already handle textures. A large texture is not loaded in full everywhere; the engine streams only the resolution it needs for what is on screen, a technique called virtual texturing. Nanite does the same for geometry. You give it a mesh at whatever detail you have, even millions of triangles, and it stores that mesh in a form it can stream and draw a piece at a time, at only the detail the screen can actually show. That is what <strong>virtualized micropolygon geometry</strong> means: the triangles are managed like a virtual resource, streamed and scaled to the view, rather than all submitted to the GPU at a fixed budget. The single high-detail mesh becomes the only version you keep, and the LOD chain goes away.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">One mesh replaces the whole LOD chain</text>
+                    <!-- old: LOD chain -->
+                    <rect x="30" y="55" width="400" height="255" rx="10" fill="#f3ece4" stroke="#a9772f" stroke-width="2.5"/>
+                    <text x="230" y="80" text-anchor="middle" fill="#7a5518" style="font:700 13.5px system-ui">The old way: a chain of copies</text>
+                    <g>
+                        <rect x="55" y="100" width="80" height="70" rx="5" fill="#faf0e6" stroke="#a9772f"/>
+                        <text x="95" y="185" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">LOD0</text>
+                        <text x="95" y="199" text-anchor="middle" fill="#a9772f" style="font:9.5px system-ui">full</text>
+                        <rect x="155" y="112" width="66" height="58" rx="5" fill="#eadfd0" stroke="#a9772f"/>
+                        <text x="188" y="185" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">LOD1</text>
+                        <rect x="241" y="122" width="52" height="48" rx="5" fill="#e0d3bf" stroke="#a9772f"/>
+                        <text x="267" y="185" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">LOD2</text>
+                        <rect x="313" y="132" width="40" height="38" rx="5" fill="#d6c6ad" stroke="#a9772f"/>
+                        <text x="333" y="185" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">LOD3</text>
+                    </g>
+                    <text x="230" y="228" text-anchor="middle" fill="#a9772f" style="font:italic 11px system-ui">authored by hand, swapped by distance</text>
+                    <text x="230" y="255" text-anchor="middle" fill="#b23b2f" style="font:600 11.5px system-ui">visible pop when they switch</text>
+                    <text x="230" y="285" text-anchor="middle" fill="#7a5518" style="font:11px system-ui">plus a normal map to fake the lost detail</text>
+                    <!-- arrow -->
+                    <line x1="432" y1="182" x2="488" y2="182" stroke="#999" stroke-width="3" marker-end="url(#arv)"/>
+                    <defs><marker id="arv" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- new: one mesh -->
+                    <rect x="500" y="55" width="350" height="255" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="675" y="80" text-anchor="middle" fill="#8f3f14" style="font:700 13.5px system-ui">Nanite: one virtualized mesh</text>
+                    <rect x="560" y="100" width="120" height="105" rx="6" fill="#fdf1e7" stroke="#c1662f" stroke-width="2"/>
+                    <g stroke="#c1662f" stroke-width="0.6" fill="#f0d9c4" opacity="0.9">
+                        <polygon points="580,150 600,138 612,158"/><polygon points="612,158 600,138 626,143"/>
+                        <polygon points="626,143 646,136 650,156"/><polygon points="580,150 612,158 596,174"/>
+                        <polygon points="612,158 626,143 642,160"/><polygon points="642,160 650,156 668,168"/>
+                        <polygon points="596,174 612,158 628,178"/><polygon points="628,178 642,160 656,182"/>
+                    </g>
+                    <text x="620" y="225" text-anchor="middle" fill="#8f3f14" style="font:600 11px system-ui">millions of triangles, kept as one asset</text>
+                    <text x="675" y="255" text-anchor="middle" fill="#c1662f" style="font:11.5px system-ui">streamed and scaled to the view</text>
+                    <text x="675" y="283" text-anchor="middle" fill="#2e7d32" style="font:600 11.5px system-ui">no copies, no LOD chain, no popping</text>
+                    <rect x="720" y="95" width="110" height="115" rx="6" fill="none" stroke="#c1662f" stroke-dasharray="4 3" stroke-width="1.5"/>
+                    <text x="775" y="120" text-anchor="middle" fill="#8f3f14" style="font:italic 10px system-ui">the engine</text>
+                    <text x="775" y="135" text-anchor="middle" fill="#8f3f14" style="font:italic 10px system-ui">picks the detail</text>
+                    <text x="775" y="150" text-anchor="middle" fill="#8f3f14" style="font:italic 10px system-ui">for you</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: What virtualized geometry replaces &#183; the old pipeline shipped each asset as a hand-authored chain of lower-detail copies that popped as they swapped. Nanite keeps one high-detail mesh and streams it, scaled to the view, so the chain is gone.</em></p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="clusters" class="lesson-section">
+                <h2>Clusters and Streaming: How Nanite Works</h2>
+
+                <p>How does one mesh of millions of triangles draw efficiently? The answer is that Nanite never treats the mesh as one big lump. When you enable Nanite, the mesh is preprocessed into a <strong>hierarchy of small clusters</strong>, each cluster a group of roughly a hundred triangles, and the clusters are organized so that a coarse version of the surface and a fine version are both available from the same data. This build happens once, when you enable Nanite or import the asset, and the result is stored alongside the mesh.</p>
+
+                <p>At runtime, the work happens on the GPU, every frame. Nanite walks that cluster hierarchy and makes three decisions fast. First it <strong>culls</strong>: clusters outside the camera view, or hidden behind other geometry, are thrown out before they cost anything. Then for the clusters that remain it <strong>selects detail</strong>: it picks the level in the hierarchy where each cluster is about the size of a pixel or two on screen, so nothing is drawn finer than the screen can show. Finally it <strong>streams</strong>: only the clusters actually chosen are pulled in from disk, so memory holds the detail in view and not the whole mesh at full resolution. The chosen clusters are drawn with a rasterizer built for these tiny triangles. The headline to hold onto is that the cost tracks what is on screen, not how detailed the source mesh is.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; From one mesh to what the frame needs</h4>
+                    <pre class="mermaid">
+flowchart TD
+    A[High-detail mesh<br/>millions of triangles] --> B[Build once<br/>split into a hierarchy of clusters]
+    B --> C{Each frame, on the GPU}
+    C --> D[Cull<br/>drop clusters out of view or hidden]
+    C --> E[Select detail<br/>pick the level near pixel size]
+    C --> F[Stream<br/>load only the chosen clusters]
+    D --> G[Rasterize the chosen clusters]
+    E --> G
+    F --> G
+    G --> H[Cost tracks the screen,<br/>not the source triangle count]
+    style A fill:#faf0e6,stroke:#c1662f
+    style B fill:#fdf1e7,stroke:#c1662f
+    style C fill:#ede7f6,stroke:#7e57c2
+    style D fill:#e3f2fd,stroke:#2196F3
+    style E fill:#e3f2fd,stroke:#2196F3
+    style F fill:#e3f2fd,stroke:#2196F3
+    style G fill:#fdf1e7,stroke:#c1662f
+    style H fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Built once into clusters, then culled, detail-selected, and streamed every frame on the GPU. Only the clusters the frame actually needs are drawn.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="detail" class="lesson-section">
+                <h2>Detail Without a LOD Chain</h2>
+
+                <p>The detail selection deserves a section of its own, because it is what quietly ends the LOD chain. With hand-authored levels of detail, the mesh had a small number of fixed versions, and the engine jumped from one to the next at set distances. Those jumps were discrete, so a rock could visibly snap to a blockier shape as you walked away, and the whole grid of switch distances had to be tuned by hand to make the pops as unobtrusive as possible.</p>
+
+                <p>Nanite makes the same decision, but continuously and per cluster. Because the detail lives in a hierarchy rather than a few baked copies, Nanite can pick a slightly different level for the near side of a boulder than for its far side, and it can slide smoothly between levels as the camera moves instead of snapping. There is no small set of versions to jump between and no distance thresholds for you to author. The near clusters of a surface draw fine while the far clusters draw coarse, in the same object, in the same frame, and the transition is gradual enough that there is nothing to see. You get the result the LOD chain was always trying to approximate, without building or tuning the chain at all.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 330" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:700px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Detail versus distance: steps versus a smooth ramp</text>
+                    <!-- axes -->
+                    <line x1="90" y1="270" x2="800" y2="270" stroke="#666" stroke-width="2"/>
+                    <line x1="90" y1="270" x2="90" y2="70" stroke="#666" stroke-width="2"/>
+                    <text x="445" y="300" text-anchor="middle" fill="#666" style="font:600 12px system-ui">distance from camera &#8594;</text>
+                    <text x="60" y="170" text-anchor="middle" fill="#666" style="font:600 12px system-ui" transform="rotate(-90 60 170)">detail drawn &#8594;</text>
+                    <!-- classic staircase -->
+                    <polyline points="90,95 260,95 260,140 430,140 430,190 600,190 600,235 790,235" fill="none" stroke="#a9772f" stroke-width="3"/>
+                    <g fill="#b23b2f">
+                        <circle cx="260" cy="95" r="4"/><circle cx="260" cy="140" r="4"/>
+                        <circle cx="430" cy="140" r="4"/><circle cx="430" cy="190" r="4"/>
+                        <circle cx="600" cy="190" r="4"/><circle cx="600" cy="235" r="4"/>
+                    </g>
+                    <text x="150" y="88" fill="#7a5518" style="font:600 11px system-ui">LOD0</text>
+                    <text x="330" y="133" fill="#7a5518" style="font:600 11px system-ui">LOD1</text>
+                    <text x="500" y="183" fill="#7a5518" style="font:600 11px system-ui">LOD2</text>
+                    <text x="670" y="228" fill="#7a5518" style="font:600 11px system-ui">LOD3</text>
+                    <text x="272" y="120" fill="#b23b2f" style="font:italic 10.5px system-ui">pop</text>
+                    <text x="442" y="170" fill="#b23b2f" style="font:italic 10.5px system-ui">pop</text>
+                    <text x="612" y="217" fill="#b23b2f" style="font:italic 10.5px system-ui">pop</text>
+                    <!-- nanite smooth ramp -->
+                    <path d="M90,100 C 300,150 520,205 790,246" fill="none" stroke="#c1662f" stroke-width="3.5"/>
+                    <!-- legend -->
+                    <rect x="120" y="70" width="26" height="0" />
+                    <line x1="560" y1="88" x2="600" y2="88" stroke="#a9772f" stroke-width="3"/>
+                    <text x="606" y="92" fill="#7a5518" style="font:600 11.5px system-ui">classic LODs: discrete steps, popping</text>
+                    <line x1="560" y1="108" x2="600" y2="108" stroke="#c1662f" stroke-width="3.5"/>
+                    <text x="606" y="112" fill="#8f3f14" style="font:600 11.5px system-ui">Nanite: continuous, per cluster</text>
+                    <text x="445" y="322" text-anchor="middle" fill="#2e7d32" style="font:600 12px system-ui">Same goal, but Nanite slides between levels instead of snapping, and you author no thresholds.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Continuous detail, no popping &#183; a hand-authored LOD chain steps down in a few discrete jumps, each a visible pop you tune by hand. Nanite follows the same downward trend as a smooth ramp, choosing detail per cluster with no thresholds to author.</em></p>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="workflow" class="lesson-section">
+                <h2>Using Scanned Assets As They Are</h2>
+
+                <p>All of this pays off most clearly in one workflow: using photo-scanned assets directly. Libraries like <strong>Megascans</strong>, distributed through Epic's <strong>Fab</strong> marketplace, are built from real-world scans and arrive at film resolution, often millions of triangles per rock or cliff. In the old pipeline those assets could not be used as they were; an artist had to retopologize them down to a budget and bake the lost detail into normal maps, then build a LOD chain on top. With Nanite you skip all of that. You import the scanned mesh, enable Nanite, and place it. No retopology, no baking, no levels of detail to author. The film-resolution surface is what draws, scaled to the view.</p>
+
+                <p>The image below is a real frame from this course's project: a small outcrop of Nanite-enabled desert rocks sitting on the landscape, lit by Lumen. Each rock is a Static Mesh with Nanite turned on, so the engine streams each one by clusters and picks its detail per frame rather than swapping between hand-made copies. Nothing here was retopologized for the shot; the rocks are used as the asset set provides them, and Nanite draws them directly. This is the practical shape of the pillar: the detailed geometry a modern world is built from, dropped in and rendered without the budget work that used to stand between the artist and the asset.</p>
+
+                <img src="images/env_l02/env_l02_fig01_nanite_rocks.png" alt="A real-time desert scene captured live in the course's Unreal project, showing an outcrop of Nanite-enabled rocks lit by Lumen. A large detailed boulder sits at center right with a deeply cracked and pitted surface catching warm sunlight, a second craggy rock fills the lower left in strong relief, and a smaller rock sits to the right. Behind them a warm sand basin hazes into a ring of dunes on the horizon under a clear graded sky. Every rock is a Static Mesh with Nanite enabled, drawn directly with no hand-authored level-of-detail chain." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: Nanite-enabled rocks, captured live in the course's Unreal project &#183; scanned-style desert boulders placed on the landscape and lit by Lumen. Each is a Static Mesh with Nanite turned on (verified enabled), so the engine streams clusters and picks detail per frame, with no low-poly copy and no LOD chain. This is geometry used as the asset provides it.</em></p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; The scanned-asset workflow, with and without Nanite</h4>
+                    <pre class="mermaid">
+flowchart LR
+    SCAN[Film-resolution scanned mesh<br/>from Fab / Megascans] --> OLD[Old pipeline:<br/>retopologize, bake normals,<br/>build a LOD chain]
+    SCAN --> NEW[Nanite:<br/>import and enable Nanite]
+    OLD --> PLACE[Place in the world]
+    NEW --> PLACE
+    PLACE --> DRAW[Drawn at the detail<br/>the screen can show]
+    style SCAN fill:#faf0e6,stroke:#c1662f
+    style OLD fill:#f3ece4,stroke:#a9772f
+    style NEW fill:#e8f5e9,stroke:#4CAF50
+    style PLACE fill:#fdf1e7,stroke:#c1662f
+    style DRAW fill:#e3f2fd,stroke:#2196F3
+                    </pre>
+                    <p>Same asset, two routes to the world. Nanite removes the retopology, baking, and LOD authoring the old route required, so a scanned mesh goes straight in.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="edges" class="lesson-section">
+                <h2>Where Nanite Fits, and Where It Does Not</h2>
+
+                <p>Nanite is powerful, but it is not the renderer for every object, and knowing the boundary keeps you from reaching for it in the wrong place. Nanite began as a system for <strong>opaque and masked rigid meshes</strong>, the rocks, walls, cliffs, and props that make up most of an environment, and that is still its core. Over successive releases Unreal has extended it: it now supports <strong>masked foliage</strong>, so the grass and leaves that fill a landscape can be Nanite too, and it supports <strong>displacement through tessellation</strong>, adding real surface relief on top of a mesh rather than faking it. For the world you build in this track, that covers almost everything on the ground.</p>
+
+                <p>What Nanite is not built for is geometry that <strong>deforms and animates</strong>. An animated character is a skeletal mesh: its vertices are skinned to a moving skeleton every frame, and that class of mesh renders the classic way, not through Nanite. This is the exact seam between this track and the <a href="index.html#advanced">MetaHuman</a> track: MetaHuman builds the animated character, which draws in the traditional path, while the environment around that character is where Nanite lives. Heavy translucency has historically been another special case handled outside Nanite's main path. The rule of thumb is simple: reach for Nanite on the static, detailed, rigid geometry of a world, and do not expect it to draw your animated characters.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">What to draw with Nanite, and what to leave classic</text>
+                    <!-- fits -->
+                    <rect x="30" y="55" width="400" height="220" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="230" y="82" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">Nanite draws it well</text>
+                    <g style="font:12.5px system-ui" fill="#2e7d32">
+                        <text x="55" y="118">&#10003; opaque meshes: rocks, cliffs, walls, props</text>
+                        <text x="55" y="150">&#10003; masked foliage: grass, leaves, plants</text>
+                        <text x="55" y="182">&#10003; tessellated surfaces: real displacement</text>
+                        <text x="55" y="214">&#10003; instances scattered across a landscape</text>
+                    </g>
+                    <text x="230" y="252" text-anchor="middle" fill="#388e3c" style="font:italic 11.5px system-ui">the static, rigid, detailed geometry of a world</text>
+                    <!-- doesn't -->
+                    <rect x="450" y="55" width="400" height="220" rx="10" fill="#f3ece4" stroke="#a9772f" stroke-width="2.5"/>
+                    <text x="650" y="82" text-anchor="middle" fill="#7a5518" style="font:700 14px system-ui">Still the classic path</text>
+                    <g style="font:12.5px system-ui" fill="#7a5518">
+                        <text x="475" y="118">&#10007; animated skeletal characters</text>
+                        <text x="475" y="150">&#10007; meshes skinned to a moving skeleton</text>
+                        <text x="475" y="182">&#10007; heavy translucency (special handling)</text>
+                        <text x="475" y="214">&#10007; geometry that deforms every frame</text>
+                    </g>
+                    <text x="650" y="252" text-anchor="middle" fill="#a9772f" style="font:italic 11.5px system-ui">the MetaHuman track's character lives here</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The boundary of Nanite &#183; it excels at the static, rigid, detailed geometry that fills a world, including foliage and tessellated surfaces. Animated skeletal characters and heavy translucency stay on the classic rendering path.</em></p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="enable" class="lesson-section">
+                <h2>Enabling Nanite on a Mesh</h2>
+
+                <p>Turning Nanite on is a <strong>per-mesh setting</strong>, and it is quick. Open a Static Mesh in its asset editor and switch on <strong>Enable Nanite Support</strong> in the details, or right-click the asset in the Content Browser and use the Nanite menu to enable it for one or many meshes at once. Either way, flipping the switch triggers a <strong>rebuild</strong>: Unreal preprocesses the mesh into the cluster hierarchy described earlier and stores it. From that point the mesh renders through Nanite wherever it is placed. Assets from Fab Megascans often arrive with Nanite already enabled, so for those you may only need to confirm it is on.</p>
+
+                <p>To confirm Nanite is actually doing its job, use the viewport's <strong>Nanite visualization</strong> modes. Switching the view mode to show Nanite clusters or triangles overlays the mesh with the clusters and micro-triangles Nanite is drawing, and you can fly toward and away from an object to watch the detail redistribute in real time, with no popping. One subtle point worth knowing: a mesh can still carry the old hand-authored levels of detail in its data even after Nanite is enabled, but Nanite bypasses them, streaming clusters instead. The rocks in this lesson's figure are exactly that case, Nanite-enabled meshes that happen to still hold a legacy LOD chain the engine now ignores. Enabling Nanite, in other words, does not force you to delete anything; it changes how the mesh is drawn.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; Enable, rebuild, verify</h4>
+                    <pre class="mermaid">
+flowchart LR
+    SEL[Select a Static Mesh<br/>ideally high detail] --> EN[Enable Nanite<br/>asset editor or right-click menu]
+    EN --> BUILD[Unreal rebuilds the mesh<br/>into a cluster hierarchy]
+    BUILD --> VIS[Verify with Nanite visualization<br/>show clusters and triangles]
+    VIS --> USE[Place it: it now draws<br/>through Nanite everywhere]
+    style SEL fill:#faf0e6,stroke:#c1662f
+    style EN fill:#fdf1e7,stroke:#c1662f
+    style BUILD fill:#ede7f6,stroke:#7e57c2
+    style VIS fill:#e3f2fd,stroke:#2196F3
+    style USE fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>A per-mesh toggle triggers a rebuild into clusters. Verify with the Nanite visualization modes, then the mesh draws through Nanite anywhere it is placed.</p>
+                </div>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Enable and Read Nanite</h2>
+
+                <p>This lesson has a real toggle behind it, so the exercise is to enable Nanite on a mesh and then read what it is doing. The goal is to connect the words in this lesson, clusters, streaming, per-cluster detail, to overlays and numbers you can see in your own editor.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#129704; Exercise: turn Nanite on and watch it work</h3>
+                    <ol>
+                        <li><strong>Pick a detailed mesh.</strong> Choose a high-triangle Static Mesh, a scanned rock or a dense prop. Open it in the Static Mesh editor and note its triangle count in the asset statistics.</li>
+                        <li><strong>Enable Nanite.</strong> Switch on Enable Nanite Support in the details, or right-click the asset in the Content Browser and enable Nanite from the menu. Let the rebuild finish.</li>
+                        <li><strong>Visualize the clusters.</strong> In a level viewport, switch the view mode to the Nanite visualization and show clusters, then triangles. You should see the mesh broken into the clusters Nanite draws.</li>
+                        <li><strong>Fly in and out.</strong> Move the camera toward the object and away from it and watch the detail redistribute, finer up close and coarser at distance, with no visible pop. That is per-cluster detail selection, live.</li>
+                        <li><strong>Find the boundary.</strong> Try to enable Nanite on an animated skeletal mesh and notice it is not offered the same way. That is the edge from this lesson: Nanite is for the static, rigid geometry of a world, not for skinned characters.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: where are the visualization modes?</summary>
+                        <p style="margin-top: 0.5rem;">In a level viewport, open the view mode menu (the one that normally reads Lit) and look for the Nanite visualization submenu. Showing clusters colors each Nanite cluster; showing triangles overlays the micro-triangles being rasterized. If the overlays are empty on an object, that object is probably not Nanite-enabled, which is itself a useful thing to confirm.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: use a scanned asset with no LOD work</h4>
+                    <p>Bring a photo-scanned rock or cliff into your project from Fab and its Megascans library, confirm Nanite is enabled on it, and place it in a scene. Do the thing the old pipeline would never let you do: use the film-resolution mesh directly, with no retopology and no LOD chain. Then stand a simple object next to it for scale and appreciate that the detailed surface costs you detail on screen, not budget in the scene. That is the whole promise of this pillar in a single placed asset.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What does Nanite remove from the old geometry pipeline?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> The need for any textures at all</label>
+                            <label><input type="radio" name="q1" value="b"> The triangle budget and the hand-authored level-of-detail chain, letting you keep one high-detail mesh</label>
+                            <label><input type="radio" name="q1" value="c"> The ability to move objects in a scene</label>
+                            <label><input type="radio" name="q1" value="d"> The need to light the scene</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Nanite virtualizes geometry the way engines already virtualize textures, streaming and scaling the mesh to the view. That removes the fixed triangle budget and the chain of hand-made lower-detail copies, so a single high-detail mesh is all you keep.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>At runtime, how does Nanite decide what geometry to draw each frame?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> It always draws every triangle in the source mesh</label>
+                            <label><input type="radio" name="q2" value="b"> It breaks the mesh into clusters, culls the ones out of view, selects detail near pixel size, and streams only the chosen clusters</label>
+                            <label><input type="radio" name="q2" value="c"> It picks one of four LODs by distance, like before</label>
+                            <label><input type="radio" name="q2" value="d"> It waits for the artist to choose the detail by hand</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Nanite stores the mesh as a hierarchy of small clusters. Each frame the GPU culls clusters that are out of view or hidden, selects the detail level where each cluster is about pixel size, and streams only those clusters. The cost tracks what is on screen, not the source triangle count.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>Why does Nanite avoid the visible popping that hand-authored LODs produced?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Because it chooses detail continuously and per cluster, sliding between levels instead of snapping between a few fixed copies</label>
+                            <label><input type="radio" name="q3" value="b"> Because it never changes detail at all</label>
+                            <label><input type="radio" name="q3" value="c"> Because it hides objects until they are close</label>
+                            <label><input type="radio" name="q3" value="d"> Because the artist tunes the switch distances more carefully</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; The old chain jumped between a few discrete versions at set distances, which popped. Nanite selects detail per cluster from a hierarchy and slides between levels smoothly, even choosing different detail for the near and far sides of the same object, so there is nothing to see and no thresholds to author.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Which of these does Nanite <em>not</em> draw, and stays on the classic rendering path?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Opaque rocks and cliffs</label>
+                            <label><input type="radio" name="q4" value="b"> Masked foliage like grass and leaves</label>
+                            <label><input type="radio" name="q4" value="c"> Animated skeletal characters, whose vertices are skinned to a moving skeleton each frame</label>
+                            <label><input type="radio" name="q4" value="d"> Tessellated, displaced surfaces</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; Nanite covers opaque and masked rigid meshes, foliage, and tessellated surfaces, the static geometry of a world. Animated skeletal characters deform every frame and render the classic way. That is the seam between this environment track and the MetaHuman character track.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What is true about enabling Nanite on a Static Mesh?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> It is a project-wide switch that changes every mesh at once</label>
+                            <label><input type="radio" name="q5" value="b"> It is a per-mesh setting that triggers a rebuild into clusters, and it lets you use scanned meshes directly without authoring a LOD chain</label>
+                            <label><input type="radio" name="q5" value="c"> It requires you to first delete the mesh's existing levels of detail</label>
+                            <label><input type="radio" name="q5" value="d"> It only works on meshes you modeled yourself</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Nanite is enabled per mesh, in the asset editor or the right-click menu, and flipping it on rebuilds the mesh into the cluster hierarchy. A mesh can even keep its old LOD chain, which Nanite then bypasses. The payoff is using film-resolution scanned assets directly, with no retopology or LOD authoring.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You now know the first pillar in depth. Nanite is the reason a modern environment can be built from detailed, scanned geometry and still run in real time. Here is what to carry forward:</p>
+
+                <p><strong>Virtualized geometry manages triangles like a virtual resource.</strong> Instead of submitting a fixed budget of triangles, Nanite stores a mesh so it can stream and scale it to the view, drawing only the detail the screen can show. The single high-detail mesh replaces the whole chain of hand-authored copies.</p>
+
+                <p><strong>Clusters and per-frame selection are how it works.</strong> A Nanite mesh is built once into a hierarchy of small clusters. Each frame the GPU culls the clusters out of view, selects the detail level near pixel size, and streams only what it needs. Detail is chosen continuously and per cluster, so there is no LOD chain and no popping.</p>
+
+                <p><strong>The payoff is using assets as they are, within known limits.</strong> Photo-scanned Fab Megascans meshes go straight into a world with no retopology and no LOD authoring. Nanite covers opaque and masked meshes, foliage, and tessellated surfaces, but animated skeletal characters stay on the classic path. Enabling Nanite is a per-mesh toggle that rebuilds the mesh into clusters, and you verify it with the Nanite visualization modes.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Nanite virtualizes geometry: it streams and scales a mesh to the view, so one high-detail mesh replaces the hand-authored LOD chain</li>
+                        <li>A Nanite mesh is built into a hierarchy of clusters, then culled, detail-selected, and streamed on the GPU every frame</li>
+                        <li>Detail is chosen continuously and per cluster, which ends the popping and the distance thresholds of hand-made LODs</li>
+                        <li>Scanned Fab Megascans assets can be used directly, with no retopology and no LOD authoring</li>
+                        <li>Nanite draws opaque and masked meshes, foliage, and tessellated surfaces, but not animated skeletal characters; enabling it is a per-mesh rebuild you verify with the Nanite visualization modes</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #faf0e6 0%, #fff 100%); border-left: 4px solid #c1662f;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The rock image is a genuine live capture from the course's <code>ClaudeTest</code> project: an outcrop of the project's scanned-style desert rocks, placed on the landscape and lit by Lumen, with no character in the scene. Each rock is a Static Mesh with Nanite verified enabled, so it is drawn through Nanite directly, and these particular meshes even still carry a legacy level-of-detail chain that Nanite bypasses, exactly the case described in the enabling section. The LOD-chain diagram, the cluster and streaming flow, the detail-versus-distance chart, the scanned-asset workflow, and the fits-and-does-not-fit map are labeled illustrations, because the internal cluster hierarchy and the visualization overlays are best understood as diagrams before you drive them yourself in the hands-on. What they show is what you will confirm live when you enable Nanite and open the Nanite visualization modes.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This lesson builds out the geometry pillar the <a href="env_l01_the_modern_environment_pipeline.html">overview</a> introduced. Next in the track, <a href="env_l03_lumen_realtime_global_illumination.html">Lumen</a> takes the light half and PCG takes placement, before a capstone assembles a full environment. Nanite sits directly upstream of the <a href="index.html#intermediate">Cinematic Production</a> track, whose <a href="int_l01_characters_and_animation.html">staging</a> and <a href="int_l02_cinematics_with_sequencer.html">camera</a> work happens inside worlds built from Nanite geometry, and it draws the exact boundary with the <a href="index.html#advanced">Digital Humans with MetaHuman</a> track: the animated character renders the classic way, while the world around it is Nanite. In the larger <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, this is the craft behind the detailed geometry of <a href="unreal-phase-5-shot-assembly.html">shot assembly</a>.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="env_l01_the_modern_environment_pipeline.html" class="btn">&#8592; Previous: The Modern Environment Pipeline</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="env_l03_lumen_realtime_global_illumination.html" class="btn btn-outline">Next: Lumen: Real-Time Global Illumination and Reflections &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

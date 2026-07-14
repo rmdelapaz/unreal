@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8 environment art capstone: assembling a complete environment. Bring the three pillars together, Nanite geometry, Lumen light, and PCG population, on a Landscape inside World Partition using Fab and Megascans assets. Learn how the terrain and streaming form the foundation, the layered assembly order of block out, place, scatter, and light, where finished assets come from, what makes an environment read as finished, and how a finished world becomes the stage for the cinematic tracks.">
+    <meta name="author" content="Practical Ace">
+    <title>Assembling a Complete Environment - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#environment">Advanced: Environment Art with Nanite, Lumen &amp; PCG</a></li>
+            <li aria-current="page">Assembling a Complete Environment</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#127966;&#65039; Assembling a Complete Environment</h1>
+                <p class="lead">This is where the track pays off. The overview named the three pillars, and the three lessons since took each one apart: Nanite for geometry without a budget, Lumen for light without baking, PCG for population without hand placing. On their own, each removes one old limit. Together, on a piece of terrain, they build a finished world. This capstone is about that assembly, how a Landscape and World Partition give you the ground to build on, how you layer a scene from block out to hero geometry to procedural scatter to light, where the finished assets come from, and what turns a pile of correctly placed objects into an environment that reads as a real place. At the end you will see all three pillars working in a single frame, and understand how a finished environment becomes the stage that the rest of the course films on.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #faf0e6 0%, #fff 100%); border-left: 4px solid #c1662f;">
+                    <h4>&#127956;&#65039; Advanced Track &#183; Environment Art</h4>
+                    <p>This is the fifth and final lesson of the <strong>Environment Art with Nanite, Lumen &amp; PCG</strong> track, and its capstone. The <a href="env_l01_the_modern_environment_pipeline.html">first lesson</a> mapped the whole modern pipeline, then the track went deep on each pillar in turn: <a href="env_l02_nanite_virtualized_geometry.html">Nanite</a> for geometry, <a href="env_l03_lumen_realtime_global_illumination.html">Lumen</a> for light, and <a href="env_l04_pcg_procedural_generation.html">PCG</a> for populating the world. Here we put them back together. Rather than teach a new pillar, this lesson shows how the three combine on a Landscape inside World Partition, using Fab and Megascans assets, into a single finished vista. It is the synthesis the whole track was building toward.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Recall how Nanite, Lumen, and PCG each remove an old limit, and how they combine into one environment</li>
+                        <li>Explain the role of a Landscape and World Partition as the foundation a world is built on</li>
+                        <li>Describe the layered assembly order: block out the land, place hero geometry, scatter with PCG, then light</li>
+                        <li>Explain where finished assets come from, using Fab and Megascans as ready Nanite meshes</li>
+                        <li>Identify what makes an assembled environment read as finished: composition, depth, atmosphere, and light</li>
+                        <li>Explain how a finished environment becomes the stage for the Cinematic Production and MetaHuman tracks</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45 to 60 minutes</p>
+                    <p><strong>Prerequisites:</strong> The whole track leading here, the <a href="env_l01_the_modern_environment_pipeline.html">overview</a> and the three pillar lessons on <a href="env_l02_nanite_virtualized_geometry.html">Nanite</a>, <a href="env_l03_lumen_realtime_global_illumination.html">Lumen</a>, and <a href="env_l04_pcg_procedural_generation.html">PCG</a>, since this capstone assumes all three. A working Unreal Engine 5.8 install with the PCG plugin enabled, and access to Fab for assets.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#pillars" class="toc-link">The Three Pillars, One World</a></li>
+                        <li><a href="#foundation" class="toc-link">The Foundation: Landscape and World Partition</a></li>
+                        <li><a href="#layers" class="toc-link">Assembling in Layers</a></li>
+                        <li><a href="#assets" class="toc-link">The Asset Source: Fab and Megascans</a></li>
+                        <li><a href="#finished" class="toc-link">What Makes an Environment Read as Finished</a></li>
+                        <li><a href="#stage" class="toc-link">The Finished Environment as a Stage</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Assemble a Small Vista</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="pillars" class="lesson-section">
+                <h2>The Three Pillars, One World</h2>
+
+                <p>Before assembling anything, it helps to see why the three pillars belong together. Each one answers a different old question about building a world. <strong>Nanite</strong> answers, how do I use detailed geometry without a polygon budget, by drawing high detail meshes directly with no hand made levels of detail. <strong>Lumen</strong> answers, how do I light a scene without baking, by computing bounced light and reflections every frame so nothing has to be precomputed. <strong>PCG</strong> answers, how do I fill a world without placing every object, by scattering from rules instead of by hand. Three separate problems, three separate answers.</p>
+
+                <p>The reason this track treated them one at a time is that each is a deep idea on its own. The reason this lesson puts them back together is that a real environment needs all three at once. A finished world is made of detailed geometry (Nanite), that has to be lit (Lumen), and there is far too much of it to place by hand (PCG), all sitting on terrain that is too big to load at once (Landscape and World Partition). None of the pillars is the whole picture; each removes one limit so that, together, they let you build something that would have been out of reach with any one alone. The capstone is simply the moment where all four ideas act on the same scene.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Three pillars combine into one finished environment</text>
+                    <!-- three pillars -->
+                    <rect x="40" y="60" width="230" height="120" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="155" y="88" text-anchor="middle" fill="#8f3f14" style="font:700 14px system-ui">Nanite</text>
+                    <text x="155" y="114" text-anchor="middle" fill="#5c3f1e" style="font:12px system-ui">geometry</text>
+                    <text x="155" y="136" text-anchor="middle" fill="#5c3f1e" style="font:12px system-ui">without a budget</text>
+                    <text x="155" y="162" text-anchor="middle" fill="#a9772f" style="font:italic 10.5px system-ui">detail, drawn directly</text>
+                    <rect x="325" y="60" width="230" height="120" rx="10" fill="#e3f2fd" stroke="#2196F3" stroke-width="2.5"/>
+                    <text x="440" y="88" text-anchor="middle" fill="#0d47a1" style="font:700 14px system-ui">Lumen</text>
+                    <text x="440" y="114" text-anchor="middle" fill="#134a8f" style="font:12px system-ui">light</text>
+                    <text x="440" y="136" text-anchor="middle" fill="#134a8f" style="font:12px system-ui">without baking</text>
+                    <text x="440" y="162" text-anchor="middle" fill="#1565c0" style="font:italic 10.5px system-ui">bounce and reflections, live</text>
+                    <rect x="610" y="60" width="230" height="120" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="725" y="88" text-anchor="middle" fill="#1b5e20" style="font:700 14px system-ui">PCG</text>
+                    <text x="725" y="114" text-anchor="middle" fill="#256029" style="font:12px system-ui">population</text>
+                    <text x="725" y="136" text-anchor="middle" fill="#256029" style="font:12px system-ui">without hand placing</text>
+                    <text x="725" y="162" text-anchor="middle" fill="#2e7d32" style="font:italic 10.5px system-ui">scatter, from rules</text>
+                    <!-- arrows down -->
+                    <g stroke="#999" stroke-width="3" fill="none" marker-end="url(#adn)">
+                        <line x1="155" y1="184" x2="330" y2="242"/>
+                        <line x1="440" y1="184" x2="440" y2="242"/>
+                        <line x1="725" y1="184" x2="550" y2="242"/>
+                    </g>
+                    <defs><marker id="adn" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- foundation strip -->
+                    <rect x="150" y="246" width="580" height="34" rx="7" fill="#ede7f6" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="440" y="268" text-anchor="middle" fill="#4527a0" style="font:600 12px system-ui">on a Landscape inside World Partition, the terrain and streaming</text>
+                    <!-- final -->
+                    <rect x="250" y="296" width="380" height="42" rx="10" fill="#c1662f" stroke="#7a3a12" stroke-width="2.5"/>
+                    <text x="440" y="323" text-anchor="middle" fill="#fff" style="font:700 15px system-ui">One finished environment</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The synthesis &#183; Nanite, Lumen, and PCG each remove one old limit, and on a Landscape inside World Partition they combine into a single finished environment. The capstone is where all of them act on the same scene at once.</em></p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="foundation" class="lesson-section">
+                <h2>The Foundation: Landscape and World Partition</h2>
+
+                <p>Everything you assemble has to sit on something, and that something is the <strong>Landscape</strong>. A Landscape is the terrain, a large surface you sculpt from a heightmap, raising hills, cutting valleys, flattening a basin. It is the shape of the ground, and it is what the surface sampler in PCG reads when it scatters, what your hero rocks rest on, and what the light falls across. Before any objects go in, the land is the first decision, because it defines where everything else can live.</p>
+
+                <p>A finished world is usually far too large to hold in memory all at once, and that is what <strong>World Partition</strong> solves. Instead of one giant level you load whole, World Partition splits the world into a grid of cells and streams only the cells near the camera into memory, leaving the distant ones unloaded until you get close. That is what lets a world be huge, kilometres across, while staying smooth to build and to run, because the engine is only ever holding the nearby piece. Landscape gives you ground to build on; World Partition lets that ground be as big as the world needs, without paying for all of it at once. Together they are the foundation the three pillars stand on.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; The foundation, from terrain to streaming</h4>
+                    <pre class="mermaid">
+flowchart LR
+    LAND[Landscape<br/>terrain sculpted from a heightmap] --> GROUND[The ground everything sits on<br/>rocks rest, PCG samples, light falls]
+    GROUND --> WP[World Partition<br/>splits the world into a grid of cells]
+    WP --> STREAM[Streams cells near the camera<br/>leaves distant ones unloaded]
+    STREAM --> BIG[A world too big to load at once<br/>stays smooth to build and to run]
+    style LAND fill:#faf0e6,stroke:#c1662f
+    style GROUND fill:#fdf1e7,stroke:#c1662f
+    style WP fill:#e3f2fd,stroke:#2196F3
+    style STREAM fill:#ede7f6,stroke:#7e57c2
+    style BIG fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The Landscape is the shape of the ground, the surface everything else builds on. World Partition streams that ground in cells so the world can be far larger than memory, loading only what is near.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="layers" class="lesson-section">
+                <h2>Assembling in Layers</h2>
+
+                <p>With a foundation in place, a scene comes together in <strong>layers</strong>, and the order matters. You do not scatter ten thousand rocks and then wonder where the land is; you build up. First, <strong>block out the land</strong>: sculpt the Landscape into the broad shapes you want, the basin, the ridge, the slope, so the space reads before anything is in it. Next, place the <strong>hero geometry</strong> by hand: the few pieces that carry intent, a large boulder that anchors a shot, an arch you want the camera to pass under, dropped exactly where they belong. These are the objects a specific position is the whole point of, so they get placed deliberately, as detailed Nanite meshes.</p>
+
+                <p>Then comes the <strong>population</strong>. Everything that is many rather than special, the scatter of smaller rocks, the debris, the grass, gets handed to <strong>PCG</strong>, which fills the land around your hero pieces from a rule instead of by hand. Finally, you <strong>light</strong> the whole thing with <strong>Lumen</strong>, and because nothing is baked you can move the sun, watch the bounce and reflections update, and keep adjusting until it reads. The order is deliberate: land before objects, intent before scatter, and light last so it falls on a scene that is already built. Each layer assumes the one before it, and each pillar does the job it is best at, geometry, then population, then light, on top of the terrain.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Building a scene up in layers</text>
+                    <!-- step 1 -->
+                    <rect x="30" y="60" width="195" height="215" rx="10" fill="#f3ece4" stroke="#a9772f" stroke-width="2.5"/>
+                    <text x="127" y="86" text-anchor="middle" fill="#7a5518" style="font:700 13px system-ui">1. Block out land</text>
+                    <path d="M50,220 Q90,180 127,205 T205,195 L205,255 L50,255 Z" fill="#e6c187" stroke="#a9772f"/>
+                    <text x="127" y="245" text-anchor="middle" fill="#7a5518" style="font:600 11px system-ui">sculpt the Landscape</text>
+                    <!-- step 2 -->
+                    <rect x="245" y="60" width="195" height="215" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="342" y="86" text-anchor="middle" fill="#8f3f14" style="font:700 13px system-ui">2. Hero geometry</text>
+                    <path d="M265,220 Q305,180 342,205 T420,195 L420,255 L265,255 Z" fill="#e6c187" stroke="#a9772f"/>
+                    <ellipse cx="342" cy="205" rx="34" ry="26" fill="#b98a52" stroke="#7a3a12" stroke-width="1.5"/>
+                    <text x="342" y="245" text-anchor="middle" fill="#8f3f14" style="font:600 11px system-ui">place by hand (Nanite)</text>
+                    <!-- step 3 -->
+                    <rect x="460" y="60" width="195" height="215" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="557" y="86" text-anchor="middle" fill="#1b5e20" style="font:700 13px system-ui">3. Scatter (PCG)</text>
+                    <path d="M480,220 Q520,180 557,205 T635,195 L635,255 L480,255 Z" fill="#e6c187" stroke="#a9772f"/>
+                    <ellipse cx="557" cy="205" rx="30" ry="22" fill="#b98a52" stroke="#7a3a12" stroke-width="1.5"/>
+                    <g fill="#9c7038" stroke="#6f4a1f" stroke-width="0.8">
+                        <ellipse cx="500" cy="222" rx="9" ry="6"/><ellipse cx="527" cy="234" rx="8" ry="5"/>
+                        <ellipse cx="592" cy="228" rx="10" ry="6"/><ellipse cx="618" cy="236" rx="7" ry="5"/>
+                        <ellipse cx="540" cy="212" rx="7" ry="5"/>
+                    </g>
+                    <text x="557" y="245" text-anchor="middle" fill="#1b5e20" style="font:600 11px system-ui">fill by rule</text>
+                    <!-- step 4 -->
+                    <rect x="675" y="60" width="180" height="215" rx="10" fill="#e3f2fd" stroke="#2196F3" stroke-width="2.5"/>
+                    <text x="765" y="86" text-anchor="middle" fill="#0d47a1" style="font:700 13px system-ui">4. Light (Lumen)</text>
+                    <circle cx="720" cy="120" r="16" fill="#ffd68a" stroke="#e0a53c" stroke-width="1.5"/>
+                    <g stroke="#e0a53c" stroke-width="1.5"><line x1="720" y1="98" x2="720" y2="90"/><line x1="742" y1="120" x2="750" y2="120"/><line x1="736" y1="104" x2="742" y2="98"/></g>
+                    <path d="M695,220 Q735,180 772,205 T835,197 L835,255 L695,255 Z" fill="#eac98f" stroke="#a9772f"/>
+                    <ellipse cx="772" cy="205" rx="28" ry="21" fill="#c99a5f" stroke="#7a3a12" stroke-width="1.5"/>
+                    <text x="765" y="245" text-anchor="middle" fill="#0d47a1" style="font:600 11px system-ui">bounce, no bake</text>
+                    <!-- arrows between -->
+                    <g stroke="#666" stroke-width="2.5" marker-end="url(#alr)">
+                        <line x1="227" y1="167" x2="243" y2="167"/>
+                        <line x1="442" y1="167" x2="458" y2="167"/>
+                        <line x1="657" y1="167" x2="673" y2="167"/>
+                    </g>
+                    <defs><marker id="alr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#666"/></marker></defs>
+                    <text x="440" y="305" text-anchor="middle" fill="#555" style="font:italic 12px system-ui">land before objects, intent before scatter, light last on a scene already built</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The layered assembly order &#183; sculpt the Landscape, place the hero Nanite geometry by hand where intent matters, scatter the rest with PCG, and light the finished scene with Lumen. Each layer assumes the one before it, and each pillar does the job it is best at.</em></p>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="assets" class="lesson-section">
+                <h2>The Asset Source: Fab and Megascans</h2>
+
+                <p>An environment is only as good as the pieces you build it from, and you rarely model those pieces yourself. <strong>Fab</strong> is Unreal's asset marketplace, the library where you find meshes, materials, and whole kits to drop into a project. Inside it lives <strong>Megascans</strong>, a huge collection of real world objects captured by photogrammetry, scanned rocks, cliffs, plants, and surfaces with photographic detail. Together they are where a modern environment's raw material comes from: instead of sculpting a boulder, you pick a scanned one that already looks real.</p>
+
+                <p>What makes this fit the rest of the track is that these assets arrive ready for the pillars. A Megascans mesh is built to be a <a href="env_l02_nanite_virtualized_geometry.html">Nanite</a> mesh, so you can use its full detail directly with no retopology and no hand made levels of detail. That same mesh is exactly what you place by hand as a hero piece, and exactly what you feed to <a href="env_l04_pcg_procedural_generation.html">PCG</a> to scatter as a population. So one library supplies both roles: the deliberate pieces and the scattered ones come from the same scanned source, drawn cheaply by Nanite and lit by Lumen. Fab and Megascans are not a fourth pillar; they are the material the pillars work on, the reason you can assemble a detailed world without modelling every rock in it.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; From a library to a world</h4>
+                    <pre class="mermaid">
+flowchart LR
+    FAB[Fab and Megascans<br/>scanned, ready to use assets] --> IMPORT[Bring a mesh in<br/>it arrives as a Nanite mesh]
+    IMPORT --> HERO[Place hero pieces by hand<br/>where a spot is intended]
+    IMPORT --> SCATTER[Feed the rest to PCG<br/>scattered by rule]
+    HERO --> WORLD[One environment<br/>built from a shared library]
+    SCATTER --> WORLD
+    style FAB fill:#faf0e6,stroke:#c1662f
+    style IMPORT fill:#e3f2fd,stroke:#2196F3
+    style HERO fill:#fdf1e7,stroke:#c1662f
+    style SCATTER fill:#e8f5e9,stroke:#4CAF50
+    style WORLD fill:#ede7f6,stroke:#7e57c2
+                    </pre>
+                    <p>One scanned mesh from Fab or Megascans serves both roles: placed deliberately as a hero piece, and scattered by PCG as a population. Both are Nanite meshes, so the same detailed asset is cheap to draw either way.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="finished" class="lesson-section">
+                <h2>What Makes an Environment Read as Finished</h2>
+
+                <p>Correctly placed objects are not the same as a finished scene. A field of rocks on flat ground can still look like a test level. What turns an assembly into an environment is a handful of composition choices, most of which have nothing to do with which pillar placed what. <strong>Depth</strong> is the first: a scene reads as real when it has layers, something large and close in front, a middle ground that recedes, and a far horizon behind, so the eye travels through space instead of landing on a flat wall of objects. <strong>Scale cues</strong> help too, big pieces beside small ones tell you how large the world is.</p>
+
+                <p><strong>Atmosphere</strong> and <strong>light</strong> do the rest. A little haze or fog in the distance softens the far ground and separates the layers, so the background sits behind the middle instead of fighting it. And the direction and warmth of the light shape everything, a low, warm sun raking across the forms picks out their silhouettes and casts long, readable shadows, where a flat overhead light would make the same scene look dead. This is why the assembly order ends on Lumen: with the geometry and population in place, light is the layer that finally makes the world read. The figure below is a real assembly built in the course project, and it leans on exactly these choices, a hero boulder in front, a scattered field behind, a hazy dune horizon, and a low warm sun.</p>
+
+                <img src="images/env_l05/env_l05_fig01_capstone_vista.png" alt="A finished desert vista captured live in the course's Unreal project. A large scanned-style hero boulder sits just right of center in the foreground, and behind and around it a field of smaller rocks is scattered across the flat desert basin, receding toward a hazy ring of dunes on the horizon. A low warm sun rakes across the rocks from the side, picking out their shapes, under a clean sky graded from deep blue at the top to warm near the horizon. The hero boulder was placed by hand and the field was generated by PCG, all lit by Lumen." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A finished vista, assembled live in the course's Unreal project &#183; all three pillars in one frame. The large hero boulder in front is a hand-placed Nanite mesh; the field of smaller rocks behind it was scattered by a PCG graph (Get Landscape Data, then a Surface Sampler, then a Transform Points step for random rotation and size, then a Static Mesh Spawner, every rock an instance of the same Nanite mesh); and the whole scene sits on the World Partition desert Landscape, lit by Lumen (verified running for both global illumination and reflections). Hero geometry placed with intent, the rest populated by rule, all lit without baking, composed for depth with a low warm sun.</em></p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h4>&#128161; What turns an assembly into a finished vista</h4>
+                    <pre class="mermaid">
+flowchart LR
+    DEPTH[Depth<br/>hero in front, scatter mid, dunes far] --> READ[The scene reads as a real place]
+    ATMOS[Atmosphere<br/>haze softens and separates the distance] --> READ
+    LIGHTDIR[Light direction<br/>a low warm sun rakes the forms] --> READ
+    SCALE[Scale cues<br/>large pieces beside small ones] --> READ
+    READ --> FINISH[A finished vista<br/>not just correctly placed objects]
+    style DEPTH fill:#faf0e6,stroke:#c1662f
+    style ATMOS fill:#e3f2fd,stroke:#2196F3
+    style LIGHTDIR fill:#ede7f6,stroke:#7e57c2
+    style SCALE fill:#fdf1e7,stroke:#c1662f
+    style FINISH fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The pillars place and light the geometry, but depth, atmosphere, light direction, and scale are the composition choices that make it read as a place rather than a test level. They are the last, and often the most important, layer.</p>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="stage" class="lesson-section">
+                <h2>The Finished Environment as a Stage</h2>
+
+                <p>A finished environment is not the end of anything; it is the beginning of everything the rest of the course does. Look back at where this track sits. The <a href="index.html#advanced">MetaHuman</a> track builds the character. This track builds the world that character stands in. The <a href="index.html#intermediate">Cinematic Production</a> track then takes that world and films it, placing cameras, staging the action, and lighting the shot. In that chain, the environment you assemble here is the <strong>stage</strong>, the physical space the story happens in. Everything the cinematic lessons do, framing, camera moves, sequencing, assumes there is a world already standing to point the camera at.</p>
+
+                <p>That is the quiet payoff of building with the three pillars. Because the world is made of Nanite geometry, it holds up to a camera moving close. Because it is lit by Lumen, the light is real and responds when you change it for a shot. Because it was populated by PCG, it is dense and believable without a team hand placing every rock. The environment is built to be filmed. When you finish this capstone, you have not just made a pretty picture; you have made a place that the character track can inhabit and the cinematic track can shoot. That is what an environment artist delivers, the stage on which everyone else's work happens.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">The environment is the stage the rest of the course films on</text>
+                    <!-- environment -->
+                    <rect x="40" y="70" width="240" height="150" rx="10" fill="#faf0e6" stroke="#c1662f" stroke-width="2.5"/>
+                    <text x="160" y="98" text-anchor="middle" fill="#8f3f14" style="font:700 14px system-ui">This track</text>
+                    <text x="160" y="122" text-anchor="middle" fill="#5c3f1e" style="font:12.5px system-ui">the environment</text>
+                    <text x="160" y="150" text-anchor="middle" fill="#a9772f" style="font:11px system-ui">Nanite geometry,</text>
+                    <text x="160" y="168" text-anchor="middle" fill="#a9772f" style="font:11px system-ui">Lumen light,</text>
+                    <text x="160" y="186" text-anchor="middle" fill="#a9772f" style="font:11px system-ui">PCG population</text>
+                    <text x="160" y="208" text-anchor="middle" fill="#8f3f14" style="font:italic 11px system-ui">a place, built to be filmed</text>
+                    <!-- arrow -->
+                    <line x1="282" y1="145" x2="342" y2="145" stroke="#999" stroke-width="3" marker-end="url(#ast)"/>
+                    <defs><marker id="ast" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- stage -->
+                    <rect x="345" y="70" width="190" height="150" rx="10" fill="#ede7f6" stroke="#7e57c2" stroke-width="2.5"/>
+                    <text x="440" y="98" text-anchor="middle" fill="#4527a0" style="font:700 14px system-ui">The stage</text>
+                    <text x="440" y="126" text-anchor="middle" fill="#5e35b1" style="font:11.5px system-ui">the space the</text>
+                    <text x="440" y="144" text-anchor="middle" fill="#5e35b1" style="font:11.5px system-ui">story happens in</text>
+                    <text x="440" y="176" text-anchor="middle" fill="#5e35b1" style="font:11px system-ui">holds up to a close</text>
+                    <text x="440" y="192" text-anchor="middle" fill="#5e35b1" style="font:11px system-ui">camera, relights live</text>
+                    <!-- arrow -->
+                    <line x1="537" y1="145" x2="597" y2="145" stroke="#999" stroke-width="3" marker-end="url(#ast)"/>
+                    <!-- shot -->
+                    <rect x="600" y="70" width="240" height="150" rx="10" fill="#e3f2fd" stroke="#2196F3" stroke-width="2.5"/>
+                    <text x="720" y="98" text-anchor="middle" fill="#0d47a1" style="font:700 14px system-ui">Cinematic + MetaHuman</text>
+                    <text x="720" y="122" text-anchor="middle" fill="#134a8f" style="font:12.5px system-ui">characters and cameras</text>
+                    <text x="720" y="150" text-anchor="middle" fill="#1565c0" style="font:11px system-ui">stage the action,</text>
+                    <text x="720" y="168" text-anchor="middle" fill="#1565c0" style="font:11px system-ui">frame it, light it,</text>
+                    <text x="720" y="186" text-anchor="middle" fill="#1565c0" style="font:11px system-ui">film the shot</text>
+                    <text x="720" y="208" text-anchor="middle" fill="#0d47a1" style="font:italic 11px system-ui">the story on the stage</text>
+                    <text x="440" y="258" text-anchor="middle" fill="#555" style="font:italic 12px system-ui">build the world so it is ready to be inhabited and filmed</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Environment as stage &#183; the world you assemble with the three pillars becomes the space the MetaHuman characters inhabit and the Cinematic Production track films. Built from Nanite, Lumen, and PCG, it holds up to a close camera and relights live, so it is ready to be shot.</em></p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Assemble a Small Vista</h2>
+
+                <p>This exercise is the whole track in miniature. You will not build a finished game world, but you will run the full assembly loop once, foundation, hero geometry, scatter, and light, so the synthesis stops being abstract. Keep it small; the point is the sequence, not the scale.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127966;&#65039; Exercise: build a vista from all three pillars</h3>
+                    <ol>
+                        <li><strong>Start on terrain.</strong> Open a level with a Landscape (or add one) inside World Partition. Sculpt or find a flat basin with a rise in the distance, so the space has a foreground and a horizon. This is your foundation.</li>
+                        <li><strong>Bring in a scanned asset.</strong> From Fab or the Megascans library, add a detailed rock mesh to the project. Confirm it is a Nanite mesh so you can use its full detail directly.</li>
+                        <li><strong>Place a hero piece.</strong> Drop one large rock by hand near the foreground, exactly where you want the eye to land. Scale it up so it reads as a landmark. This is your intent, placed deliberately.</li>
+                        <li><strong>Scatter the rest.</strong> Add a PCG volume behind and around the hero rock, with a graph that samples the surface and spawns the same rock as instances, with a random rotation and a range of sizes. Generate, and watch a field fill in around your hero piece.</li>
+                        <li><strong>Light it, and compose.</strong> Lower the sun toward a warm angle and let Lumen light the scene, no baking. Then move the camera for depth, hero in front, scatter in the middle, horizon behind, and nudge the fog until the distance softens. That last step is what turns the assembly into a vista.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: it looks placed, not finished</summary>
+                        <p style="margin-top: 0.5rem;">If your scene reads as objects on a floor rather than a place, the problem is almost always composition, not the pillars. Check three things. Depth: is there something large and close, something in the middle, and a far horizon, or is everything at one distance? Light: is the sun low and warm and coming from the side, or flat and overhead? Atmosphere: is there any haze in the distance to separate the layers? Fixing those, not adding more rocks, is what makes it read.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: change one thing and re-light</h4>
+                    <p>With your vista working, change the sun's angle from morning to late afternoon and watch Lumen re-light the whole scene with no bake, then change the PCG seed and watch the scatter re-arrange with the hero rock untouched. Two edits, each touching a different pillar, and the world stays correct through both. That is the freedom the three pillars buy you, and it is exactly what makes an environment a living stage rather than a fixed picture.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>In a complete environment, what does each of the three pillars contribute?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Nanite lights the scene, Lumen scatters objects, and PCG builds terrain</label>
+                            <label><input type="radio" name="q1" value="b"> Nanite provides geometry without a budget, Lumen provides light without baking, and PCG populates without hand placing</label>
+                            <label><input type="radio" name="q1" value="c"> All three do the same job, so you only need one of them</label>
+                            <label><input type="radio" name="q1" value="d"> They only work in separate levels and cannot be combined</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Each pillar removes a different old limit: Nanite draws detailed geometry with no polygon budget, Lumen lights with real-time bounce and reflections and no bake, and PCG fills the world from rules instead of by hand. A finished environment needs all three at once, on terrain.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What roles do a Landscape and World Partition play as the foundation?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> The Landscape is a lighting mode, and World Partition is a type of material</label>
+                            <label><input type="radio" name="q2" value="b"> The Landscape is the terrain everything sits on, and World Partition streams the world in cells so it can be far larger than memory</label>
+                            <label><input type="radio" name="q2" value="c"> The Landscape stores the seed for PCG, and World Partition bakes the lighting</label>
+                            <label><input type="radio" name="q2" value="d"> Both are optional cosmetic effects with no effect on how a world is built</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The Landscape is the sculpted terrain, the ground rocks rest on, PCG samples, and light falls across. World Partition splits the world into a grid and streams only the cells near the camera, so a world can be huge while staying cheap to build and run.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is the layered order for assembling a scene, and why does it matter?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Light first, then scatter, then place the land, because light is the foundation</label>
+                            <label><input type="radio" name="q3" value="b"> Block out the land, place hero geometry by hand, scatter the rest with PCG, then light with Lumen, because each layer assumes the one before it</label>
+                            <label><input type="radio" name="q3" value="c"> Scatter everything first, then decide where the land should go</label>
+                            <label><input type="radio" name="q3" value="d"> There is no order; all layers are added at random</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; You build up: sculpt the land so the space reads, place the few hero pieces that carry intent, hand the many objects to PCG, and light last so it falls on a scene already built. Land before objects, intent before scatter, light last.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>How do Fab and Megascans fit the three pillars?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> They are a fourth pillar that replaces Nanite, Lumen, and PCG</label>
+                            <label><input type="radio" name="q4" value="b"> They supply scanned assets that arrive as Nanite meshes, usable both as hand-placed hero pieces and as PCG scatter, so one library serves both roles</label>
+                            <label><input type="radio" name="q4" value="c"> They only provide lighting presets, not geometry</label>
+                            <label><input type="radio" name="q4" value="d"> Their assets must be retopologized by hand before they can be used</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Fab is the marketplace and Megascans the scanned library. A Megascans mesh is built to be a Nanite mesh, used directly with no retopology, and the same asset can be placed by hand as a hero piece or fed to PCG to scatter. They are the material the pillars work on.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Beyond placing objects correctly, what makes an environment read as finished, and why is it a stage?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Only the raw number of objects matters; composition is irrelevant</label>
+                            <label><input type="radio" name="q5" value="b"> Depth, atmosphere, light direction, and scale make it read as a place, and because it is built from the pillars it holds up to a close camera and relights live, so it becomes the stage the cinematic and character tracks film on</label>
+                            <label><input type="radio" name="q5" value="c"> A finished look requires baking all lighting so nothing can change</label>
+                            <label><input type="radio" name="q5" value="d"> It reads as finished only when there is no terrain under it</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Correctly placed objects still need composition: layered depth, a little atmosphere, a low warm side light, and scale cues turn an assembly into a place. And because the world is Nanite geometry lit by Lumen and populated by PCG, it holds up to a moving camera and responds to relighting, so it is ready to be the stage other tracks shoot on.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>This capstone brought the track together. You have taken the three pillars apart one at a time, and here you have seen them combine, on terrain, into a single finished environment. Here is what to carry forward:</p>
+
+                <p><strong>The pillars are complementary, not alternatives.</strong> Nanite gives geometry without a budget, Lumen gives light without baking, PCG gives population without hand placing, and a real world needs all three at once, standing on a Landscape inside World Partition. Each removes one limit; together they let you build what none could alone.</p>
+
+                <p><strong>Assemble in layers, in order.</strong> Block out the land, place the hero geometry by hand where intent matters, scatter the rest with PCG, and light with Lumen last. Draw the pieces from Fab and Megascans, which arrive as Nanite meshes ready for both hand placement and scatter. The order is deliberate, because each layer assumes the one before it.</p>
+
+                <p><strong>Composition finishes it, and the result is a stage.</strong> Depth, atmosphere, light direction, and scale are what turn correctly placed objects into a place that reads. And because the finished world is built from the pillars, it holds up to a close camera and relights live, which is exactly what makes it the stage the Cinematic Production and MetaHuman tracks build their shots on.</p>
+
+                <div class="card" style="background: #fdf1e7; border-left: 4px solid #c1662f;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>A complete environment combines all three pillars at once: Nanite geometry, Lumen light, and PCG population, on a Landscape inside World Partition</li>
+                        <li>The Landscape is the terrain everything sits on, and World Partition streams the world in cells so it can be far larger than memory while staying smooth</li>
+                        <li>Assemble in layers and in order: block out the land, place hero geometry by hand, scatter the rest with PCG, then light with Lumen, because each layer assumes the one before it</li>
+                        <li>Fab and Megascans supply scanned assets that arrive as Nanite meshes, serving both as hand-placed hero pieces and as PCG scatter from one shared library</li>
+                        <li>Depth, atmosphere, light direction, and scale make an assembly read as finished, and because it is built from the pillars the world becomes a stage that holds up to a close camera and relights live</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #faf0e6 0%, #fff 100%); border-left: 4px solid #c1662f;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The desert vista is a genuine live capture from the course's <code>ClaudeTest</code> project, and it really does combine all three pillars in one frame. The large boulder in front is a scanned-style rock placed by hand, with Nanite enabled, so its detail is drawn directly. The field of smaller rocks behind it was generated by PCG: a graph built through the editor, a Get Landscape Data node feeding a Surface Sampler, then a Transform Points node for random rotation and size, then a Static Mesh Spawner set to the same scanned rock, run inside a volume over the desert Landscape, so every rock in the field is an instance of one Nanite mesh placed by rule rather than by hand. The whole scene sits on the project's World Partition desert terrain and is lit by Lumen, which was confirmed running for both global illumination and reflections. The regular tiling you can see on the ground is the project's default working landscape material, left as it is because the point of the shot is the assembly, not a finished ground texture. The synthesis diagram, the foundation flow, the layered build order, the asset flow, the finished-vista map, and the stage handoff are labeled illustrations, because these ideas are clearest as diagrams before you build them in your own viewport. What they show is what the capture demonstrates: three pillars, one world.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This lesson closes the <a href="index.html#environment">Environment Art</a> track by assembling everything its earlier lessons taught: the <a href="env_l01_the_modern_environment_pipeline.html">pipeline overview</a>, then <a href="env_l02_nanite_virtualized_geometry.html">Nanite</a> for geometry, <a href="env_l03_lumen_realtime_global_illumination.html">Lumen</a> for light, and <a href="env_l04_pcg_procedural_generation.html">PCG</a> for population, brought together on a Landscape in World Partition. The finished environment is the stage the rest of the course films on: the <a href="index.html#advanced">MetaHuman</a> track builds the character who stands in it, and the <a href="index.html#intermediate">Cinematic Production</a> track places the cameras and lights that shoot it. In the larger <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, this is the world that <a href="unreal-phase-5-shot-assembly.html">shot assembly</a> stages and films. With the environment built, you have the place; the rest of the course brings it to life.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="env_l04_pcg_procedural_generation.html" class="btn">&#8592; Previous: PCG: Procedural Generation</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="index.html#environment" class="btn btn-outline">Back to Track &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

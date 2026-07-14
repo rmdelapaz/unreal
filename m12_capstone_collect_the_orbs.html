@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Introduction to Unreal Engine 5 capstone: build a small playable Collect-the-Orbs mini-game from an empty level to a packaged build. Build the space, make it playable with input and Blueprints, give the player feedback with a HUD, audio, and VFX, close the loop with a win condition, and package it, threading all eleven course modules into one project.">
+    <meta name="author" content="Practical Ace">
+    <title>Capstone: Build the Collect-the-Orbs Mini-Game - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#capstone">Module 12: Capstone Project</a></li>
+            <li aria-current="page">Capstone: Build the Collect-the-Orbs Mini-Game</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#128377;&#65039; Capstone: Build the Collect-the-Orbs Mini-Game</h1>
+                <p class="lead">You have learned eleven modules of skills on their own: <a href="m02_l01_understanding_levels.html">levels and actors</a>, <a href="m03_l01_material_fundamentals.html">materials</a>, <a href="m04_l01_lighting_fundamentals.html">lighting</a>, <a href="m05_l01_what_are_blueprints.html">Blueprints</a>, <a href="m06_l02_enhanced_input_system.html">input</a>, <a href="m07_l01_introduction_to_umg.html">UMG</a>, <a href="m08_l02_playing_sounds.html">audio</a>, <a href="m09_l01_niagara_overview.html">particles</a>, and <a href="m10_l03_building_distribution.html">packaging</a>. A <strong>game</strong> is where they stop being separate features and become one built thing. This capstone threads them into a small, complete, playable project: you walk a character around a tiled arena, collect three glowing orbs, watch a heads-up display count them, hear and see each pickup, win when all three are gathered, and package the result into a build you can hand to someone. There is little new to learn here. There is everything to connect.</p>
+
+                <!-- Capstone banner -->
+                <div class="card" style="background: linear-gradient(135deg, #e6f7ef 0%, #fff 100%); border-left: 4px solid #2e9e6b;">
+                    <h4>&#128377;&#65039; Intro Course &#183; Capstone Project</h4>
+                    <p>This is the capstone of the <strong>Introduction to Unreal Engine 5</strong> course. It assumes you have worked through the eleven modules before it and pulls them together into one small game. Where each earlier module went deep on one system, this one is about <em>how the systems fit</em>: what you build first, what depends on what, and how a handful of features become a loop a player can actually play. Treat it as a project, not a read.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Plan a small game as a loop: what the player does, how the world responds, and how the game keeps score</li>
+                        <li>Build a play space from a level, actors, materials, and lighting</li>
+                        <li>Make the space playable with a controllable pawn, input, and a Blueprint that reacts to an overlap</li>
+                        <li>Give the player feedback across three senses: a UMG counter, a pickup sound, and a Niagara burst</li>
+                        <li>Close the loop with a win condition that fires when every orb is collected</li>
+                        <li>Package the finished project into a runnable build to share</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 90 to 120 minutes</p>
+                    <p><strong>Prerequisites:</strong> All eleven course modules, especially <a href="m02_l02_actors_and_components.html">Actors and Components</a>, <a href="m05_l05_working_with_actors_in_blueprints.html">Working with Actors in Blueprints</a>, <a href="m06_l05_interactable_objects.html">Interactable Objects</a>, <a href="m07_l03_hud_elements.html">HUD Elements</a>, and <a href="m09_l03_triggering_vfx.html">Triggering VFX</a>. A working Unreal Engine 5 project using a third-person or first-person template.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#plan" class="toc-link">Thinking in Loops</a></li>
+                        <li><a href="#space" class="toc-link">Build the Space</a></li>
+                        <li><a href="#play" class="toc-link">Make It Playable</a></li>
+                        <li><a href="#feedback" class="toc-link">Give the Player Feedback</a></li>
+                        <li><a href="#win" class="toc-link">Close the Loop: the Win Condition</a></li>
+                        <li><a href="#ship" class="toc-link">Ship It</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Build the Whole Loop</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="plan" class="lesson-section">
+                <h2>Thinking in Loops</h2>
+
+                <p>The single most useful shift from following tutorials to building a game is to stop thinking about <em>features</em> and start thinking about the <strong>loop</strong>. A feature is one thing the engine can do: play a sound, show text, spawn a particle. A loop is the small cycle a player repeats: they <em>do</em> something, the world <em>responds</em>, the game <em>keeps score</em>, and that invites them to do it again. Collect an orb, hear the chime, watch the counter climb, reach for the next orb. That cycle, not any one feature, is the game.</p>
+
+                <p>This matters because a loop is small enough to finish. Our whole game is one sentence: <em>the player moves around a space, walks into a glowing orb, the orb reacts and disappears, a counter goes up, and collecting all three wins.</em> Everything in this lesson serves that sentence, and every feature you learned is one word in it.</p>
+
+                <div style="max-width: 820px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:640px;">
+                    <text x="410" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">The core loop of Collect-the-Orbs</text>
+                    <text x="410" y="52" text-anchor="middle" fill="#888" style="font:12px system-ui">the player repeats this cycle until every orb is gone</text>
+                    <!-- four nodes around a ring -->
+                    <!-- top: input -->
+                    <rect x="300" y="72" width="220" height="56" rx="10" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                    <text x="410" y="96" text-anchor="middle" fill="#1565c0" style="font:700 13px system-ui">1 &#183; Player acts</text>
+                    <text x="410" y="116" text-anchor="middle" fill="#1565c0" style="font:11px system-ui">move the pawn (input)</text>
+                    <!-- right: collision -->
+                    <rect x="560" y="162" width="220" height="56" rx="10" fill="#ede7f6" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="670" y="186" text-anchor="middle" fill="#4527a0" style="font:700 13px system-ui">2 &#183; World responds</text>
+                    <text x="670" y="206" text-anchor="middle" fill="#4527a0" style="font:11px system-ui">overlap fires a Blueprint</text>
+                    <!-- bottom: feedback -->
+                    <rect x="300" y="252" width="220" height="56" rx="10" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="410" y="276" text-anchor="middle" fill="#7a5c00" style="font:700 13px system-ui">3 &#183; Player senses it</text>
+                    <text x="410" y="296" text-anchor="middle" fill="#7a5c00" style="font:11px system-ui">UI + sound + VFX</text>
+                    <!-- left: state -->
+                    <rect x="40" y="162" width="220" height="56" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="150" y="186" text-anchor="middle" fill="#2e7d32" style="font:700 13px system-ui">4 &#183; Game keeps score</text>
+                    <text x="150" y="206" text-anchor="middle" fill="#2e7d32" style="font:11px system-ui">count + check for a win</text>
+                    <!-- arrows clockwise -->
+                    <path d="M 520 104 Q 640 120 670 158" fill="none" stroke="#999" stroke-width="2" marker-end="url(#arrowL)"/>
+                    <path d="M 670 218 Q 640 258 522 276" fill="none" stroke="#999" stroke-width="2" marker-end="url(#arrowL)"/>
+                    <path d="M 300 282 Q 170 262 150 220" fill="none" stroke="#999" stroke-width="2" marker-end="url(#arrowL)"/>
+                    <path d="M 150 160 Q 175 118 298 102" fill="none" stroke="#999" stroke-width="2" marker-end="url(#arrowL)"/>
+                    <defs>
+                        <marker id="arrowL" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L8,3 L0,6 z" fill="#999"/>
+                        </marker>
+                    </defs>
+                    <text x="410" y="205" text-anchor="middle" fill="#bbb" style="font:600 12px system-ui">repeat</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The game as a loop, not a pile of features. The player acts, the world responds to a collision, the player senses the response, and the game updates its score, which sends the player back for more &#183; each quarter of the ring is one module you already know.</em></p>
+
+                <p>The rest of this lesson builds that loop, and the order of the sections <em>is</em> the order you build it. Each step leans on modules you already finished, so the map below is also a map of the course.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The whole game, one step at a time</h4>
+                    <pre class="mermaid">
+flowchart LR
+    S[Build the space<br/>Modules 2, 3, 4] --> P[Make it playable<br/>Modules 5, 6]
+    P --> F[Give feedback<br/>Modules 7, 8, 9]
+    F --> W[Win condition<br/>Module 5]
+    W --> R[Package and ship<br/>Modules 10, 11]
+    style S fill:#ede7f6,stroke:#7e57c2
+    style F fill:#fff3cd,stroke:#ffc107
+    style R fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Build the space, make it playable, give feedback, close the loop, ship it. The order is not arbitrary: you cannot walk a pawn into an orb before the space and the orb exist, and you cannot celebrate a win before there is anything to collect.</p>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="space" class="lesson-section">
+                <h2>Build the Space</h2>
+
+                <p>Everything starts with a place to play. Make a <a href="m02_l01_understanding_levels.html">level</a>, drop a floor to walk on, and place the three orbs the player will collect. The orbs are just <a href="m02_l02_actors_and_components.html">actors</a> with a sphere mesh, and what makes them read as <em>collectible</em> is the material: a bright <a href="m03_l01_material_fundamentals.html">emissive material</a> so each orb glows against the ground rather than sitting there like a grey ball. Then <a href="m04_l01_lighting_fundamentals.html">light</a> the arena so the floor, the character, and the glowing orbs all read clearly.</p>
+
+                <p>This is Modules 2, 3, and 4 doing exactly what they taught, with a game in mind. The level and the actors are the stage, the emissive material is what turns a plain sphere into an inviting target, and the lighting is what makes the whole thing legible. Keep it simple: a flat tiled area, three orbs spaced out so the player has to travel between them, and enough light to see.</p>
+
+                <img src="images/capstone/capstone_fig01_collect_the_orbs.png" alt="A frame captured in the Unreal editor: an armored character stands with its back to the camera at the center of a large tiled floor, and three glowing cyan orbs float at about chest height, arranged in a shallow arc in front of the character. The tiled play area recedes toward rolling desert dunes under a dusk sky, and the character casts a long soft shadow across the tiles. The scene reads as the playfield of a small collect-the-orbs game." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The mini-game's play space, staged live in the <code>ClaudeTest</code> project &#183; three glowing orbs (spheres with a bright emissive material) sit around the player character on a tiled arena, lit so the collectibles pop against the ground. This is the space the rest of the loop brings to life.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: make the target obvious</h4>
+                    <p>A collectible has one job before anything else: to look like something you should walk into. An emissive material does most of that work for free, because a glow draws the eye across a room. If your orbs are hard to spot, the fix is almost always brighter emissive or a stronger contrast with the floor, not a bigger sphere.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="play" class="lesson-section">
+                <h2>Make It Playable</h2>
+
+                <p>A space with orbs in it is a diorama. To make it a game, the player needs to move and the orbs need to react. Movement comes from the template's pawn plus the <a href="m06_l02_enhanced_input_system.html">Enhanced Input</a> system you already set up: press a key or push a stick, the character walks. The reaction comes from <a href="m05_l05_working_with_actors_in_blueprints.html">Blueprints</a> listening for a <strong>collision</strong>.</p>
+
+                <p>The heart of this step is one event. Each orb carries a collision component set to generate overlap events, and its Blueprint responds to <strong>On Component Begin Overlap</strong>: the moment the player's capsule enters the orb's space, that event fires, and from it you trigger everything else. This is the exact <a href="m06_l05_interactable_objects.html">interactable object</a> and <a href="m06_l04_collision_and_physics.html">collision</a> pattern from Module 6, used for the simplest possible interaction, touching a thing.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 320" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">One touch fires one event, which drives everything</text>
+                    <!-- player -->
+                    <circle cx="105" cy="150" r="34" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                    <text x="105" y="146" text-anchor="middle" fill="#1565c0" style="font:700 12px system-ui">player</text>
+                    <text x="105" y="163" text-anchor="middle" fill="#1565c0" style="font:11px system-ui">pawn</text>
+                    <text x="105" y="210" text-anchor="middle" fill="#666" style="font:11px system-ui">moves (input)</text>
+                    <!-- orb with collision -->
+                    <circle cx="290" cy="150" r="30" fill="#b2ebf2" stroke="#00acc1" stroke-width="2"/>
+                    <circle cx="290" cy="150" r="46" fill="none" stroke="#00acc1" stroke-width="1.5" stroke-dasharray="5 4"/>
+                    <text x="290" y="154" text-anchor="middle" fill="#00695c" style="font:700 12px system-ui">orb</text>
+                    <text x="290" y="220" text-anchor="middle" fill="#666" style="font:11px system-ui">collision volume</text>
+                    <!-- arrow player into orb -->
+                    <path d="M 145 150 L 236 150" fill="none" stroke="#999" stroke-width="2.5" marker-end="url(#arrowP)"/>
+                    <text x="190" y="138" text-anchor="middle" fill="#888" style="font:11px system-ui">walks in</text>
+                    <!-- event node -->
+                    <rect x="380" y="120" width="180" height="60" rx="8" fill="#ede7f6" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="470" y="146" text-anchor="middle" fill="#4527a0" style="font:700 12px system-ui">On Begin Overlap</text>
+                    <text x="470" y="165" text-anchor="middle" fill="#4527a0" style="font:11px system-ui">the event fires</text>
+                    <path d="M 336 150 L 376 150" fill="none" stroke="#999" stroke-width="2.5" marker-end="url(#arrowP)"/>
+                    <!-- three reaction outputs -->
+                    <rect x="640" y="60" width="190" height="42" rx="7" fill="#fff3cd" stroke="#ffc107" stroke-width="1.5"/>
+                    <text x="735" y="86" text-anchor="middle" fill="#7a5c00" style="font:600 12px system-ui">give feedback</text>
+                    <rect x="640" y="129" width="190" height="42" rx="7" fill="#e8f5e9" stroke="#4CAF50" stroke-width="1.5"/>
+                    <text x="735" y="155" text-anchor="middle" fill="#2e7d32" style="font:600 12px system-ui">add 1 to the score</text>
+                    <rect x="640" y="198" width="190" height="42" rx="7" fill="#e3f2fd" stroke="#2196F3" stroke-width="1.5"/>
+                    <text x="735" y="224" text-anchor="middle" fill="#1565c0" style="font:600 12px system-ui">destroy the orb</text>
+                    <path d="M 560 140 Q 600 100 638 85" fill="none" stroke="#999" stroke-width="2" marker-end="url(#arrowP)"/>
+                    <path d="M 560 150 L 638 150" fill="none" stroke="#999" stroke-width="2" marker-end="url(#arrowP)"/>
+                    <path d="M 560 162 Q 600 205 638 216" fill="none" stroke="#999" stroke-width="2" marker-end="url(#arrowP)"/>
+                    <defs>
+                        <marker id="arrowP" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L8,3 L0,6 z" fill="#999"/>
+                        </marker>
+                    </defs>
+                    <text x="430" y="290" text-anchor="middle" fill="#666" style="font:12px system-ui">The overlap is the trigger. Feedback, scoring, and cleanup all hang off that single event.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The pickup, as a Blueprint sees it. The player pawn walks into the orb's collision volume, which fires an On Component Begin Overlap event &#183; from that one event you branch out to the feedback, the score, and destroying the collected orb.</em></p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Watch out: no overlap events, no pickup</h4>
+                    <p>A common first bug is an orb you can walk straight through with nothing happening. Almost always the collision component is not set to generate overlap events, or its collision is set to block instead of overlap, so the event never fires. Before debugging your Blueprint logic, confirm the orb is actually reporting the overlap. The <a href="m06_l04_collision_and_physics.html">collision settings</a> are where this loop most often breaks.</p>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="feedback" class="lesson-section">
+                <h2>Give the Player Feedback</h2>
+
+                <p>The overlap fires, the orb vanishes, the score goes up. Mechanically the game works. But a game that changes state in silence feels broken, because the player cannot tell that anything happened. <strong>Feedback</strong> is what turns a state change into a moment, and the reliable trick is to hit more than one sense at once.</p>
+
+                <p>On each pickup, fire three things together. Show it: update a <a href="m07_l03_hud_elements.html">UMG heads-up display</a> so the counter ticks from one number to the next. Hear it: <a href="m08_l02_playing_sounds.html">play a sound</a>, a short bright chime that says <em>got it</em>. Feel it: <a href="m09_l03_triggering_vfx.html">trigger a Niagara burst</a> where the orb was, a quick spray of particles that punctuates the moment. Modules 7, 8, and 9, fired from the same overlap event, turn a silent increment into something satisfying.</p>
+
+                <div style="max-width: 840px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 840 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:660px;">
+                    <text x="420" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">One pickup, three channels of feedback</text>
+                    <text x="420" y="52" text-anchor="middle" fill="#888" style="font:12px system-ui">all fired from the same overlap event</text>
+                    <!-- see -->
+                    <rect x="40" y="80" width="240" height="170" rx="10" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                    <text x="160" y="112" text-anchor="middle" fill="#1565c0" style="font:700 15px system-ui">SEE</text>
+                    <text x="160" y="136" text-anchor="middle" fill="#1565c0" style="font:12px system-ui">Module 7 &#183; UMG</text>
+                    <rect x="76" y="152" width="168" height="46" rx="6" fill="#fff" stroke="#2196F3"/>
+                    <text x="160" y="181" text-anchor="middle" fill="#1565c0" style="font:700 18px system-ui">Orbs: 2 / 3</text>
+                    <text x="160" y="224" text-anchor="middle" fill="#666" style="font:11px system-ui">the counter ticks up</text>
+                    <!-- hear -->
+                    <rect x="300" y="80" width="240" height="170" rx="10" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="420" y="112" text-anchor="middle" fill="#7a5c00" style="font:700 15px system-ui">HEAR</text>
+                    <text x="420" y="136" text-anchor="middle" fill="#7a5c00" style="font:12px system-ui">Module 8 &#183; Audio</text>
+                    <path d="M 372 185 h 24 l 26 -22 v 62 l -26 -22 h -24 z" fill="#fff" stroke="#ffb300" stroke-width="2"/>
+                    <path d="M 432 168 q 14 17 0 34" fill="none" stroke="#ffb300" stroke-width="2"/>
+                    <path d="M 444 160 q 22 25 0 50" fill="none" stroke="#ffb300" stroke-width="2"/>
+                    <text x="420" y="238" text-anchor="middle" fill="#666" style="font:11px system-ui">a bright pickup chime</text>
+                    <!-- feel -->
+                    <rect x="560" y="80" width="240" height="170" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="680" y="112" text-anchor="middle" fill="#2e7d32" style="font:700 15px system-ui">FEEL</text>
+                    <text x="680" y="136" text-anchor="middle" fill="#2e7d32" style="font:12px system-ui">Module 9 &#183; Niagara</text>
+                    <g stroke="#43a047" stroke-width="2">
+                        <line x1="680" y1="185" x2="680" y2="158"/>
+                        <line x1="680" y1="185" x2="706" y2="168"/>
+                        <line x1="680" y1="185" x2="712" y2="190"/>
+                        <line x1="680" y1="185" x2="700" y2="212"/>
+                        <line x1="680" y1="185" x2="660" y2="212"/>
+                        <line x1="680" y1="185" x2="648" y2="190"/>
+                        <line x1="680" y1="185" x2="654" y2="168"/>
+                    </g>
+                    <circle cx="680" cy="185" r="5" fill="#43a047"/>
+                    <text x="680" y="238" text-anchor="middle" fill="#666" style="font:11px system-ui">a burst where it was</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Feedback across three senses. The same overlap event that scores the orb also updates the UMG counter, plays a pickup sound, and spawns a Niagara burst &#183; hitting sight, hearing, and motion at once is what makes a collectible feel collected.</em></p>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="win" class="lesson-section">
+                <h2>Close the Loop: the Win Condition</h2>
+
+                <p>A loop that never ends is a toy, not a game. What makes it a game is a <strong>goal</strong>, and the goal here is simple: collect all three orbs. To know when that happens, the game has to <em>keep score</em>, and that is one integer variable, held somewhere that outlives any single orb (the player, the level Blueprint, or a small game-mode Blueprint). Each pickup adds one to it, then checks: is the count now three?</p>
+
+                <p>This is <a href="m05_l04_flow_control.html">Blueprint flow control</a> at its most useful. Increment the counter, then a branch: if it equals three, the player has won, so fire the win, whether that is a message on the HUD, an opening door, or simply a bright <em>You Win</em> panel. If it is not three yet, do nothing special and let the player keep collecting. That one branch is the difference between a pile of pickups and a game with an ending.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The score is a tiny state machine</h4>
+                    <pre class="mermaid">
+flowchart LR
+    Z["Orbs: 0 of 3"] -->|collect| O["1 of 3"]
+    O -->|collect| T["2 of 3"]
+    T -->|collect| H["3 of 3"]
+    H --> W["You win<br/>show a panel or open a door"]
+    style Z fill:#ede7f6,stroke:#7e57c2
+    style W fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Every pickup moves the game one step to the right and asks the same question: are we at three yet? The win is just the last transition, fired by the branch that runs on every collection.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: count up to a variable, not a hard-coded three</h4>
+                    <p>Store the target (three) as its own variable, and compare the count against it. Then turning your three-orb game into a ten-orb game is one number, not a hunt through your Blueprints for every place you typed "3". Small habit, and it is the difference between a demo and something you can grow.</p>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="ship" class="lesson-section">
+                <h2>Ship It</h2>
+
+                <p>A game that only runs when you press Play in the editor is a project, not a game someone can play. To turn it into something you can hand to a friend, you <a href="m10_l03_building_distribution.html">package</a> it: set the project's name, icon, and default map, pick a platform, and let the engine cook the content and build a standalone application. The output is a runnable build, no editor required.</p>
+
+                <p>This is Module 10 closing the course the way it opened, with the whole project rather than one feature. Packaging is also where small oversights surface, a default map that is not your game level, or a missing setting, so it is worth doing once early rather than only at the very end.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; From project to a build you can share</h4>
+                    <pre class="mermaid">
+flowchart LR
+    P[Your project<br/>level + Blueprints] --> S[Project settings<br/>name, icon, default map]
+    S --> C[Cook and build<br/>for a platform]
+    C --> B[A runnable build<br/>anyone can play]
+    style P fill:#ede7f6,stroke:#7e57c2
+    style B fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Set it up, cook it, ship it. The runnable build is the real end of the course: proof that eleven modules of features became one thing a player can open and play.</p>
+                </div>
+
+                <p>One more tool worth naming: the <a href="m11_l01_introduction_to_ai_workflows.html">AI-assisted workflows</a> from Module 11 are not a separate step so much as an accelerator for every step above. Staging the arena, wiring a Blueprint, or checking a setting can all be driven through the <a href="m11_l03_your_first_ai_workflow.html">Unreal MCP bridge</a>, which is exactly how the play-space figure earlier in this lesson was staged and captured. The game is still yours to design; the assistant just moves your hands faster.</p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Build the Whole Loop</h2>
+
+                <p>Build the entire game once, end to end. Keep it small: one flat arena, three orbs, one counter, one win. The goal is not polish; it is to run the whole loop once so the connections between modules become muscle memory.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128377;&#65039; Exercise: a three-orb game from scratch</h3>
+                    <ol>
+                        <li><strong>Build the space.</strong> New level, a floor, and three sphere actors. Give the spheres a bright emissive material so they glow, and add enough light to see the arena.</li>
+                        <li><strong>Make it playable.</strong> Use the template pawn so the player can move. On each orb, add a collision component set to generate overlap events, and a Blueprint with an On Component Begin Overlap event.</li>
+                        <li><strong>React to the pickup.</strong> From that overlap event, do three things: add one to a counter, play a pickup sound, spawn a Niagara burst, then destroy the orb.</li>
+                        <li><strong>Show the score.</strong> Make a UMG widget that displays "Orbs: X / 3", add it to the screen, and update it whenever the counter changes.</li>
+                        <li><strong>Close the loop.</strong> After incrementing, branch: if the count equals three, show a "You Win" message (or open a door). Otherwise, keep playing.</li>
+                        <li><strong>Package it.</strong> Set your default map to the game level, then package the project for your platform and run the build outside the editor.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: I collect an orb but nothing happens?</summary>
+                        <p style="margin-top: 0.5rem;">Work backward along the loop. If the counter does not change, the overlap event is probably not firing, so check that the orb's collision generates overlap events and is set to overlap the pawn, not block it. If the event fires but you see nothing, the feedback is wired to the wrong node or the widget is not on screen. Test one channel at a time (drop a quick print first) so you know exactly which link in the loop is broken.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: add a timer and a lose condition</h4>
+                    <p>Once the win works, give the game stakes. Add a countdown on the HUD and a second branch: if the timer hits zero before all three orbs are collected, show a "Time's Up" panel instead. You now have a real little game, with a way to win and a way to lose, built entirely from the modules of this course.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Why is "thinking in loops" more productive than thinking in features when building a game?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Loops render faster than features</label>
+                            <label><input type="radio" name="q1" value="b"> A loop is the small cycle the player repeats, small enough to plan in one sentence and actually finish</label>
+                            <label><input type="radio" name="q1" value="c"> Features do not need Blueprints</label>
+                            <label><input type="radio" name="q1" value="d"> Unreal can only build one feature at a time</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A loop is act, respond, keep score, repeat. Naming that cycle up front makes the build almost mechanical, because every feature is just one word in the sentence. A pile of features has no such shape.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What single event is the trigger for everything that happens when the player collects an orb?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> On Component Begin Overlap, fired when the pawn enters the orb's collision volume</label>
+                            <label><input type="radio" name="q2" value="b"> Event Tick, every frame</label>
+                            <label><input type="radio" name="q2" value="c"> The packaging step</label>
+                            <label><input type="radio" name="q2" value="d"> The emissive material</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; The overlap event fires the instant the player touches the orb, and the feedback, the score, and destroying the orb all branch off that one event. It is the trigger the whole pickup hangs from.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>Your orb increments the score and disappears, but the game "feels broken." What is most likely missing?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> A higher render resolution</label>
+                            <label><input type="radio" name="q3" value="b"> Feedback: the UMG counter, the pickup sound, and the Niagara burst that tell the player it happened</label>
+                            <label><input type="radio" name="q3" value="c"> A second level</label>
+                            <label><input type="radio" name="q3" value="d"> A brighter directional light</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A state change with no feedback reads as a bug. Hitting sight, hearing, and motion together (counter, sound, particles) is what turns a silent increment into a moment the player can feel.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>How does the game know the player has won?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> It waits a fixed number of seconds</label>
+                            <label><input type="radio" name="q4" value="b"> A counter variable is incremented on each pickup, and a branch checks whether it has reached the target</label>
+                            <label><input type="radio" name="q4" value="c"> The emissive material turns off</label>
+                            <label><input type="radio" name="q4" value="d"> Packaging triggers the win automatically</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The game keeps score in one integer that outlives any single orb. Each pickup adds one and a branch asks whether the count equals the target; the win is that final transition.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What does packaging the project produce?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> A runnable standalone build that plays without the editor</label>
+                            <label><input type="radio" name="q5" value="b"> A screenshot of the level</label>
+                            <label><input type="radio" name="q5" value="c"> A new Blueprint</label>
+                            <label><input type="radio" name="q5" value="d"> A copy of the editor</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; Packaging cooks the content and builds a standalone application for a platform, so someone can open and play your game with no editor installed. It is what turns a project into a game you can share.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You put the whole course to work. Here is the arc, which is also the order you build every small game:</p>
+
+                <p><strong>Plan the loop, then build in order.</strong> A game is a cycle the player repeats: act, respond, keep score, repeat. Name that loop, then build the space, make it playable, give feedback, close the loop with a win, and ship it. Each step depends on the one before, which is why the order is not negotiable.</p>
+
+                <p><strong>Every step is a module you already know.</strong> The space is <a href="m02_l01_understanding_levels.html">levels and actors</a>, <a href="m03_l01_material_fundamentals.html">materials</a>, and <a href="m04_l01_lighting_fundamentals.html">lighting</a>; playability is <a href="m06_l02_enhanced_input_system.html">input</a> and a <a href="m05_l05_working_with_actors_in_blueprints.html">Blueprint overlap</a>; feedback is <a href="m07_l03_hud_elements.html">UMG</a>, <a href="m08_l02_playing_sounds.html">audio</a>, and <a href="m09_l03_triggering_vfx.html">Niagara</a>; the win is <a href="m05_l04_flow_control.html">flow control</a>; the deliverable is <a href="m10_l03_building_distribution.html">packaging</a>, sped up by <a href="m11_l01_introduction_to_ai_workflows.html">AI-assisted workflows</a>. The capstone is not new knowledge, it is the wiring between what you already have.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Think in loops: act, respond, keep score, repeat, all defined by one sentence you can build</li>
+                        <li>Build in a fixed order: space, playability, feedback, win, ship, because each step depends on the last</li>
+                        <li>One overlap event is the trigger the whole pickup hangs from</li>
+                        <li>Feedback across three senses (counter, sound, VFX) is what makes a collectible feel collected</li>
+                        <li>The win is a counter plus a branch; the deliverable is a packaged build a player can open</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #e6f7ef 0%, #fff 100%); border-left: 4px solid #2e9e6b;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The play-space image is a genuine live capture from the <code>ClaudeTest</code> project: a character staged on a tiled arena with three glowing orbs, each a sphere carrying a real emissive material, lit and framed in the editor. The loop, overlap, feedback, win, and packaging diagrams are labeled illustrations of the workflow rather than screenshots, because the value there is how the pieces connect, and a running game's Blueprint graphs, HUD, sound, and particles cannot be shown in a single still. Every feature the diagrams describe is one the earlier modules taught step by step.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This capstone is the whole game-development half of the course in miniature. Where the two cinematic capstones in the <a href="index.html#intermediate">Intermediate</a> and <a href="index.html#advanced">Advanced</a> tracks assemble a <em>shot</em> to be watched, this one assembles a <em>game</em> to be played, from an empty level to a packaged build. Finish it and you have done the thing the whole course set out to teach: turned Unreal's systems into something interactive that runs on its own.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="m11_l03_your_first_ai_workflow.html" class="btn">&#8592; Previous: Your First AI-Driven Workflow</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="index.html#modules" class="btn btn-outline">All Modules &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

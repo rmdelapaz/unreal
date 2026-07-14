@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8: Body, Grooms, and Retargeting. Finish the digital human below the neck. Why the body is a separate half of the problem, how a MetaHuman rides a standard skeleton, how retargeting borrows motion built for another body, where the motion comes from with mocap and animation libraries, how grooms give a human its hair, and how body, face, and grooms assemble into one performing character.">
+    <meta name="author" content="Practical Ace">
+    <title>Body, Grooms, and Retargeting - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#advanced">Advanced: Digital Humans with MetaHuman</a></li>
+            <li aria-current="page">Body, Grooms, and Retargeting</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#127939; Body, Grooms, and Retargeting</h1>
+                <p class="lead">The last lesson made your MetaHuman act from the neck up. It captured a real face performance and drove it onto the shared facial rig, and it closed with a promise: <em>the body side of a digital human done to the same standard, the mocap, the grooms, and the retargeting</em>. This is that lesson. Below the neck a MetaHuman is animated by different tools than the face, and the good news is you already know most of them from the intermediate track. Here you finish the figure: give it motion built for another body, the hair that reads as human, and a place in the shot beside the face performance you already solved.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#129516; Advanced Track &#183; Digital Humans</h4>
+                    <p>This is the fourth lesson of the <strong>Digital Humans with MetaHuman</strong> track. <a href="adv_l01_what_is_a_metahuman.html">Lesson 1</a> mapped the shared-rig system, <a href="adv_l02_mesh_to_metahuman.html">Lesson 2</a> put your own character onto it, and <a href="adv_l03_metahuman_animator.html">Lesson 3</a> made the face act. This lesson finishes the digital human below the neck, and it leans hard on the intermediate track, because the body of a MetaHuman is animated with the same <a href="int_l04_ik_retargeter.html">retargeting</a> and <a href="int_l06_control_rig.html">Control Rig</a> tools you already met.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain why the body of a digital human is a separate half of the problem from the face</li>
+                        <li>Describe how a MetaHuman rides a standard body skeleton, and why that makes motion portable</li>
+                        <li>Use retargeting to borrow animation built for another body and play it on your MetaHuman</li>
+                        <li>Name where body motion comes from: motion capture, markerless video, and animation libraries</li>
+                        <li>Explain what grooms are and why hair, brows, and beard are handled as their own assets</li>
+                        <li>Assemble body, face, and grooms into one performing character in Sequencer</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-65 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="adv_l03_metahuman_animator.html">Face Performance with MetaHuman Animator</a> (this lesson finishes the body of the character that lesson made act), plus <a href="int_l04_ik_retargeter.html">the IK Retargeter</a> and <a href="int_l06_control_rig.html">Control Rig</a> from the intermediate track, which are the exact tools the body uses. A working Unreal Engine 5.8 install with the MetaHuman plugin enabled.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#why" class="toc-link">Why the Body Is Its Own Half of the Problem</a></li>
+                        <li><a href="#skeleton" class="toc-link">The Body Rides a Standard Skeleton</a></li>
+                        <li><a href="#retarget" class="toc-link">Retargeting: Borrowing Motion Built for Another Body</a></li>
+                        <li><a href="#mocap" class="toc-link">Where the Motion Comes From</a></li>
+                        <li><a href="#grooms" class="toc-link">Grooms: The Hair That Sells a Human</a></li>
+                        <li><a href="#pipeline" class="toc-link">The Whole Digital Human, Assembled</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Move and Dress the Body</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="why" class="lesson-section">
+                <h2>Why the Body Is Its Own Half of the Problem</h2>
+
+                <p>The last lesson ended on a diagram worth remembering: a MetaHuman is animated in two tracks. The <strong>Face</strong> track comes from MetaHuman Animator, and the <strong>Body</strong> track is authored on its own. That split is not an accident or a limitation. The face and the body are different animation problems, solved by different tools, and keeping them apart is what lets you perfect each without disturbing the other.</p>
+
+                <p>The face is a dense field of hundreds of coordinated controls that a viewer reads expertly, which is why you capture it. The body is a jointed skeleton of arms, legs, spine, and hips, the same kind of skeleton every game character in the engine already uses. That means the body does not need a special capture tool of its own. It plugs straight into the animation, retargeting, and Control Rig workflow you learned in the intermediate track. So the whole job of this lesson is to finish the half of the digital human the face capture never touched.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 275" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">A digital human has two halves</text>
+                    <!-- face done -->
+                    <rect x="30" y="55" width="360" height="180" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="210" y="82" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">The face &#183; already done</text>
+                    <g style="font:12px system-ui" fill="#2e7d32">
+                        <text x="55" y="112">&#10003; hundreds of coordinated controls</text>
+                        <text x="55" y="140">&#10003; captured, not keyframed</text>
+                        <text x="55" y="168">&#10003; solved by MetaHuman Animator</text>
+                    </g>
+                    <text x="210" y="206" text-anchor="middle" fill="#2e7d32" style="font:italic 11px system-ui">Lesson 3 finished this half</text>
+                    <!-- body this lesson -->
+                    <rect x="470" y="55" width="360" height="180" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="650" y="82" text-anchor="middle" fill="#283593" style="font:700 14px system-ui">The body &#183; this lesson</text>
+                    <g style="font:12px system-ui" fill="#283593">
+                        <text x="495" y="112">&#183; a jointed skeleton, arms to hips</text>
+                        <text x="495" y="140">&#183; retargeted or Control-Rigged</text>
+                        <text x="495" y="168">&#183; plus grooms for the hair</text>
+                    </g>
+                    <text x="650" y="206" text-anchor="middle" fill="#283593" style="font:italic 11px system-ui">the same tools you know from the intermediate track</text>
+                    <text x="430" y="262" text-anchor="middle" fill="#666" style="font:600 12px system-ui">Two halves, edited apart, layered on one character in the shot.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The two halves of a digital human &#183; the face is a captured performance on a dense control rig, finished in the last lesson. The body is a jointed skeleton animated by retargeting and Control Rig, and dressed with grooms. This lesson finishes that second half.</em></p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="skeleton" class="lesson-section">
+                <h2>The Body Rides a Standard Skeleton</h2>
+
+                <p>The single fact that makes the body easy is this: a MetaHuman body is built on a <strong>standard skeleton</strong>. Its bones follow the same conventions every skeletal character in Unreal follows, the same layout you met when you first looked at <code>SK_Anya</code> in the <a href="int_l01_characters_and_animation.html">skeletal mesh editor</a>. A MetaHuman is not a special island of animation; below the neck it speaks the common language of skeletons that the whole engine already understands.</p>
+
+                <p>That matters because animation in Unreal is authored against a skeleton, not against a specific character. Any motion built on a compatible skeleton can play on your MetaHuman, and any motion you build on your MetaHuman can travel elsewhere. The body becomes a socket that a whole world of existing animation can plug into, which is exactly the property that makes the next section, retargeting, possible.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">A standard skeleton is a universal socket</text>
+                    <!-- sources -->
+                    <rect x="30" y="70" width="210" height="52" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="135" y="93" text-anchor="middle" fill="#4527a0" style="font:600 12px system-ui">A mocap walk cycle</text>
+                    <text x="135" y="111" text-anchor="middle" fill="#7e57c2" style="font:11px system-ui">built on a standard rig</text>
+                    <rect x="30" y="134" width="210" height="52" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="135" y="157" text-anchor="middle" fill="#4527a0" style="font:600 12px system-ui">A library run or wave</text>
+                    <text x="135" y="175" text-anchor="middle" fill="#7e57c2" style="font:11px system-ui">from the Marketplace</text>
+                    <rect x="30" y="198" width="210" height="52" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="135" y="221" text-anchor="middle" fill="#4527a0" style="font:600 12px system-ui">A Control Rig pose</text>
+                    <text x="135" y="239" text-anchor="middle" fill="#7e57c2" style="font:11px system-ui">you hand-author</text>
+                    <!-- arrows to hub -->
+                    <line x1="245" y1="96" x2="355" y2="150" stroke="#999" stroke-width="2" marker-end="url(#ar3)"/>
+                    <line x1="245" y1="160" x2="355" y2="155" stroke="#999" stroke-width="2" marker-end="url(#ar3)"/>
+                    <line x1="245" y1="224" x2="355" y2="162" stroke="#999" stroke-width="2" marker-end="url(#ar3)"/>
+                    <defs><marker id="ar3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- hub -->
+                    <rect x="360" y="120" width="180" height="80" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="450" y="150" text-anchor="middle" fill="#283593" style="font:700 13px system-ui">Standard body</text>
+                    <text x="450" y="168" text-anchor="middle" fill="#283593" style="font:700 13px system-ui">skeleton</text>
+                    <text x="450" y="188" text-anchor="middle" fill="#3949ab" style="font:italic 10.5px system-ui">the MetaHuman speaks it too</text>
+                    <!-- arrow out -->
+                    <line x1="545" y1="160" x2="620" y2="160" stroke="#3949ab" stroke-width="2.5" marker-end="url(#ar3b)"/>
+                    <defs><marker id="ar3b" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#3949ab"/></marker></defs>
+                    <!-- target -->
+                    <rect x="625" y="115" width="225" height="90" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="737" y="147" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">Your MetaHuman</text>
+                    <text x="737" y="169" text-anchor="middle" fill="#2e7d32" style="font:11.5px system-ui">wears any of that motion</text>
+                    <text x="737" y="189" text-anchor="middle" fill="#2e7d32" style="font:italic 11px system-ui">because the bones line up</text>
+                    <text x="440" y="282" text-anchor="middle" fill="#666" style="font:12px system-ui">Author against a skeleton, not a character, and motion becomes portable across every compatible body.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: A standard skeleton is a universal socket &#183; because a MetaHuman body follows the same bone conventions as every skeletal character in the engine, animation built anywhere on a compatible rig can plug in. That portability is the whole reason retargeting works.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The face is dense, the body is jointed</h4>
+                    <p>Remember why the two halves need different tools. The face is a soft surface driven by hundreds of blended controls, so you capture it. The body is a set of rigid bones with joints, so you pose and drive those bones the way animators always have. Same character, two very different animation problems.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="retarget" class="lesson-section">
+                <h2>Retargeting: Borrowing Motion Built for Another Body</h2>
+
+                <p>You met the <a href="int_l04_ik_retargeter.html">IK Retargeter</a> in the intermediate track, and everything you learned there applies directly here. <strong>Retargeting</strong> takes an animation authored on one skeleton and replays it faithfully on a different one, matching the pose limb for limb even when the two bodies differ in height, proportion, or bone names. It is how a walk cycle built for the standard mannequin ends up moving your MetaHuman without anyone re-animating a single step.</p>
+
+                <p>The classic source is <code>SK_Manny</code>, the standard Unreal mannequin. A vast amount of animation, the engine's own library, marketplace packs, and mocap exports, is authored on that body. Below is a genuine capture of <code>SK_Manny</code> from this course's project, at rest on the left and mid-stride on the right. The run on the right is exactly the kind of body motion that retargeting maps onto a MetaHuman: authored once on the standard skeleton, then worn by any compatible character.</p>
+
+                <img src="images/adv_l04/adv_l04_fig01_body_motion.png" alt="A side by side comparison of the standard Unreal mannequin SK_Manny in the ClaudeTest project, standing on a flat gray checkered plane under a clear desert sky. On the left, labeled REST POSE, the figure stands upright in a relaxed neutral stance. On the right, labeled IN MOTION, the same figure is caught mid-run with one leg forward, arms swinging, body leaning into the stride. This is body animation authored on a standard skeleton, the kind of motion retargeting maps onto a MetaHuman." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: Body motion on a standard skeleton, captured live in the <code>ClaudeTest</code> project &#183; <code>SK_Manny</code> at rest and mid-run. Motion authored on this standard rig is what retargeting borrows: the run on the right can be replayed on a MetaHuman because both bodies share the same skeleton conventions.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; How a borrowed animation reaches your MetaHuman</h4>
+                    <pre class="mermaid">
+flowchart LR
+    SRC[Animation on a<br/>source skeleton<br/>SK_Manny] --> RT[IK Retargeter<br/>maps bone to bone]
+    RT --> MH[The same motion<br/>on the MetaHuman body]
+    MH --> ADJ[Optional Control Rig<br/>fixes and flourishes]
+    style SRC fill:#f3eefb,stroke:#7e57c2
+    style RT fill:#fff3cd,stroke:#ffc107
+    style MH fill:#e8eaf6,stroke:#3949ab
+                    </pre>
+                    <p>The retargeter reads the source pose on <code>SK_Manny</code>, matches it limb for limb onto the MetaHuman skeleton, and you can layer a Control Rig on top to fix contacts or add a flourish.</p>
+                </div>
+
+                <p>Retargeting is rarely the whole job. A borrowed animation gets you ninety percent of the way, and then a <a href="int_l06_control_rig.html">Control Rig</a> handles the last ten: a foot that slides, a hand that should grip a prop, a bit of personality the stock clip lacks. Borrow the bulk of the motion, then author the details. That is the same divide-and-conquer you used across the intermediate track.</p>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="mocap" class="lesson-section">
+                <h2>Where the Motion Comes From</h2>
+
+                <p>Retargeting is the pipe; motion is the water. So where does the body motion originate? There are three practical wells, and they mirror the three face-capture sources from the last lesson. <strong>Animation libraries</strong> are the accessible starting point: ready-made walks, runs, idles, and gestures you buy or reuse with no capture gear at all. A tracked <strong>motion-capture suit</strong> is the highest-fidelity, production route, a performer's real body performance recorded directly. And <strong>markerless video</strong> is the most flexible, solving motion from plain footage when a suit is out of reach, at a fidelity that varies with the clip. Fidelity climbs from library to mocap; flexibility is highest with markerless video. Whatever the source, the motion lands on a standard skeleton and retargets to your MetaHuman.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Motion into your MetaHuman, whatever the source</h4>
+                    <pre class="mermaid">
+flowchart TD
+    LIB[Animation library clip] --> STD[Body animation on<br/>a standard skeleton]
+    MOCAP[Motion capture suit] --> STD
+    VID[Markerless video solve] --> STD
+    STD --> RT[Retarget onto the<br/>MetaHuman body]
+    RT --> POL[Polish with Control Rig]
+    style MOCAP fill:#e8eaf6,stroke:#3949ab
+    style STD fill:#fff3cd,stroke:#ffc107
+    style RT fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Every source funnels to the same standard skeleton, retargets onto the MetaHuman body, and gets a Control Rig pass for the finishing touches.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: match the feet to the ground, always</h4>
+                    <p>The single most common tell of a borrowed animation is a foot that slides or floats. After retargeting, check ground contact first. A short <a href="int_l06_control_rig.html">Control Rig</a> pass to pin the feet fixes what a viewer notices most, long before you fuss over the subtler joints.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="grooms" class="lesson-section">
+                <h2>Grooms: The Hair That Sells a Human</h2>
+
+                <p>A moving body with a bald, plastic head still reads as a mannequin. Hair is what tips a digital human from a figure into a person, and in Unreal hair is its own kind of asset called a <strong>groom</strong>. A groom is not a texture painted on the scalp; it is real strands, thousands of them, that catch light and move. And it is not one thing: the scalp hair, the eyebrows, the eyelashes, and any beard are each a separate groom bound to the head.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 280" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">A groom is several strand assets, bound to the head</text>
+                    <!-- head hub -->
+                    <circle cx="430" cy="150" r="52" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="430" y="147" text-anchor="middle" fill="#283593" style="font:700 13px system-ui">MetaHuman</text>
+                    <text x="430" y="165" text-anchor="middle" fill="#283593" style="font:700 13px system-ui">head</text>
+                    <!-- four grooms -->
+                    <rect x="60" y="70" width="200" height="52" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="160" y="92" text-anchor="middle" fill="#4527a0" style="font:600 12.5px system-ui">Scalp hair</text>
+                    <text x="160" y="110" text-anchor="middle" fill="#7e57c2" style="font:10.5px system-ui">the biggest groom, it moves</text>
+                    <rect x="60" y="178" width="200" height="52" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="160" y="200" text-anchor="middle" fill="#4527a0" style="font:600 12.5px system-ui">Eyebrows</text>
+                    <text x="160" y="218" text-anchor="middle" fill="#7e57c2" style="font:10.5px system-ui">small, but read every expression</text>
+                    <rect x="600" y="70" width="200" height="52" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="700" y="92" text-anchor="middle" fill="#4527a0" style="font:600 12.5px system-ui">Eyelashes</text>
+                    <text x="700" y="110" text-anchor="middle" fill="#7e57c2" style="font:10.5px system-ui">frame the eyes up close</text>
+                    <rect x="600" y="178" width="200" height="52" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="700" y="200" text-anchor="middle" fill="#4527a0" style="font:600 12.5px system-ui">Beard or stubble</text>
+                    <text x="700" y="218" text-anchor="middle" fill="#7e57c2" style="font:10.5px system-ui">optional, per character</text>
+                    <!-- connectors -->
+                    <line x1="260" y1="96" x2="382" y2="135" stroke="#999" stroke-width="2"/>
+                    <line x1="260" y1="204" x2="382" y2="165" stroke="#999" stroke-width="2"/>
+                    <line x1="600" y1="96" x2="478" y2="135" stroke="#999" stroke-width="2"/>
+                    <line x1="600" y1="204" x2="478" y2="165" stroke="#999" stroke-width="2"/>
+                    <text x="430" y="262" text-anchor="middle" fill="#666" style="font:12px system-ui">Each groom binds to the head and follows the face rig, so a raised brow moves its hair too.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: A groom is several strand assets &#183; scalp hair, eyebrows, eyelashes, and an optional beard are each their own groom, bound to the head. They follow the face rig, so the hair moves with the performance rather than sitting frozen on top of it.</em></p>
+
+                <p>Two properties of grooms are worth carrying forward. First, they <strong>bind to the head and follow the rig</strong>, so when the captured face performance raises a brow, the eyebrow groom lifts with it; the hair is part of the performance, not a hat glued on afterward. Second, real strands are expensive, so grooms ship with <strong>levels of detail</strong>: full strands for a close-up, and cheaper card or mesh stand-ins as the character moves away from camera. You get the fidelity where it counts and the performance where it does not.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Grooms bind, simulate, and simplify</h4>
+                    <p>A groom does three jobs in a shot. It <strong>binds</strong> to the head so it follows the face and body. It can <strong>simulate</strong>, so scalp hair sways as the character moves rather than staying rigid. And it carries <strong>levels of detail</strong> so a crowd of digital humans does not cost the same as one hero close-up. Bind, simulate, simplify: the three verbs of a groom in production.</p>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="pipeline" class="lesson-section">
+                <h2>The Whole Digital Human, Assembled</h2>
+
+                <p>Now every piece exists. The face performance from the last lesson, the retargeted body from this one, and the grooms that dress the head all belong to the same character, and they come together in the place you already know: <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a>. Your MetaHuman gets a Face track carrying the capture and a Body track carrying the retargeted motion; the grooms ride along on the head, bound to both. Beside them sit the <a href="int_l02_cinematics_with_sequencer.html">Cine Camera</a> and <a href="int_l05_cinematic_lighting.html">lights</a>, and the whole thing renders through <a href="int_l03_rendering_output.html">Movie Render Queue</a> like any other shot.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Body, face, and grooms become one performing character</h4>
+                    <pre class="mermaid">
+flowchart LR
+    BODY[Retargeted body motion] --> SEQ[Sequencer<br/>one MetaHuman, two tracks]
+    FACE[Solved face performance] --> SEQ
+    GROOM[Grooms bound to the head] --> SEQ
+    CAM[Cine Camera and lights] --> SEQ
+    SEQ --> MRQ[Movie Render Queue]
+    MRQ --> OUT[The finished digital human]
+    style FACE fill:#e8eaf6,stroke:#3949ab
+    style BODY fill:#f3eefb,stroke:#7e57c2
+    style SEQ fill:#e3f2fd,stroke:#2196F3
+    style OUT fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The retargeted body, the captured face, and the grooms layer on one MetaHuman in Sequencer, alongside the camera and lights, and render through the same Movie Render Queue you already know.</p>
+                </div>
+
+                <p>Step back and look at what the advanced track has assembled. Lesson 1 gave you the shared rig, Lesson 2 put your character onto it, Lesson 3 made the face act, and this lesson gave the body its motion and the head its hair. The digital human is now complete: a figure you built, that acts with a captured face, moves with borrowed and polished motion, and reads as human down to the strands. What is left is to stand that finished digital human inside a real cinematic shot, camera, lights, staging, and render, as <a href="adv_l05_metahuman_in_a_shot.html">the capstone</a> of everything you have built across both tracks. That is the last lesson.</p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Move and Dress the Body</h2>
+
+                <p>Put the body half together end to end. The goal is not a hero shot, it is to feel how borrowed motion becomes your character's motion, and how a groom rides the performance.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127939; Exercise: from a stock clip to a moving, haired MetaHuman</h3>
+                    <ol>
+                        <li><strong>Grab a body animation.</strong> Take a walk or idle clip authored on the standard <code>SK_Manny</code> skeleton, from the engine's library or a marketplace pack.</li>
+                        <li><strong>Retarget it.</strong> Use the <a href="int_l04_ik_retargeter.html">IK Retargeter</a> to replay that clip on your MetaHuman body, the same way you retargeted onto <code>SK_Anya</code> in the intermediate track.</li>
+                        <li><strong>Check the feet.</strong> Play it back and watch ground contact. If a foot slides, note it, that is your Control Rig job.</li>
+                        <li><strong>Polish with a Control Rig.</strong> Add a short <a href="int_l06_control_rig.html">Control Rig</a> pass to pin the feet or add a small flourish the stock clip lacks.</li>
+                        <li><strong>Confirm the grooms.</strong> With the body moving, check that the scalp hair and eyebrows follow the head and, if simulation is on, sway with the motion rather than staying rigid.</li>
+                        <li><strong>Drop it in Sequencer.</strong> Place the MetaHuman in a <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> shot with a Body track, and if you solved a face in the last lesson, add that Face track too so the character moves and speaks at once.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: the motion looks wrong on your character?</summary>
+                        <p style="margin-top: 0.5rem;">Almost always it is the retarget, not the clip. If the pose is twisted or limbs bend the wrong way, the bone mapping between the source and the MetaHuman skeleton is off, so revisit the retargeter's bone chains rather than blaming the animation. If the motion looks right but the feet slide, that is expected: retargeting rarely nails ground contact, and a short Control Rig pass is the intended fix, not a workaround.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: one clip, two very different bodies</h4>
+                    <p>Retarget the same walk clip onto two MetaHumans with different heights and proportions, a tall figure and a short one. Watching one animation fit two different bodies is the clearest demonstration of this lesson's core idea: motion authored on a standard skeleton is portable, and the retargeter, not the animator, does the fitting.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Why is the body of a MetaHuman animated with different tools than the face?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> The body cannot be animated in Unreal at all</label>
+                            <label><input type="radio" name="q1" value="b"> The face is a dense field of blended controls best captured, while the body is a jointed skeleton posed and driven like any skeletal character, so they are different animation problems</label>
+                            <label><input type="radio" name="q1" value="c"> The body uses a completely non-standard rig unique to MetaHuman</label>
+                            <label><input type="radio" name="q1" value="d"> The face and body must always be animated together in one pass</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A MetaHuman is animated in two halves. The face is hundreds of coordinated controls a viewer reads expertly, so you capture it; the body is a set of jointed bones, so you retarget and Control-Rig it. Keeping them apart lets you refine each without disturbing the other.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What makes body animation portable onto a MetaHuman?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> The MetaHuman body rides a standard skeleton, so motion authored on any compatible rig can plug in</label>
+                            <label><input type="radio" name="q2" value="b"> Every animation is hand-keyframed for each character individually</label>
+                            <label><input type="radio" name="q2" value="c"> The body has no skeleton, only a mesh</label>
+                            <label><input type="radio" name="q2" value="d"> Motion only works if the source character looks identical</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; Animation in Unreal is authored against a skeleton, not a specific character. Because the MetaHuman body follows the same standard bone conventions as the rest of the engine, any motion on a compatible skeleton can play on it, which is exactly what makes retargeting possible.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What does the IK Retargeter do for a MetaHuman body?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> It captures a new face performance</label>
+                            <label><input type="radio" name="q3" value="b"> It paints hair strands onto the scalp</label>
+                            <label><input type="radio" name="q3" value="c"> It replays an animation authored on one skeleton faithfully on a different one, matching the pose limb for limb even when the bodies differ</label>
+                            <label><input type="radio" name="q3" value="d"> It renders the final shot to disk</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; Retargeting takes motion built on a source skeleton such as <code>SK_Manny</code> and maps it bone for bone onto the MetaHuman, so a walk cycle built for the mannequin moves your character without re-animating a step. A Control Rig then handles the finishing details.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Which of these is a source of body motion you can retarget onto a MetaHuman?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Only a full professional motion-capture stage</label>
+                            <label><input type="radio" name="q4" value="b"> Animation libraries, a tracked motion-capture suit, or markerless video, all landing on a standard skeleton</label>
+                            <label><input type="radio" name="q4" value="c"> Only animation you keyframe entirely by hand</label>
+                            <label><input type="radio" name="q4" value="d"> A still photograph of a pose</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The three practical wells are ready-made animation libraries, a tracked mocap suit for the highest fidelity, and markerless video that solves motion from plain footage. All three produce animation on a standard skeleton, which then retargets onto your MetaHuman.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What is a groom, and how does it behave on a MetaHuman?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> A single flat texture of hair painted on the head</label>
+                            <label><input type="radio" name="q5" value="b"> A strand-based hair asset, split into scalp hair, brows, lashes, and beard, that binds to the head, can simulate, and carries levels of detail</label>
+                            <label><input type="radio" name="q5" value="c"> A body animation clip</label>
+                            <label><input type="radio" name="q5" value="d"> A camera setting for close-ups</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A groom is real strands, not a texture. Scalp hair, eyebrows, eyelashes, and any beard are each their own groom bound to the head, so they follow the face rig, can simulate as the character moves, and ship with levels of detail so a crowd does not cost the same as a hero close-up.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You finished the digital human below the neck: gave the body its motion, dressed the head with grooms, and assembled the whole figure in the shot. Here is what to carry forward:</p>
+
+                <p><strong>The body is the other half, solved by tools you already know.</strong> The face is captured because it is a dense field of controls; the body is a jointed skeleton, so it is retargeted and Control-Rigged exactly like any skeletal character. Because a MetaHuman body rides a standard skeleton, motion authored anywhere on a compatible rig can plug straight in.</p>
+
+                <p><strong>Retargeting borrows motion, Control Rig finishes it.</strong> The IK Retargeter maps an animation from a source skeleton such as <code>SK_Manny</code> onto your MetaHuman, limb for limb. That gets you most of the way; a short Control Rig pass pins the feet and adds the details a stock clip lacks. Body motion comes from animation libraries, a mocap suit, or markerless video, all landing on that standard skeleton.</p>
+
+                <p><strong>Grooms make it read as human, and everything joins in Sequencer.</strong> Hair is strand-based groom assets, scalp, brows, lashes, and beard, bound to the head so they follow the performance, simulate as the body moves, and simplify at distance. Body track, Face track, and grooms all layer on one MetaHuman in Sequencer, beside the camera and lights, and render through Movie Render Queue.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>The body is a separate half of the digital human, animated by retargeting and Control Rig rather than face capture</li>
+                        <li>A MetaHuman body rides a standard skeleton, which makes any compatible motion portable onto it</li>
+                        <li>The IK Retargeter replays motion from a source skeleton on your MetaHuman, and a Control Rig polishes the result</li>
+                        <li>Body motion comes from animation libraries, a mocap suit, or markerless video</li>
+                        <li>Grooms are strand-based hair assets that bind to the head, simulate with motion, and carry levels of detail</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The body-motion image is a genuine live capture from the <code>ClaudeTest</code> project: <code>SK_Manny</code>, the standard Unreal mannequin, at rest and mid-run, standing in for the body animation a retarget maps onto a MetaHuman. The two-halves, standard-skeleton, motion-sources, groom, and assembly diagrams are labeled illustrations, because this project contains no MetaHuman asset and the mocap, retarget, and groom steps shown are workflows the automation bridge used for the course's captures cannot drive directly. The relationships they show are exactly the ones you follow in the tools, and the retargeting and Control Rig steps are the same ones you ran for real in the intermediate track.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This lesson completes the digital human that the whole advanced track has been building, and its body motion travels the same <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a> as any animation: <a href="unreal-phase-2-character-finalization.html">character finalization</a>, <a href="unreal-phase-4-animation-retargeting.html">animation and retargeting</a>, <a href="unreal-phase-5-shot-assembly.html">shot assembly</a>, <a href="unreal-phase-6-cinematography.html">cinematography</a>, and <a href="unreal-phase-7-output.html">output</a>. What changes is that the character being moved is a full digital human, face captured and body retargeted, ready to stand in a finished cinematic shot in <a href="adv_l05_metahuman_in_a_shot.html">the capstone that closes this track</a>.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="adv_l03_metahuman_animator.html" class="btn">&#8592; Previous: Face Performance with MetaHuman Animator</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="adv_l05_metahuman_in_a_shot.html" class="btn btn-outline">Next: A MetaHuman in a Finished Cinematic Shot &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

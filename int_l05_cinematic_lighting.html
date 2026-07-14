@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Intermediate Unreal Engine 5.8: light a character for the camera. Apply three-point lighting to a person, control the key-to-fill ratio for mood, use warm-key and cool-rim color contrast and motivated lighting, and light for the Cine Camera with locked exposure and subject separation.">
+    <meta name="author" content="Practical Ace">
+    <title>Cinematic Lighting: Lighting a Character for Camera - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#intermediate">Intermediate: Cinematic Production</a></li>
+            <li aria-current="page">Cinematic Lighting</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#128161; Cinematic Lighting: Lighting a Character for Camera</h1>
+                <p class="lead">Module 4 taught you how light <em>works</em> in Unreal: the light types, the sun and sky, interior setups, Lumen global illumination, and post-process. That module lit <strong>rooms and environments</strong>. This lesson points the same tools at a <strong>person in front of a lens</strong>, which is a different craft. A game asks "can the player see the space?" A film asks "how should this face feel?" You will apply <strong>three-point lighting</strong> to a character, control the <strong>key-to-fill ratio</strong> that sets mood, use <strong>warm and cool color contrast</strong> and <strong>motivated</strong> light, and light specifically for the camera and its exposure. The payoff is the difference between a character who is merely visible and one who looks like they belong in a movie.</p>
+
+                <!-- Intermediate banner -->
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#127916; Intermediate Track &#183; Deep Dive</h4>
+                    <p>This is a deep-dive companion to the <strong>Cinematic Production</strong> track. It assumes you have finished <a href="m04_l01_lighting_fundamentals.html">Module 4: Lighting Your World</a>, so it does not re-teach light types or how Lumen works. Instead it builds on them for the specific job of lighting a subject on camera, filling in the craft the <a href="unreal-phase-6-cinematography.html">Phase 6 Cinematography</a> pipeline page assumes. It pairs naturally with <a href="int_l02_cinematics_with_sequencer.html">Cinematics with Sequencer</a>, where you framed the shot this lesson lights.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain how lighting a character for camera differs from lighting an environment for gameplay</li>
+                        <li>Set up three-point lighting (key, fill, rim) on a person and describe each light's job</li>
+                        <li>Use the key-to-fill ratio to control contrast and shift between high-key and low-key mood</li>
+                        <li>Apply color temperature contrast (warm key, cool rim) and motivated lighting</li>
+                        <li>Light for the Cine Camera: lock exposure, separate the subject from the background, and place a catchlight</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 40-50 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="m04_l01_lighting_fundamentals.html">Module 4 (all five lighting lessons)</a>, and <a href="int_l02_cinematics_with_sequencer.html">Intermediate Lesson 2: Cinematics with Sequencer</a> for the Cine Camera. A working Unreal Engine 5.8 project with a character to light.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#room-to-person" class="toc-link">From Lighting a Room to Lighting a Person</a></li>
+                        <li><a href="#three-point" class="toc-link">Three-Point Lighting on a Character</a></li>
+                        <li><a href="#ratio" class="toc-link">The Key-to-Fill Ratio: Contrast and Mood</a></li>
+                        <li><a href="#color-motivation" class="toc-link">Color, Temperature, and Motivation</a></li>
+                        <li><a href="#for-camera" class="toc-link">Lighting for the Camera and Exposure</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Light a Character</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="room-to-person" class="lesson-section">
+                <h2>From Lighting a Room to Lighting a Person</h2>
+
+                <p>In <a href="m04_l03_interior_lighting.html">Interior Lighting</a> you met three-point lighting as a way to think about a <em>space</em>: a window as the key, bounced ambience as the fill, an accent to pick out a feature. The goal there was believable, readable architecture. Cinematic lighting borrows the same three roles but changes the subject and the question. The subject is now a <strong>face and a figure</strong>, and the question is not "can I see the room?" but "what does this shot feel like, and where do I want the eye to go?"</p>
+
+                <p>That shift has real consequences. Game lighting usually wants the whole playable space evenly lit so nothing important hides in shadow. Cinematic lighting <em>wants</em> shadow: the dark side of a face is what gives it shape, and a pool of darkness is what makes a highlight read. You will often light a character with a darker environment around them precisely so the light you put on them does the storytelling.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Cinematic lighting:</strong> lighting chosen to shape a subject and set a mood for a specific camera, rather than to illuminate a whole space for play. It trades even, total visibility for <em>contrast</em>, <em>direction</em>, and <em>color</em>, using the same Unreal lights (Directional, Spot, Point, Rect) you already know.</p>
+                </div>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Where this sits in the pipeline</h4>
+                    <p>In the <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, lighting the shot is part of cinematography: the character is staged and the camera is framed (<a href="int_l02_cinematics_with_sequencer.html">Lesson 2</a>), and now you light them before you render (<a href="int_l03_rendering_output.html">Lesson 3</a>). That is the subject of the <a href="unreal-phase-6-cinematography.html">Phase 6 Cinematography</a> page.</p>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="three-point" class="lesson-section">
+                <h2>Three-Point Lighting on a Character</h2>
+
+                <p>The workhorse setup for a subject is <strong>three-point lighting</strong>: three lights, each with one job. On a room the roles are loose; on a person they are precise, because each one shapes the face and body in a specific way.</p>
+
+                <div class="card">
+                    <h4>The three lights and their jobs</h4>
+                    <ul>
+                        <li><strong>Key light:</strong> the main, brightest light and the one that defines the subject's form. Placed off to one side and above (classically around 45 degrees to the side and 45 degrees up), it creates the primary highlight and the shadow that gives the face shape.</li>
+                        <li><strong>Fill light:</strong> a softer, dimmer light on the <em>opposite</em> side of the camera from the key. Its only job is to lift the key's shadows so they are not pure black. How much you fill sets the contrast.</li>
+                        <li><strong>Rim light</strong> (also called back or hair light): placed <em>behind</em> the subject, aimed back toward camera. It draws a bright edge along the hair and shoulders that separates the subject from the background.</li>
+                    </ul>
+                </div>
+
+                <p>Here is that setup seen from above: the camera looks at the subject, the key comes from one front-side, the fill from the other, and the rim from behind.</p>
+
+                <div style="max-width: 760px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 760 470" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:600px;">
+                    <text x="380" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Three-point lighting, seen from above</text>
+                    <!-- subject -->
+                    <circle cx="380" cy="235" r="30" fill="#e6f7f4" stroke="#4fd1c5" stroke-width="2"/>
+                    <text x="380" y="240" text-anchor="middle" fill="#1f7a70" style="font:700 13px system-ui">subject</text>
+                    <!-- camera bottom -->
+                    <rect x="345" y="400" width="70" height="42" rx="6" fill="#37474f"/>
+                    <rect x="360" y="388" width="40" height="16" rx="3" fill="#607d8b"/>
+                    <text x="380" y="426" text-anchor="middle" fill="#fff" style="font:700 12px system-ui">camera</text>
+                    <line x1="380" y1="388" x2="380" y2="268" stroke="#90a4ae" stroke-width="2" stroke-dasharray="4 4"/>
+                    <!-- KEY upper-left, warm -->
+                    <circle cx="140" cy="120" r="26" fill="#ffe0b2" stroke="#fb8c00" stroke-width="2"/>
+                    <text x="140" y="118" text-anchor="middle" fill="#e65100" style="font:700 12px system-ui">KEY</text>
+                    <text x="140" y="134" text-anchor="middle" fill="#e65100" style="font:600 10px system-ui">warm, bright</text>
+                    <line x1="162" y1="135" x2="357" y2="222" stroke="#fb8c00" stroke-width="3"/>
+                    <polygon points="357,222 345,214 348,229" fill="#fb8c00"/>
+                    <text x="205" y="150" fill="#e65100" style="font:600 11px system-ui">~45&#176; side</text>
+                    <!-- FILL upper-right, cool dim -->
+                    <circle cx="620" cy="140" r="26" fill="#e1f0fb" stroke="#1e88e5" stroke-width="2"/>
+                    <text x="620" y="138" text-anchor="middle" fill="#1565c0" style="font:700 12px system-ui">FILL</text>
+                    <text x="620" y="154" text-anchor="middle" fill="#1565c0" style="font:600 10px system-ui">cool, dim</text>
+                    <line x1="598" y1="152" x2="405" y2="226" stroke="#1e88e5" stroke-width="2.5" stroke-dasharray="6 4"/>
+                    <polygon points="405,226 417,218 414,233" fill="#1e88e5"/>
+                    <!-- RIM behind (top) -->
+                    <circle cx="380" cy="70" r="26" fill="#e1f0fb" stroke="#5e35b1" stroke-width="2"/>
+                    <text x="380" y="68" text-anchor="middle" fill="#4527a0" style="font:700 12px system-ui">RIM</text>
+                    <text x="380" y="84" text-anchor="middle" fill="#4527a0" style="font:600 10px system-ui">behind</text>
+                    <line x1="380" y1="96" x2="380" y2="203" stroke="#5e35b1" stroke-width="2.5"/>
+                    <polygon points="380,203 372,191 388,191" fill="#5e35b1"/>
+                    <!-- key/fill note -->
+                    <rect x="120" y="300" width="520" height="40" rx="8" fill="#fff3cd" stroke="#ffc107"/>
+                    <text x="380" y="325" text-anchor="middle" fill="#7a5c00" style="font:600 12px system-ui">Key and fill sit on opposite sides of the camera &#183; the rim faces back toward the lens from behind</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The classic three-point layout from above. The key is the bright, form-defining light to one front-side; the fill is a dimmer light on the opposite side that opens the shadows; the rim sits behind the subject to draw a separating edge.</em></p>
+
+                <p>The effect is best seen, not described. Below is the exact same character, <code>SK_Anya</code>, captured twice in Unreal from the same camera. On the left she is lit by a single flat light straight from the front, the way a quick game setup might. On the right she is lit with three points: a warm key from the side, a dim cool fill, and a cool rim behind.</p>
+
+                <img src="images/int_l05/int_l05_fig01_three_point_before_after.png" alt="A side-by-side comparison of the same red-haired armored character standing in an A-pose on a dark checkered floor. Left, labeled BEFORE - one flat frontal light: the character is evenly but flatly lit, her face washed out and her form lacking depth, with a single hard shadow. Right, labeled AFTER - three-point: warm key + cool fill + rim: the same character has a warm light modeling one side of her face, a softer shadow on the other side, more visible depth in her armor, and a bright rim highlight along the top of her hair separating her from the dark background." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The same <code>SK_Anya</code> character, one flat frontal light versus a three-point rig, captured in Unreal Engine 5.8. On the right, three real <code>SpotLight</code> actors (a warm key, a cool fill, and a cool rim) shape her face and lift her off the background &#183; both halves use the same camera and a locked exposure so only the lighting changes, in the <code>ClaudeTest</code> project.</em></p>
+
+                <p>Look at what changed. The flat version reads the whole face at one brightness, so it looks pasted-on and shapeless. The three-point version has a lit side and a shadow side (that is <em>form</em>), a warm-to-cool gradient across the skin (that is <em>depth</em>), and a bright edge on the hair that peels her away from the dark background (that is <em>separation</em>). Nothing about the model changed. Only the lights did.</p>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="ratio" class="lesson-section">
+                <h2>The Key-to-Fill Ratio: Contrast and Mood</h2>
+
+                <p>Once the three lights are placed, the single most expressive control you have is how bright the fill is relative to the key. This is the <strong>key-to-fill ratio</strong>, and it is where mood actually lives. A strong fill (close to the key's brightness) gives a bright, even, friendly look. A weak fill (or none) leaves the shadow side deep and dark, which reads as serious, tense, or dramatic.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Key-to-fill ratio:</strong> the brightness of the key light compared with the fill. A low ratio (say 2:1) means the shadow side is only a little darker than the lit side, giving <strong>high-key</strong>, low-contrast lighting. A high ratio (8:1 or more) means the shadow side is much darker, giving <strong>low-key</strong>, high-contrast lighting. Same three lights, completely different feeling.</p>
+                </div>
+
+                <div style="max-width: 780px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 780 320" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:620px;">
+                    <text x="390" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">The same face at two key-to-fill ratios</text>
+                    <!-- high-key face (left) -->
+                    <text x="200" y="66" text-anchor="middle" fill="#2e7d32" style="font:700 13px system-ui">High-key &#183; low ratio (2:1)</text>
+                    <defs>
+                        <linearGradient id="hk" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0" stop-color="#fff2d8"/><stop offset="1" stop-color="#e8d3b0"/>
+                        </linearGradient>
+                        <linearGradient id="lk" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0" stop-color="#ffe6b0"/><stop offset="0.55" stop-color="#8a6a3a"/><stop offset="1" stop-color="#241a10"/>
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="200" cy="170" rx="70" ry="88" fill="url(#hk)" stroke="#c9a86a" stroke-width="1.5"/>
+                    <circle cx="178" cy="150" r="7" fill="#5c4a2a"/><circle cx="224" cy="150" r="7" fill="#5c4a2a"/>
+                    <path d="M 176 200 Q 200 214 224 200" fill="none" stroke="#8a6a45" stroke-width="3"/>
+                    <text x="200" y="284" text-anchor="middle" fill="#555" style="font:600 12px system-ui">soft, even, friendly</text>
+                    <!-- low-key face (right) -->
+                    <text x="580" y="66" text-anchor="middle" fill="#b71c1c" style="font:700 13px system-ui">Low-key &#183; high ratio (8:1)</text>
+                    <ellipse cx="580" cy="170" rx="70" ry="88" fill="url(#lk)" stroke="#3a2c18" stroke-width="1.5"/>
+                    <circle cx="558" cy="150" r="7" fill="#3a2a15"/><circle cx="604" cy="150" r="7" fill="#1a130a"/>
+                    <path d="M 556 200 Q 580 214 604 200" fill="none" stroke="#2a2012" stroke-width="3"/>
+                    <text x="580" y="284" text-anchor="middle" fill="#555" style="font:600 12px system-ui">shaped, moody, dramatic</text>
+                    <!-- arrow -->
+                    <line x1="300" y1="170" x2="480" y2="170" stroke="#999" stroke-width="2" marker-end="url(#a5)"/>
+                    <text x="390" y="160" text-anchor="middle" fill="#666" style="font:600 11px system-ui">lower the fill</text>
+                    <defs><marker id="a5" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><polygon points="0,0 9,4.5 0,9" fill="#999"/></marker></defs>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Only the fill brightness changes between these two. A low ratio keeps both sides of the face close in brightness (high-key, gentle); a high ratio lets the shadow side fall dark (low-key, dramatic).</em></p>
+
+                <p>Two more dials shape the same lights. <strong>Soft versus hard</strong>: a physically larger light source (a <em>Rect Light</em>, or a spot with a wide soft edge) wraps around the face and gives gentle, gradual shadows; a small, hard source gives crisp, sharp-edged shadows. And <strong>direction</strong>: raising the key gives more natural top-down shadows, while lowering it toward eye level flattens or, taken far enough, turns unsettling. Pick these to match the feeling you want.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Choosing a mood, then the ratio</h4>
+                    <pre class="mermaid">
+flowchart TD
+    Q{What should the<br/>shot feel like?} --> A[Warm, safe, upbeat]
+    Q --> B[Serious, tense, moody]
+    A --> A1[High-key<br/>low ratio 2:1, soft key,<br/>generous fill]
+    B --> B1[Low-key<br/>high ratio 8:1+, harder key,<br/>little or no fill]
+    style A1 fill:#e8f5e9,stroke:#4CAF50
+    style B1 fill:#ede7f6,stroke:#7e57c2
+                    </pre>
+                    <p>Decide the feeling first, then set the ratio to match. The lights are the same; the ratio is the story.</p>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="color-motivation" class="lesson-section">
+                <h2>Color, Temperature, and Motivation</h2>
+
+                <p>Brightness shapes the face; <strong>color</strong> gives it life. The most reliable cinematic trick is <strong>color temperature contrast</strong>: make the key slightly <em>warm</em> and the rim or fill slightly <em>cool</em>. The eye reads warm light as sunlight, firelight, or skin-friendly interior light, and cool light as sky, moonlight, or shade. Putting a warm side and a cool side on the same face adds a sense of depth and place that a single neutral white never will. In Unreal you set this per light with the <strong>Temperature</strong> control (in Kelvin): lower numbers are warm and orange, higher numbers are cool and blue.</p>
+
+                <div style="max-width: 800px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:640px;">
+                    <text x="400" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Color temperature (Kelvin)</text>
+                    <defs>
+                        <linearGradient id="kelvin" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0" stop-color="#ff9838"/><stop offset="0.25" stop-color="#ffbe74"/>
+                            <stop offset="0.5" stop-color="#fff3e3"/><stop offset="0.7" stop-color="#eaf1ff"/>
+                            <stop offset="1" stop-color="#a7c4ff"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="60" y="60" width="680" height="50" rx="8" fill="url(#kelvin)" stroke="#ccc"/>
+                    <g style="font:600 12px system-ui" fill="#555">
+                        <text x="90" y="132">2000K</text>
+                        <text x="240" y="132">3200K</text>
+                        <text x="400" y="132" text-anchor="middle">5600K</text>
+                        <text x="560" y="132" text-anchor="middle">7000K</text>
+                        <text x="710" y="132" text-anchor="end">9000K</text>
+                    </g>
+                    <text x="120" y="98" fill="#7a3800" style="font:700 13px system-ui">warm</text>
+                    <text x="680" y="98" text-anchor="end" fill="#1a3a7a" style="font:700 13px system-ui">cool</text>
+                    <!-- labels -->
+                    <text x="150" y="170" text-anchor="middle" fill="#7a5c00" style="font:600 12px system-ui">candle / fire</text>
+                    <text x="270" y="170" text-anchor="middle" fill="#7a5c00" style="font:600 12px system-ui">tungsten lamp</text>
+                    <text x="400" y="170" text-anchor="middle" fill="#555" style="font:600 12px system-ui">midday sun</text>
+                    <text x="560" y="170" text-anchor="middle" fill="#1565c0" style="font:600 12px system-ui">overcast sky</text>
+                    <text x="690" y="170" text-anchor="middle" fill="#1565c0" style="font:600 12px system-ui">shade / moon</text>
+                    <rect x="120" y="196" width="560" height="36" rx="8" fill="#fff3cd" stroke="#ffc107"/>
+                    <text x="400" y="220" text-anchor="middle" fill="#7a5c00" style="font:600 12px system-ui">Cinematic move: warm key (~4500K) against a cool rim (~8000K) on the same face</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: A light's Temperature in Kelvin runs from warm orange at low values to cool blue at high ones. A common cinematic choice is a warm key played against a cooler rim, which is exactly the pairing in this lesson's before-and-after figure.</em></p>
+
+                <p>The other half of believable light is <strong>motivation</strong>. Motivated lighting means every light in your shot has a plausible <em>source</em> in the world: the warm key is "the setting sun" or "a fireplace," the cool rim is "the sky behind her," a flicker is "a torch." You rarely show the source, but placing lights as if they come from somewhere real keeps a scene from looking arbitrarily lit. When you invent a light, ask what in the scene could be casting it, and aim it accordingly.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; From a source in the world to a light on the face</h4>
+                    <pre class="mermaid">
+flowchart LR
+    S1[Setting sun<br/>in the scene] --> K[Warm key<br/>~4500K, from that side]
+    S2[Open sky<br/>behind subject] --> R[Cool rim<br/>~8000K, from behind]
+    S3[Bounce off nearby wall] --> F[Soft fill<br/>neutral, opposite key]
+    K --> FACE[A face that reads<br/>as really being there]
+    R --> FACE
+    F --> FACE
+    style FACE fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Each light answers to something in the world. That is the difference between lighting that feels placed and lighting that feels real.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="for-camera" class="lesson-section">
+                <h2>Lighting for the Camera and Exposure</h2>
+
+                <p>Lighting for film is always lighting <em>for a specific camera</em>. A setup that looks good from one angle can fall apart from another, so you light and judge through the lens you will actually shoot, the <a href="int_l02_cinematics_with_sequencer.html">Cine Camera</a> from Lesson 2. Pilot that camera, then build your three points while looking at the framed image, not the free editor view.</p>
+
+                <p>The camera also controls <strong>exposure</strong>, and exposure will fight you if you let it. By default Unreal's auto-exposure (eye adaptation) brightens dark scenes and darkens bright ones, so as you tune a light the whole image keeps re-balancing and you can never tell what your lights are really doing. The fix is to <strong>lock exposure</strong> for the shot.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Lock exposure before you judge lighting</h4>
+                    <p>Add a <strong>Post Process Volume</strong> (set it Unbound so it covers the whole level) and set the exposure to <strong>Manual</strong>, or clamp auto-exposure by setting its Min and Max Brightness to the same value. Now the image stops drifting, and a brighter light actually looks brighter. The before-and-after figure in this lesson was shot with exactly this locked-exposure trick, which is the only way the two halves are honestly comparable.</p>
+                </div>
+
+                <p>With exposure fixed, three finishing touches separate a good character light from a great one:</p>
+
+                <div class="card">
+                    <h4>Finishing touches</h4>
+                    <ul>
+                        <li><strong>Separation.</strong> Make sure the subject does not merge into the background. The rim light does most of this, but you can also keep the area directly behind them darker (or brighter) than their edge so the silhouette reads.</li>
+                        <li><strong>The catchlight.</strong> A tiny reflection of the key in the eyes brings a face to life. If the eyes look dead, nudge the key until a small highlight appears in them.</li>
+                        <li><strong>Exposure as mood.</strong> With exposure locked you can also choose to sit the whole image a little darker or brighter (via the exposure compensation) to lean into a low-key or high-key feel.</li>
+                    </ul>
+                </div>
+
+                <p>Because these lights are ordinary Unreal actors, everything here is animatable in Sequencer, and it all resolves at full quality only when you render through the <a href="int_l03_rendering_output.html">Movie Render Queue</a>. Light the shot, lock the exposure, then hand it to the renderer.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The order of operations for lighting a shot</h4>
+                    <pre class="mermaid">
+flowchart LR
+    A[Pilot the<br/>Cine Camera] --> B[Lock exposure<br/>Post Process Volume]
+    B --> C[Place the key<br/>set the form]
+    C --> D[Add fill<br/>set the ratio]
+    D --> E[Add rim<br/>separate from bg]
+    E --> F[Color + catchlight,<br/>judge in frame]
+    F --> G[Render<br/>Movie Render Queue]
+    style B fill:#fff3cd,stroke:#ffc107
+    style G fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Camera and exposure first, then key, fill, and rim in that order, judging every step through the lens.</p>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Light a Character</h2>
+
+                <p>You need a character (a mannequin is fine) and a mostly empty, darkened level so your lights do the work. Work through these steps and you will have built the exact rig from this lesson's figure.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128161; Exercise: build a three-point rig</h3>
+                    <ol>
+                        <li><strong>Darken the stage.</strong> Turn the Directional Light and Sky Light way down (or delete them) so the character starts nearly unlit. Add a <em>Post Process Volume</em>, mark it Unbound, and lock exposure so the image stops auto-adjusting.</li>
+                        <li><strong>Frame the camera.</strong> Add a Cine Camera Actor, pilot it, and compose a head-and-shoulders or upper-body shot of the character.</li>
+                        <li><strong>Place the key.</strong> Add a Spot Light (or Rect Light) about 45 degrees to one side and above. Set its Temperature warm (around 4500K) and raise its intensity until the lit side of the face reads well. Note the shadow it casts across the face: that is your form.</li>
+                        <li><strong>Add the fill.</strong> Add a second, dimmer light on the opposite side of the camera. Set it cooler (around 7500K) and much lower in intensity. Adjust its brightness to taste: more fill for a friendly look, less for a dramatic one.</li>
+                        <li><strong>Add the rim.</strong> Add a third light behind the character, aimed back toward camera and offset to one side. Push its intensity until a bright edge appears on the hair and shoulders and lifts them off the background.</li>
+                        <li><strong>Judge and tune.</strong> Look only through the piloted camera. Check for a catchlight in the eyes, confirm the silhouette separates from the background, and set the key-to-fill ratio for the mood you want.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: everything is blown out or pitch black?</summary>
+                        <p style="margin-top: 0.5rem;">That is auto-exposure, not your lights. If you skipped the locked-exposure step, the dark stage makes eye adaptation crank brightness way up, so the first light you add blows out completely. Add the Unbound Post Process Volume and set exposure to Manual (or clamp Min and Max Brightness to the same value) before you tune intensities, and the lights will behave predictably.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: change only the ratio</h4>
+                    <p>With the rig built, do not touch the key or rim. Just take the fill from bright down to nearly off, capturing the framing at a few steps. Watch the same face travel from friendly and high-key to moody and low-key with a single slider. That is the clearest possible demonstration that mood lives in the ratio, not in the number of lights.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>How does lighting a character for a cinematic differ from lighting a level for gameplay?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Cinematic lighting must use only the Directional Light</label>
+                            <label><input type="radio" name="q1" value="b"> Cinematic lighting embraces shadow and contrast to shape a subject and set mood, rather than evenly lighting a whole space</label>
+                            <label><input type="radio" name="q1" value="c"> Gameplay lighting cannot use color</label>
+                            <label><input type="radio" name="q1" value="d"> There is no difference; the goals are identical</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Game lighting usually wants the whole space evenly visible. Cinematic lighting wants contrast and direction, because the dark side of a face is what gives it form and mood.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>In a three-point setup, what is the rim (back) light's job?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> To be the brightest light and define the face's form</label>
+                            <label><input type="radio" name="q2" value="b"> To lift the shadows created by the key</label>
+                            <label><input type="radio" name="q2" value="c"> To draw a bright edge on the hair and shoulders that separates the subject from the background</label>
+                            <label><input type="radio" name="q2" value="d"> To set the scene's overall exposure</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; The rim sits behind the subject aimed back toward camera, drawing a bright separating edge. The key defines form; the fill lifts shadows; the rim separates.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What does a high key-to-fill ratio (for example 8:1) produce?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> High-key, low-contrast, friendly lighting</label>
+                            <label><input type="radio" name="q3" value="b"> Low-key, high-contrast, dramatic lighting with a dark shadow side</label>
+                            <label><input type="radio" name="q3" value="c"> A perfectly flat, shadowless face</label>
+                            <label><input type="radio" name="q3" value="d"> A change in the camera's focal length</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A high ratio means the fill is much dimmer than the key, so the shadow side falls dark. That is low-key, high-contrast, dramatic lighting. A low ratio (2:1) gives the gentle, high-key look.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>What is "motivated" lighting?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> Lighting that is always at maximum brightness</label>
+                            <label><input type="radio" name="q4" value="b"> Lighting placed as if it comes from a plausible source in the world, like the sun, sky, or a fire</label>
+                            <label><input type="radio" name="q4" value="c"> Lighting that only uses cool colors</label>
+                            <label><input type="radio" name="q4" value="d"> Lighting baked into the level instead of dynamic</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Motivated lighting means each light answers to a believable source in the scene, even if that source is never shown. It is what keeps a shot from looking arbitrarily lit.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>You add a light in a dark scene and the whole image blows out, and every tweak makes the picture re-balance. What is the fix?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Lock exposure with an Unbound Post Process Volume (manual exposure, or clamped auto-exposure)</label>
+                            <label><input type="radio" name="q5" value="b"> Increase the display resolution</label>
+                            <label><input type="radio" name="q5" value="c"> Delete the character and re-add it</label>
+                            <label><input type="radio" name="q5" value="d"> Switch the camera to a longer focal length</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; The drifting is auto-exposure (eye adaptation) reacting to the dark scene. Locking exposure with an Unbound Post Process Volume stops the image from re-balancing so your lights behave predictably.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You took the lights from Module 4 and used them to shape a person. Here is the arc:</p>
+
+                <p><strong>A different job.</strong> Cinematic lighting shapes a subject and sets a mood for a camera, trading even visibility for contrast, direction, and color. Where game lighting avoids shadow, cinematic lighting uses it.</p>
+
+                <p><strong>Three points and a ratio.</strong> The key defines form, the fill lifts shadows, and the rim separates the subject from the background. The key-to-fill ratio then sets the mood: low ratio for a bright high-key look, high ratio for a dark low-key one.</p>
+
+                <p><strong>Color, motivation, and the camera.</strong> Warm key against cool rim adds depth, and motivating each light with a source in the world keeps it believable. You light through the piloted Cine Camera with exposure locked, add a catchlight and separation, and hand the shot to the Movie Render Queue.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Cinematic lighting shapes a subject with contrast and direction, unlike even gameplay lighting</li>
+                        <li>Three-point on a person: key defines form, fill lifts shadows, rim separates from the background</li>
+                        <li>The key-to-fill ratio sets mood: low ratio = high-key and gentle, high ratio = low-key and dramatic</li>
+                        <li>Warm key against a cool rim adds depth; motivate every light with a plausible source</li>
+                        <li>Light through the Cine Camera with exposure locked by an Unbound Post Process Volume</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The before-and-after image is a genuine capture from the live Unreal Engine 5.8 editor in the <code>ClaudeTest</code> project. The same <code>SK_Anya</code> character was shot from one camera, first under a single flat frontal light and then under three real <code>SpotLight</code> actors (a warm key, a cool fill, and a cool rim), with exposure locked by an Unbound Post Process Volume so only the lighting differs. The layout, ratio, and color diagrams are labeled illustrations of the concepts.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>Lighting is the last craft layer before the render. With your character staged (<a href="int_l01_characters_and_animation.html">Lesson 1</a>), animated (<a href="int_l04_ik_retargeter.html">Lesson 4</a>), and framed in a shot (<a href="int_l02_cinematics_with_sequencer.html">Lesson 2</a>), lighting is what makes that shot read as cinema before you send it to the <a href="int_l03_rendering_output.html">Movie Render Queue</a>. In the <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a> this is the heart of <a href="unreal-phase-6-cinematography.html">Phase 6 Cinematography</a>.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="int_l04_ik_retargeter.html" class="btn">&#8592; Previous: IK Retargeter</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="int_l06_control_rig.html" class="btn">Next: Animating with Control Rig &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

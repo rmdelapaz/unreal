@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8: Mesh to MetaHuman. Turn a bespoke character mesh, a scan, a sculpt, or a Daz figure, into a rigged MetaHuman by solving a MetaHuman identity from it. The idea behind the identity solve, the step-by-step workflow, how the face solve relates to the body and grooms, what makes a good or poor candidate, and where the result drops into the cinematic pipeline.">
+    <meta name="author" content="Practical Ace">
+    <title>Mesh to MetaHuman - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#advanced">Advanced: Digital Humans with MetaHuman</a></li>
+            <li aria-current="page">Mesh to MetaHuman</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#129513; Mesh to MetaHuman</h1>
+                <p class="lead">You have a character you designed. The face is yours, the look is art-directed, and it is exactly the human you want on screen. What you do not have is the months of rigging, the eight levels of detail, and the face-performance pipeline that a <a href="adv_l01_what_is_a_metahuman.html">MetaHuman</a> ships with. <strong>Mesh to MetaHuman</strong> is the bridge between those two facts. It takes your mesh, a scan, a sculpt, or a Daz figure like the course's <code>SK_Anya</code>, and solves a MetaHuman that matches it, handing your one-off character the entire shared rig. This lesson drives that bridge end to end.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#129516; Advanced Track &#183; Digital Humans</h4>
+                    <p>This is the second lesson of the <strong>Digital Humans with MetaHuman</strong> track, and the one <a href="adv_l01_what_is_a_metahuman.html">Lesson 1</a> pointed at repeatedly. Where the first lesson mapped the MetaHuman system, this one connects it to your own work: the workflow that turns a bespoke human into a first-class MetaHuman. Read it as the practical follow-through on the promise that you can stop building rigs and start casting the characters you already own.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain the gap Mesh to MetaHuman fills: you own the look, but not the rig</li>
+                        <li>Describe what a MetaHuman identity is and how the solve conforms a template to your mesh</li>
+                        <li>Walk the workflow: prepare a frame, create an identity, track markers, solve, and generate a MetaHuman</li>
+                        <li>Separate what the face solve does from the body, grooms, and clothing that come from elsewhere</li>
+                        <li>Judge whether a given mesh is a good or poor candidate for the solve</li>
+                        <li>Place the resulting MetaHuman back into the cinematic pipeline you already know</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-65 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="adv_l01_what_is_a_metahuman.html">What Is a MetaHuman?</a> (this lesson assumes the shared-rig idea), plus <a href="int_l01_characters_and_animation.html">Characters &amp; Animation</a> for Skeletal Meshes and <a href="int_l04_ik_retargeter.html">Retargeting</a> for how body motion moves between skeletons. A working Unreal Engine 5.8 install with the MetaHuman plugin enabled.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#why" class="toc-link">Why Turn a Mesh into a MetaHuman</a></li>
+                        <li><a href="#identity" class="toc-link">The Idea: Solving an Identity</a></li>
+                        <li><a href="#workflow" class="toc-link">The Workflow, Step by Step</a></li>
+                        <li><a href="#body" class="toc-link">Face First, Then the Whole Human</a></li>
+                        <li><a href="#limits" class="toc-link">Good Candidates and Poor Ones</a></li>
+                        <li><a href="#pipeline" class="toc-link">After the Bridge</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Solve Your First Identity</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="why" class="lesson-section">
+                <h2>Why Turn a Mesh into a MetaHuman</h2>
+
+                <p>Think about what you actually have when you import a custom character. You have geometry, materials, and a skeleton, the things you met back in <a href="int_l01_characters_and_animation.html">Lesson 1</a>. That is enough to place the character and, with <a href="int_l04_ik_retargeter.html">retargeting</a>, to move its body. What it is not is a face you can perform. Your mesh has no MetaHuman facial rig, no levels of detail built for real time, and no way to receive a captured face performance. You own the look and none of the infrastructure.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 260" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">You own the look, not the rig</text>
+                    <!-- what you have -->
+                    <rect x="30" y="55" width="360" height="170" rx="10" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="210" y="82" text-anchor="middle" fill="#4527a0" style="font:700 14px system-ui">Your custom mesh has</text>
+                    <g style="font:12px system-ui" fill="#2e7d32">
+                        <text x="55" y="112">&#10003; geometry, the exact look you made</text>
+                        <text x="55" y="140">&#10003; materials and textures</text>
+                        <text x="55" y="168">&#10003; a skeleton for body animation</text>
+                    </g>
+                    <text x="210" y="204" text-anchor="middle" fill="#7e57c2" style="font:italic 11px system-ui">enough to stage and retarget the body</text>
+                    <!-- what it lacks -->
+                    <rect x="470" y="55" width="360" height="170" rx="10" fill="#fbe9e7" stroke="#c62828" stroke-width="2"/>
+                    <text x="650" y="82" text-anchor="middle" fill="#c62828" style="font:700 14px system-ui">But it is missing</text>
+                    <g style="font:12px system-ui" fill="#c62828">
+                        <text x="495" y="112">&#10007; a MetaHuman facial rig</text>
+                        <text x="495" y="140">&#10007; eight real-time levels of detail</text>
+                        <text x="495" y="168">&#10007; a way to receive a face performance</text>
+                    </g>
+                    <text x="650" y="204" text-anchor="middle" fill="#c62828" style="font:italic 11px system-ui">months of specialist work to build by hand</text>
+                    <text x="430" y="248" text-anchor="middle" fill="#283593" style="font:600 12px system-ui">Mesh to MetaHuman fills the right column from the left</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The gap Mesh to MetaHuman closes &#183; a custom mesh brings the look, the materials, and a body skeleton, but none of the MetaHuman facial rig, levels of detail, or face-performance pipeline. The solve gives your existing character all of it.</em></p>
+
+                <p>Here is the kind of mesh this is built for, opened in its Skeletal Mesh editor. It is the course's <code>SK_Anya</code>, the Daz-derived character you have followed since the intermediate track: a genuine, art-directed human with its own skeleton and its own long list of materials, and exactly nothing of the MetaHuman rig.</p>
+
+                <img src="images/adv_l02/adv_l02_fig01_input_mesh.png" alt="The Unreal Engine Skeletal Mesh editor open on SK_Anya, the course's Daz-derived character, shown in an A-pose in the viewport. The Skeleton Tree panel on the right lists the character's real Daz bone names starting at the Kat-for-Genesis-9 root through hip, pelvis, and the leg chain, and the material panel shows the mesh carries thirty-four material slots. This is a bespoke custom human with its own skeleton and materials but no MetaHuman facial rig, the exact kind of input Mesh to MetaHuman is designed to convert." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The input mesh, opened live in the <code>ClaudeTest</code> project &#183; <code>SK_Anya</code> in its Skeletal Mesh editor, with its own Daz skeleton (root <code>Kat-for-Genesis-9</code>) and thirty-four material slots. This is a bespoke human carrying its own look and rig for the body, and it is precisely the sort of character you feed into Mesh to MetaHuman to borrow the shared facial rig.</em></p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="identity" class="lesson-section">
+                <h2>The Idea: Solving an Identity</h2>
+
+                <p>Mesh to MetaHuman does not warp a generic head until it looks like yours, and it does not copy your mesh vertex for vertex. It does something smarter, and understanding it makes the whole workflow make sense. Unreal keeps a <strong>MetaHuman template</strong>, the shared face topology from Lesson 1, and it <em>solves</em> for the version of that template that best matches your mesh. The result is called a <strong>MetaHuman identity</strong>: a description of your character expressed in MetaHuman terms.</p>
+
+                <p>The bridge between your arbitrary geometry and that shared template is a set of <strong>landmarks</strong>. You mark where the eyes, nose, mouth, and jaw sit on your mesh, and the solve fits the template to those features. Because the answer is always a MetaHuman, it arrives already carrying the shared rig, the levels of detail, and everything else the system provides.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="28" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">From your geometry to a rigged MetaHuman</text>
+                    <!-- step 1 your mesh -->
+                    <rect x="20" y="55" width="180" height="130" rx="10" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="110" y="80" text-anchor="middle" fill="#4527a0" style="font:700 13px system-ui">Your mesh</text>
+                    <circle cx="110" cy="130" r="38" fill="#ede7f6" stroke="#7e57c2"/>
+                    <text x="110" y="135" text-anchor="middle" fill="#7e57c2" style="font:11px system-ui">arbitrary head</text>
+                    <!-- arrow -->
+                    <line x1="205" y1="120" x2="235" y2="120" stroke="#999" stroke-width="2" marker-end="url(#ar)"/>
+                    <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- step 2 landmarks -->
+                    <rect x="240" y="55" width="180" height="130" rx="10" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                    <text x="330" y="80" text-anchor="middle" fill="#1565c0" style="font:700 13px system-ui">Landmarks</text>
+                    <circle cx="330" cy="130" r="38" fill="#eaf4fd" stroke="#2196F3"/>
+                    <circle cx="318" cy="120" r="3.5" fill="#f5576c"/><circle cx="342" cy="120" r="3.5" fill="#f5576c"/>
+                    <circle cx="330" cy="133" r="3.5" fill="#f5576c"/><circle cx="322" cy="148" r="3.5" fill="#f5576c"/><circle cx="338" cy="148" r="3.5" fill="#f5576c"/>
+                    <text x="330" y="178" text-anchor="middle" fill="#1565c0" style="font:10px system-ui">mark eyes, nose, mouth</text>
+                    <line x1="425" y1="120" x2="455" y2="120" stroke="#999" stroke-width="2" marker-end="url(#ar)"/>
+                    <!-- step 3 solve -->
+                    <rect x="460" y="55" width="180" height="130" rx="10" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="550" y="80" text-anchor="middle" fill="#7a5c00" style="font:700 13px system-ui">Solve identity</text>
+                    <circle cx="550" cy="130" r="38" fill="#fff8e1" stroke="#ffc107"/>
+                    <text x="550" y="127" text-anchor="middle" fill="#7a5c00" style="font:10px system-ui">template fits</text>
+                    <text x="550" y="142" text-anchor="middle" fill="#7a5c00" style="font:10px system-ui">to your features</text>
+                    <line x1="645" y1="120" x2="675" y2="120" stroke="#999" stroke-width="2" marker-end="url(#ar)"/>
+                    <!-- step 4 metahuman -->
+                    <rect x="680" y="55" width="180" height="130" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="770" y="80" text-anchor="middle" fill="#283593" style="font:700 13px system-ui">A MetaHuman</text>
+                    <circle cx="770" cy="130" r="38" fill="#c5cae9" stroke="#3949ab"/>
+                    <text x="770" y="127" text-anchor="middle" fill="#283593" style="font:10px system-ui">resembles you,</text>
+                    <text x="770" y="142" text-anchor="middle" fill="#283593" style="font:10px system-ui">fully rigged</text>
+                    <text x="440" y="222" text-anchor="middle" fill="#666" style="font:12px system-ui">The output is always a MetaHuman, so it arrives already carrying the shared rig and levels of detail.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The identity solve &#183; you place landmarks on your mesh, Unreal fits the shared MetaHuman template to those features, and the result is a MetaHuman that resembles your character and already carries the rig. Individuality is captured; the infrastructure comes for free.</em></p>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="workflow" class="lesson-section">
+                <h2>The Workflow, Step by Step</h2>
+
+                <p>The tool has a specific order, and each step feeds the next. None of it is hard once you know why the step exists, so here is the whole road before you drive it.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The Mesh to MetaHuman pipeline</h4>
+                    <pre class="mermaid">
+flowchart TD
+    PREP[Prepare a neutral frame<br/>mouth closed, eyes open, face visible] --> ID[Create a MetaHuman Identity asset<br/>from your mesh]
+    ID --> TRACK[Promote a frame and track markers<br/>place and nudge the landmarks]
+    TRACK --> SOLVE[Solve the identity<br/>fit the template to your features]
+    SOLVE --> GEN[Mesh to MetaHuman<br/>generate the full MetaHuman]
+    GEN --> REFINE[Refine in MetaHuman Creator<br/>body type, skin, grooms]
+    style PREP fill:#f3eefb,stroke:#7e57c2
+    style SOLVE fill:#fff3cd,stroke:#ffc107
+    style GEN fill:#e8eaf6,stroke:#3949ab
+                    </pre>
+                    <p>Prepare a clean neutral frame, create an identity from it, mark the features, solve, generate the MetaHuman, then refine it in the Creator.</p>
+                </div>
+
+                <p>Three of those steps deserve a note, because they are where the quality of your result is decided:</p>
+
+                <ul>
+                    <li><strong>Prepare a neutral frame.</strong> The solve wants your character in a calm, neutral expression: mouth closed, eyes open, and the face unobstructed. A neutral pose gives the template a clean baseline to fit, which is why a scowling or talking frame produces a worse identity.</li>
+                    <li><strong>Track the markers.</strong> Unreal places facial landmarks automatically, then hands them to you to nudge. Time spent here, making the eye corners and lip line sit exactly on your mesh, is the single biggest lever on how much the final MetaHuman looks like your character.</li>
+                    <li><strong>Solve, then generate.</strong> Solving produces the identity, a MetaHuman-shaped description of your face. Mesh to MetaHuman then turns that identity into a real, complete MetaHuman you can open in the Creator and keep tuning.</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: the markers matter more than the mesh</h4>
+                    <p>A beautiful high-resolution mesh with sloppy landmarks solves worse than a modest mesh with careful ones. The solve only sees your geometry through the markers, so treat marker placement as the real work of this lesson, not a formality to click past.</p>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="body" class="lesson-section">
+                <h2>Face First, Then the Whole Human</h2>
+
+                <p>It is easy to expect Mesh to MetaHuman to reproduce your entire character. It does not, and knowing the boundary saves you a lot of confusion. The solve is about the <strong>face</strong>. The rest of the MetaHuman, the body, the grooms, the skin, and anything the character was wearing, comes from different places.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Where each part comes from</h4>
+                    <pre class="mermaid">
+flowchart LR
+    MESH[Your mesh] -->|the solve| FACE[Face identity<br/>shape + rig]
+    PRESET[MetaHuman system] --> BODY[A body type you pick]
+    PRESET --> GROOM[Grooms you choose]
+    PRESET --> SKIN[Skin you tune]
+    FACE --> MH[Your MetaHuman]
+    BODY --> MH
+    GROOM --> MH
+    SKIN --> MH
+    ORIG[Your original mesh] -.keeps.-> CLOTH[Clothing / armor,<br/>handled separately]
+    style FACE fill:#e3f2fd,stroke:#2196F3
+    style MH fill:#e8eaf6,stroke:#3949ab
+    style CLOTH fill:#fbe9e7,stroke:#c62828
+                    </pre>
+                    <p>The face shape and rig come from solving your mesh. The body, grooms, and skin come from the MetaHuman system and are yours to choose and tune. Clothing and armor are not part of the solve and stay with your original asset.</p>
+                </div>
+
+                <p>So the honest way to describe the output is this: a MetaHuman that <em>resembles</em> your character on the shared rig, with a body and grooms you select, that you then refine toward your original design. If your character's identity lives in a distinctive costume rather than its face, remember that the costume was never part of the solve; you keep your original mesh for the wardrobe and let the MetaHuman carry the performance.</p>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="limits" class="lesson-section">
+                <h2>Good Candidates and Poor Ones</h2>
+
+                <p>Mesh to MetaHuman is remarkable, but it is not magic, and it has a clear sweet spot. The solve is built around a realistic human head, so the closer your mesh is to that, with the face clearly visible, the better the identity it produces. Push away from that and the results degrade in predictable ways.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 250" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="28" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">How good a candidate is your mesh?</text>
+                    <!-- good -->
+                    <rect x="30" y="52" width="390" height="165" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="225" y="78" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">Solves well</text>
+                    <g style="font:12px system-ui" fill="#2e7d32">
+                        <text x="52" y="106">&#10003; a realistic human head</text>
+                        <text x="52" y="132">&#10003; a neutral expression, mouth closed</text>
+                        <text x="52" y="158">&#10003; the face clear of hair, hats, or wraps</text>
+                        <text x="52" y="184">&#10003; symmetric, well-lit, undistorted</text>
+                    </g>
+                    <!-- poor -->
+                    <rect x="440" y="52" width="390" height="165" rx="10" fill="#fbe9e7" stroke="#c62828" stroke-width="2"/>
+                    <text x="635" y="78" text-anchor="middle" fill="#c62828" style="font:700 14px system-ui">Fights the solve</text>
+                    <g style="font:12px system-ui" fill="#c62828">
+                        <text x="462" y="106">&#10007; heavy stylization or cartoon proportions</text>
+                        <text x="462" y="132">&#10007; non-human faces and creatures</text>
+                        <text x="462" y="158">&#10007; a face occluded by hair or a headwrap</text>
+                        <text x="462" y="184">&#10007; extreme expression baked into the mesh</text>
+                    </g>
+                    <text x="430" y="240" text-anchor="middle" fill="#666" style="font:12px system-ui">Closer to a real, visible human head means a closer identity. Occlusion and stylization are the usual culprits.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: What the solve handles well and what it fights &#183; a realistic, neutral, unobstructed human head solves cleanly; heavy stylization, non-human forms, and an occluded face all pull the result away from your intent.</em></p>
+
+                <p>This is where the course's own <code>SK_Anya</code> is an honest teaching example rather than a perfect one. She is a realistic human head, which is promising, but her <a href="#why">headwrap</a> partly covers the hairline and forehead, exactly the kind of occlusion the right-hand column warns about. In practice you would prepare a frame with the face and hairline exposed before solving, or accept that the wrap is wardrobe you keep on the original mesh. The lesson is general: a good candidate is a visible human face, and preparation is how you turn a real character into one.</p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="pipeline" class="lesson-section">
+                <h2>After the Bridge</h2>
+
+                <p>Once the solve is done, something quietly important has happened: your one-off character is now a MetaHuman, a first-class citizen of the whole system. Everything <a href="adv_l01_what_is_a_metahuman.html">Lesson 1</a> promised now applies to a character you designed. It has the shared rig, so it can take a face performance. It has the levels of detail, so it stays real time. And to the cinematic pipeline it is just a rigged human.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; A converted character rejoins the pipeline</h4>
+                    <pre class="mermaid">
+flowchart LR
+    ONE[A one-off custom mesh] -->|Mesh to MetaHuman| MH[A rigged MetaHuman]
+    MH --> BODY[Body performance<br/>retarget or Control Rig]
+    MH --> FACEP[Face performance<br/>captured onto the shared rig]
+    BODY --> SHOT[Assemble, light, render<br/>the cinematic pipeline]
+    FACEP --> SHOT
+    style ONE fill:#f3eefb,stroke:#7e57c2
+    style MH fill:#e8eaf6,stroke:#3949ab
+    style SHOT fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The bridge converts a one-off mesh into a MetaHuman, which then feeds the same body animation, face performance, and cinematic pipeline as any other MetaHuman.</p>
+                </div>
+
+                <p>That is the whole point of the bridge. You do not choose between the character you designed and the power of the MetaHuman system; you bring the first into the second. The next lesson picks up exactly here, with the face performance the shared rig now makes possible, and later the full body animation and grooms that finish the digital human.</p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Solve Your First Identity</h2>
+
+                <p>Run the solve once, start to finish, on a human head you have. The goal is not a perfect result, it is to feel the shape of the workflow and see how much the markers matter.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#129513; Exercise: a mesh becomes a MetaHuman</h3>
+                    <ol>
+                        <li><strong>Pick a candidate.</strong> Choose a mesh with a realistic, visible human head in a neutral pose. A head scan is ideal; a character like <code>SK_Anya</code> works if you expose the face and hairline first.</li>
+                        <li><strong>Create an identity.</strong> With the MetaHuman plugin enabled, create a MetaHuman Identity asset and bring your mesh in as its source.</li>
+                        <li><strong>Promote a frame.</strong> Choose the neutral view you prepared and promote it as the frame the solve will read.</li>
+                        <li><strong>Track and adjust markers.</strong> Let Unreal place the facial landmarks, then nudge the eye corners, nose, and lip line until they sit exactly on your mesh. Spend real time here.</li>
+                        <li><strong>Solve, then generate.</strong> Run the identity solve, review how well the fitted template matches, then use Mesh to MetaHuman to generate the full MetaHuman.</li>
+                        <li><strong>Open it in the Creator.</strong> Load the result in MetaHuman Creator, pick a body type, and tune the skin and grooms toward your original design.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: the MetaHuman does not look much like my character?</summary>
+                        <p style="margin-top: 0.5rem;">Two usual causes, both upstream of the result. If the proportions are off, revisit the markers; a lip line or eye corner placed even slightly wrong drags the whole identity with it. If the whole face fights you, the frame was probably not neutral or the face was partly occluded, so prepare a cleaner, unobstructed neutral frame and solve again. The fix is almost never in the generated MetaHuman; it is in the frame and the markers you fed the solve.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: move a body animation onto it</h4>
+                    <p>Take the MetaHuman you just made and, using the <a href="int_l04_ik_retargeter.html">IK Retargeter</a> from the intermediate track, retarget one of your existing body animations onto it. You will see your designed character, now a MetaHuman, walking or gesturing with motion it never had before. That is the two halves of this course meeting: your character carrying both your look and a shared, animatable rig.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What gap does Mesh to MetaHuman close for a custom character?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> It gives the character more polygons</label>
+                            <label><input type="radio" name="q1" value="b"> The character has the look but no MetaHuman facial rig, levels of detail, or face-performance pipeline, and the solve provides them</label>
+                            <label><input type="radio" name="q1" value="c"> It renders the character faster</label>
+                            <label><input type="radio" name="q1" value="d"> It replaces the character's textures</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A custom mesh brings geometry, materials, and a body skeleton, but none of the MetaHuman facial rig, levels of detail, or face-performance capability. Mesh to MetaHuman hands your existing character all of that.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What is a MetaHuman identity, in the sense the solve produces one?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> An exact vertex-for-vertex copy of your mesh</label>
+                            <label><input type="radio" name="q2" value="b"> The shared MetaHuman template fitted to your mesh's features, so the result is a MetaHuman that resembles your character</label>
+                            <label><input type="radio" name="q2" value="c"> A texture atlas of your character</label>
+                            <label><input type="radio" name="q2" value="d"> A body animation clip</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The solve does not copy your mesh; it fits the shared MetaHuman template to your features, expressed through landmarks. Because the answer is a MetaHuman, it arrives already carrying the rig and levels of detail.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>In the workflow, which step has the biggest effect on how much the result looks like your character?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Choosing the output folder</label>
+                            <label><input type="radio" name="q3" value="b"> Carefully placing the facial landmarks, since the solve only sees your mesh through the markers</label>
+                            <label><input type="radio" name="q3" value="c"> Increasing the render resolution</label>
+                            <label><input type="radio" name="q3" value="d"> Picking a body type</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The solve reads your geometry through the landmarks, so marker placement is the real work. A careful lip line and eye corners produce a close identity; sloppy markers drag the whole result off, no matter how good the mesh.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Your character's identity is mostly in its distinctive armor. What should you expect from Mesh to MetaHuman?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> The solve will recreate the armor as part of the MetaHuman</label>
+                            <label><input type="radio" name="q4" value="b"> The solve is about the face; the armor is not part of it, so you keep the original mesh for wardrobe and let the MetaHuman carry the performance</label>
+                            <label><input type="radio" name="q4" value="c"> The armor becomes the MetaHuman's skin material</label>
+                            <label><input type="radio" name="q4" value="d"> The solve refuses to run</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Mesh to MetaHuman solves the face. The body comes from a preset type and the clothing or armor was never part of the solve, so distinctive wardrobe stays with your original asset while the MetaHuman provides the rig and performance.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Which mesh is the best candidate for a clean solve?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> A stylized cartoon head with exaggerated proportions</label>
+                            <label><input type="radio" name="q5" value="b"> A realistic human head in a neutral expression with the face clearly visible</label>
+                            <label><input type="radio" name="q5" value="c"> A creature with a non-human face</label>
+                            <label><input type="radio" name="q5" value="d"> A human head mid-shout with the mouth wide open and hair over the face</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The solve is built around a realistic human head, so a neutral, unobstructed, visible face solves best. Stylization, non-human forms, occlusion, and extreme baked expressions all pull the identity away from your intent.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You drove the bridge from a bespoke character to a full MetaHuman. Here is what to carry forward:</p>
+
+                <p><strong>The gap is the rig, not the look.</strong> A custom mesh already has geometry, materials, and a body skeleton. What it lacks is the MetaHuman facial rig, the levels of detail, and the ability to receive a face performance. Mesh to MetaHuman provides exactly those, so you keep the character you designed and gain the infrastructure you did not build.</p>
+
+                <p><strong>It solves an identity, guided by markers.</strong> The tool fits the shared MetaHuman template to your mesh's features rather than copying your mesh, and it reads those features through landmarks you place. Careful markers on a neutral, unobstructed frame are the whole quality lever. The output is always a MetaHuman, so it arrives rigged.</p>
+
+                <p><strong>Face first, then rejoin the pipeline.</strong> The solve is about the face; the body, grooms, skin, and wardrobe come from elsewhere. Once done, your character is a MetaHuman like any other, ready for body retargeting, a face performance, and the same assemble, light, and render pipeline you already know.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Mesh to MetaHuman gives a character you own the MetaHuman facial rig, levels of detail, and face-performance pipeline it lacked</li>
+                        <li>The solve fits the shared template to your mesh through landmarks; it does not copy your geometry</li>
+                        <li>Marker placement on a neutral, unobstructed frame is the single biggest lever on the result</li>
+                        <li>The solve handles the face; body, grooms, skin, and clothing come from the system or your original mesh</li>
+                        <li>A realistic, visible human head solves best; stylization and occlusion are the usual problems</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The input-mesh image is a genuine live capture from the <code>ClaudeTest</code> project: <code>SK_Anya</code> open in the Unreal Skeletal Mesh editor, showing its real Daz skeleton and material list. The gap, identity-solve, workflow, part-by-part, and candidate diagrams are labeled illustrations, because this project contains no MetaHuman asset and the Mesh to MetaHuman tool, MetaHuman Identity solve, and MetaHuman Creator are cloud-and-editor workflows that the automation bridge used for the course's live captures cannot drive. The steps they show are exactly the ones you run in the tool.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This lesson is the on-ramp for the rest of the advanced track and for your own characters. The MetaHuman it produces still travels the same <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a> as any character: <a href="unreal-phase-2-character-finalization.html">character finalization</a>, <a href="unreal-phase-4-animation-retargeting.html">animation</a>, <a href="unreal-phase-5-shot-assembly.html">shot assembly</a>, <a href="unreal-phase-6-cinematography.html">cinematography</a>, and <a href="unreal-phase-7-output.html">output</a>. What changes is that the human sent down it is now a fully rigged MetaHuman built from a character you designed.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="adv_l01_what_is_a_metahuman.html" class="btn">&#8592; Previous: What Is a MetaHuman?</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="adv_l03_metahuman_animator.html" class="btn btn-outline">Next: Face Performance with MetaHuman Animator &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

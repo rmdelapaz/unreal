@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Intermediate Unreal Engine 5.8: retarget animation between skeletons with the IK Rig and IK Retargeter. Build retarget chains and a retarget root, fix the retarget pose, map source chains onto target chains, and export a whole animation library onto a Daz character whose bones are named differently.">
+    <meta name="author" content="Practical Ace">
+    <title>Retargeting with the IK Retargeter - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#intermediate">Intermediate: Cinematic Production</a></li>
+            <li aria-current="page">Retargeting with the IK Retargeter</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#129535; Retargeting with the IK Retargeter</h1>
+                <p class="lead"><a href="int_l01_characters_and_animation.html">Lesson 1</a> ended with the single most valuable idea in production animation: <strong>retargeting</strong>, the trick that lets one library of motion drive characters that were never built for it. It showed you <em>why</em> retargeting has to exist, using two real characters in one project whose bones are named nothing alike. This lesson walks the <em>how</em>. You will build an <strong>IK Rig</strong> for each character, fix the <strong>retarget pose</strong> so the two skeletons agree on what "standing still" looks like, wire up an <strong>IK Retargeter</strong> that maps one rig's chains onto the other's, and export a mannequin walk cycle onto a Daz figure whose bones it has never heard of.</p>
+
+                <!-- Intermediate banner -->
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#127916; Intermediate Track &#183; Deep Dive</h4>
+                    <p>This is a deep-dive companion to the <strong>Cinematic Production</strong> track. The three core lessons (<a href="int_l01_characters_and_animation.html">Characters &amp; Animation</a>, <a href="int_l02_cinematics_with_sequencer.html">Cinematics with Sequencer</a>, <a href="int_l03_rendering_output.html">Rendering Output</a>) take a character from import to final frames. Lesson 1 <em>introduced</em> retargeting as the payoff idea; this lesson is where you actually do it, step by step. It is the hands-on version of the <a href="unreal-phase-4-animation-retargeting.html">Phase 4 Animation &amp; Retargeting</a> pipeline page.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain why animation cannot transfer between skeletons with different bone names and proportions</li>
+                        <li>Build an IK Rig: set a retarget root and define retarget chains for the spine, arms, and legs</li>
+                        <li>Fix the retarget pose so a source and target skeleton share the same reference stance</li>
+                        <li>Create an IK Retargeter, assign source and target rigs, and map chain to chain</li>
+                        <li>Export a retargeted clip to a new Animation Sequence, and batch a whole library at once</li>
+                        <li>Recognize and fix the common retargeting failures: twisted limbs, sliding feet, and a T-pose result</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 40-50 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="int_l01_characters_and_animation.html">Intermediate Lesson 1: Characters &amp; Animation</a> (Skeletons, bone hierarchies, and the retargeting problem). A working Unreal Engine 5.8 project with two different characters, for example an Epic mannequin and any Fab, Mixamo, or Daz-derived Skeletal Mesh.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#why-retarget" class="toc-link">Why Retargeting Has to Exist</a></li>
+                        <li><a href="#two-assets" class="toc-link">The Two-Asset System: IK Rig and IK Retargeter</a></li>
+                        <li><a href="#ik-rig" class="toc-link">Building an IK Rig: Root and Chains</a></li>
+                        <li><a href="#retarget-pose" class="toc-link">The Retarget Pose: Making Skeletons Agree</a></li>
+                        <li><a href="#ik-retargeter" class="toc-link">The IK Retargeter: Map, Preview, Export</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Retarget a Walk</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="why-retarget" class="lesson-section">
+                <h2>Why Retargeting Has to Exist</h2>
+
+                <p>Animation in Unreal is never truly generic. Every Animation Sequence is authored <em>for one specific Skeleton</em>, and it stores its motion as rotations on bones addressed <strong>by name</strong>. A walk cycle does not say "rotate the upper arm." It says "on frame 12, set <code>upperarm_l</code> to this rotation." Hand that clip to a Skeleton with no bone called <code>upperarm_l</code> and there is simply nothing for the data to land on.</p>
+
+                <p>That is the exact situation Lesson 1 set up with two real characters living in one project. The Kat figure (<code>SK_Anya</code>) came from Daz, so it carries Daz-style bone names on its own <code>SK_Anya_Skeleton</code>. Unreal's standard mannequin (<code>SK_Manny</code>) uses Epic's names on <code>SK_Mannequin</code>. Here is the real bone tree of the Daz character again, so the names are concrete:</p>
+
+                <img src="images/int_l01/int_l01_fig02_anya_skeletal_mesh_editor.png" alt="The Unreal 5.8 Skeletal Mesh editor showing SK_Anya, a Daz-derived character, in a reference A-pose. On the right, the Skeleton Tree panel lists a bone hierarchy that starts at a root named Kat-for-Genesis-9, then hip, pelvis, l_thigh, l_shin, l_foot and toe bones, all using Daz-style names rather than Unreal mannequin names." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The real bone tree of the Daz-derived <code>SK_Anya</code> in the <code>ClaudeTest</code> project (the same capture you met in Lesson 1). The root is literally <code>Kat-for-Genesis-9</code>, and the joints read <code>hip</code>, <code>pelvis</code>, <code>l_thigh</code>, <code>l_shin</code> &#183; a mannequin animation looking for <code>pelvis</code>/<code>thigh_l</code>/<code>calf_l</code> will not find these.</em></p>
+
+                <p>The name clash is only half the trouble. Even if you renamed every bone to match, the two bodies are built to different proportions: Kat is a different height, her arms and legs are different lengths, her shoulders sit at a different width. Copy a mannequin's raw bone rotations onto her and her hands would punch through her hips or float away from her sides. Real retargeting has to solve <em>both</em> problems at once, remapping names <strong>and</strong> re-fitting the motion to the target's proportions.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The one-sentence version</h4>
+                    <p>Retargeting translates an animation from the skeleton it was made for onto a different skeleton, matching <em>which bone is which</em> and <em>how long each bone is</em>, so the motion reads correctly on a body it was never authored for.</p>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="two-assets" class="lesson-section">
+                <h2>The Two-Asset System: IK Rig and IK Retargeter</h2>
+
+                <p>Unreal solves retargeting with two cooperating assets. It is worth being precise about which one does what, because their names sound similar and beginners routinely confuse them.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>IK Rig:</strong> a per-character asset that <em>describes</em> a Skeleton. It marks a <strong>retarget root</strong> (usually the pelvis) and groups bones into named <strong>retarget chains</strong> like "LeftArm" or "Spine." One IK Rig per character. <strong>IK Retargeter:</strong> a <em>pairing</em> asset that connects a source IK Rig to a target IK Rig and maps the source's chains onto the target's, then transfers animation between them.</p>
+                </div>
+
+                <p>The division of labor is clean. Each IK Rig speaks only about <em>its own</em> character: "on this skeleton, the left arm is these three bones." The IK Retargeter is the bilingual translator that sits between two rigs and says "the thing your source calls LeftArm is the thing your target calls LeftArm, so route the motion accordingly." You build the rigs once per character; you build a retargeter once per source-and-target pair.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 380" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Two IK Rigs, one IK Retargeter between them</text>
+                    <!-- source rig -->
+                    <rect x="30" y="70" width="240" height="240" rx="12" fill="#fff" stroke="#4fd1c5" stroke-width="2"/>
+                    <text x="150" y="96" text-anchor="middle" fill="#2b9e92" style="font:700 14px system-ui">IK Rig: Mannequin</text>
+                    <text x="150" y="114" text-anchor="middle" fill="#999" style="font:11px system-ui">source &#183; SK_Mannequin</text>
+                    <g style="font:600 12px system-ui" fill="#333">
+                        <rect x="52" y="132" width="196" height="26" rx="5" fill="#e6faf7"/><text x="64" y="150">root: pelvis</text>
+                        <rect x="52" y="164" width="196" height="26" rx="5" fill="#f2fbfa"/><text x="64" y="182">chain: Spine</text>
+                        <rect x="52" y="196" width="196" height="26" rx="5" fill="#f2fbfa"/><text x="64" y="214">chain: LeftArm / RightArm</text>
+                        <rect x="52" y="228" width="196" height="26" rx="5" fill="#f2fbfa"/><text x="64" y="246">chain: LeftLeg / RightLeg</text>
+                        <rect x="52" y="260" width="196" height="26" rx="5" fill="#f2fbfa"/><text x="64" y="278">chain: Head</text>
+                    </g>
+                    <!-- target rig -->
+                    <rect x="590" y="70" width="240" height="240" rx="12" fill="#fff" stroke="#e9c07a" stroke-width="2"/>
+                    <text x="710" y="96" text-anchor="middle" fill="#b8860b" style="font:700 14px system-ui">IK Rig: Kat</text>
+                    <text x="710" y="114" text-anchor="middle" fill="#999" style="font:11px system-ui">target &#183; SK_Anya_Skeleton</text>
+                    <g style="font:600 12px system-ui" fill="#333">
+                        <rect x="612" y="132" width="196" height="26" rx="5" fill="#fdf3e0"/><text x="624" y="150">root: hip</text>
+                        <rect x="612" y="164" width="196" height="26" rx="5" fill="#fdf8ef"/><text x="624" y="182">chain: Spine</text>
+                        <rect x="612" y="196" width="196" height="26" rx="5" fill="#fdf8ef"/><text x="624" y="214">chain: LeftArm / RightArm</text>
+                        <rect x="612" y="228" width="196" height="26" rx="5" fill="#fdf8ef"/><text x="624" y="246">chain: LeftLeg / RightLeg</text>
+                        <rect x="612" y="260" width="196" height="26" rx="5" fill="#fdf8ef"/><text x="624" y="278">chain: Head</text>
+                    </g>
+                    <!-- retargeter in the middle -->
+                    <rect x="312" y="150" width="236" height="90" rx="12" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="430" y="182" text-anchor="middle" fill="#7a5c00" style="font:700 14px system-ui">IK Retargeter</text>
+                    <text x="430" y="204" text-anchor="middle" fill="#7a5c00" style="font:600 11px system-ui">maps chains by matching name</text>
+                    <text x="430" y="222" text-anchor="middle" fill="#7a5c00" style="font:600 11px system-ui">Spine&#8594;Spine, LeftArm&#8594;LeftArm &#8230;</text>
+                    <!-- arrows -->
+                    <g stroke="#ffc107" stroke-width="3" fill="#ffc107">
+                        <line x1="270" y1="195" x2="306" y2="195"/><polygon points="306,188 306,202 320,195"/>
+                        <line x1="548" y1="195" x2="584" y2="195"/><polygon points="584,188 584,202 598,195"/>
+                    </g>
+                    <text x="150" y="336" text-anchor="middle" fill="#666" style="font:12px system-ui">describes the source body</text>
+                    <text x="430" y="336" text-anchor="middle" fill="#7a5c00" style="font:700 12px system-ui">translates between them</text>
+                    <text x="710" y="336" text-anchor="middle" fill="#666" style="font:12px system-ui">describes the target body</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The retargeting system. Each character gets one IK Rig that labels its retarget root and chains in a shared vocabulary (Spine, LeftArm, LeftLeg&#8230;) &#183; the single IK Retargeter in the middle pairs a source rig with a target rig and matches chains by that shared name, regardless of the underlying bone names.</em></p>
+
+                <p>Because both rigs describe themselves with the <em>same chain vocabulary</em>, the retargeter never has to know that one skeleton says <code>upperarm_l</code> and the other says <code>l_upperarm</code>. It only sees "LeftArm on the source" and "LeftArm on the target," and connects them. That shared vocabulary is the whole trick, and building it is the job of the IK Rig.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The end-to-end workflow</h4>
+                    <pre class="mermaid">
+flowchart LR
+    A[Build IK Rig<br/>on source] --> C[Create IK Retargeter]
+    B[Build IK Rig<br/>on target] --> C
+    C --> D[Map chains<br/>source to target]
+    D --> E[Fix retarget pose<br/>align stances]
+    E --> F[Preview an anim<br/>on the target]
+    F --> G[Export to a new<br/>Animation Sequence]
+    style C fill:#fff3cd,stroke:#ffc107
+    style G fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Two rigs feed one retargeter; the retargeter maps chains, you correct the pose, preview, and export. The rest of this lesson is these boxes, one at a time.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="ik-rig" class="lesson-section">
+                <h2>Building an IK Rig: Root and Chains</h2>
+
+                <p>An IK Rig is created from a Skeletal Mesh (right-click the mesh, <em>Create &#8594; IK Rig</em>) and opened in its own editor, where the character stands next to its Skeleton hierarchy. Setting it up for retargeting is two jobs: naming the root, and drawing the chains.</p>
+
+                <h3>The retarget root</h3>
+
+                <p>The <strong>retarget root</strong> is the single bone that carries the character's overall position and facing in the world, almost always the <strong>pelvis</strong> or <strong>hip</strong>. It is special because it is the one bone whose <em>translation</em> retargets, not just its rotation: it is what moves the whole body forward during a walk. Get this wrong and your character will animate its limbs correctly but slide around, or stay pinned to the origin. On the mannequin the retarget root is <code>pelvis</code>; on Kat it is <code>hip</code>.</p>
+
+                <h3>Retarget chains</h3>
+
+                <p>A <strong>retarget chain</strong> is a named run of bones from a start joint to an end joint that represents one limb or region. You define one chain per body part and give it a standard name. The names are what the retargeter matches on, so using consistent names (Epic's own conventions like <code>Spine</code>, <code>LeftArm</code>, <code>RightLeg</code>, <code>Head</code>) is what makes the pairing in the next asset automatic.</p>
+
+                <div style="max-width: 820px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 820 430" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:640px;">
+                    <text x="410" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Retarget chains drawn on the Kat skeleton</text>
+                    <!-- simple skeleton stick -->
+                    <!-- pelvis -->
+                    <circle cx="410" cy="200" r="12" fill="#f5576c" stroke="#fff" stroke-width="2"/>
+                    <text x="410" y="234" text-anchor="middle" fill="#f5576c" style="font:700 12px system-ui">hip = retarget root</text>
+                    <!-- spine up -->
+                    <line x1="410" y1="200" x2="410" y2="110" stroke="#7e57c2" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="410" cy="90" r="10" fill="#7e57c2"/>
+                    <text x="410" y="78" text-anchor="middle" fill="#7e57c2" style="font:600 11px system-ui">head</text>
+                    <!-- head chain marker -->
+                    <line x1="410" y1="110" x2="410" y2="92" stroke="#00897b" stroke-width="8" stroke-linecap="round"/>
+                    <!-- arms -->
+                    <line x1="410" y1="125" x2="320" y2="160" stroke="#2196F3" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="320" y1="160" x2="270" y2="215" stroke="#2196F3" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="270" cy="215" r="8" fill="#2196F3"/>
+                    <line x1="410" y1="125" x2="500" y2="160" stroke="#2196F3" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="500" y1="160" x2="550" y2="215" stroke="#2196F3" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="550" cy="215" r="8" fill="#2196F3"/>
+                    <!-- legs -->
+                    <line x1="410" y1="200" x2="375" y2="300" stroke="#ff9800" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="375" y1="300" x2="365" y2="380" stroke="#ff9800" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="365" cy="382" r="8" fill="#ff9800"/>
+                    <line x1="410" y1="200" x2="445" y2="300" stroke="#ff9800" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="445" y1="300" x2="455" y2="380" stroke="#ff9800" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="455" cy="382" r="8" fill="#ff9800"/>
+                    <!-- chain callouts left -->
+                    <g style="font:600 12px system-ui">
+                        <rect x="40" y="150" width="188" height="52" rx="8" fill="#e3f2fd" stroke="#2196F3"/>
+                        <text x="52" y="170" fill="#1565c0" style="font-weight:700">chain: RightArm</text>
+                        <text x="52" y="190" fill="#555" style="font-size:11px">r_upperarm &#8594; r_forearm &#8594; r_hand</text>
+                    </g>
+                    <g style="font:600 12px system-ui">
+                        <rect x="40" y="300" width="188" height="52" rx="8" fill="#fff3e0" stroke="#ff9800"/>
+                        <text x="52" y="320" fill="#e65100" style="font-weight:700">chain: RightLeg</text>
+                        <text x="52" y="340" fill="#555" style="font-size:11px">r_thigh &#8594; r_shin &#8594; r_foot</text>
+                    </g>
+                    <!-- chain callouts right -->
+                    <g style="font:600 12px system-ui">
+                        <rect x="592" y="150" width="188" height="52" rx="8" fill="#e3f2fd" stroke="#2196F3"/>
+                        <text x="604" y="170" fill="#1565c0" style="font-weight:700">chain: LeftArm</text>
+                        <text x="604" y="190" fill="#555" style="font-size:11px">l_upperarm &#8594; l_forearm &#8594; l_hand</text>
+                    </g>
+                    <g style="font:600 12px system-ui">
+                        <rect x="592" y="300" width="188" height="52" rx="8" fill="#fff3e0" stroke="#ff9800"/>
+                        <text x="604" y="320" fill="#e65100" style="font-weight:700">chain: LeftLeg</text>
+                        <text x="604" y="340" fill="#555" style="font-size:11px">l_thigh &#8594; l_shin &#8594; l_foot</text>
+                    </g>
+                    <!-- spine callout -->
+                    <g style="font:600 12px system-ui">
+                        <rect x="470" y="95" width="180" height="34" rx="8" fill="#ede7f6" stroke="#7e57c2"/>
+                        <text x="482" y="116" fill="#4527a0" style="font-weight:700">chain: Spine (spine1&#8230;4)</text>
+                    </g>
+                    <text x="410" y="415" text-anchor="middle" fill="#666" style="font:12px system-ui">Each colored run is one named chain &#183; the retargeter matches these names, not the bone names inside them.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: An IK Rig on the Daz character. The <code>hip</code> bone is set as the retarget root (red), and the limbs are grouped into named chains &#183; note the chains carry standard names (LeftArm, RightLeg, Spine) even though the bones inside them use Daz names like <code>l_upperarm</code> and <code>r_thigh</code>.</em></p>
+
+                <p>Epic ships a ready-made IK Rig for its mannequin (<code>IK_Mannequin</code>) with all of these chains already defined, so for the mannequin side you usually reuse it rather than build one. For a Daz or Mixamo character you build the rig yourself: create it from the mesh, set the root, then add one chain per limb by picking its start and end bone and typing the standard name. A humanoid needs about eight chains: Spine, Head, two arms, two legs, and often the two clavicles.</p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Watch out: chain names must match across rigs</h4>
+                    <p>The retargeter pairs chains by name. If your source rig calls the arm <code>LeftArm</code> and your target rig calls it <code>Arm_L</code>, they will not auto-pair and that limb will not move. Pick one naming convention (Epic's is the safe default) and use the identical spelling on every rig. This is the single most common reason a limb "does nothing" after retargeting.</p>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="retarget-pose" class="lesson-section">
+                <h2>The Retarget Pose: Making Skeletons Agree</h2>
+
+                <p>Here is the step beginners skip, and it is the one that causes the ugliest results. Retargeting compares the source's motion against a <strong>reference pose</strong> and applies the difference to the target's reference pose. For that comparison to make sense, the two reference poses have to describe the <em>same stance</em>. If the mannequin's reference pose is a wide-armed <strong>T-pose</strong> and your Daz character's is a relaxed <strong>A-pose</strong> with arms down, the retargeter thinks the source is holding its arms 45 degrees higher than it really is, and every retargeted clip inherits that twist.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Retarget pose:</strong> a per-rig reference stance the IK Retargeter uses as the "zero" it measures motion against. When source and target reference poses differ (T-pose versus A-pose), you edit the retarget pose on one side inside the IK Retargeter so both characters strike the same stance before any animation is applied.</p>
+                </div>
+
+                <p>You fix this directly in the IK Retargeter editor, which shows both characters side by side. You select the target, switch to <em>Edit Retarget Pose</em>, and rotate its arms (or legs, or spine) until its stance matches the source's. You are not animating anything; you are correcting the two skeletons' idea of "neutral" so they line up. Once the poses agree, the actual motion transfers cleanly.</p>
+
+                <div style="max-width: 820px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:640px;">
+                    <text x="410" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Align the retarget poses before transferring motion</text>
+                    <!-- left: mismatch -->
+                    <text x="215" y="62" text-anchor="middle" fill="#f5576c" style="font:700 13px system-ui">Mismatched (wrong)</text>
+                    <!-- T-pose source -->
+                    <g stroke="#4fd1c5" stroke-width="6" stroke-linecap="round" fill="none">
+                        <line x1="120" y1="110" x2="120" y2="190"/>
+                        <line x1="70" y1="120" x2="170" y2="120"/>
+                        <line x1="120" y1="190" x2="100" y2="250"/>
+                        <line x1="120" y1="190" x2="140" y2="250"/>
+                    </g>
+                    <circle cx="120" cy="98" r="10" fill="#4fd1c5"/>
+                    <text x="120" y="272" text-anchor="middle" fill="#2b9e92" style="font:600 11px system-ui">source: T-pose</text>
+                    <!-- A-pose target -->
+                    <g stroke="#e9c07a" stroke-width="6" stroke-linecap="round" fill="none">
+                        <line x1="290" y1="110" x2="290" y2="190"/>
+                        <line x1="290" y1="120" x2="255" y2="200"/>
+                        <line x1="290" y1="120" x2="325" y2="200"/>
+                        <line x1="290" y1="190" x2="270" y2="250"/>
+                        <line x1="290" y1="190" x2="310" y2="250"/>
+                    </g>
+                    <circle cx="290" cy="98" r="10" fill="#e9c07a"/>
+                    <text x="290" y="272" text-anchor="middle" fill="#b8860b" style="font:600 11px system-ui">target: A-pose</text>
+                    <text x="205" y="300" text-anchor="middle" fill="#f5576c" style="font:600 11px system-ui">45&#176; gap &#8594; twisted arms in every clip</text>
+                    <!-- divider -->
+                    <line x1="410" y1="70" x2="410" y2="300" stroke="#ddd" stroke-width="2"/>
+                    <!-- right: matched -->
+                    <text x="610" y="62" text-anchor="middle" fill="#2e7d32" style="font:700 13px system-ui">Matched (correct)</text>
+                    <!-- both A-pose -->
+                    <g stroke="#4fd1c5" stroke-width="6" stroke-linecap="round" fill="none">
+                        <line x1="520" y1="110" x2="520" y2="190"/>
+                        <line x1="520" y1="120" x2="485" y2="200"/>
+                        <line x1="520" y1="120" x2="555" y2="200"/>
+                        <line x1="520" y1="190" x2="500" y2="250"/>
+                        <line x1="520" y1="190" x2="540" y2="250"/>
+                    </g>
+                    <circle cx="520" cy="98" r="10" fill="#4fd1c5"/>
+                    <text x="520" y="272" text-anchor="middle" fill="#2b9e92" style="font:600 11px system-ui">source pose edited to A</text>
+                    <g stroke="#e9c07a" stroke-width="6" stroke-linecap="round" fill="none">
+                        <line x1="690" y1="110" x2="690" y2="190"/>
+                        <line x1="690" y1="120" x2="655" y2="200"/>
+                        <line x1="690" y1="120" x2="725" y2="200"/>
+                        <line x1="690" y1="190" x2="670" y2="250"/>
+                        <line x1="690" y1="190" x2="710" y2="250"/>
+                    </g>
+                    <circle cx="690" cy="98" r="10" fill="#e9c07a"/>
+                    <text x="690" y="272" text-anchor="middle" fill="#b8860b" style="font:600 11px system-ui">target: A-pose</text>
+                    <text x="605" y="300" text-anchor="middle" fill="#2e7d32" style="font:600 11px system-ui">same stance &#8594; motion transfers clean</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Why the retarget pose matters. On the left the source stands in a T-pose while the target rests in an A-pose, so the retargeter bakes a 45 degree arm twist into every clip &#183; on the right the retarget pose has been edited so both characters share the same neutral stance, and the animation transfers without distortion.</em></p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: match poses, then judge the motion</h4>
+                    <p>When a retarget looks "almost right but subtly wrong" (elbows bent, feet splayed, a slight hunch), your first suspect should always be the retarget pose, not the chains. Fixing the neutral stance corrects the whole library at once. Only after the poses agree is it worth fine-tuning individual chain settings.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="ik-retargeter" class="lesson-section">
+                <h2>The IK Retargeter: Map, Preview, Export</h2>
+
+                <p>With a rig on each character, you create the <strong>IK Retargeter</strong> (right-click the source IK Rig, <em>Create &#8594; IK Retargeter</em>, then assign the target IK Rig). Its editor is where everything comes together: source on the left, target on the right, a shared timeline, and a chain-mapping panel.</p>
+
+                <h3>Chain mapping</h3>
+
+                <p>The retargeter auto-pairs chains whose names match, so if you used consistent names in Section 3, the mapping panel is already mostly filled in: <code>Spine</code> to <code>Spine</code>, <code>LeftArm</code> to <code>LeftArm</code>, and so on. You scan the list, fix any chain that did not pair, and leave anything you do not want transferred unmapped (a common choice for finger chains on a clip that has no finger motion).</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Chains pair by name, across different bone names</h4>
+                    <pre class="mermaid">
+flowchart LR
+    subgraph SRC[Source: Mannequin]
+      S1[Spine<br/>spine_01..05]
+      S2[LeftArm<br/>upperarm_l..hand_l]
+      S3[LeftLeg<br/>thigh_l..foot_l]
+    end
+    subgraph TGT[Target: Kat]
+      T1[Spine<br/>spine1..4]
+      T2[LeftArm<br/>l_upperarm..l_hand]
+      T3[LeftLeg<br/>l_thigh..l_foot]
+    end
+    S1 --> T1
+    S2 --> T2
+    S3 --> T3
+    style SRC fill:#e6faf7,stroke:#4fd1c5
+    style TGT fill:#fdf3e0,stroke:#e9c07a
+                    </pre>
+                    <p>The arrows are chain-name matches. Inside each box the real bone names differ completely (<code>upperarm_l</code> versus <code>l_upperarm</code>), but the retargeter never looks at those &#183; it only connects <code>LeftArm</code> to <code>LeftArm</code>.</p>
+                </div>
+
+                <h3>Preview, then export</h3>
+
+                <p>Load any Animation Sequence that belongs to the <em>source</em> skeleton and the target character immediately performs it in the preview, retargeted live. This is where you catch problems: sliding feet, popping, an arm clipping the body. You tune the retarget pose or a chain's settings until it reads correctly. But a live preview is not an asset yet. To get something you can drop into a game or a Sequencer shot, you <strong>export</strong>.</p>
+
+                <p>Exporting has two flavors, and choosing between them is a real design decision:</p>
+
+                <div class="card">
+                    <h4>Two ways to use a retarget</h4>
+                    <ul>
+                        <li><strong>Export to Animation Sequence (bake).</strong> The retargeter writes a brand-new Animation Sequence authored for the <em>target</em> skeleton. It is a normal clip from then on, with no runtime cost and no dependency on the retargeter. You can select many source clips and <em>batch export</em> an entire library in one pass. This is what you want for cinematics and for a fixed set of clips.</li>
+                        <li><strong>Retarget at runtime.</strong> A <em>Retarget Pose From Mesh</em> node in an Anim Blueprint (or a live retarget component) runs the retargeter every frame, so the target always mirrors a source animation without baking. Useful when the source animation is chosen dynamically at play time, at a small per-frame cost.</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Bake for a library, retarget live for dynamic motion</h4>
+                    <pre class="mermaid">
+flowchart TD
+    R[IK Retargeter<br/>source to target] --> Q{How will you<br/>use it?}
+    Q -->|Fixed set of clips,<br/>cinematics| BAKE[Batch export to<br/>Animation Sequences]
+    Q -->|Chosen at runtime,<br/>gameplay| LIVE[Retarget Pose From Mesh<br/>in an Anim Blueprint]
+    BAKE --> LIB[A retargeted library<br/>on the target skeleton]
+    style BAKE fill:#e8f5e9,stroke:#4CAF50
+    style LIVE fill:#fff3cd,stroke:#ffc107
+                    </pre>
+                    <p>For this track's cinematic work you almost always bake: batch-export the walks, idles, and gestures you need onto the target, then treat them as ordinary clips in <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a>.</p>
+                </div>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Sliding or floating feet? Check the root and IK</h4>
+                    <p>Two classic export bugs. <strong>Feet that slide</strong> usually mean the retarget root (pelvis) motion is scaled wrong for the target's leg length; the IK Retargeter has per-chain and root settings to correct stride. <strong>Feet that float or sink</strong> mean the foot IK is not planting; enabling IK on the leg chains locks the feet to the ground plane. Both are fixed in the retargeter, not by re-exporting from the source.</p>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Retarget a Walk</h2>
+
+                <p>You need two different characters in one project. The easiest pairing is Epic's mannequin (which arrives with a finished IK Rig and a library of walks and idles) plus any second character: a free Mixamo download, a Fab character, or a Daz-derived mesh like the one in this lesson. You will move one of the mannequin's walks onto that second character.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#129535; Exercise: a mannequin walk on a new body</h3>
+                    <ol>
+                        <li><strong>Get the source rig for free.</strong> Add the Third Person feature so you have <code>SK_Manny</code> and its ready-made <code>IK_Mannequin</code> rig plus a walk animation.</li>
+                        <li><strong>Build the target rig.</strong> Right-click your second character's Skeletal Mesh, choose <em>Create &#8594; IK Rig</em>. Set the pelvis or hip as the <strong>retarget root</strong>, then add chains for Spine, Head, both arms, and both legs, using Epic's standard chain names.</li>
+                        <li><strong>Create the retargeter.</strong> Right-click <code>IK_Mannequin</code>, choose <em>Create &#8594; IK Retargeter</em>, and assign your new rig as the <strong>target</strong>.</li>
+                        <li><strong>Check the mapping.</strong> In the chain-mapping panel, confirm every chain paired by name. Fix any that did not, and leave finger chains unmapped if the walk has no finger motion.</li>
+                        <li><strong>Fix the retarget pose.</strong> If the two characters rest in different stances, select the target, choose <em>Edit Retarget Pose</em>, and rotate its arms and legs until its neutral stance matches the mannequin's.</li>
+                        <li><strong>Preview and export.</strong> Load the mannequin's walk; watch your character walk. When it reads correctly, use <em>Export Selected Animations</em> to bake a new Animation Sequence on the target skeleton.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: a limb does not move at all?</summary>
+                        <p style="margin-top: 0.5rem;">That is almost always an unmapped or misnamed chain. Open the chain-mapping panel and look for the limb's row: if the target column is blank, the names did not match. Either rename the chain in the target IK Rig to match the source, or set the mapping by hand in the panel. A chain that maps correctly but looks twisted is a retarget-pose problem instead, not a mapping one.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: batch a whole library</h4>
+                    <p>Once one walk retargets cleanly, the payoff is scale. In the export dialog, select <em>every</em> mannequin animation at once (walks, runs, idles, turns) and batch-export them all onto your target in a single pass. In one operation your new character gains the mannequin's entire motion library, which is exactly why studios standardize on one skeleton and retarget everything to it.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Why can't an Animation Sequence made for one skeleton simply play on a different one?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Animations are encrypted per project</label>
+                            <label><input type="radio" name="q1" value="b"> The clip stores motion on bones addressed by name, and the target may have different bone names and proportions</label>
+                            <label><input type="radio" name="q1" value="c"> Skeletons can only hold one animation at a time</label>
+                            <label><input type="radio" name="q1" value="d"> Animation Sequences are video files, not data</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A sequence keyframes named bones like <code>upperarm_l</code>. A skeleton without that bone has nothing to receive the data, and even matching names would not fit a body of different proportions. Retargeting solves both.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What is the division of labor between the IK Rig and the IK Retargeter?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> The IK Rig describes one character's chains; the IK Retargeter pairs a source rig with a target rig and transfers motion</label>
+                            <label><input type="radio" name="q2" value="b"> The IK Rig renders the animation; the IK Retargeter compresses it</label>
+                            <label><input type="radio" name="q2" value="c"> They are two names for the same asset</label>
+                            <label><input type="radio" name="q2" value="d"> The IK Rig is for cameras; the IK Retargeter is for characters</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; You build one IK Rig per character to label its retarget root and chains. A single IK Retargeter then connects a source rig to a target rig, maps chain to chain, and moves animation across.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What is the retarget root, and why is it special?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> The head bone; it controls where the character looks</label>
+                            <label><input type="radio" name="q3" value="b"> The pelvis or hip; it is the bone whose translation retargets, carrying the whole body's movement through the world</label>
+                            <label><input type="radio" name="q3" value="c"> The first material slot; it sets the character's color</label>
+                            <label><input type="radio" name="q3" value="d"> Any bone you like; the choice has no effect</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The retarget root is normally the pelvis or hip. It is the one bone whose translation is retargeted, so it moves the whole body forward. Choosing it wrong makes the character slide or stay pinned in place.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>A retargeted clip looks almost right, but the character's arms are subtly twisted in every animation. What is the most likely cause?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> The source and target retarget poses describe different stances (T-pose versus A-pose)</label>
+                            <label><input type="radio" name="q4" value="b"> The project needs a higher frame rate</label>
+                            <label><input type="radio" name="q4" value="c"> The mesh is missing a material</label>
+                            <label><input type="radio" name="q4" value="d"> The animation was exported as EXR instead of PNG</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="a">
+                            <p><strong>Correct answer: A</strong> &#183; The retargeter measures motion against each rig's reference stance. If one rests in a T-pose and the other in an A-pose, that constant offset is baked into every clip. Editing the retarget pose so both stances match fixes the whole library at once.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>You want a fixed set of retargeted walks and idles to use in a Sequencer cinematic, with no per-frame cost. What do you do?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Add a Retarget Pose From Mesh node in an Anim Blueprint</label>
+                            <label><input type="radio" name="q5" value="b"> Batch-export the source clips to new Animation Sequences on the target skeleton</label>
+                            <label><input type="radio" name="q5" value="c"> Increase the anti-aliasing sample count</label>
+                            <label><input type="radio" name="q5" value="d"> Rename the target skeleton's bones to match the source</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Exporting bakes brand-new Animation Sequences authored for the target, with no runtime dependency on the retargeter. You can select many source clips and batch-export a whole library in one pass. Runtime retargeting (the Anim Blueprint node) is for motion chosen dynamically at play time.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You turned Lesson 1's idea into a working pipeline. Here is the arc:</p>
+
+                <p><strong>The problem.</strong> Animation is stored on named bones, authored for one skeleton. A different character has different bone names and different proportions, so a clip cannot transfer directly. Retargeting fixes both the names and the fit.</p>
+
+                <p><strong>Two assets.</strong> An IK Rig describes one character by marking a retarget root (the pelvis or hip) and grouping bones into named retarget chains. An IK Retargeter pairs a source rig with a target rig and maps chains by name, so it never has to know the underlying bone names differ.</p>
+
+                <p><strong>The pose and the export.</strong> Before motion transfers cleanly, the two rigs' retarget poses must describe the same stance, or a constant offset twists every clip. Once aligned, you preview, then either batch-export baked Animation Sequences for a fixed library or retarget live in an Anim Blueprint for dynamic motion.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Animation cannot cross skeletons directly because it targets bones by name and assumes fixed proportions</li>
+                        <li>An IK Rig labels one character: a retarget root plus named retarget chains (Spine, LeftArm, LeftLeg&#8230;)</li>
+                        <li>An IK Retargeter pairs two rigs and maps chains by name, ignoring the differing bone names inside them</li>
+                        <li>The retarget pose aligns both skeletons' neutral stances; a T-pose versus A-pose mismatch twists every clip</li>
+                        <li>Bake to Animation Sequences (and batch a whole library) for cinematics; retarget at runtime for dynamic gameplay motion</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The bone-tree image is a genuine capture of the real <code>SK_Anya</code> Skeletal Mesh editor in the <code>ClaudeTest</code> project, showing its actual Daz bone names. The chain, pose, and mapping diagrams are labeled illustrations: the IK Rig and IK Retargeter editors are dual-skeleton asset editors that the project's automation bridge cannot capture directly, so their concepts are drawn rather than screenshotted. The bone names, chain names, and retarget-root choices shown are the real ones for these two characters.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>Retargeting is the step that fills the animation library the rest of the track draws on. With clips retargeted onto your character, <a href="int_l02_cinematics_with_sequencer.html">Cinematics with Sequencer</a> is where you drop them into a shot and point a camera, and <a href="int_l03_rendering_output.html">Rendering Output</a> turns that shot into final frames. In the wider <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, this is <a href="unreal-phase-4-animation-retargeting.html">Phase 4</a>, sitting between character finalization and shot assembly.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="int_l03_rendering_output.html" class="btn">&#8592; Previous: Rendering Output</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="int_l05_cinematic_lighting.html" class="btn">Next: Cinematic Lighting &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

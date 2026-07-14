@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8: Face Performance with MetaHuman Animator. Capture a real face performance from an iPhone, a head-mounted camera, or a video, and drive it onto the shared MetaHuman facial rig. Why capture beats hand-keyframing a face, how the performance solves onto the shared rig, what you can capture from, the step-by-step workflow, where the performance lands, and how it joins the cinematic shot.">
+    <meta name="author" content="Practical Ace">
+    <title>Face Performance with MetaHuman Animator - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#advanced">Advanced: Digital Humans with MetaHuman</a></li>
+            <li aria-current="page">Face Performance with MetaHuman Animator</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#127917; Face Performance with MetaHuman Animator</h1>
+                <p class="lead">The last lesson handed your character the <a href="adv_l01_what_is_a_metahuman.html">shared MetaHuman rig</a>, and it closed with a promise: the face performance that rig now makes possible. This is that lesson. <strong>MetaHuman Animator</strong> is the tool that watches a real person act, an iPhone on a tripod, a helmet camera on set, or a plain video, and turns that performance into animation on the shared facial rig. You do not sculpt an expression key by key. You record a human doing it, and MetaHuman Animator does the translating. This lesson walks that capture end to end.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#129516; Advanced Track &#183; Digital Humans</h4>
+                    <p>This is the third lesson of the <strong>Digital Humans with MetaHuman</strong> track. <a href="adv_l01_what_is_a_metahuman.html">Lesson 1</a> mapped the shared-rig system and <a href="adv_l02_mesh_to_metahuman.html">Lesson 2</a> put your own character onto that rig. Now you make the rig act. Read this as the payoff of the first two lessons: the reason a shared facial rig is worth so much is that a single captured performance can drive it, and any MetaHuman can receive that performance.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain why capturing a face performance beats hand-keyframing one on the shared rig</li>
+                        <li>Describe how MetaHuman Animator solves a performance onto the shared facial control rig</li>
+                        <li>Compare what you can capture from: an iPhone, a head-mounted camera, and a plain video</li>
+                        <li>Walk the workflow: capture, ingest footage, build an actor identity, process, and apply the performance</li>
+                        <li>Locate where the performance lands, and how the Face track combines with separate body animation</li>
+                        <li>Drop a captured face performance into the Sequencer shot you already know how to build</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 50-65 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="adv_l02_mesh_to_metahuman.html">Mesh to MetaHuman</a> (this lesson assumes a rigged MetaHuman to drive), plus <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> for how animation tracks sit on a shot and <a href="int_l04_ik_retargeter.html">Retargeting</a> for how body motion is handled separately. A working Unreal Engine 5.8 install with the MetaHuman plugin enabled.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#why" class="toc-link">Why Capture a Face Instead of Keyframing One</a></li>
+                        <li><a href="#idea" class="toc-link">The Idea: A Performance Onto the Shared Rig</a></li>
+                        <li><a href="#inputs" class="toc-link">What You Can Capture From</a></li>
+                        <li><a href="#workflow" class="toc-link">The Workflow, Step by Step</a></li>
+                        <li><a href="#lands" class="toc-link">Where the Performance Lands</a></li>
+                        <li><a href="#pipeline" class="toc-link">Into the Cinematic Shot</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Capture a Performance</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="why" class="lesson-section">
+                <h2>Why Capture a Face Instead of Keyframing One</h2>
+
+                <p>A human face is the hardest thing in animation to fake. We spend our whole lives reading faces, so we notice the smallest wrongness: a smile that reaches the mouth but not the eyes, a blink half a beat late, lips that do not quite land on the word. Hand-animating a believable face means posing dozens of controls across every frame and still fighting that instinct in your audience. It is slow, it is specialist work, and it is the classic road into the uncanny valley.</p>
+
+                <p>The shared MetaHuman rig changes the economics of that problem, but only if you can feed it a real performance. A rig with hundreds of coordinated controls is a burden if you drive it by hand and a gift if you drive it from life. That is the whole premise of MetaHuman Animator: instead of building the expression, you record a person making it and let the tool solve the controls to match.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 265" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Two ways to move a face</text>
+                    <!-- keyframe by hand -->
+                    <rect x="30" y="55" width="360" height="175" rx="10" fill="#fbe9e7" stroke="#c62828" stroke-width="2"/>
+                    <text x="210" y="82" text-anchor="middle" fill="#c62828" style="font:700 14px system-ui">Keyframe it by hand</text>
+                    <g style="font:12px system-ui" fill="#c62828">
+                        <text x="55" y="112">&#10007; pose dozens of controls per frame</text>
+                        <text x="55" y="140">&#10007; specialist, slow, expensive</text>
+                        <text x="55" y="168">&#10007; easy to land in the uncanny valley</text>
+                    </g>
+                    <text x="210" y="206" text-anchor="middle" fill="#c62828" style="font:italic 11px system-ui">the rig fights you at every frame</text>
+                    <!-- capture it -->
+                    <rect x="470" y="55" width="360" height="175" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="650" y="82" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">Capture a real performance</text>
+                    <g style="font:12px system-ui" fill="#2e7d32">
+                        <text x="495" y="112">&#10003; record a person acting the line</text>
+                        <text x="495" y="140">&#10003; the tool solves the controls for you</text>
+                        <text x="495" y="168">&#10003; real timing, micro-expressions, life</text>
+                    </g>
+                    <text x="650" y="206" text-anchor="middle" fill="#2e7d32" style="font:italic 11px system-ui">the rig carries a human, not a guess</text>
+                    <text x="430" y="253" text-anchor="middle" fill="#283593" style="font:600 12px system-ui">MetaHuman Animator turns the left column into the right one</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Why capture, not keyframe &#183; hand-posing a face means fighting hundreds of controls and a viewer trained to spot every mistake. Capturing a real performance hands the timing and the micro-expressions to a person and lets the tool solve the rig to match.</em></p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="idea" class="lesson-section">
+                <h2>The Idea: A Performance Onto the Shared Rig</h2>
+
+                <p>Here is the key insight, and it is the same one that made the last two lessons worth it. Every MetaHuman shares the <a href="adv_l01_what_is_a_metahuman.html">same facial control rig</a>. MetaHuman Animator does not invent a rig for each actor; it watches a face and solves that one shared set of controls to reproduce the expression. The output is not a video pasted onto a head. It is <strong>animation data on the shared rig</strong>: the same curves and controls any MetaHuman understands.</p>
+
+                <p>Because the target is that shared rig, a captured performance is <strong>portable</strong>. Solve a performance once and it can drive any MetaHuman, including the one you built from your own mesh in <a href="adv_l02_mesh_to_metahuman.html">Lesson 2</a>. The actor in front of the camera and the character on screen do not have to be the same person, or even look alike. The tool captures the performance; the rig wears it.</p>
+
+                <p>Below is the face this course would drive. It is <code>SK_Anya</code>, framed by a Cine Camera from the intermediate track: a neutral, front-on human face, the exact target a captured performance would animate once she is a MetaHuman. A recorded smile, a spoken line, or a raised brow would move this face through the shared controls.</p>
+
+                <img src="images/adv_l03/adv_l03_fig01_face_target.png" alt="A cinematic Cine Camera framing of SK_Anya, the course's Daz-derived character, standing in a neutral pose on a flat gray checkered plane under an overcast sky. Her face is front-on, calm, mouth closed and eyes open, the kind of neutral human face that a captured performance would animate. This is the target a MetaHuman Animator face performance would drive once the character is a MetaHuman." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: The face a performance would drive, captured live in the <code>ClaudeTest</code> project &#183; <code>SK_Anya</code> framed by a Cine Camera, front-on and neutral. Once she is a MetaHuman, a captured performance moves this face through the shared control rig; the actor and the character never have to match.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; A performance is data, not a video</h4>
+                    <pre class="mermaid">
+flowchart LR
+    ACTOR[A real actor performs<br/>on camera] -->|MetaHuman Animator solves it| ANIM[Animation on the<br/>shared facial rig]
+    ANIM --> MH1[Drives this MetaHuman]
+    ANIM --> MH2[Or that MetaHuman]
+    ANIM --> MH3[Or your own converted character]
+    style ACTOR fill:#f3eefb,stroke:#7e57c2
+    style ANIM fill:#e8eaf6,stroke:#3949ab
+                    </pre>
+                    <p>The capture becomes animation on the shared rig, so one solved performance is portable to any MetaHuman, not locked to the actor who gave it.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="inputs" class="lesson-section">
+                <h2>What You Can Capture From</h2>
+
+                <p>MetaHuman Animator is not one camera; it is a range, and the camera you choose sets the ceiling on fidelity and the floor on cost. All three paths end at the same place, animation on the shared rig, but they get there with different amounts of information about the face.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Three ways in, one shared rig out</text>
+                    <!-- iphone -->
+                    <rect x="30" y="55" width="255" height="180" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="157" y="82" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">iPhone with depth</text>
+                    <g style="font:11.5px system-ui" fill="#2e7d32">
+                        <text x="50" y="110">&#183; TrueDepth front camera</text>
+                        <text x="50" y="134">&#183; captures video and a depth map</text>
+                        <text x="50" y="158">&#183; accessible, high quality for one</text>
+                        <text x="50" y="182">&#183; the usual starting point</text>
+                    </g>
+                    <text x="157" y="216" text-anchor="middle" fill="#2e7d32" style="font:italic 11px system-ui">best value for a solo creator</text>
+                    <!-- hmc -->
+                    <rect x="312" y="55" width="255" height="180" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="440" y="82" text-anchor="middle" fill="#283593" style="font:700 14px system-ui">Head-mounted camera</text>
+                    <g style="font:11.5px system-ui" fill="#283593">
+                        <text x="332" y="110">&#183; stereo helmet rig on set</text>
+                        <text x="332" y="134">&#183; two calibrated views of the face</text>
+                        <text x="332" y="158">&#183; highest fidelity, hands free</text>
+                        <text x="332" y="182">&#183; the production choice</text>
+                    </g>
+                    <text x="440" y="216" text-anchor="middle" fill="#283593" style="font:italic 11px system-ui">what a film shoot uses</text>
+                    <!-- mono video -->
+                    <rect x="594" y="55" width="256" height="180" rx="10" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="722" y="82" text-anchor="middle" fill="#7a5c00" style="font:700 14px system-ui">A plain video</text>
+                    <g style="font:11.5px system-ui" fill="#7a5c00">
+                        <text x="614" y="110">&#183; ordinary mono footage</text>
+                        <text x="614" y="134">&#183; no depth, no stereo pair</text>
+                        <text x="614" y="158">&#183; most flexible source</text>
+                        <text x="614" y="182">&#183; lowest fidelity of the three</text>
+                    </g>
+                    <text x="722" y="216" text-anchor="middle" fill="#7a5c00" style="font:italic 11px system-ui">when footage is all you have</text>
+                    <text x="440" y="268" text-anchor="middle" fill="#333" style="font:600 12.5px system-ui">More information about the face means a closer solve, but every path lands on the same shared rig.</text>
+                    <text x="440" y="290" text-anchor="middle" fill="#666" style="font:11px system-ui">fidelity climbs left to center &#183; flexibility is highest on the right</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The three capture sources &#183; an iPhone with a depth sensor is the accessible high-quality starting point, a stereo head-mounted camera is the highest-fidelity production rig, and a plain mono video is the most flexible but lowest-fidelity source. All three solve onto the same shared facial rig.</em></p>
+
+                <p>One step is common to all of them and easy to skip past: the tool needs to understand <strong>the actor's</strong> neutral face first. Just as <a href="adv_l02_mesh_to_metahuman.html">Mesh to MetaHuman</a> solved an identity for your character, MetaHuman Animator establishes an identity for the performer, a calibrated read of their neutral face, so it can tell a genuine expression apart from the shape of that particular face at rest. Give it a clean neutral frame of the actor and the whole performance solves more truthfully.</p>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="workflow" class="lesson-section">
+                <h2>The Workflow, Step by Step</h2>
+
+                <p>The path from a recording to a moving MetaHuman has a fixed order, and each step feeds the next. Here is the whole road before you drive it.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The MetaHuman Animator pipeline</h4>
+                    <pre class="mermaid">
+flowchart TD
+    CAP[Capture the performance<br/>iPhone, helmet cam, or video] --> INGEST[Ingest the footage<br/>bring it into the project]
+    INGEST --> IDENT[Build the actor identity<br/>from a neutral frame]
+    IDENT --> PROC[Process the performance<br/>solve the face frame by frame]
+    PROC --> REVIEW[Review the solve<br/>check timing, eyes, and lips]
+    REVIEW --> APPLY[Apply to the MetaHuman<br/>a Face animation asset]
+    style CAP fill:#f3eefb,stroke:#7e57c2
+    style PROC fill:#fff3cd,stroke:#ffc107
+    style APPLY fill:#e8eaf6,stroke:#3949ab
+                    </pre>
+                    <p>Record the performance, ingest it, establish the actor's identity, process it into rig animation, review the result, then apply it to your MetaHuman as a Face animation.</p>
+                </div>
+
+                <p>Three of those steps decide the quality of your result, so they are worth a note:</p>
+
+                <ul>
+                    <li><strong>Build the actor identity.</strong> A clean neutral frame of the performer is the baseline the solve measures every expression against. Skimp here and the tool cannot separate the actor's resting face from the performance, and everything downstream drifts.</li>
+                    <li><strong>Process, then review.</strong> Processing solves the face across every frame. Reviewing is where you catch the things a viewer would: a blink that did not register, eye direction that reads slightly off, lips that do not close on a plosive. Fix these before you commit the performance, not after.</li>
+                    <li><strong>Apply to the MetaHuman.</strong> The solved performance becomes a <strong>Face</strong> animation asset. That is the moment the abstract solve turns into something you can drop on a character and play back on the shared rig.</li>
+                </ul>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: light the face flat and even</h4>
+                    <p>The solve reads shape from what the camera sees, so hard shadows and hot highlights lie to it. Even, diffuse light on the performer's face gives the cleanest capture. Save the dramatic <a href="int_l05_cinematic_lighting.html">three-point lighting</a> for the MetaHuman in the shot, not for the actor at capture time.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="lands" class="lesson-section">
+                <h2>Where the Performance Lands</h2>
+
+                <p>It is worth being precise about what you get and where it goes, because a MetaHuman is animated in two separate halves. The captured performance is a <strong>Face</strong> animation: the eyes, brows, lids, cheeks, lips, jaw, and tongue, all the controls of the shared facial rig. It does <em>not</em> include the body. The body is animated on its own, by <a href="int_l04_ik_retargeter.html">retargeting</a> or a <a href="int_l06_control_rig.html">Control Rig</a>, exactly as you learned in the intermediate track.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 250" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">A MetaHuman is animated in two tracks</text>
+                    <!-- face track -->
+                    <rect x="40" y="55" width="360" height="90" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="220" y="82" text-anchor="middle" fill="#283593" style="font:700 13.5px system-ui">Face track</text>
+                    <text x="220" y="106" text-anchor="middle" fill="#283593" style="font:11.5px system-ui">from MetaHuman Animator</text>
+                    <text x="220" y="128" text-anchor="middle" fill="#3949ab" style="font:italic 11px system-ui">eyes, brows, lips, jaw, tongue</text>
+                    <!-- body track -->
+                    <rect x="40" y="160" width="360" height="70" rx="10" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="220" y="188" text-anchor="middle" fill="#4527a0" style="font:700 13.5px system-ui">Body track</text>
+                    <text x="220" y="211" text-anchor="middle" fill="#7e57c2" style="font:11px system-ui">retarget or Control Rig, separately</text>
+                    <!-- combine arrows -->
+                    <line x1="405" y1="100" x2="470" y2="130" stroke="#999" stroke-width="2" marker-end="url(#ar2)"/>
+                    <line x1="405" y1="192" x2="470" y2="160" stroke="#999" stroke-width="2" marker-end="url(#ar2)"/>
+                    <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- combined -->
+                    <rect x="480" y="95" width="345" height="100" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="652" y="127" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">One performing MetaHuman</text>
+                    <text x="652" y="151" text-anchor="middle" fill="#2e7d32" style="font:11.5px system-ui">face and body play together</text>
+                    <text x="652" y="173" text-anchor="middle" fill="#2e7d32" style="font:italic 11px system-ui">on the same character in the shot</text>
+                    <text x="430" y="244" text-anchor="middle" fill="#666" style="font:12px system-ui">The two tracks are captured and edited apart, then layered on the same character.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Face and body are separate tracks &#183; the captured performance drives the Face rig only; the body is animated on its own by retargeting or a Control Rig. Both play on the same MetaHuman, so you can refine each without disturbing the other.</em></p>
+
+                <p>Keeping the two apart is a feature, not a limitation. You can capture a face performance once and try it over different body animations, or fix a body without touching a solved face. And because the Face animation is just an asset, you can <a href="int_l06_control_rig.html">layer small manual adjustments</a> on top of it: nudge a blink, ease a brow, dial an expression back a touch. The capture gives you a strong, human starting point; the controls are still yours to refine.</p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="pipeline" class="lesson-section">
+                <h2>Into the Cinematic Shot</h2>
+
+                <p>A solved face performance is not the finish line; it is a track you place. Everything you built in the intermediate track is where it goes. In <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a>, your MetaHuman gets a Face animation track carrying the capture and a Body track carrying its motion, sitting alongside the <a href="int_l02_cinematics_with_sequencer.html">Cine Camera</a> and <a href="int_l05_cinematic_lighting.html">lights</a> that frame and light the shot. Then <a href="int_l03_rendering_output.html">Movie Render Queue</a> renders it, the same as any other shot.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; A face performance joins the pipeline</h4>
+                    <pre class="mermaid">
+flowchart LR
+    PERF[Solved face performance] --> SEQ[Sequencer<br/>Face track on the MetaHuman]
+    BODY[Body animation] --> SEQ
+    CAM[Cine Camera and lights] --> SEQ
+    SEQ --> MRQ[Movie Render Queue]
+    MRQ --> OUT[The finished shot]
+    style PERF fill:#e8eaf6,stroke:#3949ab
+    style SEQ fill:#e3f2fd,stroke:#2196F3
+    style OUT fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The captured face becomes one track among the body animation, camera, and lights in Sequencer, then renders through the same Movie Render Queue you already know.</p>
+                </div>
+
+                <p>That is the shape of the whole advanced track coming together. Lesson 1 gave you the rig, Lesson 2 put your character on it, and this lesson made it act. What is still missing is the body side of a digital human done to the same standard, the mocap, the grooms, and the retargeting that finish the figure. That is the next lesson, and after it, a MetaHuman standing in a complete cinematic shot as the capstone of everything you have built.</p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Capture a Performance</h2>
+
+                <p>Run one capture from end to end. The goal is not a perfect take, it is to feel the workflow and see how much a clean neutral frame and an even light change the result.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127917; Exercise: from a recording to a moving face</h3>
+                    <ol>
+                        <li><strong>Record a short performance.</strong> With an iPhone that has a depth camera, capture ten to fifteen seconds of yourself saying a line, with even light on your face and a clear neutral moment at the start.</li>
+                        <li><strong>Ingest the footage.</strong> Bring the recording into your project as capture footage so MetaHuman Animator can read both the video and its depth.</li>
+                        <li><strong>Build your identity.</strong> Use the neutral frame to establish your actor identity, the calibrated read of your resting face.</li>
+                        <li><strong>Process the performance.</strong> Solve the face across the clip, then play it back on a preview MetaHuman.</li>
+                        <li><strong>Review honestly.</strong> Watch the eyes and lips. Did every blink register? Do the lips close on the plosive sounds? Note what reads wrong before you commit.</li>
+                        <li><strong>Apply it.</strong> Turn the solve into a Face animation and apply it to your MetaHuman, ideally the one you built in <a href="adv_l02_mesh_to_metahuman.html">Lesson 2</a>, so you see your own character speak your line.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: the face reads wrong or dead?</summary>
+                        <p style="margin-top: 0.5rem;">Almost always it is the capture, not the character. If the whole face feels off, the neutral frame you gave the identity step was probably not neutral, so recapture with a genuine resting face. If detail is mushy, check your light: hard shadows and blown highlights starve the solve of the shape it needs, so relight flatter and more even and try again. The fix lives at capture time far more often than in the applied animation.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: one performance, two characters</h4>
+                    <p>Take the Face animation you just solved and apply it to a second MetaHuman that looks nothing like you. Watching the same performance drive a different face is the clearest possible demonstration of this lesson's core idea: the capture is portable data on a shared rig, not a recording locked to one person.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Why is capturing a face performance preferable to hand-keyframing one on the shared rig?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Hand animation is impossible in Unreal</label>
+                            <label><input type="radio" name="q1" value="b"> A face has hundreds of coordinated controls and viewers spot the smallest error, so recording a real performance gives truthful timing and micro-expressions the tool solves onto the rig</label>
+                            <label><input type="radio" name="q1" value="c"> Captured performances use fewer polygons</label>
+                            <label><input type="radio" name="q1" value="d"> It removes the need for a MetaHuman rig entirely</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The face is the hardest thing to fake because we read faces expertly. Hand-posing dozens of controls per frame is slow and prone to the uncanny valley, while capturing a real performance hands the timing and life to a person and lets MetaHuman Animator solve the controls.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What does MetaHuman Animator actually produce from a capture?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> A video texture pasted onto the character's head</label>
+                            <label><input type="radio" name="q2" value="b"> Animation data on the shared facial rig, which is portable to any MetaHuman</label>
+                            <label><input type="radio" name="q2" value="c"> A new skeleton for the actor</label>
+                            <label><input type="radio" name="q2" value="d"> A still photograph of the expression</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The output is animation on the same shared controls every MetaHuman has, not a video. Because it targets the shared rig, one solved performance can drive any MetaHuman, including a character you converted from your own mesh.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>Which capture source is the highest-fidelity, production-grade option?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> A plain mono video with no depth</label>
+                            <label><input type="radio" name="q3" value="b"> A stereo head-mounted camera</label>
+                            <label><input type="radio" name="q3" value="c"> A single still image</label>
+                            <label><input type="radio" name="q3" value="d"> A screenshot of the viewport</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A stereo head-mounted camera gives two calibrated views of the face, hands free, and is what a film shoot uses. An iPhone with depth is the accessible high-quality starting point, and a plain video is the most flexible but lowest-fidelity source.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Why does the workflow build an identity for the actor before solving the performance?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> To register the software license</label>
+                            <label><input type="radio" name="q4" value="b"> A calibrated read of the actor's neutral face lets the tool tell a genuine expression apart from that face's resting shape, so the whole solve is more truthful</label>
+                            <label><input type="radio" name="q4" value="c"> To increase the video resolution</label>
+                            <label><input type="radio" name="q4" value="d"> To choose the character's body type</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The identity is the baseline the solve measures every expression against. Without a clean neutral read of the performer, the tool cannot separate the resting face from the performance, and everything downstream drifts.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>How does a captured face performance relate to the character's body animation?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> The face capture also animates the body</label>
+                            <label><input type="radio" name="q5" value="b"> They are separate tracks: the capture drives the Face rig, while the body is animated on its own by retargeting or a Control Rig, and both play on the same MetaHuman</label>
+                            <label><input type="radio" name="q5" value="c"> You cannot use body animation once a face is captured</label>
+                            <label><input type="radio" name="q5" value="d"> The body must be keyframed to match the face frame by frame</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A MetaHuman is animated in two halves. The Face track comes from MetaHuman Animator; the Body track comes from retargeting or a Control Rig. Keeping them apart lets you refine one without disturbing the other, and both layer on the same character.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You captured a face performance and drove it onto the shared MetaHuman rig. Here is what to carry forward:</p>
+
+                <p><strong>Capture beats keyframing for faces.</strong> A believable human face is the hardest thing to fake and the easiest for a viewer to catch. Rather than posing hundreds of controls by hand, MetaHuman Animator records a real performance and solves the controls to match, giving you honest timing and micro-expressions the shared rig can carry.</p>
+
+                <p><strong>The output is portable data.</strong> A solved performance is animation on the shared facial rig, not a video, so it can drive any MetaHuman. The actor and the character never have to match. Choose your capture source, an iPhone with depth, a stereo helmet camera, or a plain video, by the fidelity you need, and always give the tool a clean neutral frame of the performer.</p>
+
+                <p><strong>Face and body stay separate, then join in the shot.</strong> The capture animates only the Face; the body is retargeted or Control-Rigged on its own. Both tracks layer on the same MetaHuman in Sequencer, alongside the camera and lights, and render through Movie Render Queue like any other shot.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Capturing a real performance beats hand-keyframing a face, which is slow and prone to the uncanny valley</li>
+                        <li>MetaHuman Animator solves a performance into animation on the shared rig, so it is portable to any MetaHuman</li>
+                        <li>You can capture from an iPhone with depth, a stereo head-mounted camera, or a plain video, at rising fidelity and cost</li>
+                        <li>A clean neutral frame builds the actor identity that keeps the whole solve truthful</li>
+                        <li>The Face track and the Body track are animated separately, then layered on the same character in Sequencer</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The face image is a genuine live capture from the <code>ClaudeTest</code> project: <code>SK_Anya</code> framed by a Cine Camera, standing in for the human face a performance would drive. The keyframe-versus-capture, capture-sources, two-track, and pipeline diagrams are labeled illustrations, because this project contains no MetaHuman asset and MetaHuman Animator itself is a camera-and-cloud capture workflow, so there is no live performance the automation bridge used for the course's captures can drive. The steps and relationships they show are exactly the ones you follow in the tool.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This lesson is where a MetaHuman stops being a still figure and starts to act. The performance it produces travels the same <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a> as any animation: <a href="unreal-phase-2-character-finalization.html">character finalization</a>, <a href="unreal-phase-4-animation-retargeting.html">animation</a>, <a href="unreal-phase-5-shot-assembly.html">shot assembly</a>, <a href="unreal-phase-6-cinematography.html">cinematography</a>, and <a href="unreal-phase-7-output.html">output</a>. What changes is that the performance driving the face was captured from a real person and solved onto a rig your character shares with every other MetaHuman.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="adv_l02_mesh_to_metahuman.html" class="btn">&#8592; Previous: Mesh to MetaHuman</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="adv_l04_body_grooms_retargeting.html" class="btn">Next: Body, Grooms, and Retargeting &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8 capstone: A MetaHuman in a Finished Cinematic Shot. Stand the digital human you built across the advanced track inside a real shot, threading the whole intermediate track: plan the shot, stage the character, layer a Face track and a retargeted Body track in Sequencer, frame it with a Cine Camera, light it and lock exposure, and render the finished frame through Movie Render Queue.">
+    <meta name="author" content="Practical Ace">
+    <title>A MetaHuman in a Finished Cinematic Shot - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#advanced">Advanced: Digital Humans with MetaHuman</a></li>
+            <li aria-current="page">A MetaHuman in a Finished Cinematic Shot</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#127916; A MetaHuman in a Finished Cinematic Shot</h1>
+                <p class="lead">This is the capstone, and it belongs to two tracks at once. Across the advanced track you built a digital human piece by piece: you met the shared rig, put your own mesh onto it, captured a face performance, and finished the body with motion and grooms. Across the intermediate track you learned the craft of a shot: staging, Sequencer, cameras, lighting, and rendering. This lesson brings both together. You will stand the finished digital human inside a real cinematic shot, plan it, stage it, give it its performance, frame it, light it, and render it, so that everything you have built becomes a single directed frame.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#129516; Advanced Track &#183; Digital Humans</h4>
+                    <p>This is the fifth and final lesson of the <strong>Digital Humans with MetaHuman</strong> track. <a href="adv_l01_what_is_a_metahuman.html">Lesson 1</a> mapped the shared-rig system, <a href="adv_l02_mesh_to_metahuman.html">Lesson 2</a> put your own character onto it, <a href="adv_l03_metahuman_animator.html">Lesson 3</a> made the face act, and <a href="adv_l04_body_grooms_retargeting.html">Lesson 4</a> finished the body with retargeted motion and grooms. Now the digital human is complete, so this capstone leans hard on the <a href="index.html#intermediate">intermediate track</a>, the shot craft that turns a finished character into a finished frame.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Plan a cinematic shot around a finished digital human: subject, camera move, beat, and length</li>
+                        <li>Stage a completed MetaHuman in a level, grounded and oriented toward the camera</li>
+                        <li>Layer a captured Face track and a retargeted Body track on one MetaHuman in Sequencer</li>
+                        <li>Assemble the shot with a Cine Camera and a Camera Cuts track</li>
+                        <li>Light the digital human for the camera and lock exposure so the frame stays stable</li>
+                        <li>Render the finished shot through Movie Render Queue, threading every step of both tracks</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 55-70 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="adv_l04_body_grooms_retargeting.html">Body, Grooms, and Retargeting</a> (this capstone stands the finished digital human that track built into a shot), plus the whole <a href="index.html#intermediate">intermediate track</a>, whose <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a>, <a href="int_l05_cinematic_lighting.html">lighting</a>, and <a href="int_l03_rendering_output.html">rendering</a> lessons are the craft this shot is built from. A working Unreal Engine 5.8 install with the MetaHuman plugin enabled.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#plan" class="toc-link">Thinking in Shots: Everything in One Frame</a></li>
+                        <li><a href="#stage" class="toc-link">Stage the Digital Human</a></li>
+                        <li><a href="#perform" class="toc-link">Give It Its Performance: Two Tracks, One Character</a></li>
+                        <li><a href="#assemble" class="toc-link">Assemble the Shot in Sequencer</a></li>
+                        <li><a href="#light" class="toc-link">Light It for the Camera</a></li>
+                        <li><a href="#render" class="toc-link">Render the Finished Shot</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Direct a MetaHuman Shot</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="plan" class="lesson-section">
+                <h2>Thinking in Shots: Everything in One Frame</h2>
+
+                <p>A capstone is not a new tool. It is the moment every tool you have learned meets in one place. By now you have built two things in parallel. The advanced track built the <strong>character itself</strong>: <a href="adv_l01_what_is_a_metahuman.html">the shared rig</a>, <a href="adv_l02_mesh_to_metahuman.html">your mesh made into a MetaHuman</a>, <a href="adv_l03_metahuman_animator.html">a captured face performance</a>, and <a href="adv_l04_body_grooms_retargeting.html">a retargeted body with grooms</a>. The intermediate track taught the <strong>craft of a shot</strong>: staging a character, assembling a Sequencer timeline, framing with a camera, lighting for the lens, and rendering to disk. This lesson is where the finished digital human walks onto the finished stage.</p>
+
+                <p>Before you touch the engine, think in shots. A shot is a single continuous view: one subject, one camera move, one beat of action, a handful of seconds. Decide those four things first. Who is the subject, and what does the digital human do in this shot? Where does the camera sit, and does it move? What is the single beat the audience should read? How long does it run? A shot planned in a sentence renders far more cleanly than one discovered by trial and error in the viewport. The rest of this lesson is the order of operations that turns that sentence into a frame.</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:720px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Two tracks meet in one shot</text>
+                    <!-- advanced column -->
+                    <rect x="30" y="55" width="250" height="220" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="155" y="82" text-anchor="middle" fill="#283593" style="font:700 13.5px system-ui">The digital human</text>
+                    <text x="155" y="100" text-anchor="middle" fill="#3949ab" style="font:italic 11px system-ui">advanced track</text>
+                    <g style="font:12px system-ui" fill="#283593">
+                        <text x="52" y="130">&#183; the shared rig (L1)</text>
+                        <text x="52" y="158">&#183; your mesh on it (L2)</text>
+                        <text x="52" y="186">&#183; a captured face (L3)</text>
+                        <text x="52" y="214">&#183; body and grooms (L4)</text>
+                    </g>
+                    <text x="155" y="252" text-anchor="middle" fill="#283593" style="font:600 11.5px system-ui">a complete character</text>
+                    <!-- intermediate column -->
+                    <rect x="600" y="55" width="250" height="220" rx="10" fill="#f3eefb" stroke="#7e57c2" stroke-width="2.5"/>
+                    <text x="725" y="82" text-anchor="middle" fill="#4527a0" style="font:700 13.5px system-ui">The craft of the shot</text>
+                    <text x="725" y="100" text-anchor="middle" fill="#7e57c2" style="font:italic 11px system-ui">intermediate track</text>
+                    <g style="font:12px system-ui" fill="#4527a0">
+                        <text x="622" y="130">&#183; stage the character</text>
+                        <text x="622" y="158">&#183; Sequencer timeline</text>
+                        <text x="622" y="186">&#183; Cine Camera and lens</text>
+                        <text x="622" y="214">&#183; light, then render</text>
+                    </g>
+                    <text x="725" y="252" text-anchor="middle" fill="#4527a0" style="font:600 11.5px system-ui">a complete pipeline</text>
+                    <!-- converging arrows -->
+                    <line x1="280" y1="165" x2="378" y2="165" stroke="#999" stroke-width="2.5" marker-end="url(#arp)"/>
+                    <line x1="600" y1="165" x2="502" y2="165" stroke="#999" stroke-width="2.5" marker-end="url(#arp)"/>
+                    <defs><marker id="arp" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#999"/></marker></defs>
+                    <!-- center -->
+                    <rect x="380" y="125" width="120" height="80" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="440" y="158" text-anchor="middle" fill="#2e7d32" style="font:700 13px system-ui">One finished</text>
+                    <text x="440" y="176" text-anchor="middle" fill="#2e7d32" style="font:700 13px system-ui">cinematic shot</text>
+                    <text x="440" y="308" text-anchor="middle" fill="#666" style="font:600 12px system-ui">The character you built meets the craft you learned. This lesson is the handshake.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The capstone map &#183; the advanced track built a complete digital human, the intermediate track taught the craft of a shot, and this lesson brings them together. Every piece you have made converges on one directed frame.</em></p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="stage" class="lesson-section">
+                <h2>Stage the Digital Human</h2>
+
+                <p>Staging comes first, and it is the least MetaHuman-specific step in the whole shot, which is exactly the point. The digital human arrives at this stage already complete: built as a MetaHuman in <a href="adv_l02_mesh_to_metahuman.html">Lesson 2</a>, face ready from <a href="adv_l03_metahuman_animator.html">Lesson 3</a>, body and grooms from <a href="adv_l04_body_grooms_retargeting.html">Lesson 4</a>. Once it is built, you stage it the same way you staged any skeletal character back in <a href="int_l01_characters_and_animation.html">the first intermediate lesson</a>: drop it into the level, ground its feet on the surface, and orient it toward where the camera will sit.</p>
+
+                <p>That sameness is the reward for all the work behind you. A MetaHuman on the stage is not a special case the engine treats differently. It is a rigged character with a place to stand, and the moment it is grounded and facing the lens, it is ready to perform. Get the feet planted and the facing right now, because a character that floats or turns away from camera is the most common thing a first render exposes.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; From a finished character to a staged one</h4>
+                    <pre class="mermaid">
+flowchart LR
+    MH[The finished MetaHuman<br/>built, face and body ready] --> PLACE[Place it in the level]
+    PLACE --> GROUND[Ground the feet<br/>on the surface]
+    GROUND --> FACE[Orient toward<br/>where the camera sits]
+    FACE --> READY[Staged and ready<br/>to perform]
+    style MH fill:#e8eaf6,stroke:#3949ab
+    style READY fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The digital human comes to the stage already complete. Staging is the ordinary work of placing, grounding, and orienting a character, the same steps any skeletal figure needs.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: plant the feet before anything else</h4>
+                    <p>Ground contact is the first thing a viewer reads and the first thing a bad stage betrays. Before you add a single track, confirm the digital human's feet sit on the surface, not hovering above it or sunk into it. The staging discipline you learned with <code>SK_Anya</code> in the intermediate track applies unchanged here.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="perform" class="lesson-section">
+                <h2>Give It Its Performance: Two Tracks, One Character</h2>
+
+                <p>Here is the heart of the shot, and the one part that is genuinely about the MetaHuman. In <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> the character carries its performance as two separate animation tracks, the exact two you built in the advanced track. The <strong>Face track</strong> plays the captured performance from <a href="adv_l03_metahuman_animator.html">MetaHuman Animator</a>. The <strong>Body track</strong> plays the <a href="int_l04_ik_retargeter.html">retargeted</a> and <a href="int_l06_control_rig.html">Control-Rig-polished</a> motion from Lesson 4. The grooms ride the head, bound to the face rig, so the hair moves with the performance.</p>
+
+                <p>They are separate on purpose. Keeping the face and the body on their own tracks is what lets you fix a line reading without disturbing a walk, or adjust a stride without touching an expression. And they layer on a single MetaHuman, so when the timeline plays, the character speaks and moves at once, as one performance. This two-track stack is the whole payoff of the advanced track, gathered onto one character in one timeline.</p>
+
+                <div style="max-width: 820px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="410" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Two performance tracks, layered on one MetaHuman</text>
+                    <!-- character label -->
+                    <rect x="30" y="60" width="170" height="200" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="115" y="150" text-anchor="middle" fill="#2e7d32" style="font:700 14px system-ui">One MetaHuman</text>
+                    <text x="115" y="174" text-anchor="middle" fill="#2e7d32" style="font:11.5px system-ui">in the timeline</text>
+                    <!-- track rows -->
+                    <rect x="230" y="66" width="560" height="52" rx="8" fill="#e8eaf6" stroke="#3949ab" stroke-width="2"/>
+                    <text x="250" y="88" fill="#283593" style="font:700 13px system-ui">Face track</text>
+                    <text x="250" y="106" fill="#3949ab" style="font:11px system-ui">the captured performance from Lesson 3</text>
+                    <rect x="620" y="78" width="150" height="28" rx="5" fill="#c5cae9" stroke="#3949ab" stroke-width="1"/>
+                    <text x="695" y="97" text-anchor="middle" fill="#283593" style="font:italic 10.5px system-ui">eyes, brows, lips, jaw</text>
+                    <rect x="230" y="128" width="560" height="52" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="250" y="150" fill="#4527a0" style="font:700 13px system-ui">Body track</text>
+                    <text x="250" y="168" fill="#7e57c2" style="font:11px system-ui">retargeted and Control-Rig-polished motion, Lesson 4</text>
+                    <rect x="620" y="140" width="150" height="28" rx="5" fill="#e1d5f5" stroke="#7e57c2" stroke-width="1"/>
+                    <text x="695" y="159" text-anchor="middle" fill="#4527a0" style="font:italic 10.5px system-ui">arms, legs, spine, hips</text>
+                    <rect x="230" y="190" width="560" height="52" rx="8" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="250" y="212" fill="#8a6d00" style="font:700 13px system-ui">Grooms</text>
+                    <text x="250" y="230" fill="#a07c00" style="font:11px system-ui">bound to the head, they follow the face rig</text>
+                    <rect x="620" y="202" width="150" height="28" rx="5" fill="#fdeaa8" stroke="#ffc107" stroke-width="1"/>
+                    <text x="695" y="221" text-anchor="middle" fill="#8a6d00" style="font:italic 10.5px system-ui">hair, brows, lashes</text>
+                    <text x="410" y="284" text-anchor="middle" fill="#666" style="font:600 12px system-ui">Edited apart, played together: the character speaks and moves as one performance.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The two-track stack &#183; a captured Face track and a retargeted Body track layer on one MetaHuman, with the grooms bound to the head. They stay separate so you can refine each independently, and play together as a single performance in the shot.</em></p>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="assemble" class="lesson-section">
+                <h2>Assemble the Shot in Sequencer</h2>
+
+                <p>With the character performing, build the shot around it. This is <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> exactly as you learned it. Add a <strong>Cine Camera</strong> and set its lens: the focal length that decides how tight or wide the frame reads, the aperture that sets depth of field, and the focus that lands on the digital human's eyes. Add a <strong>Camera Cuts track</strong> so the render looks through your camera rather than the free viewport. If the shot moves, key the camera's transform across the timeline for the push, pan, or orbit you planned.</p>
+
+                <p>The Level Sequence is now the single source of truth for the whole shot. It holds the MetaHuman with its Face and Body tracks, the Cine Camera, the Camera Cuts track, and, once you light the scene, the lights. Everything the render needs lives on one timeline, which is why a shot assembled in Sequencer is a shot you can hand off, re-render, and trust.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; One timeline holds the whole shot</h4>
+                    <pre class="mermaid">
+flowchart TD
+    SEQ[Level Sequence<br/>the shot, on one timeline] --> MH[MetaHuman<br/>Face track and Body track]
+    SEQ --> CAM[Cine Camera<br/>focal length, aperture, focus]
+    SEQ --> CUT[Camera Cuts track<br/>render sees your camera]
+    SEQ --> LIT[Lights<br/>added in the next step]
+    style SEQ fill:#e3f2fd,stroke:#2196F3
+    style MH fill:#e8eaf6,stroke:#3949ab
+    style CAM fill:#f3eefb,stroke:#7e57c2
+                    </pre>
+                    <p>Sequencer gathers the performing character, the camera, the cuts, and the lights onto one timeline. That timeline is what Movie Render Queue will render at the end.</p>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: focus on the eyes</h4>
+                    <p>A digital human lives or dies on its eyes, so land the Cine Camera's focus there. With the face performance you captured in Lesson 3 driving the eyes and brows, a shallow depth of field that keeps them sharp while the background falls soft is what makes the shot read as cinematic rather than as a game view.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="light" class="lesson-section">
+                <h2>Light It for the Camera</h2>
+
+                <p>A staged, performing, framed digital human still looks flat until you light it, and lighting is where <a href="int_l05_cinematic_lighting.html">the cinematic lighting lesson</a> pays off. Light the person, not the room. Set a <strong>three-point rig</strong> on the digital human: a key light to define the form, a fill to lift the shadow side to the ratio you want, and a rim to separate the character from the background. The key-to-fill ratio is where the mood lives, tight and bright for a clean look, wide and dark for something dramatic.</p>
+
+                <p>Then do the one step a moving character makes essential: <strong>lock the exposure</strong>. An unbound Post Process Volume with a fixed exposure stops the engine's auto-exposure from pumping brighter and darker as the digital human moves through the frame. Without it, a walk toward camera can wash out or dim shot to shot; with it, every frame is exposed the same, and the render is a render you can trust. Lighting and locked exposure are the difference between a lit character and a stable, camera-ready one.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 320" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:700px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Three-point on the digital human, exposure locked</text>
+                    <!-- subject -->
+                    <circle cx="430" cy="180" r="40" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2.5"/>
+                    <text x="430" y="177" text-anchor="middle" fill="#2e7d32" style="font:700 12px system-ui">digital</text>
+                    <text x="430" y="193" text-anchor="middle" fill="#2e7d32" style="font:700 12px system-ui">human</text>
+                    <!-- camera -->
+                    <rect x="380" y="270" width="100" height="34" rx="6" fill="#eceff1" stroke="#607d8b" stroke-width="2"/>
+                    <text x="430" y="292" text-anchor="middle" fill="#455a64" style="font:600 12px system-ui">Cine Camera</text>
+                    <line x1="430" y1="270" x2="430" y2="224" stroke="#607d8b" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    <!-- key -->
+                    <rect x="120" y="95" width="150" height="50" rx="8" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="195" y="116" text-anchor="middle" fill="#8a6d00" style="font:700 12.5px system-ui">Key light</text>
+                    <text x="195" y="133" text-anchor="middle" fill="#a07c00" style="font:10.5px system-ui">defines the form</text>
+                    <line x1="270" y1="130" x2="395" y2="168" stroke="#ffc107" stroke-width="2" marker-end="url(#arl)"/>
+                    <!-- fill -->
+                    <rect x="120" y="215" width="150" height="50" rx="8" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                    <text x="195" y="236" text-anchor="middle" fill="#0d47a1" style="font:700 12.5px system-ui">Fill light</text>
+                    <text x="195" y="253" text-anchor="middle" fill="#1565c0" style="font:10.5px system-ui">lifts the shadow side</text>
+                    <line x1="270" y1="235" x2="395" y2="192" stroke="#2196F3" stroke-width="2" marker-end="url(#arl)"/>
+                    <!-- rim -->
+                    <rect x="590" y="95" width="150" height="50" rx="8" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="665" y="116" text-anchor="middle" fill="#4527a0" style="font:700 12.5px system-ui">Rim light</text>
+                    <text x="665" y="133" text-anchor="middle" fill="#7e57c2" style="font:10.5px system-ui">separates from the back</text>
+                    <line x1="590" y1="130" x2="466" y2="168" stroke="#7e57c2" stroke-width="2" marker-end="url(#arl)"/>
+                    <defs><marker id="arl" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#666"/></marker></defs>
+                    <!-- exposure lock callout -->
+                    <rect x="560" y="215" width="230" height="60" rx="8" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="675" y="238" text-anchor="middle" fill="#283593" style="font:700 12.5px system-ui">Exposure locked</text>
+                    <text x="675" y="256" text-anchor="middle" fill="#3949ab" style="font:10.5px system-ui">unbound Post Process Volume,</text>
+                    <text x="675" y="270" text-anchor="middle" fill="#3949ab" style="font:10.5px system-ui">so a moving character stays even</text>
+                    <text x="430" y="310" text-anchor="middle" fill="#666" style="font:600 12px system-ui">Key, fill, and rim shape the human; locking exposure keeps every frame the same.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Lighting the digital human for the camera &#183; a three-point rig defines form, lifts shadows, and separates the character from the background, while a locked exposure keeps the frame stable as the character moves. This is the intermediate lighting lesson applied to a MetaHuman.</em></p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="render" class="lesson-section">
+                <h2>Render the Finished Shot</h2>
+
+                <p>Everything is staged, performing, framed, and lit. The last step is <a href="int_l03_rendering_output.html">Movie Render Queue</a>, the same tool that closed the intermediate track. Add the Level Sequence as a render job and set the output the shot deserves: the resolution and frame rate, the file format, and enough anti-aliasing samples to give clean edges and, crucially for a digital human, smooth hair strands. Render to an image sequence so the frames can go on to post. A viewport grab was never the finished frame; this is.</p>
+
+                <p>What comes out is the whole of both tracks in a single image. A digital human you built from your own mesh, performing with a captured face and a retargeted body, hair and all, staged and framed and lit and rendered. Below is a genuine finished shot from this course's project, a lit and composed hero frame standing in for exactly the kind of frame a MetaHuman would render into: a single figure lit with a warm key and a cool rim, set on the right third against a dark backdrop with a long cast shadow. It is the destination this whole track has been walking toward.</p>
+
+                <img src="images/adv_l05/adv_l05_fig01_finished_shot.png" alt="A finished cinematic frame captured live in the ClaudeTest project. A single figure stands off center on the right third of the frame, lit with a bright warm key from the left and a cool rim that separates it from a near-black background. The figure casts a long soft shadow across a subtly lit checkered floor that recedes into darkness. The composition, lighting, and mood are those of a deliberate hero shot rather than a flat viewport preview." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A finished cinematic frame, captured live in the <code>ClaudeTest</code> project &#183; a three-point-lit, deliberately composed hero shot with a locked exposure and a long cast shadow. It stands in for the kind of finished frame a fully built MetaHuman would render into once it is staged, performed, framed, lit, and sent through Movie Render Queue.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Both tracks, in one render</h4>
+                    <pre class="mermaid">
+flowchart LR
+    ADV[Built MetaHuman<br/>face, body, grooms] --> SEQ[Sequencer<br/>two tracks, camera, lights]
+    INT[Staging, camera,<br/>and lighting craft] --> SEQ
+    SEQ --> MRQ[Movie Render Queue<br/>resolution, samples, format]
+    MRQ --> OUT[The finished<br/>cinematic shot]
+    style ADV fill:#e8eaf6,stroke:#3949ab
+    style INT fill:#f3eefb,stroke:#7e57c2
+    style SEQ fill:#e3f2fd,stroke:#2196F3
+    style OUT fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The character from the advanced track and the craft from the intermediate track meet in Sequencer, and Movie Render Queue turns that timeline into the finished frame.</p>
+                </div>
+
+                <p>Step back and look at what you can now do. You can take a bespoke mesh, turn it into a rigged MetaHuman, capture a real face performance onto it, give it a retargeted body and grooms, then stage, frame, light, and render it as a directed cinematic shot. That is the full arc of both tracks, from a character that did not exist to a finished frame. This is the end of the advanced track, and the end of the road you started when you first opened Sequencer.</p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Direct a MetaHuman Shot</h2>
+
+                <p>Put the whole pipeline together in one short shot. The goal is not a perfect render, it is to feel every track you have learned meet on one timeline. If you do not yet have a fully built MetaHuman, use any rigged character you staged in the intermediate track and layer what tracks you have; the order of operations is identical.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127916; Exercise: a five-second shot of a digital human</h3>
+                    <ol>
+                        <li><strong>Plan it in a sentence.</strong> Name the subject, the camera move, the single beat, and the length. For example: a slow push-in on the digital human as it delivers one line and turns its head.</li>
+                        <li><strong>Stage the character.</strong> Place your MetaHuman in the level, ground the feet, and orient it toward where the camera will sit, exactly as in <a href="int_l01_characters_and_animation.html">the staging lesson</a>.</li>
+                        <li><strong>Give it its performance.</strong> In <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a>, add a Body track with your <a href="int_l04_ik_retargeter.html">retargeted</a> motion, and if you captured one in <a href="adv_l03_metahuman_animator.html">Lesson 3</a>, a Face track too, so the character moves and speaks.</li>
+                        <li><strong>Frame it.</strong> Add a Cine Camera, set the lens and focus on the eyes, and add a Camera Cuts track. Key the push-in if the shot moves.</li>
+                        <li><strong>Light it and lock exposure.</strong> Set a <a href="int_l05_cinematic_lighting.html">three-point rig</a> on the character, choose your key-to-fill ratio, and lock exposure with an unbound Post Process Volume.</li>
+                        <li><strong>Render it.</strong> Send the Level Sequence through <a href="int_l03_rendering_output.html">Movie Render Queue</a>, set resolution, samples, and format, and render an image sequence. That sequence is your finished shot.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: the render looks worse than the viewport?</summary>
+                        <p style="margin-top: 0.5rem;">That is almost always exposure or samples. If the character flares bright or goes dim across the shot, your exposure is not locked, so add or fix the unbound Post Process Volume. If edges shimmer or the hair looks noisy, raise the anti-aliasing sample count in Movie Render Queue. A viewport preview hides both problems; the render is the honest test, which is exactly why this step is last.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: the same character, two shots</h4>
+                    <p>Render your digital human twice from the same staged performance: once as a wide establishing shot with a long lens and even light, once as a tight dramatic close-up with a shallow focus and a high key-to-fill ratio. Watching one built character carry two completely different shots is the clearest proof of the capstone's lesson: the character is finished, and the shot is a separate craft you now command.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What does it mean to plan a shot before building it in the engine?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> To render the scene many times until something looks right</label>
+                            <label><input type="radio" name="q1" value="b"> To decide the subject, the camera move, the single beat, and the length before you stage anything</label>
+                            <label><input type="radio" name="q1" value="c"> To build every character in the project first</label>
+                            <label><input type="radio" name="q1" value="d"> To choose the file format for the render</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A shot is one subject, one camera move, one beat, and a length. Deciding those four things in a sentence up front gives the rest of the pipeline a clear target, and renders far more cleanly than discovering the shot by trial and error in the viewport.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>Why is staging a finished MetaHuman almost the same as staging any other character?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Because a MetaHuman cannot be moved once created</label>
+                            <label><input type="radio" name="q2" value="b"> Because once it is built, a MetaHuman is a rigged character you place, ground, and orient like any skeletal figure</label>
+                            <label><input type="radio" name="q2" value="c"> Because staging requires a special MetaHuman-only tool</label>
+                            <label><input type="radio" name="q2" value="d"> Because a MetaHuman has no feet to ground</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; All the MetaHuman-specific work happened while you built the character. On the stage it is simply a rigged character: you drop it in the level, ground the feet, and turn it toward the camera, exactly the staging you learned in the intermediate track.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>How does a MetaHuman carry its performance in Sequencer?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> As a single track that controls the whole character at once</label>
+                            <label><input type="radio" name="q3" value="b"> As a separate Face track from MetaHuman Animator and a separate Body track from retargeting, layered on one character with the grooms bound to the head</label>
+                            <label><input type="radio" name="q3" value="c"> As a video file played on top of the mesh</label>
+                            <label><input type="radio" name="q3" value="d"> As a texture that changes over time</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The captured Face track and the retargeted Body track stay separate so you can refine each without disturbing the other, and they play together on one MetaHuman with the grooms riding the head. That two-track stack is the payoff of the whole advanced track.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>Why is locking exposure especially important for a shot with a moving digital human?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> It makes the render finish faster</label>
+                            <label><input type="radio" name="q4" value="b"> Without a locked exposure, auto-exposure pumps brighter and darker as the character moves, so the frame is unstable shot to shot</label>
+                            <label><input type="radio" name="q4" value="c"> It adds hair strands to the character</label>
+                            <label><input type="radio" name="q4" value="d"> It is only needed for still images, never for motion</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The engine's auto-exposure reacts to what fills the frame, so a character walking toward camera can wash out or dim between frames. An unbound Post Process Volume with a fixed exposure holds every frame to the same level, which is what makes the render trustworthy.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>What does Movie Render Queue produce at the end of this capstone, and why is it the last step?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> A viewport preview that looks the same as the final frame</label>
+                            <label><input type="radio" name="q5" value="b"> The finished frames of the whole shot, rendered with the resolution, samples, and format the shot needs, because the render is the honest test a preview cannot fake</label>
+                            <label><input type="radio" name="q5" value="c"> A new MetaHuman character</label>
+                            <label><input type="radio" name="q5" value="d"> A retargeted animation clip</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Movie Render Queue turns the Sequencer timeline into finished frames, usually an image sequence for post, with enough samples for clean edges and smooth hair. It comes last because a viewport grab hides exposure and sampling problems that only the real render exposes.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You stood a finished digital human inside a finished cinematic shot, threading every lesson of both tracks into one directed frame. Here is what to carry forward:</p>
+
+                <p><strong>A capstone is order of operations, not a new tool.</strong> Plan the shot in a sentence, then stage the character, give it its performance, frame it, light it, and render it. The digital human arrives complete from the advanced track, and the shot is built with the craft from the intermediate track. Staging a built MetaHuman is the ordinary work of placing, grounding, and orienting a rigged character.</p>
+
+                <p><strong>The performance is two tracks on one character.</strong> A captured Face track and a retargeted, Control-Rig-polished Body track layer on one MetaHuman in Sequencer, with the grooms bound to the head. They stay separate so you can refine each independently, and play together as a single performance. Around them, a Cine Camera, a Camera Cuts track, and the lights all live on the same Level Sequence.</p>
+
+                <p><strong>Light for the camera, lock exposure, then render.</strong> A three-point rig defines form, lifts shadows, and separates the character, while a locked exposure keeps a moving figure even across the shot. Movie Render Queue turns the timeline into finished frames, and that render, not a viewport grab, is the shot. You can now take a bespoke mesh all the way to a rendered digital human in a cinematic frame.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>A cinematic shot is planned in a sentence: subject, camera move, beat, and length</li>
+                        <li>A finished MetaHuman is staged like any rigged character: placed, grounded, and oriented to camera</li>
+                        <li>Its performance is a separate Face track and Body track layered on one character in Sequencer</li>
+                        <li>Light the character with a three-point rig and lock exposure so a moving figure stays stable</li>
+                        <li>Movie Render Queue produces the finished frames, threading both tracks into a single shot</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The finished-frame image is a genuine live capture from the <code>ClaudeTest</code> project: a three-point-lit, deliberately composed hero shot with a locked exposure, standing in for the kind of frame a fully built MetaHuman would render into. The capstone map, staging flow, two-track stack, Sequencer contents, lighting diagram, and end-to-end pipeline are labeled illustrations, because this project contains no MetaHuman asset and the assembly steps shown are workflows the automation bridge used for the course's captures cannot drive directly. The relationships they show are exactly the ones you follow in the tools, and every craft step in this shot, staging, Sequencer, the Cine Camera, three-point lighting, and Movie Render Queue, was done for real across the intermediate track.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This capstone closes the advanced track by running the whole <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a> on a finished digital human as a single directed shot: <a href="unreal-phase-2-character-finalization.html">character finalization</a>, <a href="unreal-phase-4-animation-retargeting.html">animation and retargeting</a>, <a href="unreal-phase-5-shot-assembly.html">shot assembly</a>, <a href="unreal-phase-6-cinematography.html">cinematography</a>, and <a href="unreal-phase-7-output.html">output</a>. It is the natural sequel to the intermediate track's own capstone, <a href="int_l07_complete_shot.html">Direct and Render a Complete Shot</a>, with the character being directed now a full MetaHuman: built from your own mesh, performing with a captured face and a retargeted body, and rendered into a finished frame. That is the end of both tracks, and the whole of what Unreal contributes to a cinematic pipeline.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="adv_l04_body_grooms_retargeting.html" class="btn">&#8592; Previous: Body, Grooms, and Retargeting</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="index.html#advanced" class="btn btn-outline">Back to Track &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Unreal Engine 5.8: what a MetaHuman actually is. The problem believable digital humans pose, the shared-topology system that solves it, the anatomy of a MetaHuman (face rig, body, grooms, LODs, skin), where MetaHumans come from (MetaHuman Creator and Mesh to MetaHuman), when to use one versus a custom character, and where a MetaHuman drops into the cinematic pipeline you already built.">
+    <meta name="author" content="Practical Ace">
+    <title>What Is a MetaHuman? - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#advanced">Advanced: Digital Humans with MetaHuman</a></li>
+            <li aria-current="page">What Is a MetaHuman?</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#128100; What Is a MetaHuman?</h1>
+                <p class="lead">The hardest thing to build in real time is a person. You have spent your whole life reading faces, so anything slightly wrong reads as wrong. A <strong>MetaHuman</strong> is Epic's answer: a preset, fully rigged, real-time digital human that would take a specialist team months to build, handed to you in an afternoon. This lesson opens the <strong>Advanced</strong> track by answering what a MetaHuman actually is, what it is made of, where it comes from, and where it drops into the cinematic pipeline you built in the intermediate track. It is the map for everything the advanced lessons go deep on.</p>
+
+                <!-- Advanced banner -->
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#129516; Advanced Track &#183; Digital Humans</h4>
+                    <p>This is the first lesson of the <strong>Digital Humans with MetaHuman</strong> track, a new theme that builds on top of the <a href="index.html#intermediate">Cinematic Production</a> track. It assumes you are comfortable with characters, animation, and shots. Where the intermediate track taught you to move and film a character, this track is about the character itself: a production-grade digital human, its face performance, and how it plugs into the shots you already know how to build. Start here for the overview, then go deep in the lessons ahead.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain why a believable digital human is hard, and the five problems MetaHuman solves at once</li>
+                        <li>Describe what a MetaHuman is: a shared-topology, shared-rig system rather than a single mesh</li>
+                        <li>Name the parts of a MetaHuman: the face and its rig, the body, grooms, levels of detail, and layered skin</li>
+                        <li>Tell the two ways a MetaHuman is created: MetaHuman Creator and Mesh to MetaHuman</li>
+                        <li>Decide when a MetaHuman is the right choice and when a custom character is, and how the two meet</li>
+                        <li>Place a MetaHuman in the cinematic pipeline you already know, and see what its face performance adds</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 45-60 minutes</p>
+                    <p><strong>Prerequisites:</strong> The <a href="index.html#intermediate">Cinematic Production</a> track, especially <a href="int_l01_characters_and_animation.html">Characters &amp; Animation</a> (Skeletal Mesh and Skeleton) and <a href="int_l04_ik_retargeter.html">Retargeting with the IK Retargeter</a>. A working Unreal Engine 5.8 install so you can follow the hands-on.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#problem" class="toc-link">The Problem MetaHuman Solves</a></li>
+                        <li><a href="#what" class="toc-link">What a MetaHuman Actually Is</a></li>
+                        <li><a href="#anatomy" class="toc-link">Anatomy of a MetaHuman</a></li>
+                        <li><a href="#creator" class="toc-link">Where MetaHumans Come From</a></li>
+                        <li><a href="#vs" class="toc-link">MetaHuman vs. a Custom Character</a></li>
+                        <li><a href="#pipeline" class="toc-link">Where It Fits the Cinematic Pipeline</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Meet a MetaHuman</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="problem" class="lesson-section">
+                <h2>The Problem MetaHuman Solves</h2>
+
+                <p>Everything else in a scene gets the benefit of the doubt. A slightly wrong rock is still a rock. A slightly wrong human, though, is unsettling, and the closer it gets to real without arriving, the worse it feels. That gap has a name, the <strong>uncanny valley</strong>, and it is why a convincing digital person is the single most expensive thing to make in real time.</p>
+
+                <p>The cost is not one big problem, it is five hard problems stacked on top of each other, and each one is a specialist craft on its own:</p>
+
+                <div style="max-width: 880px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:700px;">
+                    <text x="440" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Five hard problems in one believable human</text>
+                    <!-- left column: hand built -->
+                    <rect x="30" y="55" width="250" height="285" rx="10" fill="#fff" stroke="#c62828" stroke-width="2"/>
+                    <text x="155" y="80" text-anchor="middle" fill="#c62828" style="font:700 14px system-ui">Build it by hand</text>
+                    <text x="155" y="99" text-anchor="middle" fill="#999" style="font:11px system-ui">months &#183; specialist team</text>
+                    <!-- middle: the five problems -->
+                    <g style="font:600 12px system-ui">
+                        <rect x="310" y="60" width="260" height="42" rx="6" fill="#ede7f6" stroke="#7e57c2"/>
+                        <text x="440" y="80" text-anchor="middle" fill="#4527a0">1 &#183; Topology that deforms well</text>
+                        <text x="440" y="95" text-anchor="middle" fill="#7a6" style="font:10px system-ui">edge flow that folds like a face</text>
+                        <rect x="310" y="112" width="260" height="42" rx="6" fill="#e3f2fd" stroke="#2196F3"/>
+                        <text x="440" y="132" text-anchor="middle" fill="#1565c0">2 &#183; A facial rig</text>
+                        <text x="440" y="147" text-anchor="middle" fill="#78a" style="font:10px system-ui">hundreds of controls, real expressions</text>
+                        <rect x="310" y="164" width="260" height="42" rx="6" fill="#fff3cd" stroke="#ffc107"/>
+                        <text x="440" y="184" text-anchor="middle" fill="#7a5c00">3 &#183; Levels of detail</text>
+                        <text x="440" y="199" text-anchor="middle" fill="#a97" style="font:10px system-ui">so it runs in real time</text>
+                        <rect x="310" y="216" width="260" height="42" rx="6" fill="#e8f5e9" stroke="#4CAF50"/>
+                        <text x="440" y="236" text-anchor="middle" fill="#2e7d32">4 &#183; Grooms</text>
+                        <text x="440" y="251" text-anchor="middle" fill="#7a9" style="font:10px system-ui">strand hair, brows, lashes</text>
+                        <rect x="310" y="268" width="260" height="42" rx="6" fill="#fce4ec" stroke="#e91e63"/>
+                        <text x="440" y="288" text-anchor="middle" fill="#ad1457">5 &#183; Skin shading</text>
+                        <text x="440" y="303" text-anchor="middle" fill="#c79" style="font:10px system-ui">light scatters inside real skin</text>
+                    </g>
+                    <!-- right column: metahuman -->
+                    <rect x="600" y="55" width="250" height="285" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2"/>
+                    <text x="725" y="80" text-anchor="middle" fill="#283593" style="font:700 14px system-ui">Use a MetaHuman</text>
+                    <text x="725" y="99" text-anchor="middle" fill="#5c6bc0" style="font:11px system-ui">an afternoon &#183; solved for you</text>
+                    <text x="725" y="150" text-anchor="middle" fill="#283593" style="font:700 40px system-ui">&#10003;</text>
+                    <text x="725" y="200" text-anchor="middle" fill="#3949ab" style="font:600 12px system-ui">all five, at high quality,</text>
+                    <text x="725" y="220" text-anchor="middle" fill="#3949ab" style="font:600 12px system-ui">already built and reusable</text>
+                    <text x="725" y="300" text-anchor="middle" fill="#5c6bc0" style="font:11px system-ui">you spend your time directing,</text>
+                    <text x="725" y="317" text-anchor="middle" fill="#5c6bc0" style="font:11px system-ui">not rig building</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The five problems a believable human poses &#183; clean topology, a facial rig, levels of detail, grooms, and skin shading. Solving all five by hand is months of specialist work; MetaHuman is Epic having solved them once, at high quality, so you reuse the result.</em></p>
+
+                <p>MetaHuman's premise is simple once you see the list: solve those five problems one time, to a film-grade standard, and let every creator reuse that solution for any human they need. You stop building humans and start <em>casting</em> them.</p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="what" class="lesson-section">
+                <h2>What a MetaHuman Actually Is</h2>
+
+                <p>The most common misunderstanding is that a MetaHuman is a character model, like a fancier version of the mesh you imported in <a href="int_l01_characters_and_animation.html">Lesson 1</a>. It is not. A MetaHuman is a preset, fully rigged human assembled from a <strong>shared system</strong>. Every MetaHuman is built on the <em>same</em> face topology and driven by the <em>same</em> facial rig, with a body chosen from a set of calibrated body types.</p>
+
+                <p>That shared foundation is the whole trick, and it has one enormous consequence: <strong>anything you build for one MetaHuman transfers to every other MetaHuman</strong>. A facial animation, an expression pose, a material adjustment, all of it moves from face to face, because underneath, the faces are the same mesh with the same controls. Individuality lives in the <strong>DNA</strong>, a small description of one person's geometry, while the rig, the levels of detail, and the shading are common infrastructure shared by all of them.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 340" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Different faces, one shared rig underneath</text>
+                    <!-- three distinct faces on top -->
+                    <g>
+                        <circle cx="180" cy="105" r="42" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                        <text x="180" y="110" text-anchor="middle" fill="#4527a0" style="font:700 12px system-ui">Face A</text>
+                        <circle cx="430" cy="105" r="42" fill="#e3f2fd" stroke="#2196F3" stroke-width="2"/>
+                        <text x="430" y="110" text-anchor="middle" fill="#1565c0" style="font:700 12px system-ui">Face B</text>
+                        <circle cx="680" cy="105" r="42" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                        <text x="680" y="110" text-anchor="middle" fill="#2e7d32" style="font:700 12px system-ui">Face C</text>
+                    </g>
+                    <text x="430" y="168" text-anchor="middle" fill="#888" style="font:11px system-ui">each one an individual (its own DNA)</text>
+                    <!-- arrows down -->
+                    <line x1="180" y1="150" x2="330" y2="205" stroke="#bbb" stroke-width="1.5" marker-end="url(#a2)"/>
+                    <line x1="430" y1="150" x2="430" y2="205" stroke="#bbb" stroke-width="1.5" marker-end="url(#a2)"/>
+                    <line x1="680" y1="150" x2="530" y2="205" stroke="#bbb" stroke-width="1.5" marker-end="url(#a2)"/>
+                    <defs><marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#bbb"/></marker></defs>
+                    <!-- shared rig box -->
+                    <rect x="230" y="212" width="400" height="66" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+                    <text x="430" y="240" text-anchor="middle" fill="#283593" style="font:700 14px system-ui">One shared topology + facial rig</text>
+                    <text x="430" y="262" text-anchor="middle" fill="#5c6bc0" style="font:11px system-ui">same mesh, same controls for every MetaHuman</text>
+                    <!-- payoff -->
+                    <text x="430" y="308" text-anchor="middle" fill="#2e7d32" style="font:600 13px system-ui">&#8680; an animation built once drives all of them</text>
+                    <text x="430" y="328" text-anchor="middle" fill="#999" style="font:11px system-ui">this is why MetaHuman performances are portable</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Three different MetaHuman faces sit on top of one shared topology and facial rig &#183; the differences between people live in each one's DNA, while the rig is common, so a facial performance authored on one plays back correctly on any of them.</em></p>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="anatomy" class="lesson-section">
+                <h2>Anatomy of a MetaHuman</h2>
+
+                <p>When you bring a MetaHuman into a project you do not get one asset, you get an assembly. Knowing its parts tells you where to look when you want to change something, and it explains why a MetaHuman is heavier than the plain Skeletal Mesh you met in the intro course.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The parts of a MetaHuman</h4>
+                    <pre class="mermaid">
+flowchart TD
+    MH[A MetaHuman] --> FACE[Face]
+    MH --> BODY[Body]
+    MH --> LOD[Levels of detail<br/>LOD0 film to LOD7 crowd]
+    MH --> MAT[Layered materials<br/>skin, eyes, teeth]
+    FACE --> FMESH[Face skeletal mesh]
+    FACE --> RIG[Facial rig<br/>driven by the DNA]
+    FACE --> GROOM[Grooms<br/>hair, brows, lashes, beard]
+    BODY --> BTYPE[A preset body type]
+    BODY --> BMESH[Body skeletal mesh + skeleton]
+    style MH fill:#e8eaf6,stroke:#3949ab
+    style FACE fill:#e3f2fd,stroke:#2196F3
+    style BODY fill:#ede7f6,stroke:#7e57c2
+    style RIG fill:#fff3cd,stroke:#ffc107
+                    </pre>
+                    <p>A face and its rig, a body from a preset type, strand-based grooms, eight levels of detail, and layered skin materials, all bundled as one character.</p>
+                </div>
+
+                <p>A few of these deserve a sentence each, because they are the parts you will hear about constantly:</p>
+
+                <ul>
+                    <li><strong>The facial rig and its DNA.</strong> The face is driven by hundreds of controls, and the specific shape of one person's face is stored in a small <strong>DNA</strong> asset. Swap the DNA and you have a different person on the same rig. This is what <a href="#what">the shared-rig idea</a> looks like in a file.</li>
+                    <li><strong>Grooms.</strong> MetaHuman hair, brows, lashes, and beards are <em>strand-based</em> grooms, thousands of actual hair curves, not a texture painted on a cap. That is a big part of why they read as real, and why they need levels of detail to stay real-time.</li>
+                    <li><strong>Levels of detail.</strong> A MetaHuman ships with eight LODs, from LOD0 for a film close-up down to LOD7 for a distant face in a crowd. The engine swaps them by distance so a MetaHuman can be a hero in one shot and a background extra in the next without wrecking performance.</li>
+                    <li><strong>Layered skin.</strong> The skin material is built in layers so light scatters through it the way it does in real skin, which is the difference between a person and a mannequin.</li>
+                </ul>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="creator" class="lesson-section">
+                <h2>Where MetaHumans Come From</h2>
+
+                <p>There are two doors into the MetaHuman system, and the advanced track has a lesson behind each. The first is the one most people picture; the second is the one that matters most for your own characters.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Two paths to a MetaHuman</h4>
+                    <pre class="mermaid">
+flowchart LR
+    START1[Start from presets] --> MHC[MetaHuman Creator<br/>sculpt, blend, style]
+    START2[Start from a mesh you have<br/>scan, sculpt, or existing character] --> M2MH[Mesh to MetaHuman<br/>track features, solve identity]
+    MHC --> MH[A finished, rigged MetaHuman]
+    M2MH --> MH
+    MH --> BRING[Into your project<br/>via the MetaHuman plugin and Fab]
+    style MHC fill:#e3f2fd,stroke:#2196F3
+    style M2MH fill:#e8f5e9,stroke:#4CAF50
+    style MH fill:#e8eaf6,stroke:#3949ab
+                    </pre>
+                    <p>Build a face from presets in MetaHuman Creator, or hand Unreal a mesh you already have and let Mesh to MetaHuman solve a rigged identity from it. Either way you download the result into your project through the MetaHuman plugin.</p>
+                </div>
+
+                <p><strong>MetaHuman Creator</strong> is Epic's free tool for building a human from presets: you sculpt and blend facial features, pick a body type, choose skin and grooms, and it hands you a finished, fully rigged MetaHuman. It began life as a cloud app you used in a browser, and in recent Unreal versions it also runs inside the editor through the MetaHuman plugin. It is how you get a believable person when you do not have a specific face in mind, or want one fast.</p>
+
+                <p><strong>Mesh to MetaHuman</strong> is the door that connects MetaHuman to the work you have already done. You start from a mesh you own, a 3D scan, a sculpt, or a character like the Daz figures at the heart of this course, and Unreal tracks its facial features and <em>solves a MetaHuman identity</em> that matches it, auto-rigging your mesh onto the shared MetaHuman face. Your one-off character inherits the entire MetaHuman rig without you building any of it. That workflow is important enough that it is the whole of <a href="adv_l02_mesh_to_metahuman.html"><strong>Lesson 2</strong></a>.</p>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Why this matters for your pipeline</h4>
+                    <p>The course's running example, the Daz-derived character you met as <code>SK_Anya</code> in <a href="int_l01_characters_and_animation.html">Lesson 1</a>, is exactly the kind of bespoke human Mesh to MetaHuman was made for. It lets a character you designed borrow MetaHuman's rig, face performance, and levels of detail instead of building all of that by hand. This lesson is the map; the next one drives that road.</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="vs" class="lesson-section">
+                <h2>MetaHuman vs. a Custom Character</h2>
+
+                <p>A MetaHuman is powerful, but it is not the answer to every character. The useful question is not "is MetaHuman good" but "is this the right shot for a MetaHuman," and the answer follows from what each approach is best at.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">Which one does this shot need?</text>
+                    <!-- metahuman side -->
+                    <rect x="30" y="55" width="360" height="200" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2"/>
+                    <text x="210" y="82" text-anchor="middle" fill="#283593" style="font:700 15px system-ui">Reach for a MetaHuman</text>
+                    <g fill="#3949ab" style="font:12px system-ui">
+                        <text x="55" y="112">&#8226; a photoreal human, needed fast</text>
+                        <text x="55" y="138">&#8226; many humans that share animation</text>
+                        <text x="55" y="164">&#8226; a face performance that must convince</text>
+                        <text x="55" y="190">&#8226; a background crowd that must stay cheap</text>
+                    </g>
+                    <text x="210" y="228" text-anchor="middle" fill="#5c6bc0" style="font:italic 11px system-ui">strength: solved rig, shared everything</text>
+                    <!-- custom side -->
+                    <rect x="470" y="55" width="360" height="200" rx="10" fill="#f3eefb" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="650" y="82" text-anchor="middle" fill="#4527a0" style="font:700 15px system-ui">Reach for a custom character</text>
+                    <g fill="#5e35b1" style="font:12px system-ui">
+                        <text x="495" y="112">&#8226; a specific, owned, art-directed look</text>
+                        <text x="495" y="138">&#8226; a stylized or non-photoreal design</text>
+                        <text x="495" y="164">&#8226; a creature or non-human figure</text>
+                        <text x="495" y="190">&#8226; a character you already sculpted</text>
+                    </g>
+                    <text x="650" y="228" text-anchor="middle" fill="#7e57c2" style="font:italic 11px system-ui">strength: total control of the design</text>
+                    <!-- bridge -->
+                    <text x="430" y="282" text-anchor="middle" fill="#2e7d32" style="font:600 12px system-ui">they meet at Mesh to MetaHuman + retargeting: a custom human can borrow the MetaHuman rig</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: MetaHuman versus a custom character is a choice about the shot, not a contest &#183; MetaHuman wins on speed, shared animation, and convincing faces; a bespoke mesh wins on a specific or non-human design. Mesh to MetaHuman and retargeting let the two meet in the middle.</em></p>
+
+                <p>They are not rivals, and the best pipelines use both. <a href="#creator">Mesh to MetaHuman</a> lets a bespoke human borrow the MetaHuman rig, and <a href="int_l04_ik_retargeter.html">retargeting</a>, the workflow from the intermediate track, lets MetaHuman body animation drive a custom skeleton or the reverse. Here is the course's own bespoke human, the kind of character that sits on the right-hand side of that choice today and becomes a Mesh to MetaHuman input tomorrow:</p>
+
+                <img src="images/adv_l01/adv_l01_fig01_custom_human.png" alt="A real-time viewport capture from Unreal Engine of the course's Daz-derived character SK_Anya standing on a landscape: a bespoke, art-directed digital human rather than a MetaHuman. On its own this character needs its own facial rig, levels of detail, grooms, and skin shading built by hand, which is exactly the work MetaHuman automates and the reason it becomes an ideal candidate for the Mesh to MetaHuman workflow in the next lesson." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A bespoke digital human captured live in the <code>ClaudeTest</code> project &#183; the course's Daz-derived <code>SK_Anya</code>. Today it is a custom character carrying its own rig; in <a href="adv_l02_mesh_to_metahuman.html">the next lesson</a> this same mesh becomes the input to Mesh to MetaHuman, borrowing the shared MetaHuman rig instead of building one by hand.</em></p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="pipeline" class="lesson-section">
+                <h2>Where It Fits the Cinematic Pipeline</h2>
+
+                <p>Here is the reassuring part. To the pipeline you built in the intermediate track, a MetaHuman is still just a rigged character. You <a href="int_l01_characters_and_animation.html">stage</a> it, give its body a <a href="int_l04_ik_retargeter.html">performance</a> by retargeting or <a href="int_l06_control_rig.html">Control Rig</a>, assemble the shot in <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a>, <a href="int_l05_cinematic_lighting.html">light it for the camera</a>, and <a href="int_l03_rendering_output.html">render through the Movie Render Queue</a>. Nothing about that changes. Your <a href="int_l07_complete_shot.html">capstone shot</a> already knows how to film a MetaHuman.</p>
+
+                <p>What a MetaHuman <em>adds</em> is a production-grade <strong>face</strong>. Alongside the body performance you already know how to make, MetaHuman gives you a facial rig that a real performance can drive, so lip-sync and expression stop being weeks of hand-keying and become a capture you clean up.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; A MetaHuman in the shot you already build</h4>
+                    <pre class="mermaid">
+flowchart LR
+    MH[A MetaHuman] --> BODY[Body performance<br/>retarget or Control Rig]
+    MH --> FACE[Face performance<br/>MetaHuman Animator]
+    BODY --> SEQ[Assemble in Sequencer]
+    FACE --> SEQ
+    SEQ --> LIGHT[Light for the camera]
+    LIGHT --> REND[Render via MRQ]
+    REND --> SHOT[A finished shot]
+    style MH fill:#e8eaf6,stroke:#3949ab
+    style FACE fill:#e3f2fd,stroke:#2196F3
+    style SHOT fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>The body path is the intermediate track unchanged. The face path is what the advanced track adds: a captured facial performance driving the shared rig, feeding the same Sequencer, lighting, and render you already know.</p>
+                </div>
+
+                <p>That is the shape of the track ahead. This lesson is the overview; the lessons that follow open each door in turn, from turning your own mesh into a MetaHuman, to capturing a face performance, to putting a digital human into a finished cinematic shot.</p>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Meet a MetaHuman</h2>
+
+                <p>You learn a MetaHuman fastest by opening one and finding the parts this lesson named. You do not need to build anything yet; the goal is to see the assembly in a real asset before the next lesson makes one.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128100; Exercise: open a preset MetaHuman and find its parts</h3>
+                    <ol>
+                        <li><strong>Enable the plugin.</strong> In your Unreal 5.8 project, enable the <em>MetaHuman</em> plugin and restart the editor if prompted.</li>
+                        <li><strong>Get a MetaHuman.</strong> Open Fab from inside the editor and download one of the free preset MetaHumans. It arrives as a folder of assets in your project.</li>
+                        <li><strong>Drop it in a level.</strong> Drag the MetaHuman Blueprint into an empty level and look at it up close. This is the same "stage the character" step from <a href="int_l01_characters_and_animation.html">Lesson 1</a>.</li>
+                        <li><strong>Open the face and body.</strong> Find the Face and Body skeletal meshes in the MetaHuman's folder and open each. Notice the face has its own skeleton and a large set of controls, and the body is a separate Skeletal Mesh on its own skeleton.</li>
+                        <li><strong>Find the levels of detail.</strong> In the mesh editor, change the forced LOD from 0 upward and watch the geometry and grooms simplify. That is the eight-LOD system keeping a MetaHuman real-time.</li>
+                        <li><strong>Preview a face animation.</strong> If a sample facial animation is available, scrub it on the face and watch the shared rig drive the expression.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: the MetaHuman looks flat or low-detail in the level?</summary>
+                        <p style="margin-top: 0.5rem;">Two usual causes. If the whole character looks simplified, the level is showing a higher LOD because of the camera distance or a forced-LOD setting, so move closer or force LOD0. If the skin looks plasticky, the project may be missing the ray-traced or high-quality shadow and lighting settings MetaHuman skin expects; a MetaHuman is only as convincing as the lighting you give it, which is the whole point of <a href="int_l05_cinematic_lighting.html">Lesson 5</a>.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: preview the bridge</h4>
+                    <p>If you have a character mesh of your own, open the <em>Mesh to MetaHuman</em> tool and start the process of tracking its face, just far enough to see it place landmarks on your mesh. Do not finish it yet. You are looking at the front door of <a href="adv_l02_mesh_to_metahuman.html">the next lesson</a>, where you will turn a bespoke human like the course's <code>SK_Anya</code> into a rigged MetaHuman.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>Why is a believable digital human uniquely expensive to build?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> Humans need more polygons than any other object</label>
+                            <label><input type="radio" name="q1" value="b"> It stacks five hard problems at once, topology, facial rig, levels of detail, grooms, and skin shading, and the audience notices any flaw</label>
+                            <label><input type="radio" name="q1" value="c"> Unreal cannot render humans without a plugin</label>
+                            <label><input type="radio" name="q1" value="d"> Humans can only be animated by hand</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A convincing person is five specialist crafts in one, and because we read faces expertly, any single weak link drops the character into the uncanny valley. MetaHuman solves all five once so you can reuse the result.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>What is the key idea behind every MetaHuman sharing the same face topology and rig?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> It makes MetaHumans smaller on disk</label>
+                            <label><input type="radio" name="q2" value="b"> Anything built for one MetaHuman, like a facial animation, transfers to every other MetaHuman</label>
+                            <label><input type="radio" name="q2" value="c"> It means all MetaHumans look identical</label>
+                            <label><input type="radio" name="q2" value="d"> It removes the need for lighting</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Because the mesh and controls are shared, a performance authored on one face plays back correctly on any MetaHuman. Individuality lives in each one's DNA; the rig is common infrastructure.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>A MetaHuman ships with eight levels of detail. What are they for?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Eight different faces to choose from</label>
+                            <label><input type="radio" name="q3" value="b"> Progressively simpler versions, from a film close-up down to a distant crowd face, so the character stays real-time</label>
+                            <label><input type="radio" name="q3" value="c"> Eight lighting presets</label>
+                            <label><input type="radio" name="q3" value="d"> Eight separate skeletons</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; LOD0 is the hero close-up; LOD7 is a face in a distant crowd. The engine swaps them by distance so one MetaHuman can be a hero in one shot and a background extra in the next without hurting performance.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>You have a character you already sculpted and want it to have a MetaHuman-quality rig. Which door do you use?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> MetaHuman Creator, building a new face from presets</label>
+                            <label><input type="radio" name="q4" value="b"> Mesh to MetaHuman, which tracks your mesh and solves a rigged MetaHuman identity from it</label>
+                            <label><input type="radio" name="q4" value="c"> The Movie Render Queue</label>
+                            <label><input type="radio" name="q4" value="d"> The IK Retargeter</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; MetaHuman Creator builds a new human from presets. Mesh to MetaHuman starts from a mesh you already have and solves an identity onto it, giving your bespoke character the shared MetaHuman rig. That is the subject of the next lesson.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>Compared with the intermediate cinematic pipeline, what does a MetaHuman mainly add?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> A completely different way to render</label>
+                            <label><input type="radio" name="q5" value="b"> A production-grade face rig that a captured performance can drive, on top of the body animation you already do</label>
+                            <label><input type="radio" name="q5" value="c"> It replaces Sequencer</label>
+                            <label><input type="radio" name="q5" value="d"> It removes the need to light the shot</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; To the pipeline a MetaHuman is still a rigged character you stage, animate, assemble, light, and render as before. What it adds is a shared facial rig that a real face performance can drive, which the advanced track captures in a later lesson.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You now have the map of the advanced track. Here is what a MetaHuman is and why it matters:</p>
+
+                <p><strong>A MetaHuman is a solved human, not a model.</strong> Building a believable person means solving five problems at once, topology, facial rig, levels of detail, grooms, and skin. MetaHuman is Epic having solved all five to a film-grade standard so you reuse the result instead of rebuilding it.</p>
+
+                <p><strong>The system is shared, and that is the whole point.</strong> Every MetaHuman rides the same face topology and rig, with individuality stored in each one's DNA. Because the rig is common, a facial performance built once transfers to any MetaHuman. The character is an assembly: a face and its rig, a body from a preset type, strand grooms, eight LODs, and layered skin.</p>
+
+                <p><strong>Two doors in, one place it fits.</strong> You get a MetaHuman from MetaHuman Creator or from Mesh to MetaHuman, and to your cinematic pipeline it is still a rigged character you stage, animate, assemble, light, and render. What it adds is a face performance the rest of the track will teach you to capture.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>A believable human is five hard problems at once; MetaHuman solves them once so you cast humans instead of building them</li>
+                        <li>A MetaHuman is a shared-topology, shared-rig system, so anything built for one MetaHuman transfers to all of them</li>
+                        <li>Its parts are a face plus its DNA-driven rig, a body from a preset type, strand grooms, eight levels of detail, and layered skin</li>
+                        <li>MetaHumans come from MetaHuman Creator or from Mesh to MetaHuman, and arrive through the MetaHuman plugin and Fab</li>
+                        <li>To the cinematic pipeline a MetaHuman is a rigged character; what it adds is a production-grade face performance</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); border-left: 4px solid #3949ab;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The character image is a genuine real-time viewport capture from the <code>ClaudeTest</code> project: the course's Daz-derived <code>SK_Anya</code>, shown as an example of a bespoke digital human rather than a MetaHuman. The diagrams of the five problems, the shared rig, the anatomy, the two creation paths, the choice between MetaHuman and a custom character, and the pipeline are labeled illustrations of the concepts, because this project contains no MetaHuman asset and MetaHuman Creator and Mesh to MetaHuman are cloud-and-editor tools that the automation bridge used for the course's live captures cannot drive. The concepts they show are exactly the ones the next lessons put into practice on a real MetaHuman.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>This lesson opens the Unreal course's advanced tier and sits on top of everything before it. The character it introduces still travels the same <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>: <a href="unreal-phase-2-character-finalization.html">character finalization</a>, <a href="unreal-phase-4-animation-retargeting.html">animation</a>, <a href="unreal-phase-5-shot-assembly.html">shot assembly</a>, <a href="unreal-phase-6-cinematography.html">cinematography</a>, and <a href="unreal-phase-7-output.html">output</a>. What the advanced track adds is a better human to send down it, and the lessons ahead build that human step by step.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="int_l07_complete_shot.html" class="btn">&#8592; Previous: Intermediate Capstone</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="adv_l02_mesh_to_metahuman.html" class="btn btn-outline">Next: Mesh to MetaHuman &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

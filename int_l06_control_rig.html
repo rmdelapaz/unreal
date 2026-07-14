@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Intermediate Unreal Engine 5.8: author and tweak animation directly in-engine with Control Rig. Understand the rig hierarchy of bones, controls, and nulls, the forward and backward solve, FK versus IK controls, then pose and keyframe a character in Sequencer, bake an existing clip onto the controls, and layer corrections non-destructively.">
+    <meta name="author" content="Practical Ace">
+    <title>Animating with Control Rig - Introduction to Unreal Engine 5</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#f0f0f0',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#667eea'
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Introduction to Unreal Engine 5</a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="nav-links">
+                &#9776;
+            </button>
+            <div class="nav-links" id="nav-links" aria-hidden="false">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+                <button id="theme-toggle" aria-label="Toggle theme">&#127769;</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#intermediate">Intermediate: Cinematic Production</a></li>
+            <li aria-current="page">Animating with Control Rig</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            <!-- Lesson Header -->
+            <header>
+                <h1>&#127899;&#65039; Animating with Control Rig</h1>
+                <p class="lead"><a href="int_l04_ik_retargeter.html">Lesson 4</a> moved animation that already existed onto your character. But some motion lives in no library: a specific gesture, a custom idle, the one corrective frame where a canned clip's hand clips through a coat. For that you stop importing motion and start <strong>authoring</strong> it, directly inside Unreal, with <strong>Control Rig</strong>. This lesson shows you the puppet strings: the rig's hierarchy of <strong>bones</strong>, <strong>controls</strong>, and <strong>nulls</strong>; the <strong>forward</strong> and <strong>backward solve</strong> that connect a control you grab to the bone it moves; the two ways (<strong>FK</strong> and <strong>IK</strong>) to pose a limb; and finally the payoff, posing and keyframing a character in <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> without ever leaving the engine.</p>
+
+                <!-- Intermediate banner -->
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#127916; Intermediate Track &#183; Deep Dive</h4>
+                    <p>This is a deep-dive companion to the <strong>Cinematic Production</strong> track. The three core lessons (<a href="int_l01_characters_and_animation.html">Characters &amp; Animation</a>, <a href="int_l02_cinematics_with_sequencer.html">Cinematics with Sequencer</a>, <a href="int_l03_rendering_output.html">Rendering Output</a>) carry a character from import to final frames. <a href="int_l04_ik_retargeter.html">Lesson 4</a> retargets motion that already exists; this lesson is its natural sequel, the tool you reach for when the motion you need does not exist yet and you have to make it. It pairs with <a href="int_l02_cinematics_with_sequencer.html">Lesson 2</a>, because Sequencer is where a Control Rig is actually animated.</p>
+                </div>
+
+                <!-- Learning objectives -->
+                <div class="card">
+                    <h2>&#127919; Learning Objectives</h2>
+                    <p>By the end of this lesson, you will be able to:</p>
+                    <ul>
+                        <li>Explain what a Control Rig is and why authoring or tweaking animation in-engine is worth doing</li>
+                        <li>Identify the three element types in a Control Rig hierarchy: bones, controls, and nulls</li>
+                        <li>Describe the forward solve (controls drive bones) and the backward solve (bones drive controls)</li>
+                        <li>Distinguish FK and IK controls and know which suits a swinging limb versus a planted one</li>
+                        <li>Add a Control Rig track to a character in Sequencer and pose it by setting and keying controls</li>
+                        <li>Bake an existing clip onto the controls, layer a non-destructive correction, and bake back out to an Animation Sequence</li>
+                    </ul>
+                    <p><strong>Estimated Time:</strong> 40-50 minutes</p>
+                    <p><strong>Prerequisites:</strong> <a href="int_l01_characters_and_animation.html">Intermediate Lesson 1: Characters &amp; Animation</a> (skeletons and bone hierarchies) and <a href="int_l02_cinematics_with_sequencer.html">Intermediate Lesson 2: Cinematics with Sequencer</a> (Level Sequences, tracks, and keyframes). A working Unreal Engine 5.8 project with a rigged character, for example Epic's Third Person mannequin, which ships with a finished Control Rig.</p>
+                </div>
+            </header>
+
+            <!-- Sticky Table of Contents -->
+            <details class="card toc-card" open>
+                <summary aria-label="Toggle table of contents">
+                    <span class="toc-icon" aria-hidden="true">&#128209;</span>
+                    <span class="toc-label">In This Lesson</span>
+                    <span class="toc-chevron" aria-hidden="true">&#9662;</span>
+                </summary>
+                <nav aria-label="Table of Contents">
+                    <ol>
+                        <li><a href="#why-author" class="toc-link">Why Author Animation In-Engine</a></li>
+                        <li><a href="#anatomy" class="toc-link">Anatomy of a Control Rig: Bones, Controls, Nulls</a></li>
+                        <li><a href="#solve" class="toc-link">Forward Solve and Backward Solve</a></li>
+                        <li><a href="#fk-ik" class="toc-link">FK and IK Controls: Two Ways to Pose a Limb</a></li>
+                        <li><a href="#sequencer" class="toc-link">Posing and Keying in Sequencer</a></li>
+                        <li><a href="#bake-layer" class="toc-link">Baking and Layering</a></li>
+                        <li><a href="#hands-on" class="toc-link">Hands-On: Pose and Key a Wave</a></li>
+                        <li><a href="#knowledge-check" class="toc-link">Knowledge Check</a></li>
+                        <li><a href="#summary" class="toc-link">Summary</a></li>
+                    </ol>
+                </nav>
+            </details>
+
+            <!-- Section 1 -->
+            <section id="why-author" class="lesson-section">
+                <h2>Why Author Animation In-Engine</h2>
+
+                <p>Everything in this track so far has consumed animation that already existed. You imported a Skeletal Mesh, retargeted a mannequin's walk onto it, dropped that clip into Sequencer, and rendered it. That covers an enormous amount of production, because most motion is bought, captured, or reused. But eventually you hit the wall every animator hits: <em>the exact motion you need is not in any library.</em> A character has to point at a specific doorway. An idle needs a nervous glance your stock idle does not have. A retargeted reach ends with the hand an inch inside the table, and no amount of re-retargeting fixes that one frame.</p>
+
+                <p>The old answer was to leave Unreal, open Maya or Blender, animate there, export an FBX, and import it back, then discover the timing was slightly off against the camera and do the whole round-trip again. <strong>Control Rig</strong> collapses that loop. It is Unreal's built-in system for both <em>building</em> a rig and <em>animating</em> with it, right in the editor, against your real lighting, your real camera, and your real environment.</p>
+
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4>&#128214; Definition</h4>
+                    <p style="color: white;"><strong>Control Rig:</strong> a node-based Unreal asset that drives a skeleton through animator-friendly <em>controls</em>, the on-screen manipulators you grab and move. It has two lives: as a <em>rig</em> (the graph that translates a control into bone motion) and as an <em>animation surface</em> inside Sequencer, where you pose those controls over time and keyframe them into a performance.</p>
+                </div>
+
+                <p>The point is not that Control Rig replaces Maya for a feature-film character. The point is that for a game or a real-time cinematic, a huge share of the animation work, custom gestures, corrective tweaks, secondary motion, and fully hand-keyed shots, can now happen where the shot actually lives. You iterate against the thing you will ship, not an approximation of it in another program.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Two jobs, one asset</h4>
+                    <p>Keep these separate in your head. <strong>Building</strong> a Control Rig (defining its controls and wiring the graph) is a rigging task, done once per character. <strong>Animating</strong> with a Control Rig (posing and keying its controls in Sequencer) is done every shot. This lesson spends most of its time on the second job, because Epic's mannequin already ships with a finished rig you can animate immediately.</p>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="anatomy" class="lesson-section">
+                <h2>Anatomy of a Control Rig: Bones, Controls, Nulls</h2>
+
+                <p>Open a Control Rig and the first thing you see is a hierarchy, much like a Skeleton Tree, but it holds three different kinds of element that are easy to confuse. Getting them straight is the whole foundation of the tool.</p>
+
+                <div class="card">
+                    <h4>The three element types</h4>
+                    <ul>
+                        <li><strong>Bones.</strong> An imported copy of the character's skeleton. Bones are what actually deform the mesh, and in most animation rigs you do <em>not</em> touch them directly; they are the output. The rig reads and writes them, but the animator drives them through controls instead.</li>
+                        <li><strong>Controls.</strong> The animator-facing manipulators: the colored circles, boxes, and arrows floating at the joints in the viewport. Each has a shape, a color, and a name, and each is what you actually select, move, rotate, and keyframe. On the mannequin they carry names like <code>upperarm_r_fk_ctrl</code>, <code>hand_r_ik_ctrl</code>, and <code>spine_01_ctrl</code>.</li>
+                        <li><strong>Nulls.</strong> Invisible transforms with no shape and nothing to deform. They exist to organize and offset: a pivot for a foot roll, a parent space a control lives in, a group other controls hang from. You rarely key a null, but they are the scaffolding that makes controls behave.</li>
+                    </ul>
+                </div>
+
+                <p>Here is the concrete version, using the real controls from the mannequin's shipped rig (<code>CR_Mannequin_Body</code>). Notice how the control names mirror the body but tag their role: <code>_fk_ctrl</code> for a forward-kinematics joint, <code>_ik_ctrl</code> for an inverse-kinematics target, <code>_pv_ik_ctrl</code> for a pole vector that aims a joint.</p>
+
+                <div style="max-width: 860px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 860 430" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:680px;">
+                    <text x="430" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">One skeleton, a layer of controls on top</text>
+                    <!-- figure stick with controls -->
+                    <!-- torso -->
+                    <line x1="250" y1="210" x2="250" y2="110" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <!-- head -->
+                    <circle cx="250" cy="92" r="14" fill="none" stroke="#bbb" stroke-width="5"/>
+                    <!-- arms -->
+                    <line x1="250" y1="130" x2="185" y2="175" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <line x1="185" y1="175" x2="150" y2="235" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <line x1="250" y1="130" x2="315" y2="175" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <line x1="315" y1="175" x2="350" y2="235" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <!-- legs -->
+                    <line x1="250" y1="210" x2="220" y2="300" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <line x1="220" y1="300" x2="212" y2="380" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <line x1="250" y1="210" x2="280" y2="300" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <line x1="280" y1="300" x2="288" y2="380" stroke="#bbb" stroke-width="7" stroke-linecap="round"/>
+                    <text x="250" y="408" text-anchor="middle" fill="#999" style="font:600 11px system-ui">grey = bones (deform the mesh, output only)</text>
+                    <!-- control shapes overlaid -->
+                    <!-- fk circles on right arm -->
+                    <circle cx="315" cy="175" r="11" fill="none" stroke="#2196F3" stroke-width="3"/>
+                    <circle cx="350" cy="235" r="9" fill="none" stroke="#2196F3" stroke-width="3"/>
+                    <!-- ik box on right hand -->
+                    <rect x="342" y="227" width="16" height="16" fill="none" stroke="#f5576c" stroke-width="3"/>
+                    <!-- pv diamond near elbow -->
+                    <polygon points="380,168 388,178 380,188 372,178" fill="none" stroke="#ff9800" stroke-width="3"/>
+                    <!-- spine boxes -->
+                    <rect x="242" y="152" width="16" height="16" fill="none" stroke="#7e57c2" stroke-width="3"/>
+                    <rect x="242" y="182" width="16" height="16" fill="none" stroke="#7e57c2" stroke-width="3"/>
+                    <!-- head circle control -->
+                    <circle cx="250" cy="92" r="20" fill="none" stroke="#00897b" stroke-width="3" stroke-dasharray="4 3"/>
+                    <!-- root control at pelvis -->
+                    <rect x="240" y="200" width="20" height="20" fill="none" stroke="#f5576c" stroke-width="3"/>
+                    <!-- callouts -->
+                    <g style="font:600 12px system-ui">
+                        <rect x="470" y="70" width="360" height="30" rx="6" fill="#e3f2fd" stroke="#2196F3"/>
+                        <text x="484" y="90" fill="#1565c0"><tspan style="font-weight:700">Control (FK)</tspan> &#183; circle you rotate &#183; upperarm_r_fk_ctrl</text>
+                        <rect x="470" y="110" width="360" height="30" rx="6" fill="#fdecef" stroke="#f5576c"/>
+                        <text x="484" y="130" fill="#c2185b"><tspan style="font-weight:700">Control (IK)</tspan> &#183; box you drag &#183; hand_r_ik_ctrl</text>
+                        <rect x="470" y="150" width="360" height="30" rx="6" fill="#fff3e0" stroke="#ff9800"/>
+                        <text x="484" y="170" fill="#e65100"><tspan style="font-weight:700">Control (pole vector)</tspan> &#183; aims the elbow &#183; arm_r_pv_ik_ctrl</text>
+                        <rect x="470" y="190" width="360" height="30" rx="6" fill="#ede7f6" stroke="#7e57c2"/>
+                        <text x="484" y="210" fill="#4527a0"><tspan style="font-weight:700">Control (spine)</tspan> &#183; spine_01_ctrl, spine_02_ctrl, chest_ctrl</text>
+                        <rect x="470" y="230" width="360" height="30" rx="6" fill="#e0f2f1" stroke="#00897b"/>
+                        <text x="484" y="250" fill="#00695c"><tspan style="font-weight:700">Control (head)</tspan> &#183; head_ctrl, neck_01_ctrl, neck_02_ctrl</text>
+                        <rect x="470" y="270" width="360" height="30" rx="6" fill="#f3f3f3" stroke="#9e9e9e"/>
+                        <text x="484" y="290" fill="#555"><tspan style="font-weight:700">Null</tspan> &#183; invisible pivot/space (e.g. a foot-roll pivot)</text>
+                        <rect x="470" y="310" width="360" height="30" rx="6" fill="#fdecef" stroke="#f5576c"/>
+                        <text x="484" y="330" fill="#c2185b"><tspan style="font-weight:700">Root control</tspan> &#183; root_ctrl / body_ctrl carry the whole figure</text>
+                    </g>
+                    <text x="650" y="368" text-anchor="middle" fill="#666" style="font:12px system-ui">You key the coloured controls. The grey bones just follow.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: A Control Rig is a layer of controls sitting on top of the skeleton. The grey bones deform the mesh but are driven, not touched &#183; the coloured shapes are the real controls from <code>CR_Mannequin_Body</code> (FK circles, an IK box, a pole-vector diamond, spine and head controls, and a root), each named for the body part it moves and the way it moves it.</em></p>
+
+                <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                    <h4>&#9888;&#65039; Watch out: do not animate the bones</h4>
+                    <p>A common beginner mistake is to select and rotate a <em>bone</em> in the hierarchy instead of its <em>control</em>. It may look like it works for one frame, but bones are the rig's output; the forward solve you meet next will overwrite them from the controls on the very next evaluation. Always grab the control (the shape in the viewport), never the bone.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="solve" class="lesson-section">
+                <h2>Forward Solve and Backward Solve</h2>
+
+                <p>What actually connects a control you rotate to the bone that bends is a graph, and it runs in a direction. Control Rig has two main directional graphs, and understanding which one runs when is what stops the tool feeling like magic.</p>
+
+                <h3>Forward Solve: controls drive bones</h3>
+
+                <p>The <strong>Forward Solve</strong> is the everyday graph. It runs on every frame of playback and evaluation. It reads the current value of every control, does whatever math the rig defines (chain an FK arm, solve an IK leg, blend an FK/IK switch), and writes the result onto the bones, which then deform the mesh. This is the direction that makes posing work: you move <code>upperarm_r_fk_ctrl</code>, the forward solve reads it, and the arm bones rotate to follow.</p>
+
+                <h3>Backward Solve: bones drive controls</h3>
+
+                <p>The <strong>Backward Solve</strong> runs the other way. It reads the bones' transforms (typically coming from an existing Animation Sequence) and computes what each control's value would have to be to produce that pose, then writes the controls. You use it to <em>bake</em> a canned clip onto the rig: run the backward solve over a walk cycle and suddenly the walk is expressed as keyframes on the controls, where you can grab any one and adjust it. Without a backward solve, a Control Rig could only ever create motion from scratch; with it, the rig can also take over motion that already exists.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The two solves, side by side</h4>
+                    <pre class="mermaid">
+flowchart LR
+    subgraph FWD[Forward Solve &#183; every frame]
+      C1[Controls<br/>you posed] --> G1[Rig graph<br/>FK / IK / blends]
+      G1 --> B1[Bones] --> M1[Mesh deforms]
+    end
+    subgraph BWD[Backward Solve &#183; on demand]
+      A2[Animation Sequence<br/>on the bones] --> B2[Bones] --> G2[Rig graph<br/>inverse]
+      G2 --> C2[Controls<br/>now keyed]
+    end
+    style FWD fill:#e8f5e9,stroke:#4CAF50
+    style BWD fill:#fff3cd,stroke:#ffc107
+                    </pre>
+                    <p>Forward solve is how you animate (controls to bones). Backward solve is how you import an existing clip onto the controls (bones to controls) so you can tweak it. Same rig, opposite directions.</p>
+                </div>
+
+                <p>There are a couple of other graphs in a full rig, a Construction graph that runs once to build the control shapes and an optional Interaction graph, but for animating you almost only ever care about the forward solve, with the backward solve as the door that lets existing animation in.</p>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="fk-ik" class="lesson-section">
+                <h2>FK and IK Controls: Two Ways to Pose a Limb</h2>
+
+                <p>A limb can be posed two fundamentally different ways, and a good rig gives you both. The mannequin ships each arm and leg with a full FK chain, a full IK setup, and a switch to blend between them (<code>arm_r_fk_ik_switch</code>, <code>leg_l_fk_ik_switch</code>). Knowing which to reach for is a real animation skill.</p>
+
+                <div style="max-width: 820px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:640px;">
+                    <text x="410" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">FK rotates each joint &#183; IK drags the end and solves the rest</text>
+                    <!-- FK side -->
+                    <text x="205" y="62" text-anchor="middle" fill="#1565c0" style="font:700 14px system-ui">FK: forward kinematics</text>
+                    <!-- shoulder -->
+                    <circle cx="150" cy="110" r="10" fill="#2196F3"/>
+                    <text x="150" y="98" text-anchor="middle" fill="#1565c0" style="font:600 10px system-ui">upperarm_r_fk_ctrl</text>
+                    <line x1="150" y1="110" x2="230" y2="150" stroke="#2196F3" stroke-width="7" stroke-linecap="round"/>
+                    <!-- elbow -->
+                    <circle cx="230" cy="150" r="9" fill="#2196F3"/>
+                    <text x="252" y="146" fill="#1565c0" style="font:600 10px system-ui">lowerarm_r_fk_ctrl</text>
+                    <line x1="230" y1="150" x2="250" y2="235" stroke="#2196F3" stroke-width="7" stroke-linecap="round"/>
+                    <!-- hand -->
+                    <circle cx="250" cy="235" r="8" fill="#2196F3"/>
+                    <text x="250" y="258" text-anchor="middle" fill="#1565c0" style="font:600 10px system-ui">hand_r_fk_ctrl</text>
+                    <!-- rotation arcs -->
+                    <path d="M 175 96 A 30 30 0 0 1 190 120" fill="none" stroke="#90caf9" stroke-width="2.5"/>
+                    <path d="M 250 140 A 26 26 0 0 1 256 165" fill="none" stroke="#90caf9" stroke-width="2.5"/>
+                    <text x="205" y="330" text-anchor="middle" fill="#555" style="font:12px system-ui">Rotate each joint in turn; the hand ends up</text>
+                    <text x="205" y="348" text-anchor="middle" fill="#555" style="font:12px system-ui">wherever the chain of rotations puts it.</text>
+                    <!-- divider -->
+                    <line x1="410" y1="60" x2="410" y2="356" stroke="#ddd" stroke-width="2"/>
+                    <!-- IK side -->
+                    <text x="615" y="62" text-anchor="middle" fill="#c2185b" style="font:700 14px system-ui">IK: inverse kinematics</text>
+                    <!-- shoulder fixed -->
+                    <circle cx="540" cy="110" r="9" fill="#bbb"/>
+                    <line x1="540" y1="110" x2="600" y2="165" stroke="#f5576c" stroke-width="7" stroke-linecap="round"/>
+                    <line x1="600" y1="165" x2="660" y2="230" stroke="#f5576c" stroke-width="7" stroke-linecap="round"/>
+                    <!-- elbow with pole vector -->
+                    <polygon points="700,150 710,162 700,174 690,162" fill="none" stroke="#ff9800" stroke-width="3"/>
+                    <text x="700" y="140" text-anchor="middle" fill="#e65100" style="font:600 10px system-ui">arm_r_pv_ik_ctrl</text>
+                    <line x1="600" y1="165" x2="695" y2="162" stroke="#ffcc80" stroke-width="2" stroke-dasharray="4 3"/>
+                    <!-- hand target box -->
+                    <rect x="650" y="222" width="18" height="18" fill="none" stroke="#f5576c" stroke-width="3"/>
+                    <text x="659" y="262" text-anchor="middle" fill="#c2185b" style="font:600 10px system-ui">hand_r_ik_ctrl</text>
+                    <!-- drag arrow -->
+                    <line x1="668" y1="231" x2="720" y2="255" stroke="#f5576c" stroke-width="2.5" stroke-dasharray="5 3"/>
+                    <polygon points="720,255 710,250 714,262" fill="#f5576c"/>
+                    <text x="615" y="330" text-anchor="middle" fill="#555" style="font:12px system-ui">Place the hand target; the solver bends the</text>
+                    <text x="615" y="348" text-anchor="middle" fill="#555" style="font:12px system-ui">elbow (aimed by the pole vector) to reach it.</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: The same arm, two control schemes. FK gives you a control on every joint (<code>upperarm_r_fk_ctrl</code> &#8594; <code>lowerarm_r_fk_ctrl</code> &#8594; <code>hand_r_fk_ctrl</code>) that you rotate in sequence &#183; IK gives you one target for the hand (<code>hand_r_ik_ctrl</code>) plus a pole vector (<code>arm_r_pv_ik_ctrl</code>) to aim the elbow, and solves the joints for you.</em></p>
+
+                <div class="card">
+                    <h4>When to use which</h4>
+                    <ul>
+                        <li><strong>FK for swinging, arcing motion.</strong> A wave, a punch, a hair-toss, anything where the hand travels a natural arc off the shoulder. Rotations chain beautifully into arcs, and there is no target to fight.</li>
+                        <li><strong>IK for contact and planting.</strong> A hand pressed on a wall, a foot that must stay flat on the floor while the hips move, a prop the character holds. You pin the end in world space and the limb bends to keep it there. This is why feet are almost always animated in IK.</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Pro Tip: the FK/IK switch is the point</h4>
+                    <p>Real shots mix both, sometimes on the same limb across time: an arm swings freely in FK, then the hand lands on a table and switches to IK so it stays put while the body settles. The mannequin's per-limb switch controls (<code>arm_r_fk_ik_switch</code> and friends) let you blend or snap between the two, and mature rigs even match the pose across the switch so nothing pops. When a foot slides or a hand drifts off a surface, the first question is often "should this be in IK here?"</p>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="sequencer" class="lesson-section">
+                <h2>Posing and Keying in Sequencer</h2>
+
+                <p>Now the payoff. A Control Rig on its own is just a puppet; <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> is where you pull its strings over time. The workflow is short and it is the same every shot.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; The pose-and-key loop</h4>
+                    <pre class="mermaid">
+flowchart LR
+    A[Bind character<br/>in a Level Sequence] --> B[Add a Control Rig<br/>track to the binding]
+    B --> C[Go to a frame]
+    C --> D[Select a control,<br/>pose it]
+    D --> E[Set a key]
+    E --> F{More poses?}
+    F -->|Scrub to next frame| C
+    F -->|Done| G[Play back:<br/>Unreal interpolates]
+    style B fill:#fff3cd,stroke:#ffc107
+    style E fill:#e8f5e9,stroke:#4CAF50
+                    </pre>
+                    <p>Bind, add the Control Rig track, then repeat the inner loop: pick a frame, pose a control, key it. Unreal fills the in-between frames.</p>
+                </div>
+
+                <p>Add a Control Rig track to a possessed character and every one of its controls becomes a keyable channel in the track, while the manipulators appear on the character in the viewport. From there, animating is exactly the keyframing you learned in <a href="int_l02_cinematics_with_sequencer.html">Lesson 2</a>, just applied to controls instead of a camera's focal length: park the playhead, pose, key, move on. The difference is that a single "pose" might touch a dozen controls at once, and Unreal interpolates each channel between your keys to produce motion.</p>
+
+                <p>Below is a real capture of the character this rig drives: the project's mannequin, shown in the same shot at rest and on a single frame of motion in-engine. Whether that motion comes from hand-keying controls or from a clip driven onto the rig, this is what the loop is for, taking the same skeleton off its rest pose and evaluating it live against the real environment and camera. The manipulators you grab to author it, and the rig graph behind them, live in the Control Rig editor.</p>
+
+                <img src="images/int_l06/int_l06_fig01_manny_rest_and_motion.png" alt="Two side-by-side captures of the project's sci-fi armored mannequin in the same Unreal scene, camera, and lighting. On the left, labelled REST POSE, the mannequin stands in its default rest stance with arms down. On the right, labelled IN MOTION, the same mannequin is on a frame of a run cycle, mid-stride with one leg lifted and the arms swinging, driven onto the rig in-engine." style="max-width:100%; height:auto; margin: 2rem auto; display:block; border: 2px solid #667eea; border-radius: 8px;">
+                <p class="caption"><em>Figure: A genuine capture from the <code>ClaudeTest</code> project, same camera and lighting on both sides. Left, <code>SK_Manny</code> (the mesh <code>CR_Mannequin_Body</code> is built for) in its rest pose &#183; right, the same rig driven to a frame of motion in-engine. Control Rig is how you author and shape motion like this without ever leaving the editor.</em></p>
+
+                <div class="card">
+                    <h4>The moves that speed this up</h4>
+                    <ul>
+                        <li><strong>Mirror a pose.</strong> Pose one arm, then mirror the selected controls to the other side rather than posing it again by hand.</li>
+                        <li><strong>Tween between keys.</strong> With a key before and after, a tween tool slides the current frame's pose toward one neighbour or the other, an instant breakdown or ease.</li>
+                        <li><strong>Snap a control to an actor.</strong> Pin a hand control to a prop so it follows automatically, instead of hand-matching it every frame.</li>
+                        <li><strong>Zero a transform.</strong> Reset a control to its default in one click when a pose goes wrong, no need to remember the numbers.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="bake-layer" class="lesson-section">
+                <h2>Baking and Layering</h2>
+
+                <p>Hand-keying from scratch is only one way to use a Control Rig. The other two are about <em>existing</em> animation, and they are what make the tool a daily driver rather than a special occasion.</p>
+
+                <h3>Bake a clip onto the controls, then out again</h3>
+
+                <p>Using the backward solve from Section 3, you can <strong>bake</strong> an Animation Sequence onto the rig's controls. A retargeted walk from <a href="int_l04_ik_retargeter.html">Lesson 4</a> arrives as keyframes on every control, and now you can fix that one frame where the hand clipped the coat: grab the hand control on that frame, move it out, key it, done, without disturbing the rest of the walk. When you are happy, you <strong>bake back out</strong> to a brand-new Animation Sequence on the skeleton, which behaves like any other clip in Sequencer and carries no runtime dependency on the rig.</p>
+
+                <h3>Layer a correction without touching the base</h3>
+
+                <p>The cleaner option for tweaks is a <strong>layered</strong> (additive) Control Rig. Instead of editing the baked keys directly, you add a layer on top that stores only your <em>offset</em> from the base animation. The base walk plays untouched; your layer adds a head turn, a limp, a wince. Because the layer is separate, you can tune it, mute it, or delete it without ever risking the original motion. This is the non-destructive way professionals polish canned animation.</p>
+
+                <div style="max-width: 820px; margin: 2rem auto; overflow-x:auto;">
+                <svg width="100%" viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #667eea; border-radius: 8px; background: #f9f9f9; display:block; min-width:640px;">
+                    <text x="410" y="30" text-anchor="middle" fill="#333" style="font:700 17px system-ui,-apple-system,sans-serif">An additive layer adds an offset without changing the base</text>
+                    <!-- base track -->
+                    <rect x="60" y="70" width="300" height="54" rx="8" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                    <text x="210" y="93" text-anchor="middle" fill="#2e7d32" style="font:700 13px system-ui">Base: retargeted walk</text>
+                    <text x="210" y="112" text-anchor="middle" fill="#555" style="font:11px system-ui">untouched, plays as authored</text>
+                    <!-- plus -->
+                    <text x="393" y="106" text-anchor="middle" fill="#666" style="font:700 26px system-ui">+</text>
+                    <!-- layer track -->
+                    <rect x="425" y="70" width="300" height="54" rx="8" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+                    <text x="575" y="93" text-anchor="middle" fill="#7a5c00" style="font:700 13px system-ui">Additive layer: head turn</text>
+                    <text x="575" y="112" text-anchor="middle" fill="#7a5c00" style="font:11px system-ui">stores only the offset</text>
+                    <!-- equals arrow -->
+                    <line x1="410" y1="150" x2="410" y2="185" stroke="#999" stroke-width="3"/>
+                    <polygon points="403,183 417,183 410,196" fill="#999"/>
+                    <!-- result -->
+                    <rect x="230" y="205" width="360" height="60" rx="8" fill="#ede7f6" stroke="#7e57c2" stroke-width="2"/>
+                    <text x="410" y="230" text-anchor="middle" fill="#4527a0" style="font:700 14px system-ui">Result: the walk, now glancing aside</text>
+                    <text x="410" y="250" text-anchor="middle" fill="#555" style="font:11px system-ui">mute or delete the layer and the base returns, unharmed</text>
+                </svg>
+                </div>
+                <p class="caption"><em>Figure: Layered (additive) control rig animation. The base clip is never edited &#183; a separate layer holds only your added offset, so a correction can be tuned, muted, or removed without any risk to the original motion.</em></p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h4>&#128161; Which approach for which job?</h4>
+                    <pre class="mermaid">
+flowchart TD
+    Q{What do you<br/>need to do?} -->|Motion exists<br/>in no library| SCRATCH[Hand-key controls<br/>from scratch]
+    Q -->|Fix a few frames<br/>of an existing clip| BAKE[Backward-solve the clip<br/>onto controls, edit keys]
+    Q -->|Add secondary motion<br/>on top of a clip| LAYER[Additive layer<br/>non-destructive]
+    SCRATCH --> OUT[Bake out to an<br/>Animation Sequence]
+    BAKE --> OUT
+    LAYER --> OUT
+    style SCRATCH fill:#e8f5e9,stroke:#4CAF50
+    style LAYER fill:#fff3cd,stroke:#ffc107
+    style OUT fill:#ede7f6,stroke:#7e57c2
+                    </pre>
+                    <p>Three entry points, one exit: whatever route you take, you can bake the result to an ordinary Animation Sequence and use it like any clip from <a href="int_l04_ik_retargeter.html">Lesson 4</a> in a <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> shot.</p>
+                </div>
+            </section>
+
+            <!-- Hands-On -->
+            <section id="hands-on" class="lesson-section">
+                <h2>Hands-On: Pose and Key a Wave</h2>
+
+                <p>The fastest way to feel Control Rig is to hand-key a two-pose wave on the mannequin, which arrives with a finished rig so there is nothing to build first.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#127899;&#65039; Exercise: a two-second wave</h3>
+                    <ol>
+                        <li><strong>Get the rigged character.</strong> Add the Third Person feature so you have <code>SK_Manny</code> and its shipped Control Rig. Drop the character into your level.</li>
+                        <li><strong>Make a Level Sequence and bind the character.</strong> Create a Level Sequence, then add the mannequin actor to it as a possessable, exactly as you added actors in <a href="int_l02_cinematics_with_sequencer.html">Lesson 2</a>.</li>
+                        <li><strong>Add the Control Rig track.</strong> On the character's binding, add a Control Rig track and choose the mannequin body rig. The controls now appear on the character in the viewport.</li>
+                        <li><strong>Key the rest pose at frame 0.</strong> With the playhead at 0, select the arm controls and set a key so the arms-down pose is locked in as your starting point.</li>
+                        <li><strong>Pose the wave at frame 48.</strong> Move the playhead to frame 48 (two seconds at 24 fps). Rotate <code>clavicle_r_ctrl</code> up a little, then <code>upperarm_r_fk_ctrl</code> to lift the arm out and up, and bend <code>lowerarm_r_fk_ctrl</code> so the forearm rises. Set a key.</li>
+                        <li><strong>Play it back.</strong> Scrub from 0 to 48 and watch the arm sweep up. You just authored animation that existed in no library, entirely in-engine.</li>
+                    </ol>
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor:pointer; font-weight:600;">&#128161; Hint: the arm barely moves, or moves the wrong way?</summary>
+                        <p style="margin-top: 0.5rem;">FK controls rotate in their own local space, so the axis that raises the arm is not always the one you expect. Nudge a single rotation channel and watch the viewport to learn which axis is "up and out" for that control, then commit. If you grabbed the arm and nothing happened at all, check you selected the <em>control</em> (the shape) and not the bone underneath it, the mistake from Section 2.</p>
+                    </details>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+                    <h4>&#9989; Reach exercise: add a hold and a mirror</h4>
+                    <p>Two quick extensions. First, add a third key a few frames after 48 with almost the same pose to create a <em>hold</em> at the top of the wave, the tiny pause that makes a gesture read. Second, pose the left arm to match by selecting the right-arm controls and using <em>mirror</em>, so the character waves with both hands without you posing the second arm at all.</p>
+                </div>
+            </section>
+
+            <!-- Knowledge Check -->
+            <section id="knowledge-check" class="lesson-section">
+                <h2>Knowledge Check</h2>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h4>Question 1</h4>
+                        <p>What problem does Control Rig solve that retargeting (Lesson 4) does not?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q1" value="a"> It compresses animation files to save disk space</label>
+                            <label><input type="radio" name="q1" value="b"> It lets you author or tweak motion in-engine when the animation you need does not exist in any library</label>
+                            <label><input type="radio" name="q1" value="c"> It converts video footage into animation</label>
+                            <label><input type="radio" name="q1" value="d"> It renders the final frames of a shot</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; Retargeting moves motion that already exists onto your character. Control Rig is for creating new motion, or correcting existing motion, directly in Unreal, with no round-trip to an external animation program.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 2</h4>
+                        <p>In a Control Rig hierarchy, which element type do you actually select and keyframe when animating?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q2" value="a"> Bones</label>
+                            <label><input type="radio" name="q2" value="b"> Nulls</label>
+                            <label><input type="radio" name="q2" value="c"> Controls</label>
+                            <label><input type="radio" name="q2" value="d"> Materials</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="c">
+                            <p><strong>Correct answer: C</strong> &#183; Controls are the animator-facing manipulators (the shapes in the viewport) that you pose and key. Bones are the rig's output and are driven by the controls; nulls are invisible scaffolding you rarely key directly.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 3</h4>
+                        <p>What does the backward solve do?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q3" value="a"> Reads control values and writes them to the bones every frame</label>
+                            <label><input type="radio" name="q3" value="b"> Reads an existing animation on the bones and computes the control values that reproduce it, so a clip can be baked onto the controls</label>
+                            <label><input type="radio" name="q3" value="c"> Plays the animation in reverse</label>
+                            <label><input type="radio" name="q3" value="d"> Deletes all keyframes on the rig</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; The forward solve runs controls to bones every frame. The backward solve runs the other way, bones to controls, so an existing Animation Sequence can be expressed as keyframes on the controls and then edited.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 4</h4>
+                        <p>You need a character's foot to stay planted flat on the floor while the hips shift the body weight. Which control scheme fits best?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q4" value="a"> FK, rotating each leg joint by hand</label>
+                            <label><input type="radio" name="q4" value="b"> IK, pinning the foot target in world space so the leg bends to keep it there</label>
+                            <label><input type="radio" name="q4" value="c"> Neither; feet cannot be animated</label>
+                            <label><input type="radio" name="q4" value="d"> A material instance on the foot</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; IK pins the end of the chain (the foot) in place and solves the joint angles, which is exactly what keeps a foot planted while the body moves. FK, which rotates each joint independently, would make the foot drift. This is why feet are almost always animated in IK.</p>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h4>Question 5</h4>
+                        <p>You want to add a subtle head turn on top of a retargeted walk without risking the original walk data. What is the cleanest approach?</p>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="q5" value="a"> Re-export the walk from the source program</label>
+                            <label><input type="radio" name="q5" value="b"> Add an additive (layered) Control Rig that stores only the head-turn offset on top of the untouched base</label>
+                            <label><input type="radio" name="q5" value="c"> Increase the anti-aliasing sample count</label>
+                            <label><input type="radio" name="q5" value="d"> Rename the head bone</label>
+                        </div>
+                        <div class="quiz-answer" data-correct="b">
+                            <p><strong>Correct answer: B</strong> &#183; A layered control rig keeps the base animation untouched and stores your correction as a separate additive offset, so it can be tuned, muted, or deleted without ever altering the original clip. That is the non-destructive way to polish canned motion.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section id="summary" class="lesson-section">
+                <h2>Summary</h2>
+
+                <p>You moved from consuming animation to making it. Here is the arc:</p>
+
+                <p><strong>The reason.</strong> Retargeting fills your library with motion that exists elsewhere, but the exact gesture, the custom idle, the one corrective frame, often exists nowhere. Control Rig lets you author and fix animation in-engine, against your real shot, with no round-trip to another program.</p>
+
+                <p><strong>The anatomy.</strong> A Control Rig is a layer of <em>controls</em> (the manipulators you key) sitting over the skeleton's <em>bones</em> (the output that deforms the mesh), with invisible <em>nulls</em> as scaffolding. The forward solve reads controls and drives bones every frame; the backward solve runs the other way to bake an existing clip onto the controls.</p>
+
+                <p><strong>The craft.</strong> You pose a limb in FK (rotate each joint, good for arcs) or IK (pin the end, good for contact), switching between them per limb as the shot needs. In Sequencer you add a Control Rig track and run the pose-and-key loop, and for existing motion you bake it onto the controls to tweak or add a non-destructive additive layer, then bake back out to an ordinary Animation Sequence.</p>
+
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                    <h3>&#128273; Key Takeaways</h3>
+                    <ul>
+                        <li>Control Rig authors and corrects animation in-engine, for motion that no library contains</li>
+                        <li>A rig has bones (driven output), controls (what you key), and nulls (invisible scaffolding); animate the controls, never the bones</li>
+                        <li>The forward solve drives bones from controls each frame; the backward solve bakes an existing clip onto the controls</li>
+                        <li>FK rotates each joint (best for arcs); IK pins the limb's end (best for planted feet and contact); good rigs switch between them</li>
+                        <li>In Sequencer you pose and key controls; bake a clip on to fix it, or layer additively, then bake out to a normal Animation Sequence</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #ede7f6 0%, #fff 100%); border-left: 4px solid #7e57c2;">
+                    <h4>&#128070; A note on this lesson's figures</h4>
+                    <p>The rest and motion images are genuine live captures from the <code>ClaudeTest</code> project: the same <code>SK_Manny</code> mannequin (the mesh <code>CR_Mannequin_Body</code> is built for) in its rest pose and on a frame of in-engine motion, same camera and lighting on both sides. The Control Rig's node graph and its on-screen manipulators are a specialized asset editor that the project's automation bridge cannot screenshot directly, so the anatomy, FK/IK, solve, and layering diagrams are labeled illustrations rather than captures. Every control name shown (<code>upperarm_r_fk_ctrl</code>, <code>hand_r_ik_ctrl</code>, <code>arm_r_pv_ik_ctrl</code>, <code>arm_r_fk_ik_switch</code>, <code>spine_01_ctrl</code>, and the rest) is a real control read straight from that rig.</p>
+                </div>
+
+                <h3>Where this fits</h3>
+
+                <p>Control Rig sits at the source of the motion the rest of the track uses. Where <a href="int_l04_ik_retargeter.html">Retargeting</a> brings in a library and <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> arranges it under a camera, Control Rig is how you create the shots that library does not have, or fix the ones it does. Those clips then flow straight into <a href="int_l02_cinematics_with_sequencer.html">Sequencer</a> and out through <a href="int_l03_rendering_output.html">Rendering Output</a>. In the wider <a href="https://rays-daz3d.netlify.app/production-pipeline.html">Story-to-Screen pipeline</a>, this is animation authoring inside <a href="unreal-phase-4-animation-retargeting.html">Phase 4</a>, feeding the shot assembly of <a href="unreal-phase-5-shot-assembly.html">Phase 5</a>.</p>
+            </section>
+
+            <!-- Lesson Navigation -->
+            <nav class="lesson-nav" aria-label="Lesson navigation">
+                <a href="int_l05_cinematic_lighting.html" class="btn">&#8592; Previous: Cinematic Lighting</a>
+                <a href="index.html" class="btn btn-outline">Course Home</a>
+                <a href="int_l07_complete_shot.html" class="btn">Next: Capstone Shot &#8594;</a>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Introduction to Unreal Engine 5 Course. Part of the Practical Ace learning series.</p>
+            <nav aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="index.html#modules">All Modules</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle?.addEventListener('click', () => {
+            const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !expanded);
+            navLinks.classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').slice(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        // Quiz functionality
+        document.querySelectorAll('.quiz-options input').forEach(input => {
+            input.addEventListener('change', function() {
+                const question = this.closest('.quiz-question');
+                const answer = question.querySelector('.quiz-answer');
+                const correct = answer.dataset.correct;
+
+                question.querySelectorAll('label').forEach(l => {
+                    l.classList.remove('correct', 'incorrect');
+                });
+
+                const selectedLabel = this.parentElement;
+                if (this.value === correct) {
+                    selectedLabel.classList.add('correct');
+                } else {
+                    selectedLabel.classList.add('incorrect');
+                    question.querySelector(`input[value="${correct}"]`).parentElement.classList.add('correct');
+                }
+
+                answer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
